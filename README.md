@@ -1,4 +1,4 @@
-# M&AE 3260 GroupWork WebApps
+# M&AE 3260 GroupWork WebApps 
 
 Browser-based versions of the weekly MATLAB group assignments for **M&AE 3260: System Dynamics & Controls** at Cornell University.
 
