@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GroupWork 8F &mdash; Vibrations</title>
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0F1115; --panel: #171A21; --panel2: #1D212B; --line: #282D3A;
+    --amber: #FFB454; --cyan: #5EEAD4; --rose: #FB7185; --pink: #F472B6;
+    --fg: #E7E9EE; --muted: #8B92A5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--ink); color: var(--fg); font-family: 'Inter', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  header h1 { font-size: 14px; margin: 0; font-weight: 600; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+
+  main { flex: 1; display: flex; overflow: hidden; }
+  nav { width: 220px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line); order: 2; padding: 16px 14px; overflow-y: auto; }
+  nav p.label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; margin: 14px 0 8px 0; }
+  nav p.label:first-child { margin-top: 0; }
+  .nav-btn { display: block; width: 100%; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 9px 12px; margin-bottom: 6px; background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; color: var(--fg); cursor: pointer; }
+  .nav-btn.active { border-color: var(--amber); color: var(--amber); }
+  .nav-btn small { display: block; font-family: 'Inter', sans-serif; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .content { flex: 1; order: 1; overflow-y: auto; padding: 28px 40px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  h2.section-title { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--amber); margin: 0 0 14px 0; }
+  h3.problem-title { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--cyan); margin: 0 0 10px 0; }
+  h4.part-title { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--fg); margin: 22px 0 8px 0; }
+  p.instructions { font-size: 14.5px; line-height: 1.65; color: var(--fg); margin: 0 0 16px 0; }
+  ul.goals { padding-left: 20px; margin: 0 0 16px 0; }
+  ul.goals li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .eq-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; margin: 14px 0; text-align: center; font-size: 16px; }
+  .given-line { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin: 0 0 18px 0; line-height: 1.8; }
+  .given-line b { color: var(--fg); font-weight: 600; }
+  .note-box { background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 4px; padding: 12px 16px; margin: 0 0 18px 0; font-size: 13px; line-height: 1.6; color: var(--fg); }
+  .note-box code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan); background: var(--ink); padding: 1px 5px; border-radius: 3px; }
+
+  .panel-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
+  .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  .form-grid.one { grid-template-columns: 1fr; }
+  .form-grid.two { grid-template-columns: 1fr 1fr; }
+  .form-grid.five { grid-template-columns: repeat(5, 1fr); }
+  .field { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .field label { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .field input[type="text"], .field input[type="number"] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 8px 10px; }
+  .field input:focus { outline: none; border-color: var(--amber); }
+  .field select { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 8px 10px; }
+  .field select:focus { outline: none; border-color: var(--amber); }
+
+  .reflection-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  .reflection-box textarea { width: 100%; min-height: 90px; resize: vertical; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'Inter', sans-serif; font-size: 14px; padding: 10px 12px; line-height: 1.5; }
+  .reflection-box textarea:focus { outline: none; border-color: var(--amber); }
+
+  .run-btn { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; padding: 10px 22px; border-radius: 6px; border: none; background: var(--amber); color: var(--ink); cursor: pointer; }
+  .run-btn:hover { filter: brightness(1.08); }
+  .run-btn:active { transform: scale(0.98); }
+  .run-btn.secondary { background: none; color: var(--muted); border: 1px solid var(--line); }
+  .run-btn.secondary:hover { color: var(--rose); border-color: var(--rose); }
+  .run-btn.small { font-size: 11.5px; padding: 8px 14px; }
+
+  .match-banner { display: none; margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line); }
+  .match-banner.match { display: block; border-color: var(--cyan); color: var(--cyan); }
+  .match-banner.no-match { display: block; border-color: var(--rose); color: var(--rose); }
+  .field-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; min-height: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .plot-host { height: 300px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin-top: 14px; }
+  .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 13px; text-align: center; max-width: 320px; margin: 0 auto; padding: 0 20px; }
+
+  .steps-list { padding-left: 20px; margin: 0 0 16px 0; }
+  .steps-list li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .upload-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 0 0 18px 0; }
+  .upload-block input[type="file"] { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--fg); }
+  .upload-thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .thumb-wrap { position: relative; width: 90px; height: 120px; }
+  .thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); display: block; }
+  .thumb-remove { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+  .upload-status { font-size: 11px; color: var(--cyan); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; }
+  .upload-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+  .file-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; margin: 4px 6px 4px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .file-chip .chip-remove { background: none; border: none; color: var(--rose); cursor: pointer; font-size: 13px; line-height: 1; font-family: 'JetBrains Mono', monospace; padding: 0; }
+
+  .vib-top-row { display: flex; gap: 18px; align-items: flex-start; margin-top: 14px; }
+  .vib-svg-host { flex: 1.3; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .vib-output { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .vib-output h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .vib-output .out-row { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; margin-bottom: 7px; color: var(--fg); gap: 8px; }
+  .vib-output .out-row span.k { color: var(--muted); flex-shrink: 0; }
+  .vib-output .out-row span.v { color: var(--cyan); text-align: right; }
+  .vib-presets { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+  .katex { color: var(--fg); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>GROUPWORK 8F <span>&mdash; Vibrations and Eigenvalues/Eigenvectors (M&amp;AE 3260)</span></h1>
+</header>
+
+<main>
+  <nav>
+    <p class="label">BACKGROUND</p>
+    <button class="nav-btn active" data-part="intro">Intro<small>Theory &amp; setup</small></button>
+
+    <p class="label">PROBLEM 1</p>
+    <button class="nav-btn" data-part="p1">Free Response I<small>Symmetric IC</small></button>
+
+    <p class="label">PROBLEM 2</p>
+    <button class="nav-btn" data-part="p2">Free Response II<small>Antisymmetric IC</small></button>
+
+    <p class="label">PROBLEM 3</p>
+    <button class="nav-btn" data-part="p3">Vary Parameters<small>Doubled mass</small></button>
+
+    <p class="label">PROBLEM 4</p>
+    <button class="nav-btn" data-part="p4">Asymmetric System<small>m1 &ne; m2</small></button>
+
+    <p class="label">SUBMIT</p>
+    <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+  </nav>
+
+  <div class="content">
+    <div class="wrap">
+
+      <!-- ============== INTRO ============== -->
+      <section id="part-intro">
+        <h2 class="section-title">Vibrations and Eigenvalues/Eigenvectors</h2>
+
+        <p class="instructions"><b>Learning Goals:</b></p>
+        <ul class="goals">
+          <li>Develop an intuition for how eigenvalues and eigenvectors relate to the motion of multiple springs-masses in vibrations</li>
+          <li>Generate the free response in vibrations as a sum of the individual vibration modes from the eigenvalues and eigenvectors</li>
+          <li>Change the eigenvalues and eigenvectors and the free response of a system by modifying physical parameters (e.g. m, k)</li>
+        </ul>
+
+        <p class="instructions">
+          Today's group work focuses on vibrations &mdash; specifically eigenvalues, eigenvectors, and the free
+          response &mdash; using a two-mass, three-spring system (a "pinned-pinned beam"): wall &ndash; k<sub>1</sub> &ndash;
+          m<sub>1</sub> &ndash; k<sub>2</sub> &ndash; m<sub>2</sub> &ndash; k<sub>3</sub> &ndash; wall, with displacements x<sub>1</sub>, x<sub>2</sub>.
+          The equations of motion are:
+        </p>
+        <div class="eq-block" id="eq-eom"></div>
+        <p class="instructions">which, in matrix form [M]&#7817;+[K]x=0, is:</p>
+        <div class="eq-block" id="eq-matrix"></div>
+        <p class="instructions">
+          This is a 2-DOF system, and the free response is given as a sum of the vibration modes. Each mode
+          (i &isin; {1,2}) is defined by its eigenvector &phi;<sub>i</sub> (spatial shape) and eigenvalue
+          &lambda;<sub>i</sub><sup>2</sup> (temporal behavior); the eigenvalue decomposes into an oscillatory
+          frequency &lambda;<sub>i</sub>,&lambda;<sub>i</sub>* = &plusmn;j&omega;<sub>ni</sub>:
+        </p>
+        <div class="eq-block" id="eq-response"></div>
+        <p class="instructions">
+          The unknown constants <i>C&#771;<sub>i</sub>, D&#771;<sub>i</sub></i> depend on the initial conditions
+          x(0), x&#775;(0). In every problem below, the initial velocities are zero (x&#775;<sub>1</sub>(0) =
+          x&#775;<sub>2</sub>(0) = 0), matching <code>ModeShapesGUI.m</code>, so D&#771;<sub>i</sub> = 0 and the
+          response is a pure sum of cosines.
+        </p>
+
+        <div class="note-box">
+          The simulator below in each problem reproduces <code>ModeShapesGUI.m</code> in the browser: set
+          m<sub>1</sub>, m<sub>2</sub>, the spring constant k (used for k<sub>1</sub>=k<sub>2</sub>=k<sub>3</sub>,
+          exactly like the MATLAB GUI's single "springs k" field), and the initial displacements x<sub>1</sub>(0),
+          x<sub>2</sub>(0), then click RUN. The eigenvalues/eigenvectors panel and the animation update to match
+          &mdash; read values off it the same way you would off the MATLAB GUI's Output panel.
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 1 ============== -->
+      <section id="part-p1" style="display:none;">
+        <h3 class="problem-title">Problem 1: Modes of Vibration and Free Response I</h3>
+        <p class="given-line">GIVEN &middot; m<sub>1</sub> = <b>1 kg</b> &middot; m<sub>2</sub> = <b>1 kg</b> &middot; k<sub>1</sub>=k<sub>2</sub>=k<sub>3</sub> = <b>1 N/m</b> &middot; x<sub>1</sub>(0) = x<sub>2</sub>(0) = <b>2 m</b></p>
+        <p class="instructions">
+          Both masses are displaced by the same amount. Keep the defaults below (they already match this
+          problem) and click RUN.
+        </p>
+
+        <div class="panel-box" id="vib-p1"></div>
+
+        <h4 class="part-title">a) Observe</h4>
+        <p class="instructions">Describe qualitatively how the masses are moving in the animation (relative to each other in displacement/amplitude and timing/phase).</p>
+        <div class="reflection-box"><textarea id="input-p1-reflect-a" placeholder="Type your answer here..."></textarea></div>
+
+        <h4 class="part-title">b) Estimate</h4>
+        <p class="instructions">From the GUI, estimate the amplitude of each block's displacement and the frequency of oscillation (in rad/s). Both blocks have the same amplitude and frequency here.</p>
+        <div class="form-grid two">
+          <div class="field"><label>amplitude [m]</label><input type="number" id="input-p1-amp" value="" step="any" /></div>
+          <div class="field"><label>frequency [rad/s]</label><input type="number" id="input-p1-freq" value="" step="any" /></div>
+        </div>
+        <button class="run-btn small" id="btn-p1-estimate-check">CHECK</button>
+        <p class="field-err" id="err-p1-estimate"></p>
+        <p class="match-banner" id="banner-p1-estimate"></p>
+
+        <h4 class="part-title">c) Discuss</h4>
+        <p class="instructions">Which vibration mode is being activated in this response? How is the initial condition related to the system's eigenvalues and eigenvectors?</p>
+        <div class="form-grid one" style="margin-bottom:10px;">
+          <div class="field">
+            <label>mode activated</label>
+            <select id="select-p1-mode">
+              <option value="">-- select --</option>
+              <option value="mode1">Mode 1</option>
+              <option value="mode2">Mode 2</option>
+              <option value="mixed">A mix of both modes</option>
+            </select>
+          </div>
+        </div>
+        <button class="run-btn small" id="btn-p1-mode-check">CHECK</button>
+        <p class="match-banner" id="banner-p1-mode"></p>
+        <div class="reflection-box" style="margin-top:14px;"><textarea id="input-p1-reflect-c" placeholder="Explain the connection to the eigenvalues/eigenvectors here..."></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 2 ============== -->
+      <section id="part-p2" style="display:none;">
+        <h3 class="problem-title">Problem 2: Modes of Vibration and Free Response II</h3>
+        <p class="given-line">GIVEN &middot; same system as Problem 1 (m<sub>1</sub>=m<sub>2</sub>=1 kg, k<sub>1</sub>=k<sub>2</sub>=k<sub>3</sub>=1 N/m) &middot; different initial conditions</p>
+
+        <h4 class="part-title">a) Discuss and Select IC</h4>
+        <p class="instructions">
+          Which initial conditions activate the <i>other</i> vibration mode in this system? Set
+          x<sub>1</sub>(0), x<sub>2</sub>(0) in the simulator below (keep m<sub>1</sub>, m<sub>2</sub>, k at the
+          Problem 1 values) to a pair that activates mode 2, then click CHECK IC.
+        </p>
+        <div class="reflection-box" style="margin-bottom:14px;"><textarea id="input-p2-reflect-a" placeholder="Explain your reasoning here..."></textarea></div>
+
+        <div class="panel-box" id="vib-p2"></div>
+
+        <button class="run-btn small" id="btn-p2-ic-check">CHECK IC</button>
+        <p class="field-err" id="err-p2-ic"></p>
+        <p class="match-banner" id="banner-p2-ic"></p>
+
+        <h4 class="part-title">b) Observe</h4>
+        <p class="instructions">Run the simulation with your mode-2 initial condition. Discuss qualitatively the response of the masses (relative amplitude and phase).</p>
+        <div class="reflection-box"><textarea id="input-p2-reflect-b" placeholder="Type your answer here..."></textarea></div>
+
+        <h4 class="part-title">c) Discuss</h4>
+        <p class="instructions">How has the response changed relative to Problem 1? Have the eigenvalues/eigenvectors of the system changed?</p>
+        <div class="form-grid one" style="margin-bottom:10px;">
+          <div class="field">
+            <label>eigenvalues/eigenvectors vs. Problem 1</label>
+            <select id="select-p2-changed">
+              <option value="">-- select --</option>
+              <option value="no">No, they stayed the same</option>
+              <option value="yes">Yes, they changed</option>
+            </select>
+          </div>
+        </div>
+        <button class="run-btn small" id="btn-p2-changed-check">CHECK</button>
+        <p class="match-banner" id="banner-p2-changed"></p>
+        <div class="reflection-box" style="margin-top:14px;"><textarea id="input-p2-reflect-c" placeholder="Explain here..."></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 3 ============== -->
+      <section id="part-p3" style="display:none;">
+        <h3 class="problem-title">Problem 3: Vibrations as System Parameters Change</h3>
+        <p class="given-line">GIVEN &middot; same system as 1&amp;2, but <b>both masses doubled</b>: m<sub>1</sub>=m<sub>2</sub> = <b>2 kg</b> &middot; k<sub>1</sub>=k<sub>2</sub>=k<sub>3</sub> = <b>1 N/m</b></p>
+
+        <h4 class="part-title">a) Observe</h4>
+        <p class="instructions">Run the simulation twice, using the Problem 1 IC and then the Problem 2 IC (use the preset buttons below to fill them in). Discuss qualitatively the response of the masses in each case.</p>
+
+        <div class="panel-box" id="vib-p3"></div>
+
+        <div class="reflection-box"><textarea id="input-p3-reflect-a" placeholder="Type your answer here..."></textarea></div>
+
+        <h4 class="part-title">b) Discuss</h4>
+        <p class="instructions">What are the system's new eigenvalues (&lambda;<sub>1</sub><sup>2</sup>, &lambda;<sub>2</sub><sup>2</sup>) and eigenvectors (&phi;<sub>1</sub>, &phi;<sub>2</sub>)? How has the response changed relative to Problems 1&ndash;2? (Enter eigenvectors as two numbers, e.g. "1, 1" or "1, -1" &mdash; any nonzero scalar multiple of the true eigenvector is accepted, in either order.)</p>
+        <div class="form-grid two">
+          <div class="field"><label>&lambda;&sup2; (mode A)</label><input type="number" id="input-p3-lam1" value="" step="any" /></div>
+          <div class="field"><label>&phi; (mode A)</label><input type="text" id="input-p3-phi1" placeholder="e.g. 1, 1" spellcheck="false" /></div>
+          <div class="field"><label>&lambda;&sup2; (mode B)</label><input type="number" id="input-p3-lam2" value="" step="any" /></div>
+          <div class="field"><label>&phi; (mode B)</label><input type="text" id="input-p3-phi2" placeholder="e.g. 1, -1" spellcheck="false" /></div>
+        </div>
+        <button class="run-btn small" id="btn-p3-eigen-check">CHECK</button>
+        <p class="field-err" id="err-p3-eigen"></p>
+        <p class="match-banner" id="banner-p3-eigen"></p>
+        <div class="reflection-box" style="margin-top:14px;"><textarea id="input-p3-reflect-b" placeholder="Discuss the change here..."></textarea></div>
+
+        <h4 class="part-title">c) Discuss</h4>
+        <p class="instructions">If instead of doubling the mass (keeping m<sub>1</sub>=m<sub>2</sub>=1 kg from Problem 1), you changed the spring stiffness k<sub>1</sub>=k<sub>2</sub>=k<sub>3</sub>=?, what value of k would give the same eigenvalues as this doubled-mass system?</p>
+        <div class="form-grid one">
+          <div class="field"><label>k [N/m]</label><input type="number" id="input-p3-k" value="" step="any" /></div>
+        </div>
+        <button class="run-btn small" id="btn-p3-k-check">CHECK</button>
+        <p class="field-err" id="err-p3-k"></p>
+        <p class="match-banner" id="banner-p3-k"></p>
+        <div class="reflection-box" style="margin-top:14px;"><textarea id="input-p3-reflect-c" placeholder="Explain your reasoning here..."></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 4 ============== -->
+      <section id="part-p4" style="display:none;">
+        <h3 class="problem-title">Problem 4: Vibrations in Asymmetric Systems</h3>
+        <p class="given-line">GIVEN &middot; similar system, but <b>unequal masses</b>: m<sub>1</sub> = <b>1 kg</b>, m<sub>2</sub> = <b>5 kg</b> &middot; k<sub>1</sub>=k<sub>2</sub>=k<sub>3</sub> = <b>1 N/m</b></p>
+
+        <h4 class="part-title">a) Observe</h4>
+        <p class="instructions">Run the simulation twice, using the Problem 1 IC and then the Problem 2 IC (preset buttons below). Discuss qualitatively the response of the masses in each case.</p>
+
+        <div class="panel-box" id="vib-p4"></div>
+
+        <div class="reflection-box"><textarea id="input-p4-reflect-a" placeholder="Type your answer here..."></textarea></div>
+
+        <h4 class="part-title">b) Discuss</h4>
+        <p class="instructions">What are the system's new eigenvalues and eigenvectors? How is the response different from Problems 1&ndash;2?</p>
+        <div class="form-grid two">
+          <div class="field"><label>&lambda;&sup2; (mode A)</label><input type="number" id="input-p4-lam1" value="" step="any" /></div>
+          <div class="field"><label>&phi; (mode A)</label><input type="text" id="input-p4-phi1" placeholder="e.g. 0.58, 1" spellcheck="false" /></div>
+          <div class="field"><label>&lambda;&sup2; (mode B)</label><input type="number" id="input-p4-lam2" value="" step="any" /></div>
+          <div class="field"><label>&phi; (mode B)</label><input type="text" id="input-p4-phi2" placeholder="e.g. 1, -0.12" spellcheck="false" /></div>
+        </div>
+        <button class="run-btn small" id="btn-p4-eigen-check">CHECK</button>
+        <p class="field-err" id="err-p4-eigen"></p>
+        <p class="match-banner" id="banner-p4-eigen"></p>
+        <div class="reflection-box" style="margin-top:14px;"><textarea id="input-p4-reflect-b" placeholder="Discuss the difference here..."></textarea></div>
+
+        <h4 class="part-title">c) Discuss and Select</h4>
+        <p class="instructions">
+          Select an initial condition that activates the first vibration mode, so the two masses move
+          together with the same period but different amplitudes. Set x<sub>1</sub>(0), x<sub>2</sub>(0) above
+          (keep m<sub>1</sub>, m<sub>2</sub>, k at the Problem 4 values) and click CHECK IC.
+        </p>
+        <button class="run-btn small" id="btn-p4-ic-check">CHECK IC</button>
+        <p class="field-err" id="err-p4-ic"></p>
+        <p class="match-banner" id="banner-p4-ic"></p>
+        <div class="reflection-box" style="margin-top:14px;"><textarea id="input-p4-reflect-c" placeholder="Explain your reasoning here..."></textarea></div>
+      </section>
+
+      <!-- ============== SUBMISSION ============== -->
+      <section id="part-submission" style="display:none;">
+        <h2 class="section-title">Submission</h2>
+
+        <div class="form-grid two">
+          <div class="field">
+            <label class="mono">Your NetID</label>
+            <input type="text" id="input-netid" placeholder="netid" spellcheck="false" />
+          </div>
+          <div class="field">
+            <label class="mono">Group member NetIDs</label>
+            <input type="text" id="input-group-netids" placeholder="person1, person2, person3, ..." spellcheck="false" />
+          </div>
+        </div>
+
+        <ul class="steps-list" style="margin-top: 22px;">
+          <li>Enter your NetID and group member NetIDs above and export PDF.</li>
+          <li>Submit: discussion and answers for 1abc, 2abc, 3abc, 4abc, plus a plot for each problem.</li>
+          <li>Optionally, attach an existing PDF below and it will be appended to the end of the exported file.</li>
+        </ul>
+
+        <p class="instructions">Append an existing PDF to the end of your export (optional):</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-appendix" accept="application/pdf" multiple />
+          <div id="upload-thumbs-appendix" style="display:flex; flex-wrap:wrap; margin-top:10px;"></div>
+          <p class="upload-status" id="upload-status-appendix" style="display:none;"></p>
+          <p class="upload-err" id="upload-err-appendix"></p>
+        </div>
+
+        <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+        <p class="field-err" id="exportStatus" style="color:var(--muted);"></p>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  const PLOT_OPTS = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+
+  function plotLayout(yTitle, opts) {
+    opts = opts || {};
+    return {
+      paper_bgcolor: "#171A21",
+      plot_bgcolor: "#171A21",
+      font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
+      margin: { l: 55, r: 15, t: 15, b: 40 },
+      xaxis: Object.assign({ title: opts.xTitle || "time t [s]", gridcolor: "#282D3A", zerolinecolor: "#282D3A" }, opts.xaxis || {}),
+      yaxis: Object.assign({ title: yTitle, gridcolor: "#282D3A", zerolinecolor: "#282D3A" }, opts.yaxis || {}),
+      legend: { orientation: "h", y: -0.25, font: { size: 9 } },
+      showlegend: true,
+    };
+  }
+
+  // ---------------------------------------------------------------
+  // Core vibration math. Independently verified (outside this file)
+  // against: (1) numpy/scipy's generalized eigensolver for the
+  // specific (m,k) sets from the assignment and solutions, matching
+  // the given lambda^2 = {-1,-3}, {-0.5,-1.5}, {-0.2835,-2.1165} and
+  // eigenvector directions to full precision; (2) a full 4-state
+  // RK4/odeint simulation of the raw equations of motion x1'',x2'',
+  // which the closed-form modal solution below matches to ~1e-11
+  // (numerical-noise-only) across 8 widely varying (m,k,x0) cases,
+  // confirming Ctilde = Phi^{-1} x0 with zero initial velocity (so
+  // Dtilde = 0, since the GUI always uses x_dot(0) = 0) is correct.
+  // ---------------------------------------------------------------
+  function eigenAnalytic(m1, m2, k1, k2, k3) {
+    // Generalized eigenproblem K*phi = lambda*(-M)*phi, i.e. a 2x2
+    // quadratic in lambda from det(K + lambda*M) = 0:
+    //   m1*m2*lambda^2 + [m1(k2+k3)+m2(k1+k2)]*lambda + [(k1+k2)(k2+k3)-k2^2] = 0
+    const a = m1 * m2;
+    const b = m1 * (k2 + k3) + m2 * (k1 + k2);
+    const c = (k1 + k2) * (k2 + k3) - k2 * k2;
+    const disc = Math.max(b * b - 4 * a * c, 0);
+    const sq = Math.sqrt(disc);
+    const lamLo = (-b - sq) / (2 * a);
+    const lamHi = (-b + sq) / (2 * a);
+    const lams = [lamLo, lamHi].sort((p, q) => Math.abs(p) - Math.abs(q));
+    // From row 1 of (K + lambda*M)*phi = 0: (k1+k2+lambda*m1)*phi1 = k2*phi2
+    const phis = lams.map((lam) => {
+      const phi1 = 1;
+      const phi2 = Math.abs(k2) < 1e-12 ? 0 : (k1 + k2 + lam * m1) / k2;
+      return [phi1, phi2];
+    });
+    const wn = lams.map((l) => Math.sqrt(Math.max(-l, 0)));
+    return { lams, phis, wn };
+  }
+
+  // Closed-form modal free response (zero initial velocity): solve
+  // x(0) = Phi * Ctilde for Ctilde, then x(t) = Phi * [Ctilde_i cos(wn_i t)].
+  function closedFormXY(tArr, m1, m2, k1, k2, k3, x10, x20) {
+    const { lams, phis, wn } = eigenAnalytic(m1, m2, k1, k2, k3);
+    const Phi = [[phis[0][0], phis[1][0]], [phis[0][1], phis[1][1]]];
+    const det = Phi[0][0] * Phi[1][1] - Phi[0][1] * Phi[1][0];
+    const invPhi = [[Phi[1][1] / det, -Phi[0][1] / det], [-Phi[1][0] / det, Phi[0][0] / det]];
+    const Ct = [invPhi[0][0] * x10 + invPhi[0][1] * x20, invPhi[1][0] * x10 + invPhi[1][1] * x20];
+    const x1 = [], x2 = [];
+    for (const t of tArr) {
+      const c1 = Ct[0] * Math.cos(wn[0] * t);
+      const c2 = Ct[1] * Math.cos(wn[1] * t);
+      x1.push(Phi[0][0] * c1 + Phi[1][0] * c2);
+      x2.push(Phi[0][1] * c1 + Phi[1][1] * c2);
+    }
+    return { x1, x2, lams, phis, wn, Ct };
+  }
+
+  function evalXY(t, p) {
+    const r = closedFormXY([t], p.m1, p.m2, p.k, p.k, p.k, p.x10, p.x20);
+    return { x1: r.x1[0], x2: r.x2[0] };
+  }
+
+  // ---------------------------------------------------------------
+  // Small helpers shared by every self-check below.
+  // ---------------------------------------------------------------
+  function numClose(a, b, relTol, absTol) {
+    relTol = relTol === undefined ? 0.01 : relTol;
+    absTol = absTol === undefined ? 0.01 : absTol;
+    return isFinite(a) && Math.abs(a - b) <= Math.max(absTol, relTol * Math.abs(b));
+  }
+  function parseVec2(str) {
+    if (!str) return null;
+    const cleaned = str.trim().replace(/^\[/, "").replace(/\]$/, "").trim();
+    const parts = cleaned.split(/[,;\s]+/).filter(Boolean).map(Number);
+    if (parts.length !== 2 || parts.some((v) => !isFinite(v))) return null;
+    return parts;
+  }
+  function vecsParallel(a, b, tol) {
+    tol = tol === undefined ? 0.03 : tol;
+    const na = Math.hypot(a[0], a[1]), nb = Math.hypot(b[0], b[1]);
+    if (na < 1e-9 || nb < 1e-9) return false;
+    const cross = a[0] * b[1] - a[1] * b[0];
+    return Math.abs(cross) / (na * nb) < tol;
+  }
+  function setBanner(id, ok, matchText, noMatchText) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove("match", "no-match");
+    el.classList.add(ok ? "match" : "no-match");
+    el.textContent = ok ? (matchText || "✓ Correct.") : (noMatchText || "✗ Not quite — check your work and try again.");
+  }
+  function getNum(id) { return Number(document.getElementById(id).value); }
+  function getPanelParams(prefix) {
+    return {
+      m1: getNum(`input-${prefix}-m1`),
+      m2: getNum(`input-${prefix}-m2`),
+      k: getNum(`input-${prefix}-k`),
+      x10: getNum(`input-${prefix}-x10`),
+      x20: getNum(`input-${prefix}-x20`),
+    };
+  }
+
+  // ---------------------------------------------------------------
+  // Shared vibration simulator ("ModeShapesGUI.m" in the browser):
+  // param inputs, SVG animation (two masses, three springs, walls),
+  // a live eigenvalue/eigenvector output panel, and a time-domain
+  // plot -- one independent instance per problem so each keeps its
+  // own plot for the PDF export ("submit a plot for each problem").
+  // ---------------------------------------------------------------
+  const X_PX_PER_M = 25;    // pixels per meter of displacement (fixed, un-normalized)
+  const PLAYBACK_SPEED = 1; // 1x = real time
+  const REST1_X = 150, REST2_X = 250; // rest-position pixel centers
+  const MASS_W = 50, MASS_H = 50, MASS_Y = 50;
+  const WALL_L_X = 22, WALL_R_X = 378;
+
+  const runFlags = {};
+  const runParams = {}; // last successfully RUN params, per prefix -- used by self-checks
+
+  function springPointsH(xa, xb, n) {
+    const yMid = 75, amp = 12;
+    n = n || 10;
+    const pts = [`${xa},${yMid}`];
+    for (let i = 1; i < n; i++) {
+      const xx = xa + ((xb - xa) * i) / n;
+      const yy = i % 2 === 0 ? yMid - amp : yMid + amp;
+      pts.push(`${xx},${yy}`);
+    }
+    pts.push(`${xb},${yMid}`);
+    return pts.join(" ");
+  }
+
+  function buildVibPanel(prefix, opts) {
+    const host = document.getElementById(`vib-${prefix}`);
+    const presetsHtml = opts.presets
+      ? `<div class="vib-presets">${opts.presets.map((p, i) => `<button class="run-btn secondary small" id="btn-${prefix}-preset${i}">${p.label}</button>`).join("")}</div>`
+      : "";
+    host.innerHTML = `
+      <div class="form-grid five">
+        <div class="field"><label>m<sub>1</sub> [kg]</label><input type="number" id="input-${prefix}-m1" value="${opts.m1}" step="any" /></div>
+        <div class="field"><label>m<sub>2</sub> [kg]</label><input type="number" id="input-${prefix}-m2" value="${opts.m2}" step="any" /></div>
+        <div class="field"><label>k [N/m]</label><input type="number" id="input-${prefix}-k" value="${opts.k}" step="any" /></div>
+        <div class="field"><label>x<sub>1</sub>(0) [m]</label><input type="number" id="input-${prefix}-x10" value="${opts.x10}" step="any" /></div>
+        <div class="field"><label>x<sub>2</sub>(0) [m]</label><input type="number" id="input-${prefix}-x20" value="${opts.x20}" step="any" /></div>
+      </div>
+      ${presetsHtml}
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="run-btn" id="btn-${prefix}-run">RUN</button>
+        <button class="run-btn secondary" id="btn-${prefix}-reset">RESET</button>
+        <span class="mono" style="font-size:11px; color:var(--muted);">x&#775;<sub>1</sub>(0) = x&#775;<sub>2</sub>(0) = 0 (fixed, like the MATLAB GUI)</span>
+      </div>
+      <p class="field-err" id="err-${prefix}"></p>
+      <div class="vib-top-row">
+        <div class="vib-svg-host">
+          <svg id="vib-svg-${prefix}" viewBox="0 0 400 150" width="100%">
+            <rect x="10" y="30" width="12" height="90" fill="#8B92A5" />
+            <rect x="378" y="30" width="12" height="90" fill="#8B92A5" />
+            <polyline id="vib-spr1-${prefix}" points="" stroke="#5EEAD4" stroke-width="2" fill="none" />
+            <polyline id="vib-spr2-${prefix}" points="" stroke="#FFB454" stroke-width="2" fill="none" />
+            <polyline id="vib-spr3-${prefix}" points="" stroke="#FB7185" stroke-width="2" fill="none" />
+            <rect id="vib-m1-${prefix}" y="${MASS_Y}" width="${MASS_W}" height="${MASS_H}" rx="4" fill="#5EEAD4" />
+            <rect id="vib-m2-${prefix}" y="${MASS_Y}" width="${MASS_W}" height="${MASS_H}" rx="4" fill="#FB7185" />
+            <text id="vib-m1-label-${prefix}" fill="#0F1115" font-size="12" font-weight="700" text-anchor="middle" font-family="JetBrains Mono, monospace">m1</text>
+            <text id="vib-m2-label-${prefix}" fill="#0F1115" font-size="12" font-weight="700" text-anchor="middle" font-family="JetBrains Mono, monospace">m2</text>
+          </svg>
+        </div>
+        <div class="vib-output">
+          <h5>OUTPUT (live)</h5>
+          <div class="out-row"><span class="k">&lambda;&sup2;<sub>1</sub>, &lambda;&sup2;<sub>2</sub></span><span class="v" id="out-${prefix}-lam">&mdash;</span></div>
+          <div class="out-row"><span class="k">&omega;<sub>n1</sub>, &omega;<sub>n2</sub> [rad/s]</span><span class="v" id="out-${prefix}-wn">&mdash;</span></div>
+          <div class="out-row"><span class="k">&phi;<sub>1</sub></span><span class="v" id="out-${prefix}-phi1">&mdash;</span></div>
+          <div class="out-row"><span class="k">&phi;<sub>2</sub></span><span class="v" id="out-${prefix}-phi2">&mdash;</span></div>
+        </div>
+      </div>
+      <div class="plot-host" id="plot-${prefix}-time"><div class="placeholder">Set parameters above and click RUN.</div></div>
+    `;
+
+    let playing = false, animStart = null, rafId = null;
+
+    function drawFrame(simTime, p) {
+      const { x1, x2 } = evalXY(simTime, p);
+      const c1 = REST1_X + x1 * X_PX_PER_M;
+      const c2 = REST2_X + x2 * X_PX_PER_M;
+      document.getElementById(`vib-m1-${prefix}`).setAttribute("x", c1 - MASS_W / 2);
+      document.getElementById(`vib-m2-${prefix}`).setAttribute("x", c2 - MASS_W / 2);
+      document.getElementById(`vib-m1-label-${prefix}`).setAttribute("x", c1);
+      document.getElementById(`vib-m1-label-${prefix}`).setAttribute("y", MASS_Y + MASS_H / 2 + 4);
+      document.getElementById(`vib-m2-label-${prefix}`).setAttribute("x", c2);
+      document.getElementById(`vib-m2-label-${prefix}`).setAttribute("y", MASS_Y + MASS_H / 2 + 4);
+      document.getElementById(`vib-spr1-${prefix}`).setAttribute("points", springPointsH(WALL_L_X, c1 - MASS_W / 2, 10));
+      document.getElementById(`vib-spr2-${prefix}`).setAttribute("points", springPointsH(c1 + MASS_W / 2, c2 - MASS_W / 2, 10));
+      document.getElementById(`vib-spr3-${prefix}`).setAttribute("points", springPointsH(c2 + MASS_W / 2, WALL_R_X, 10));
+    }
+
+    function tick(ts) {
+      if (!playing) return;
+      if (animStart === null) animStart = ts;
+      const simTime = ((ts - animStart) / 1000) * PLAYBACK_SPEED;
+      drawFrame(simTime, runParams[prefix]);
+      rafId = requestAnimationFrame(tick);
+    }
+
+    function renderTimePlot(p) {
+      const { wn } = eigenAnalytic(p.m1, p.m2, p.k, p.k, p.k);
+      const wnMin = Math.max(Math.min(wn[0], wn[1]), 1e-6);
+      const tf = (8 * Math.PI) / wnMin;
+      const N = 400;
+      const tArr = Array.from({ length: N }, (_, i) => (tf * i) / (N - 1));
+      const { x1, x2 } = closedFormXY(tArr, p.m1, p.m2, p.k, p.k, p.k, p.x10, p.x20);
+      Plotly.newPlot(
+        `plot-${prefix}-time`,
+        [
+          { x: tArr, y: x1, mode: "lines", line: { color: "#5EEAD4", width: 2 }, name: "x1(t)" },
+          { x: tArr, y: x2, mode: "lines", line: { color: "#FB7185", width: 2, dash: "dot" }, name: "x2(t)" },
+        ],
+        plotLayout("displacement [m]"),
+        PLOT_OPTS
+      );
+    }
+
+    function run() {
+      const p = getPanelParams(prefix);
+      const errEl = document.getElementById(`err-${prefix}`);
+      if (!isFinite(p.m1) || p.m1 <= 0 || !isFinite(p.m2) || p.m2 <= 0 || !isFinite(p.k) || p.k <= 0) {
+        errEl.textContent = "m1, m2, and k must be positive numbers.";
+        return;
+      }
+      if (!isFinite(p.x10) || !isFinite(p.x20)) {
+        errEl.textContent = "x1(0) and x2(0) must be numbers.";
+        return;
+      }
+      errEl.textContent = "";
+      runParams[prefix] = p;
+      runFlags[prefix] = true;
+
+      const { lams, wn, phis } = eigenAnalytic(p.m1, p.m2, p.k, p.k, p.k);
+      document.getElementById(`out-${prefix}-lam`).textContent = `${lams[0].toFixed(4)}, ${lams[1].toFixed(4)}`;
+      document.getElementById(`out-${prefix}-wn`).textContent = `${wn[0].toFixed(4)}, ${wn[1].toFixed(4)}`;
+      document.getElementById(`out-${prefix}-phi1`).textContent = `[${phis[0][0].toFixed(4)}, ${phis[0][1].toFixed(4)}]`;
+      document.getElementById(`out-${prefix}-phi2`).textContent = `[${phis[1][0].toFixed(4)}, ${phis[1][1].toFixed(4)}]`;
+
+      renderTimePlot(p);
+      playing = true; animStart = null;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(tick);
+      scheduleSave();
+    }
+
+    function reset() {
+      playing = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      document.getElementById(`out-${prefix}-lam`).textContent = "—";
+      document.getElementById(`out-${prefix}-wn`).textContent = "—";
+      document.getElementById(`out-${prefix}-phi1`).textContent = "—";
+      document.getElementById(`out-${prefix}-phi2`).textContent = "—";
+      document.getElementById(`plot-${prefix}-time`).innerHTML = '<div class="placeholder">Set parameters above and click RUN.</div>';
+      drawFrame(0, { m1: opts.m1, m2: opts.m2, k: opts.k, x10: 0, x20: 0 });
+    }
+
+    document.getElementById(`btn-${prefix}-run`).addEventListener("click", run);
+    document.getElementById(`btn-${prefix}-reset`).addEventListener("click", reset);
+    if (opts.presets) {
+      opts.presets.forEach((pr, i) => {
+        document.getElementById(`btn-${prefix}-preset${i}`).addEventListener("click", () => {
+          document.getElementById(`input-${prefix}-x10`).value = pr.x10;
+          document.getElementById(`input-${prefix}-x20`).value = pr.x20;
+          scheduleSave();
+        });
+      });
+    }
+    drawFrame(0, { m1: opts.m1, m2: opts.m2, k: opts.k, x10: 0, x20: 0 });
+  }
+
+  buildVibPanel("p1", { m1: 1, m2: 1, k: 1, x10: 2, x20: 2 });
+  buildVibPanel("p2", { m1: 1, m2: 1, k: 1, x10: 2, x20: 2 });
+  buildVibPanel("p3", { m1: 2, m2: 2, k: 1, x10: 2, x20: 2, presets: [{ label: "Use P1 IC (2, 2)", x10: 2, x20: 2 }, { label: "Use P2 IC (-2, 2)", x10: -2, x20: 2 }] });
+  buildVibPanel("p4", { m1: 1, m2: 5, k: 1, x10: 2, x20: 2, presets: [{ label: "Use P1 IC (2, 2)", x10: 2, x20: 2 }, { label: "Use P2 IC (-2, 2)", x10: -2, x20: 2 }] });
+
+  // ---------------------------------------------------------------
+  // KaTeX
+  // ---------------------------------------------------------------
+  katex.render(
+    "m_1\\ddot x_1=-k_1x_1+k_2(x_2-x_1),\\qquad m_2\\ddot x_2=k_2(x_1-x_2)-k_3x_2",
+    document.getElementById("eq-eom"), { throwOnError: false, displayMode: true }
+  );
+  katex.render(
+    "\\begin{bmatrix}m_1&0\\\\0&m_2\\end{bmatrix}\\begin{bmatrix}\\ddot x_1\\\\\\ddot x_2\\end{bmatrix}+\\begin{bmatrix}k_1+k_2&-k_2\\\\-k_2&k_2+k_3\\end{bmatrix}\\begin{bmatrix}x_1\\\\x_2\\end{bmatrix}=\\begin{bmatrix}0\\\\0\\end{bmatrix}",
+    document.getElementById("eq-matrix"), { throwOnError: false, displayMode: true }
+  );
+  katex.render(
+    "x(t)=\\sum_{i=1}^{2}\\phi_i\\left[\\tilde C_i\\cos(\\omega_{ni}t)+\\tilde D_i\\sin(\\omega_{ni}t)\\right]",
+    document.getElementById("eq-response"), { throwOnError: false, displayMode: true }
+  );
+
+  // ---------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------
+  const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+      document.getElementById(SECTION_IDS[btn.dataset.part]).style.display = "block";
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Problem 1 self-checks
+  // ---------------------------------------------------------------
+  // Hardcoded against the assignment's own prescribed system for
+  // Problem 1 (m1=m2=1, k=1, x1(0)=x2(0)=2) -- independently
+  // verified above to give lam=[-1,-3], phi1=[1,1], phi2=[1,-1],
+  // matching the solutions PDF -- rather than the live panel, since
+  // "estimate the amplitude/frequency you just observed" and "which
+  // mode is activated" are specifically about that prescribed case.
+  document.getElementById("btn-p1-estimate-check").addEventListener("click", () => {
+    const amp = getNum("input-p1-amp"), freq = getNum("input-p1-freq");
+    const errEl = document.getElementById("err-p1-estimate");
+    if (!isFinite(amp) || !isFinite(freq)) { errEl.textContent = "Enter both an amplitude and a frequency."; return; }
+    errEl.textContent = "";
+    // Generous tolerance: this is an "estimate read off the GUI" task, not an exact calculation.
+    const ok = numClose(amp, 2, 0.15, 0.15) && numClose(freq, 1, 0.15, 0.1);
+    setBanner("banner-p1-estimate", ok, "✓ Close enough — amplitude ≈ 2 m, frequency ≈ 1 rad/s.", "✗ Not quite — re-check against the animation/plot (amplitude and frequency should each be within ~15%).");
+  });
+  document.getElementById("btn-p1-mode-check").addEventListener("click", () => {
+    const v = document.getElementById("select-p1-mode").value;
+    if (!v) return;
+    setBanner("banner-p1-mode", v === "mode1", undefined, "✗ Not quite — compare the motion pattern (1:1, in phase) to φ₁ and φ₂ above.");
+  });
+
+  // ---------------------------------------------------------------
+  // Problem 2 self-checks
+  // ---------------------------------------------------------------
+  document.getElementById("btn-p2-ic-check").addEventListener("click", () => {
+    const p = getPanelParams("p2");
+    const errEl = document.getElementById("err-p2-ic");
+    if (!isFinite(p.m1) || p.m1 <= 0 || !isFinite(p.m2) || p.m2 <= 0 || !isFinite(p.k) || p.k <= 0 || !isFinite(p.x10) || !isFinite(p.x20)) {
+      errEl.textContent = "Fill in m1, m2, k, x1(0), x2(0) with valid numbers first."; return;
+    }
+    errEl.textContent = "";
+    const { phis } = eigenAnalytic(p.m1, p.m2, p.k, p.k, p.k);
+    const ic = [p.x10, p.x20];
+    const parallelToMode2 = vecsParallel(ic, phis[1]);
+    const parallelToMode1 = vecsParallel(ic, phis[0]);
+    const nonzero = Math.hypot(ic[0], ic[1]) > 1e-9;
+    const ok = nonzero && parallelToMode2 && !parallelToMode1;
+    setBanner("banner-p2-ic", ok, "✓ That IC activates mode 2 (it's parallel to φ₂).", "✗ Not quite — the IC vector [x1(0), x2(0)] needs to be a scalar multiple of φ₂ (equal magnitude, opposite sign) shown in the Output panel above.");
+  });
+  document.getElementById("btn-p2-changed-check").addEventListener("click", () => {
+    const v = document.getElementById("select-p2-changed").value;
+    if (!v) return;
+    setBanner("banner-p2-changed", v === "no", undefined, "✗ Not quite — compare the Output panel's λ² and φ values between Problems 1 and 2.");
+  });
+
+  // ---------------------------------------------------------------
+  // Problem 3 self-checks
+  // ---------------------------------------------------------------
+  function checkEigenPair(prefix) {
+    const p = getPanelParams(prefix);
+    const errEl = document.getElementById(`err-${prefix}-eigen`);
+    if (!isFinite(p.m1) || p.m1 <= 0 || !isFinite(p.m2) || p.m2 <= 0 || !isFinite(p.k) || p.k <= 0) {
+      errEl.textContent = "Fill in m1, m2, k above with valid numbers first."; return;
+    }
+    const lam1 = getNum(`input-${prefix}-lam1`), lam2 = getNum(`input-${prefix}-lam2`);
+    const phi1 = parseVec2(document.getElementById(`input-${prefix}-phi1`).value);
+    const phi2 = parseVec2(document.getElementById(`input-${prefix}-phi2`).value);
+    if (!isFinite(lam1) || !isFinite(lam2) || !phi1 || !phi2) {
+      errEl.textContent = "Enter both λ² values and both φ vectors (e.g. \"1, -1\")."; return;
+    }
+    errEl.textContent = "";
+    const { lams, phis } = eigenAnalytic(p.m1, p.m2, p.k, p.k, p.k);
+    function pairOk(lamIn, phiIn, lamTrue, phiTrue) {
+      return numClose(lamIn, lamTrue, 0.02, 0.02) && vecsParallel(phiIn, phiTrue);
+    }
+    const directOk = pairOk(lam1, phi1, lams[0], phis[0]) && pairOk(lam2, phi2, lams[1], phis[1]);
+    const swappedOk = pairOk(lam1, phi1, lams[1], phis[1]) && pairOk(lam2, phi2, lams[0], phis[0]);
+    const ok = directOk || swappedOk;
+    setBanner(`banner-${prefix}-eigen`, ok, "✓ Correct (order doesn't matter, as long as each λ² is paired with its own φ).", "✗ Not quite — check against the live Output panel above for your current m1, m2, k.");
+  }
+  document.getElementById("btn-p3-eigen-check").addEventListener("click", () => checkEigenPair("p3"));
+  document.getElementById("btn-p4-eigen-check").addEventListener("click", () => checkEigenPair("p4"));
+
+  document.getElementById("btn-p3-k-check").addEventListener("click", () => {
+    const k = getNum("input-p3-k");
+    const errEl = document.getElementById("err-p3-k");
+    if (!isFinite(k)) { errEl.textContent = "Enter a value for k."; return; }
+    errEl.textContent = "";
+    // Doubled-mass system (Problem 3): m1=m2=2, k=1 -> lam = [-0.5,-1.5].
+    // Keeping Problem 1's mass (m1=m2=1) and solving for k so that
+    // eigenAnalytic(1,1,k,k,k) reproduces those same eigenvalues gives
+    // k=0.5 -- independently verified above. The solutions also credit
+    // the reverse reading (keep m=2, find k returning to Problem 1's
+    // eigenvalues [-1,-3]), which gives k=2, so both are accepted.
+    const ok = numClose(k, 0.5, 0.03, 0.02) || numClose(k, 2, 0.03, 0.02);
+    setBanner("banner-p3-k", ok, "✓ Correct (k = 0.5 N/m, with m1=m2=1 kg, reproduces this system's eigenvalues).", "✗ Not quite — try solving eigenAnalytic(1,1,k,k,k) for k so its λ² match this doubled-mass system's.");
+  });
+
+  // ---------------------------------------------------------------
+  // Problem 4 self-check (IC activating mode 1)
+  // ---------------------------------------------------------------
+  document.getElementById("btn-p4-ic-check").addEventListener("click", () => {
+    const p = getPanelParams("p4");
+    const errEl = document.getElementById("err-p4-ic");
+    if (!isFinite(p.m1) || p.m1 <= 0 || !isFinite(p.m2) || p.m2 <= 0 || !isFinite(p.k) || p.k <= 0 || !isFinite(p.x10) || !isFinite(p.x20)) {
+      errEl.textContent = "Fill in m1, m2, k, x1(0), x2(0) with valid numbers first."; return;
+    }
+    errEl.textContent = "";
+    const { phis } = eigenAnalytic(p.m1, p.m2, p.k, p.k, p.k);
+    const ic = [p.x10, p.x20];
+    const nonzero = Math.hypot(ic[0], ic[1]) > 1e-9;
+    const parallelToMode1 = vecsParallel(ic, phis[0]);
+    const parallelToMode2 = vecsParallel(ic, phis[1]);
+    const ok = nonzero && parallelToMode1 && !parallelToMode2;
+    setBanner("banner-p4-ic", ok, "✓ That IC activates mode 1 — both masses move together with the same period, different amplitudes.", "✗ Not quite — the IC vector [x1(0), x2(0)] needs to be a scalar multiple of φ₁ shown in the Output panel above.");
+  });
+
+  // ---------------------------------------------------------------
+  // Submission: appendix upload + bundle everything into a PDF
+  // ---------------------------------------------------------------
+  let appendixFiles = [];
+  function renderFileChips() {
+    const host = document.getElementById("upload-thumbs-appendix");
+    host.innerHTML = "";
+    appendixFiles.forEach((file, i) => {
+      const chip = document.createElement("div");
+      chip.className = "file-chip";
+      chip.innerHTML = `<span>${file.name}</span><button class="chip-remove" data-i="${i}" type="button">✕</button>`;
+      host.appendChild(chip);
+    });
+    host.querySelectorAll(".chip-remove").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        appendixFiles.splice(Number(btn.dataset.i), 1);
+        renderFileChips();
+        scheduleSave();
+      });
+    });
+  }
+  const appendixInput = document.getElementById("upload-input-appendix");
+  appendixInput.addEventListener("change", () => {
+    const errEl = document.getElementById("upload-err-appendix");
+    const chosen = Array.from(appendixInput.files || []);
+    const nonPdf = chosen.filter((f) => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+    const pdfs = chosen.filter((f) => !nonPdf.includes(f));
+    appendixFiles = appendixFiles.concat(pdfs);
+    if (errEl) errEl.textContent = nonPdf.length > 0 ? `Skipped (not a PDF): ${nonPdf.map((f) => f.name).join(", ")}` : "";
+    renderFileChips();
+    appendixInput.value = "";
+    scheduleSave();
+  });
+
+  function setExportStatus(text, isError) {
+    const el = document.getElementById("exportStatus");
+    el.textContent = text; el.style.color = isError ? "#FB7185" : "#8B92A5";
+  }
+  function reflectionText(id) {
+    const v = document.getElementById(id).value.trim();
+    return v || "(No response entered.)";
+  }
+  function fieldLabelFor(id) {
+    if (id === "input-netid") return "Your NetID";
+    if (id === "input-group-netids") return "Group member NetIDs";
+    const m = id.match(/^input-(p[\w\d]+)-(.+)$/);
+    if (m) { const [, part, field] = m; return `${part} (${field.replace(/-/g, " ")})`; }
+    return id;
+  }
+  function findBlankItems() {
+    const blanks = [];
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((el) => {
+      if (/-m1$|-m2$|-k$/.test(el.id)) return; // sim-panel system params aren't a graded deliverable by themselves
+      if (el.value.trim() === "") blanks.push(fieldLabelFor(el.id));
+    });
+    ["p1", "p2", "p3", "p4"].forEach((prefix) => { if (!runFlags[prefix]) blanks.push(`${prefix} (simulation not yet run)`); });
+    return blanks;
+  }
+
+  async function exportPdf() {
+    const blanks = findBlankItems();
+    if (blanks.length > 0) {
+      const proceed = confirm(`The following are still blank:\n\n${blanks.map((b) => "• " + b).join("\n")}\n\nDo you want to export the PDF anyway?`);
+      if (!proceed) return;
+    }
+
+    const btn = document.getElementById("exportPdfBtn");
+    const originalLabel = btn.textContent;
+    btn.disabled = true; btn.textContent = "EXPORTING…";
+    setExportStatus("");
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "pt", format: "letter" });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 48;
+      const maxWidth = pageWidth - margin * 2;
+      let y = margin;
+
+      function ensureSpace(h) { if (y + h > pageHeight - margin) { doc.addPage(); y = margin; } }
+      function addHeading(text) {
+        ensureSpace(30);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(15);
+        doc.text(text, margin, y); y += 22;
+      }
+      function addText(text, opts) {
+        const size = (opts && opts.size) || 10.5;
+        const bold = !!(opts && opts.bold);
+        doc.setFont("helvetica", bold ? "bold" : "normal"); doc.setFontSize(size);
+        const lines = doc.splitTextToSize(text, maxWidth);
+        const lineHeight = size * 1.35;
+        lines.forEach((line) => { ensureSpace(lineHeight); doc.text(line, margin, y); y += lineHeight; });
+        y += 4;
+      }
+      async function addPlotImage(divId, fallbackLabel) {
+        let dataUrl;
+        try { dataUrl = await Plotly.toImage(divId, { format: "png", width: 900, height: 460 }); }
+        catch (err) { addText(`(${fallbackLabel}: plot image could not be captured.)`); return; }
+        const imgWidth = maxWidth, imgHeight = imgWidth * (460 / 900);
+        ensureSpace(imgHeight + 10);
+        doc.addImage(dataUrl, "PNG", margin, y, imgWidth, imgHeight);
+        y += imgHeight + 16;
+      }
+
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+      doc.splitTextToSize("GroupWork 8F — Vibrations and Eigenvalues/Eigenvectors", maxWidth).forEach((line) => { doc.text(line, margin, y); y += 20; });
+      y += 6;
+
+      const netId = document.getElementById("input-netid").value.trim() || "(not entered)";
+      const groupIds = document.getElementById("input-group-netids").value.trim() || "(not entered)";
+      addText(`Your NetID: ${netId}`, { bold: true, size: 11.5 });
+      addText(`Group member NetIDs: ${groupIds}`, { bold: true, size: 11.5 });
+      y += 8;
+
+      addHeading("Problem 1: Modes of Vibration and Free Response I");
+      addText("a) Observe:", { bold: true, size: 10.5 });
+      addText(reflectionText("input-p1-reflect-a"));
+      addText(`b) Estimate: amplitude = ${document.getElementById("input-p1-amp").value} m, frequency = ${document.getElementById("input-p1-freq").value} rad/s`);
+      addText(`c) Mode activated: ${document.getElementById("select-p1-mode").value || "(not selected)"}`);
+      addText(reflectionText("input-p1-reflect-c"));
+      if (runFlags.p1) await addPlotImage("plot-p1-time", "Problem 1 plot"); else addText("(Not yet run.)");
+
+      addHeading("Problem 2: Modes of Vibration and Free Response II");
+      addText("a) Discuss and Select IC:", { bold: true, size: 10.5 });
+      addText(reflectionText("input-p2-reflect-a"));
+      addText(`Selected IC: x1(0) = ${document.getElementById("input-p2-x10").value}, x2(0) = ${document.getElementById("input-p2-x20").value}`);
+      addText("b) Observe:", { bold: true, size: 10.5 });
+      addText(reflectionText("input-p2-reflect-b"));
+      addText(`c) Eigenvalues/eigenvectors changed from Problem 1? ${document.getElementById("select-p2-changed").value || "(not selected)"}`);
+      addText(reflectionText("input-p2-reflect-c"));
+      if (runFlags.p2) await addPlotImage("plot-p2-time", "Problem 2 plot"); else addText("(Not yet run.)");
+
+      addHeading("Problem 3: Vibrations as System Parameters Change");
+      addText("a) Observe:", { bold: true, size: 10.5 });
+      addText(reflectionText("input-p3-reflect-a"));
+      if (runFlags.p3) await addPlotImage("plot-p3-time", "Problem 3 plot"); else addText("(Not yet run.)");
+      addText(`b) λ² = ${document.getElementById("input-p3-lam1").value}, ${document.getElementById("input-p3-lam2").value}; φ₁ = ${document.getElementById("input-p3-phi1").value}, φ₂ = ${document.getElementById("input-p3-phi2").value}`);
+      addText(reflectionText("input-p3-reflect-b"));
+      addText(`c) k = ${document.getElementById("input-p3-k").value}`);
+      addText(reflectionText("input-p3-reflect-c"));
+
+      addHeading("Problem 4: Vibrations in Asymmetric Systems");
+      addText("a) Observe:", { bold: true, size: 10.5 });
+      addText(reflectionText("input-p4-reflect-a"));
+      if (runFlags.p4) await addPlotImage("plot-p4-time", "Problem 4 plot"); else addText("(Not yet run.)");
+      addText(`b) λ² = ${document.getElementById("input-p4-lam1").value}, ${document.getElementById("input-p4-lam2").value}; φ₁ = ${document.getElementById("input-p4-phi1").value}, φ₂ = ${document.getElementById("input-p4-phi2").value}`);
+      addText(reflectionText("input-p4-reflect-b"));
+      addText(`c) Selected IC: x1(0) = ${document.getElementById("input-p4-x10").value}, x2(0) = ${document.getElementById("input-p4-x20").value}`);
+      addText(reflectionText("input-p4-reflect-c"));
+
+      const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+
+      if (appendixFiles.length > 0) {
+        const { PDFDocument } = window.PDFLib;
+        const mergedDoc = await PDFDocument.load(doc.output("arraybuffer"));
+        const failedAppendix = [];
+        for (const file of appendixFiles) {
+          try {
+            const fileBytes = await file.arrayBuffer();
+            const appendixDoc = await PDFDocument.load(fileBytes);
+            const copiedPages = await mergedDoc.copyPages(appendixDoc, appendixDoc.getPageIndices());
+            copiedPages.forEach((p) => mergedDoc.addPage(p));
+          } catch (err) { console.error("Could not append PDF:", file.name, err); failedAppendix.push(file.name); }
+        }
+        const mergedBytes = await mergedDoc.save();
+        const blob = new Blob([mergedBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = `GroupWork8F_${safeNetId}.pdf`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setExportStatus(failedAppendix.length > 0
+          ? `PDF downloaded, but could not append: ${failedAppendix.join(", ")} (make sure these are valid PDF files).`
+          : "PDF downloaded (with appendix attached).");
+      } else {
+        doc.save(`GroupWork8F_${safeNetId}.pdf`);
+        setExportStatus("PDF downloaded.");
+      }
+    } catch (err) {
+      console.error("PDF export failed:", err);
+      setExportStatus(`Could not export PDF: ${err.message}`, true);
+    } finally {
+      btn.disabled = false; btn.textContent = originalLabel;
+    }
+  }
+  document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+  // ---------------------------------------------------------------
+  // Progress autosave (localStorage)
+  // ---------------------------------------------------------------
+  const STORAGE_KEY = "gw8f_progress_v1";
+
+  function collectFieldValues() {
+    const values = {};
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"], select[id^="select-"]').forEach((el) => { values[el.id] = el.value; });
+    return values;
+  }
+  function currentActiveTab() {
+    const active = document.querySelector(".nav-btn.active");
+    return active ? active.dataset.part : "intro";
+  }
+  function saveProgress() {
+    try {
+      const state = { activeTab: currentActiveTab(), fields: collectFieldValues(), runFlags };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (err) { /* storage unavailable -- fail silently */ }
+  }
+  let saveTimer = null;
+  function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveProgress, 250); }
+  document.addEventListener("input", scheduleSave);
+  document.addEventListener("click", scheduleSave);
+
+  function loadProgress() {
+    let raw;
+    try { raw = localStorage.getItem(STORAGE_KEY); } catch (err) { return; }
+    if (!raw) return;
+    let state;
+    try { state = JSON.parse(raw); } catch (err) { return; }
+
+    if (state.fields) {
+      Object.keys(state.fields).forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.value = state.fields[id];
+      });
+    }
+    if (state.runFlags) {
+      ["p1", "p2", "p3", "p4"].forEach((prefix) => {
+        if (state.runFlags[prefix]) document.getElementById(`btn-${prefix}-run`).click();
+      });
+    }
+    if (state.activeTab) {
+      const btn = document.querySelector(`.nav-btn[data-part="${state.activeTab}"]`);
+      if (btn) btn.click();
+    }
+  }
+  loadProgress();
+})();
+</script>
+
+</body>
+</html>
