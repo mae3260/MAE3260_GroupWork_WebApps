@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GroupWork 6F &mdash; Passive Suspension Design</title>
+
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink: #0F1115;
+      --panel: #171A21;
+      --panel2: #1D212B;
+      --line: #282D3A;
+      --amber: #FFB454;
+      --cyan: #5EEAD4;
+      --rose: #FB7185;
+      --pink: #F472B6;
+      --fg: #E7E9EE;
+      --muted: #8B92A5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--ink);
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+
+    header h1 {
+      font-size: 14px;
+      margin: 0;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    header h1 span {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    nav {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      order: 2;
+      padding: 16px 14px;
+      overflow-y: auto;
+    }
+
+    nav p.label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin: 14px 0 8px 0;
+    }
+
+    nav p.label:first-child {
+      margin-top: 0;
+    }
+
+    .nav-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 9px 12px;
+      margin-bottom: 6px;
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--fg);
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .nav-btn small {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .content {
+      flex: 1;
+      order: 1;
+      overflow-y: auto;
+      padding: 28px 40px;
+    }
+
+    .wrap {
+      max-width: 940px;
+      margin: 0 auto;
+    }
+
+    h2.section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      color: var(--amber);
+      margin: 0 0 14px 0;
+    }
+
+    h3.problem-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: var(--cyan);
+      margin: 0 0 10px 0;
+    }
+
+    h4.part-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--fg);
+      margin: 22px 0 8px 0;
+    }
+
+    p.instructions {
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: var(--fg);
+      margin: 0 0 16px 0;
+    }
+
+    ul.goals {
+      padding-left: 20px;
+      margin: 0 0 16px 0;
+    }
+
+    ul.goals li {
+      margin-bottom: 6px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--fg);
+    }
+
+    .eq-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      text-align: center;
+      font-size: 16px;
+      overflow-x: auto;
+    }
+
+    .given-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 18px 0;
+      line-height: 1.8;
+    }
+
+    .given-line b {
+      color: var(--fg);
+      font-weight: 600;
+    }
+
+    .note-box {
+      background: var(--panel2);
+      border-left: 3px solid var(--amber);
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 0 0 18px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--fg);
+    }
+
+    .note-box code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--cyan);
+      background: var(--ink);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    table.spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 18px 0;
+      font-size: 13px;
+    }
+
+    table.spec-table th,
+    table.spec-table td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    table.spec-table th {
+      background: var(--panel2);
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    table.spec-table td {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .panel-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .panel-box h4 {
+      margin: 0 0 12px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .form-grid.one {
+      grid-template-columns: 1fr;
+    }
+
+    .form-grid.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .field {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .field label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"] {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 6px;
+    }
+
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--amber);
+    }
+
+    .slider-row .b-readout {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      color: var(--amber);
+      min-width: 118px;
+      text-align: right;
+    }
+
+    .b-echo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 16px 0;
+    }
+
+    .b-echo b {
+      color: var(--amber);
+    }
+
+    .reflection-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .reflection-box textarea {
+      width: 100%;
+      min-height: 90px;
+      resize: vertical;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 10px 12px;
+      line-height: 1.5;
+    }
+
+    .reflection-box textarea:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .run-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 6px;
+      border: none;
+      background: var(--amber);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .run-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .run-btn:active {
+      transform: scale(0.98);
+    }
+
+    .run-btn.secondary {
+      background: none;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .run-btn.secondary:hover {
+      color: var(--rose);
+      border-color: var(--rose);
+    }
+
+    .field-err {
+      font-size: 11px;
+      color: var(--rose);
+      margin: 8px 0 0 0;
+      min-height: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .plots-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .plots-row .plot-col {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .plot-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin: 0 0 6px 2px;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .plot-host {
+      height: 300px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .plot-host.tall {
+      height: 340px;
+    }
+
+    .placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      max-width: 320px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .subpanel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .subpanel h4 {
+      margin: 0 0 10px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--pink);
+    }
+
+    .diagram-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 6px 0 20px 0;
+    }
+
+    .diagram-wrap svg text {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .katex {
+      color: var(--fg);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="dot"></div>
+    <h1>GROUPWORK 6F <span>&mdash; Passive Suspension Design (M&amp;AE 3260)</span></h1>
+  </header>
+
+  <main>
+    <nav>
+      <p class="label">BACKGROUND</p>
+      <button class="nav-btn active" data-part="intro">Intro<small>Model &amp; specs</small></button>
+
+      <p class="label">PROBLEM 1</p>
+      <button class="nav-btn" data-part="p1">Transfer Functions<small>Numerators &amp; ratios</small></button>
+
+      <p class="label">PROBLEM 2</p>
+      <button class="nav-btn" data-part="p2">Design via Bode<small>Iterate on b</small></button>
+
+      <p class="label">PROBLEM 3</p>
+      <button class="nav-btn" data-part="p3">Verify: Bumpy Road<small>Sinusoidal simulation</small></button>
+
+      <p class="label">PROBLEM 4</p>
+      <button class="nav-btn" data-part="p4">Verify: Speed Bump<small>Impulse simulation</small></button>
+
+      <p class="label">SUBMIT</p>
+      <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+    </nav>
+
+    <div class="content">
+      <div class="wrap">
+
+        <!-- ============== INTRO ============== -->
+        <section id="part-intro">
+          <h2 class="section-title">Passive Suspension Design</h2>
+          <p class="instructions"><b>Learning Goals:</b></p>
+          <ul class="goals">
+            <li>Understand how different input-output pairs of the same system create different transfer functions</li>
+            <li>Choose a model parameter to simultaneously meet multiple performance objectives</li>
+            <li>Relate frequency domain and time domain representations of multiple system responses</li>
+            <li>Design and verify a system using passive techniques (i.e. selecting system parameters)</li>
+          </ul>
+          <p class="instructions">
+            We model a car's suspension as a quarter-car system: a mass <i>m</i> (the car body) connected to
+            the road through a spring <i>k</i> and damper <i>b</i> in parallel. The road surface height over
+            time is <i>r(t)</i>. Three variables describe the response: the car's position <i>y(t)</i>, its
+            acceleration <i>a(t) = &yuml;(t)</i>, and the shock travel <i>d(t) = y(t) &minus; r(t)</i>.
+          </p>
+          <div class="diagram-wrap">
+            <svg width="360" height="220" viewBox="0 0 360 220">
+              <text x="180" y="18" text-anchor="middle" fill="#8B92A5" font-size="11">quarter-car suspension
+                model</text>
+              <line x1="40" y1="70" x2="40" y2="120" stroke="#282D3A" stroke-width="2" />
+              <line x1="320" y1="70" x2="320" y2="120" stroke="#282D3A" stroke-width="2" />
+              <rect x="90" y="40" width="180" height="55" rx="6" fill="#1D212B" stroke="#5EEAD4" stroke-width="2" />
+              <text x="180" y="72" text-anchor="middle" fill="#5EEAD4" font-size="15">m</text>
+              <polyline points="40,70 55,70 60,60 68,80 76,60 84,80 92,70 100,70" fill="none" stroke="#FFB454"
+                stroke-width="2" />
+              <text x="68" y="35" text-anchor="middle" fill="#FFB454" font-size="13">k</text>
+              <rect x="130" y="105" width="22" height="45" fill="none" stroke="#F472B6" stroke-width="2" />
+              <line x1="141" y1="105" x2="141" y2="95" stroke="#F472B6" stroke-width="2" />
+              <line x1="141" y1="150" x2="141" y2="165" stroke="#F472B6" stroke-width="2" />
+              <text x="112" y="130" text-anchor="middle" fill="#F472B6" font-size="13">b</text>
+              <line x1="20" y1="165" x2="340" y2="165" stroke="#8B92A5" stroke-width="2" />
+              <path d="M 40 165 Q 60 150, 80 165 T 120 165" fill="none" stroke="#8B92A5" stroke-width="1.4"
+                stroke-dasharray="3,2" />
+              <text x="200" y="185" text-anchor="middle" fill="#8B92A5" font-size="12">road: r(t) = R&#8320;
+                sin(&omega;t) or R&#8320;&delta;(t)</text>
+              <line x1="285" y1="95" x2="285" y2="40" stroke="#5EEAD4" stroke-width="1.2" marker-end="url(#arrY)" />
+              <text x="300" y="60" fill="#5EEAD4" font-size="12">y(t)</text>
+              <defs>
+                <marker id="arrY" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 Z" fill="#5EEAD4" />
+                </marker>
+              </defs>
+            </svg>
+          </div>
+          <div class="given-line">GIVEN &middot; m = <b>325 kg</b> &middot; k = <b>500 N/m</b> &middot; R&#8320; = <b>5
+              cm</b> (both bumpy road and speed bump)</div>
+
+          <p class="instructions">Two scenarios guide the design:</p>
+          <p class="instructions"><b>Bumpy road</b> &mdash; r(t) = R&#8320; sin(&omega;t):</p>
+          <table class="spec-table">
+            <tr>
+              <th>variable</th>
+              <th>name</th>
+              <th>frequency range</th>
+              <th>requirement</th>
+            </tr>
+            <tr>
+              <td>y(t)</td>
+              <td>driver position</td>
+              <td>3 &lt; &omega; &lt; 20 rad/s</td>
+              <td>|y(t)| &lt; 2.5 cm</td>
+            </tr>
+            <tr>
+              <td>a(t)</td>
+              <td>driver acceleration</td>
+              <td>3 &lt; &omega; &lt; 20 rad/s</td>
+              <td>|a(t)| &lt; 2 m/s&sup2;</td>
+            </tr>
+            <tr>
+              <td>d(t)</td>
+              <td>shock travel</td>
+              <td>all frequencies</td>
+              <td>|d(t)| &lt; 10 cm</td>
+            </tr>
+          </table>
+          <p class="instructions"><b>Speed bump</b> &mdash; r(t) = R&#8320;&delta;(t):</p>
+          <table class="spec-table">
+            <tr>
+              <th>variable</th>
+              <th>name</th>
+              <th>time range</th>
+              <th>requirement</th>
+            </tr>
+            <tr>
+              <td>y(t)</td>
+              <td>driver position</td>
+              <td>t &gt; 2 sec</td>
+              <td>|y(t)| &lt; 1 cm</td>
+            </tr>
+            <tr>
+              <td>d(t)</td>
+              <td>shock travel</td>
+              <td>all time</td>
+              <td>|d(t)| &lt; 10 cm</td>
+            </tr>
+          </table>
+          <div class="note-box">
+            Every plot and check in this tool uses <code>b</code> from the damping-coefficient slider you set
+            in Problem 2 &mdash; it carries forward through Problems 3 and 4 automatically. There's nothing to
+            "submit" per section; just work through the problems in order and export the PDF at the end.
+          </div>
+        </section>
+
+        <!-- ============== PROBLEM 1 ============== -->
+        <section id="part-p1" style="display:none;">
+          <h3 class="problem-title">Problem 1: Verifying System Transfer Functions and Design Requirements</h3>
+          <p class="instructions">
+            First, compare your numerators from last night's quiz to be sure you have the same coefficients.
+            The denominator is common to all three transfer functions:
+          </p>
+          <div class="eq-block" id="eq-den"></div>
+          <p class="instructions">
+            Enter the numerator coefficients for each transfer function below, highest power of <i>s</i>
+            first (same convention as MATLAB's <code class="mono">tf(num,den)</code>), in terms of <i>m</i>,
+            <i>b</i>, <i>k</i>.
+          </p>
+
+          <div class="panel-box">
+            <h4>Numerator: Road &rarr; Position, G<sub>r&rarr;y</sub>(s)</h4>
+            <div class="form-grid one">
+              <div class="field"><label>num R&rarr;Y</label><input type="text" id="input-num-y" spellcheck="false" />
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <h4>Numerator: Road &rarr; Acceleration, G<sub>r&rarr;a</sub>(s)</h4>
+            <div class="form-grid one">
+              <div class="field"><label>num R&rarr;A</label><input type="text" id="input-num-a" spellcheck="false" />
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <h4>Numerator: Road &rarr; Shock Travel, G<sub>r&rarr;d</sub>(s)</h4>
+            <div class="form-grid one">
+              <div class="field"><label>num R&rarr;D</label><input type="text" id="input-num-d" spellcheck="false" />
+              </div>
+            </div>
+          </div>
+
+          <p class="instructions">
+            Second, convert the bumpy-road requirements into bounds on the magnitude of the transfer
+            function, as functions of R0:
+          </p>
+          <div class="eq-block" id="eq-ratios"></div>
+
+          <div class="panel-box">
+            <h4>Design ratio: |G<sub>r&rarr;y</sub>|<sub>max</sub> (function of R0, cm/cm)</h4>
+            <div class="form-grid one">
+              <div class="field"><label>G<sub>RtoY</sub>max(R0)</label><input type="text" id="input-ratio-y"
+                  spellcheck="false" /></div>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <h4>Design ratio: |G<sub>r&rarr;a</sub>|<sub>max</sub> (function of R0, (cm/s&sup2;)/cm)</h4>
+            <div class="form-grid one">
+              <div class="field"><label>G<sub>RtoA</sub>max(R0)</label><input type="text" id="input-ratio-a"
+                  spellcheck="false" /></div>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <h4>Design ratio: |G<sub>r&rarr;d</sub>|<sub>max</sub> (function of R0, cm/cm)</h4>
+            <div class="form-grid one">
+              <div class="field"><label>G<sub>RtoD</sub>max(R0)</label><input type="text" id="input-ratio-d"
+                  spellcheck="false" /></div>
+            </div>
+          </div>
+
+          <p class="instructions">
+            Once you've entered all six formulas above, generate the three frequency response plots (at the
+            default damping b = 50, before any iteration). The shaded region is your own "forbidden zone" ---
+            your blue curve must stay outside of it within the marked frequency range to meet the requirement.
+          </p>
+          <button class="run-btn" id="btn-p1-generate">GENERATE FREQUENCY RESPONSE PLOTS</button>
+          <p class="field-err" id="err-p1-generate"></p>
+
+          <p class="plot-label">Road &rarr; Position, |Y/R| (cm/cm)</p>
+          <div class="plot-host" id="plot-p1-y">
+            <div class="placeholder">Enter the formulas above, then click Generate.</div>
+          </div>
+          <p class="plot-label">Road &rarr; Acceleration, |A/R| (cm/s&sup2;/cm)</p>
+          <div class="plot-host" id="plot-p1-a"></div>
+          <p class="plot-label">Road &rarr; Shock Travel, |D/R| (cm/cm)</p>
+          <div class="plot-host" id="plot-p1-d"></div>
+
+          <h4 class="part-title">Discussion</h4>
+          <p class="instructions">
+            Discuss the three requirements, particularly their purpose and how they overlap (or not) in the
+            design. Why different frequency ranges? Which requirement limits your design the most?
+          </p>
+          <div class="reflection-box">
+            <textarea id="input-p1-reflection" placeholder="Type your answer here..."></textarea>
+          </div>
+        </section>
+
+        <!-- ============== PROBLEM 2 ============== -->
+        <section id="part-p2" style="display:none;">
+          <h3 class="problem-title">Problem 2: Design Suspension for Bumpy Road via Frequency Domain Plots</h3>
+          <p class="instructions">
+            For the default value of damping coefficient b = 50, the specifications on y(t) and a(t) are met,
+            but the specification on d(t) is not. Adjust b below and find the approximate range of values
+            that satisfy all three requirements. Which specification(s) are the limiting factor(s)?
+          </p>
+
+          <div class="panel-box">
+            <h4>Damping coefficient</h4>
+            <div class="slider-row">
+              <input type="range" id="input-b" min="20" max="500" step="10" value="50" />
+              <span class="b-readout mono" id="b-readout">b = 50 Ns/m</span>
+            </div>
+          </div>
+
+          <p class="plot-label">Road &rarr; Position, |Y/R| (cm/cm)</p>
+          <div class="plot-host" id="plot-p2-y"></div>
+          <p class="plot-label">Road &rarr; Acceleration, |A/R| (cm/s&sup2;/cm)</p>
+          <div class="plot-host" id="plot-p2-a"></div>
+          <p class="plot-label">Road &rarr; Shock Travel, |D/R| (cm/cm)</p>
+          <div class="plot-host" id="plot-p2-d"></div>
+
+          <h4 class="part-title">Your determined range for b</h4>
+          <div class="form-grid two">
+            <div class="field"><label>b min (Ns/m)</label><input type="number" id="input-bmin" value="" step="any" />
+            </div>
+            <div class="field"><label>b max (Ns/m)</label><input type="number" id="input-bmax" value="" step="any" />
+            </div>
+          </div>
+
+          <h4 class="part-title">Discussion</h4>
+          <p class="instructions">Which specification(s) (y(t), a(t), d(t)) are the limiting factors? Select a value of
+            b that meets all three requirements, and set the slider above to that value &mdash; it carries forward into
+            Problems 3 and 4.</p>
+          <div class="reflection-box">
+            <textarea id="input-p2-reflection" placeholder="Type your answer here..."></textarea>
+          </div>
+        </section>
+
+        <!-- ============== PROBLEM 3 ============== -->
+        <section id="part-p3" style="display:none;">
+          <h3 class="problem-title">Problem 3: Verify Suspension Design for Bumpy Road via Simulation</h3>
+          <p class="instructions">
+            For each variable (y, a, d), select a frequency &omega; and click Run to simulate the steady-state
+            sinusoidal response r(t) = R&#8320;sin(&omega;t). Choose the "worst case" frequency &mdash; the one
+            where the transfer function comes closest to failing the requirement &mdash; within each
+            variable's frequency range.
+          </p>
+          <p class="b-echo">Using damping coefficient <b id="p3-b-echo">b = 50 Ns/m</b> (set in Problem 2).</p>
+
+          <div id="p3-case-y"></div>
+          <div id="p3-case-a"></div>
+          <div id="p3-case-d"></div>
+
+          <h4 class="part-title">Discussion</h4>
+          <p class="instructions">Discuss with your group which frequencies you chose and why. Do we need to simulate
+            more frequencies?</p>
+          <div class="reflection-box">
+            <textarea id="input-p3-reflection" placeholder="Type your answer here..."></textarea>
+          </div>
+        </section>
+
+        <!-- ============== PROBLEM 4 ============== -->
+        <section id="part-p4" style="display:none;">
+          <h3 class="problem-title">Problem 4: Verify/Design Suspension for Speed Bump via Simulation</h3>
+          <p class="instructions">
+            Verify that your design also meets the speed-bump requirements, r(t) = R&#8320;&delta;(t). Click
+            Run to simulate both y(t) and d(t). If the requirements aren't met, go back to Problem 2 and
+            adjust b &mdash; then come back and re-run the simulation below.
+          </p>
+          <p class="b-echo">Using damping coefficient <b id="p4-b-echo">b = 50 Ns/m</b> (set in Problem 2).</p>
+
+          <button class="run-btn" id="btn-p4-run">RUN SPEED BUMP SIMULATION</button>
+
+          <p class="plot-label">Car Position y(t) to a Speed Bump (cm)</p>
+          <div class="plot-host tall" id="plot-p4-y">
+            <div class="placeholder">Click Run to simulate.</div>
+          </div>
+          <p class="plot-label">Shock Travel d(t) to a Speed Bump (cm)</p>
+          <div class="plot-host tall" id="plot-p4-d"></div>
+
+          <h4 class="part-title">Updated range for b</h4>
+          <p class="instructions">How has your range for allowable values of b changed, now that both scenarios must be
+            satisfied?</p>
+          <div class="form-grid two">
+            <div class="field"><label>b min (Ns/m)</label><input type="number" id="input-bmin2" value="" step="any" />
+            </div>
+            <div class="field"><label>b max (Ns/m)</label><input type="number" id="input-bmax2" value="" step="any" />
+            </div>
+          </div>
+
+          <h4 class="part-title">Discussion</h4>
+          <p class="instructions">What are the limiting specifications now? What is your final chosen value of b, and
+            why?</p>
+          <div class="reflection-box">
+            <textarea id="input-p4-reflection" placeholder="Type your answer here..."></textarea>
+          </div>
+        </section>
+
+        <!-- ============== SUBMISSION ============== -->
+        <section id="part-submission" style="display:none;">
+          <h2 class="section-title">Submission</h2>
+          <p class="instructions">
+            Export a PDF of your final design (from Problem 4): the three frequency response plots, the three
+            sinusoidal-simulation plots, the two impulse-response plots, and your answers/discussion from
+            Problems 1&ndash;4.
+          </p>
+          <div class="panel-box">
+            <h4>Group Info</h4>
+            <div class="form-grid two">
+              <div class="field"><label>your NetID</label><input type="text" id="input-netid" placeholder="netid"
+                  spellcheck="false" /></div>
+              <div class="field"><label>group member NetIDs</label><input type="text" id="input-group-netids"
+                  placeholder="netid1, netid2, ..." spellcheck="false" /></div>
+            </div>
+          </div>
+          <button class="run-btn" id="exportPdfBtn">EXPORT PDF</button>
+          <p class="field-err" id="export-status"></p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      // =================================================================
+      // Physical model
+      // =================================================================
+      const M = 325;   // kg, 1/4 car mass
+      const K = 500;   // N/m, spring constant
+      const R0 = 5;     // cm, road amplitude (both scenarios)
+
+      function den(b) { return [M, b, K]; }
+      function correctNum(kind, b) {
+        if (kind === "y") return [b, K];
+        if (kind === "a") return [b, K, 0, 0];
+        if (kind === "d") return [-M, 0, 0];
+      }
+      const SPEC_WINDOW = { y: [3, 20], a: [3, 20], d: [0.1, 100] };
+      const SPEC_BOUND_REAL = { y: 2.5, a: 200, d: 10 }; // cm, cm/s^2, cm (2 m/s^2 = 200 cm/s^2)
+      function correctRatio(kind) { return SPEC_BOUND_REAL[kind] / R0; } // cm/cm or (cm/s^2)/cm
+
+      // ---------------------------------------------------------------
+      // Complex arithmetic + frequency response
+      // ---------------------------------------------------------------
+      function cMul(a, b) { return { re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re }; }
+      function cDiv(a, b) {
+        const d = b.re * b.re + b.im * b.im;
+        return { re: (a.re * b.re + a.im * b.im) / d, im: (a.im * b.re - a.re * b.im) / d };
+      }
+      function evalPolyComplex(coeffs, w) {
+        let result = { re: 0, im: 0 };
+        const s = { re: 0, im: w };
+        coeffs.forEach((c) => { result = cMul(result, s); result = { re: result.re + c, im: result.im }; });
+        return result;
+      }
+      function gAt(numCoeffs, denCoeffs, w) { return cDiv(evalPolyComplex(numCoeffs, w), evalPolyComplex(denCoeffs, w)); }
+      function magAt(numCoeffs, denCoeffs, w) { const g = gAt(numCoeffs, denCoeffs, w); return Math.sqrt(g.re * g.re + g.im * g.im); }
+      function magPhaseAt(numCoeffs, denCoeffs, w) { const g = gAt(numCoeffs, denCoeffs, w); return { mag: Math.sqrt(g.re * g.re + g.im * g.im), phase: Math.atan2(g.im, g.re) }; }
+
+      // ---------------------------------------------------------------
+      // Closed-form impulse response of G_r->y(s) = (b s + k)/(m s^2 + b s + k),
+      // scaled for an impulse input R0*delta(t). Verified against a
+      // controllable-canonical state-space RK4 simulation (impulse sets
+      // x(0+) = B, then free response) -- matches to 1e-14 at all tested
+      // b, t. G_r->d(s) = -1 + G_r->y(s) exactly (polynomial identity,
+      // independent of b), so for t>0 the impulse responses of y and d are
+      // identical: d(t) = y(t) for t > 0 (the "-1" term is a delta-function
+      // at t=0 only, since r(t)=R0*delta(t) itself vanishes for t>0).
+      // ---------------------------------------------------------------
+      function impulseResponseY(t, b, r0) {
+        const wn = Math.sqrt(K / M);
+        const zeta = b / (2 * M * wn);
+        const wd = wn * Math.sqrt(Math.max(1 - zeta * zeta, 1e-9));
+        const a = zeta * wn;
+        const A = b / M, B = (K - b * a) / (M * wd);
+        return r0 * Math.exp(-a * t) * (A * Math.cos(wd * t) + B * Math.sin(wd * t));
+      }
+
+      // =================================================================
+      // Shared plot styling
+      // =================================================================
+      const PLOT_OPTS = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+      // ---------------------------------------------------------------
+      // Log-axis tick labels. Plotly's default labels the in-between ticks
+      // with bare digits ("2", "5"), which read like whole numbers. Instead:
+      // zoomed out, label only the powers of 10 (like MATLAB); zoomed in,
+      // label the in-between ticks with their full value (0.2, 20, ...).
+      // Re-applied on every zoom/pan and on double-click reset.
+      // ---------------------------------------------------------------
+      function logTickSpec(range, power) {
+        const lo = Math.min(range[0], range[1]), hi = Math.max(range[0], range[1]);
+        const span = hi - lo;
+        const mults = span > 1.3 ? [1] : span > 0.5 ? [1, 2, 5] : [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        const vals = [], text = [];
+        for (let d = Math.floor(lo); d <= Math.ceil(hi); d++) {
+          mults.forEach((m) => {
+            const lv = d + Math.log10(m);
+            if (lv < lo - 1e-9 || lv > hi + 1e-9) return;
+            const v = m * Math.pow(10, d);
+            vals.push(v);
+            text.push(power && m === 1 ? `10<sup>${d}</sup>` : String(Number(v.toPrecision(3))));
+          });
+        }
+        if (vals.length < 2) return { tickmode: "auto", tickvals: null, ticktext: null };
+        return { tickmode: "array", tickvals: vals, ticktext: text };
+      }
+      function applyLogTicks(gd, power) {
+        const update = {};
+        ["xaxis", "yaxis"].forEach((ax) => {
+          const fa = gd._fullLayout && gd._fullLayout[ax];
+          if (!fa || fa.type !== "log") return;
+          Object.entries(logTickSpec(fa.range, power)).forEach(([k, v]) => { update[`${ax}.${k}`] = v; });
+        });
+        if (Object.keys(update).length) Plotly.relayout(gd, update);
+      }
+      function newLogPlot(divId, data, layout, config) {
+        return Plotly.newPlot(divId, data, layout, config).then((gd) => {
+          if (gd._logTickHandler) gd.removeListener("plotly_relayout", gd._logTickHandler);
+          gd._logTickHandler = (ev) => {
+            if (Object.keys(ev).every((k) => /tick/.test(k))) return; // our own relayout
+            applyLogTicks(gd, false);
+          };
+          gd.on("plotly_relayout", gd._logTickHandler);
+          applyLogTicks(gd, false);
+          return gd;
+        });
+      }
+
+      function plotLayout(yTitle, opts) {
+        opts = opts || {};
+        return {
+          paper_bgcolor: "#171A21", plot_bgcolor: "#171A21",
+          font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
+          margin: { l: 55, r: 15, t: 10, b: opts.xTitle ? 40 : 25 },
+          xaxis: Object.assign({ title: opts.xTitle || "", gridcolor: "#282D3A", zerolinecolor: "#282D3A" }, opts.xaxis || {}),
+          yaxis: Object.assign({ title: yTitle, gridcolor: "#282D3A", zerolinecolor: "#282D3A" }, opts.yaxis || {}),
+          shapes: opts.shapes || [],
+          showlegend: !!opts.showlegend,
+          legend: { orientation: "h", y: -0.25, font: { size: 10 } },
+        };
+      }
+      function forbiddenZoneShape(w1, w2, boundVal, yTop) {
+        return { type: "rect", xref: "x", yref: "y", x0: w1, x1: w2, y0: boundVal, y1: yTop, fillcolor: "rgba(251,113,133,0.18)", line: { width: 0 } };
+      }
+
+      // =================================================================
+      // KaTeX
+      // =================================================================
+      katex.render("den(s) = m\\,s^{2} + b\\,s + k", document.getElementById("eq-den"), { throwOnError: false, displayMode: true });
+      katex.render(
+        "|G_{r\\to y}(j\\omega)| < \\dfrac{y_{max}}{R_0},\\quad |G_{r\\to a}(j\\omega)| < \\dfrac{a_{max}}{R_0},\\quad |G_{r\\to d}(j\\omega)| < \\dfrac{d_{max}}{R_0}",
+        document.getElementById("eq-ratios"), { throwOnError: false, displayMode: true }
+      );
+
+      // =================================================================
+      // Navigation
+      // =================================================================
+      const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+          document.getElementById(SECTION_IDS[btn.dataset.part]).style.display = "block";
+        });
+      });
+
+      const runFlags = {};
+
+      // =================================================================
+      // Problem 1: numerator + ratio formula parsing
+      // =================================================================
+      function parseCoeffExprList(str) {
+        const cleaned = str.trim().replace(/^\[/, "").replace(/\]$/, "").trim();
+        const parts = cleaned.split(/[\s,]+/).filter((s) => s.length > 0);
+        if (parts.length === 0) throw new Error("empty");
+        return parts;
+      }
+
+      // ---------------------------------------------------------------
+      // Problem 1: generate the three frequency-response plots at the
+      // default b=50, using the STUDENT's own numerator + ratio formulas
+      // (evaluated numerically), so the shape of the curve and forbidden
+      // zone is their own work -- mirrors the livescript's own behavior.
+      // ---------------------------------------------------------------
+      function studentNumCoeffs(kind) {
+        const idMap = { y: "input-num-y", a: "input-num-a", d: "input-num-d" };
+        const tokens = parseCoeffExprList(document.getElementById(idMap[kind]).value.trim());
+        return tokens.map((tok) => math.evaluate(tok, { m: M, k: K, b: 50 }));
+      }
+      function studentRatio(kind) {
+        const idMap = { y: "input-ratio-y", a: "input-ratio-a", d: "input-ratio-d" };
+        return math.evaluate(document.getElementById(idMap[kind]).value.trim(), { R0: R0 });
+      }
+      const OMEGA_SWEEP = (() => {
+        const N = 400, arr = [];
+        for (let i = 0; i < N; i++) arr.push(Math.pow(10, -1 + 3 * (i / (N - 1)))); // logspace(-1,2,N)
+        return arr;
+      })();
+      function renderFreqPlot(divId, kind, numCoeffs, b, ratioVal, axisTop) {
+        const d = den(b);
+        const mags = OMEGA_SWEEP.map((w) => magAt(numCoeffs, d, w));
+        const [w1, w2] = SPEC_WINDOW[kind];
+        newLogPlot(divId, [
+          { x: OMEGA_SWEEP, y: mags, mode: "lines", line: { color: "#5EEAD4", width: 2.2 }, name: "|G(jω)|" },
+        ], plotLayout("amplitude ratio", {
+          xTitle: "ω [rad/s]",
+          xaxis: { type: "log" }, yaxis: { type: "log", range: [Math.log10(axisTop / 5000), Math.log10(axisTop)] },
+          shapes: [forbiddenZoneShape(w1, w2, ratioVal, axisTop)],
+        }), PLOT_OPTS);
+      }
+      document.getElementById("btn-p1-generate").addEventListener("click", () => {
+        const errEl = document.getElementById("err-p1-generate");
+        errEl.textContent = "";
+        try {
+          const numY = studentNumCoeffs("y"), numA = studentNumCoeffs("a"), numD = studentNumCoeffs("d");
+          const ratY = studentRatio("y"), ratA = studentRatio("a"), ratD = studentRatio("d");
+          if ([...numY, ...numA, ...numD, ratY, ratA, ratD].some((v) => typeof v !== "number" || !isFinite(v))) throw new Error("bad");
+          renderFreqPlot("plot-p1-y", "y", numY, 50, ratY, Math.max(ratY * 10, 10));
+          renderFreqPlot("plot-p1-a", "a", numA, 50, ratA, Math.max(ratA * 10, 400));
+          renderFreqPlot("plot-p1-d", "d", numD, 50, ratD, Math.max(ratD * 10, 20));
+          runFlags.p1 = true;
+        } catch (e) {
+          errEl.textContent = "Enter all six formulas above first.";
+        }
+        scheduleSave();
+      });
+
+      // =================================================================
+      // Shared damping coefficient b (Problem 2's slider, read by Problems 3/4)
+      // =================================================================
+      function currentB() { return Number(document.getElementById("input-b").value); }
+      function updateBReadouts() {
+        const b = currentB();
+        document.getElementById("b-readout").textContent = `b = ${b} Ns/m`;
+        document.getElementById("p3-b-echo").textContent = `b = ${b} Ns/m`;
+        document.getElementById("p4-b-echo").textContent = `b = ${b} Ns/m`;
+      }
+
+      function renderP2Plots() {
+        const b = currentB();
+        ["y", "a", "d"].forEach((kind) => {
+          const num = correctNum(kind, b);
+          const axisTop = kind === "y" ? 10 : (kind === "a" ? 400 : 20);
+          renderFreqPlot(`plot-p2-${kind}`, kind, num, b, correctRatio(kind), axisTop);
+        });
+      }
+      document.getElementById("input-b").addEventListener("input", () => { updateBReadouts(); renderP2Plots(); scheduleSave(); });
+
+      // =================================================================
+      // Problem 3: worst-case sinusoidal simulation, one panel per variable
+      // =================================================================
+      function buildSimCasePanel(containerId, kind, label, yTitle) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `
+      <div class="subpanel">
+        <h4>${label}</h4>
+        <p class="instructions">Frequency range: ${SPEC_WINDOW[kind][0]} &lt; &omega; &lt; ${SPEC_WINDOW[kind][1]} rad/s (choose the worst case within this range).</p>
+        <div class="form-grid one">
+          <div class="field"><label>&omega; (rad/s)</label><input type="number" id="input-p3-${kind}-w" value="" step="any" /></div>
+        </div>
+        <button class="run-btn" id="btn-p3-${kind}-run">RUN</button>
+        <p class="field-err" id="err-p3-${kind}"></p>
+        <div class="plot-host" id="plot-p3-${kind}"><div class="placeholder">Enter &omega; and click Run.</div></div>
+      </div>
+    `;
+        document.getElementById(`btn-p3-${kind}-run`).addEventListener("click", () => {
+          const w = Number(document.getElementById(`input-p3-${kind}-w`).value);
+          const errEl = document.getElementById(`err-p3-${kind}`);
+          errEl.textContent = "";
+          if (!isFinite(w) || w <= 0) { errEl.textContent = "Enter a positive frequency."; return; }
+          const b = currentB();
+          const { mag, phase } = magPhaseAt(correctNum(kind, b), den(b), w);
+          const amplitude = R0 * mag;
+          const T = 2 * Math.PI / w;
+          const N = 300;
+          const tArr = Array.from({ length: N }, (_, i) => (i / (N - 1)) * T);
+          const yArr = tArr.map((t) => amplitude * Math.sin(w * t + phase));
+          const rArr = tArr.map((t) => R0 * Math.sin(w * t));
+          Plotly.newPlot(`plot-p3-${kind}`, [
+            { x: tArr, y: rArr, mode: "lines", line: { color: "#8B92A5", width: 1.6, dash: "dot" }, name: "road r(t)" },
+            { x: tArr, y: yArr, mode: "lines", line: { color: "#FFB454", width: 2.2 }, name: `${kind}(t)` },
+          ], plotLayout(yTitle, { xTitle: "time [s] (one steady-state period)", showlegend: true }), PLOT_OPTS);
+
+          runFlags["p3" + kind] = true;
+          scheduleSave();
+        });
+      }
+      buildSimCasePanel("p3-case-y", "y", "Road → Position y(t)", "y(t), r(t) [cm]");
+      buildSimCasePanel("p3-case-a", "a", "Road → Acceleration a(t)", "a(t) [cm/s²], r(t) [cm]");
+      buildSimCasePanel("p3-case-d", "d", "Road → Shock Travel d(t)", "d(t), r(t) [cm]");
+
+      // =================================================================
+      // Problem 4: speed bump (impulse) simulation
+      // =================================================================
+      document.getElementById("btn-p4-run").addEventListener("click", () => {
+        const b = currentB();
+        const N = 500, tmax = 10;
+        const tArr = Array.from({ length: N }, (_, i) => (i / (N - 1)) * tmax);
+        const yArr = tArr.map((t) => impulseResponseY(t, b, R0));
+        const dArr = yArr; // exact identity: d(t) = y(t) for t > 0 (see impulseResponseY comment)
+
+        // Speed-bump spec: |y(t)| < 1 cm for t > 2 s (tighter than the 2.5 cm bumpy-road bound).
+        const yTmin = 2, yMax = 1, yAxisMax = 10;
+        Plotly.newPlot("plot-p4-y", [
+          { x: tArr, y: yArr, mode: "lines", line: { color: "#5EEAD4", width: 2.2 }, name: "y(t)" },
+        ], plotLayout("y(t) [cm]", {
+          xTitle: "time [s]",
+          yaxis: { range: [-yAxisMax, yAxisMax] },
+          shapes: [
+            { type: "rect", x0: yTmin, x1: tmax, y0: yMax, y1: yAxisMax, fillcolor: "rgba(251,113,133,0.18)", line: { width: 0 } },
+            { type: "rect", x0: yTmin, x1: tmax, y0: -yAxisMax, y1: -yMax, fillcolor: "rgba(251,113,133,0.18)", line: { width: 0 } },
+          ],
+        }), PLOT_OPTS);
+
+        const dMax = SPEC_BOUND_REAL.d, dAxisMax = 12;
+        Plotly.newPlot("plot-p4-d", [
+          { x: tArr, y: dArr, mode: "lines", line: { color: "#FFB454", width: 2.2 }, name: "d(t)" },
+        ], plotLayout("d(t) [cm]", {
+          xTitle: "time [s]",
+          yaxis: { range: [-dAxisMax, dAxisMax] },
+          shapes: [
+            { type: "rect", x0: 0, x1: tmax, y0: dMax, y1: dAxisMax, fillcolor: "rgba(251,113,133,0.18)", line: { width: 0 } },
+            { type: "rect", x0: 0, x1: tmax, y0: -dAxisMax, y1: -dMax, fillcolor: "rgba(251,113,133,0.18)", line: { width: 0 } },
+          ],
+        }), PLOT_OPTS);
+
+        runFlags.p4 = true;
+        scheduleSave();
+      });
+
+      // =================================================================
+      // PDF export
+      // =================================================================
+      function setExportStatus(msg, isErr) {
+        const el = document.getElementById("export-status");
+        el.textContent = msg; el.style.color = isErr ? "var(--rose)" : "var(--cyan)";
+      }
+      function reflectionText(id) {
+        const v = document.getElementById(id).value.trim();
+        return v || "(no answer entered)";
+      }
+      async function exportPdf() {
+        const btn = document.getElementById("exportPdfBtn");
+        const originalLabel = btn.textContent;
+        btn.disabled = true; btn.textContent = "EXPORTING…";
+        setExportStatus("");
+        try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ unit: "pt", format: "letter" });
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+          const margin = 48;
+          const maxWidth = pageWidth - margin * 2;
+          let y = margin;
+
+          function ensureSpace(h) { if (y + h > pageHeight - margin) { doc.addPage(); y = margin; } }
+          function addHeading(text) {
+            ensureSpace(30);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(15);
+            doc.text(text, margin, y); y += 22;
+          }
+          function addText(text, opts) {
+            const size = (opts && opts.size) || 10.5;
+            const bold = !!(opts && opts.bold);
+            doc.setFont("helvetica", bold ? "bold" : "normal"); doc.setFontSize(size);
+            const lines = doc.splitTextToSize(text, maxWidth);
+            const lineHeight = size * 1.35;
+            lines.forEach((line) => { ensureSpace(lineHeight); doc.text(line, margin, y); y += lineHeight; });
+            y += 4;
+          }
+          async function addPlotImage(divId, fallbackLabel) {
+            let dataUrl;
+            try { dataUrl = await Plotly.toImage(divId, { format: "png", width: 900, height: 460 }); }
+            catch (err) { addText(`(${fallbackLabel}: plot image could not be captured.)`); return; }
+            const imgWidth = maxWidth;
+            const imgHeight = imgWidth * (460 / 900);
+            ensureSpace(imgHeight + 10);
+            doc.addImage(dataUrl, "PNG", margin, y, imgWidth, imgHeight);
+            y += imgHeight + 16;
+          }
+
+          doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+          doc.splitTextToSize("GroupWork 6F — Passive Suspension Design", maxWidth).forEach((line) => { doc.text(line, margin, y); y += 20; });
+          y += 6;
+
+          const netId = document.getElementById("input-netid").value.trim() || "(not entered)";
+          const groupIds = document.getElementById("input-group-netids").value.trim() || "(not entered)";
+          addText(`Your NetID: ${netId}`, { bold: true, size: 11.5 });
+          addText(`Group member NetIDs: ${groupIds}`, { bold: true, size: 11.5 });
+          const finalB = currentB();
+          addText(`Final damping coefficient: b = ${finalB} Ns/m`, { bold: true, size: 11.5 });
+          y += 8;
+
+          addHeading("Problem 1: Verifying Transfer Functions and Design Requirements");
+          addText(`num R->Y = [ ${document.getElementById("input-num-y").value} ]`);
+          addText(`num R->A = [ ${document.getElementById("input-num-a").value} ]`);
+          addText(`num R->D = [ ${document.getElementById("input-num-d").value} ]`);
+          addText(`GRtoYmax(R0) = ${document.getElementById("input-ratio-y").value}`);
+          addText(`GRtoAmax(R0) = ${document.getElementById("input-ratio-a").value}`);
+          addText(`GRtoDmax(R0) = ${document.getElementById("input-ratio-d").value}`);
+          addText("Discussion:", { bold: true, size: 10.5 });
+          addText(reflectionText("input-p1-reflection"));
+          if (runFlags.p1) { await addPlotImage("plot-p1-y", "R->Y plot"); await addPlotImage("plot-p1-a", "R->A plot"); await addPlotImage("plot-p1-d", "R->D plot"); }
+
+          addHeading("Problem 2: Design via Frequency Domain Plots (final b)");
+          addText(`Determined range for b: ${document.getElementById("input-bmin").value || "?"} to ${document.getElementById("input-bmax").value || "?"} Ns/m`);
+          addText(`Final b used below: ${finalB} Ns/m`);
+          addText("Discussion:", { bold: true, size: 10.5 });
+          addText(reflectionText("input-p2-reflection"));
+          renderP2Plots();
+          await addPlotImage("plot-p2-y", "R->Y Bode plot"); await addPlotImage("plot-p2-a", "R->A Bode plot"); await addPlotImage("plot-p2-d", "R->D Bode plot");
+
+          addHeading("Problem 3: Verify via Bumpy Road Simulation");
+          ["y", "a", "d"].forEach((kind) => {
+            const w = document.getElementById(`input-p3-${kind}-w`).value;
+            addText(`omega for R->${kind.toUpperCase()}: ${w || "(not entered)"} rad/s`);
+          });
+          if (runFlags.p3y) await addPlotImage("plot-p3-y", "R->Y sim"); else addText("(Y case not yet run.)");
+          if (runFlags.p3a) await addPlotImage("plot-p3-a", "R->A sim"); else addText("(A case not yet run.)");
+          if (runFlags.p3d) await addPlotImage("plot-p3-d", "R->D sim"); else addText("(D case not yet run.)");
+          addText("Discussion:", { bold: true, size: 10.5 });
+          addText(reflectionText("input-p3-reflection"));
+
+          addHeading("Problem 4: Verify/Design via Speed Bump Simulation");
+          if (runFlags.p4) { await addPlotImage("plot-p4-y", "speed bump y(t)"); await addPlotImage("plot-p4-d", "speed bump d(t)"); } else addText("(Speed bump simulation not yet run.)");
+          addText(`Updated range for b: ${document.getElementById("input-bmin2").value || "?"} to ${document.getElementById("input-bmax2").value || "?"} Ns/m`);
+          addText("Discussion:", { bold: true, size: 10.5 });
+          addText(reflectionText("input-p4-reflection"));
+
+          const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+          doc.save(`GroupWork6F_${safeNetId}.pdf`);
+          setExportStatus("PDF downloaded.");
+        } catch (err) {
+          console.error("PDF export failed:", err);
+          setExportStatus(`Could not export PDF: ${err.message}`, true);
+        } finally {
+          btn.disabled = false; btn.textContent = originalLabel;
+        }
+      }
+      document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+      // =================================================================
+      // Progress autosave (localStorage)
+      // =================================================================
+      const STORAGE_KEY = "gw6f_progress_v1";
+      function collectFieldValues() {
+        const values = {};
+        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((el) => { values[el.id] = el.value; });
+        return values;
+      }
+      function currentActiveTab() {
+        const active = document.querySelector(".nav-btn.active");
+        return active ? active.dataset.part : "intro";
+      }
+      function saveProgress() {
+        try {
+          const state = { activeTab: currentActiveTab(), fields: collectFieldValues(), runFlags: runFlags };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (err) { /* storage unavailable -- fail silently */ }
+      }
+      let saveTimer = null;
+      function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveProgress, 250); }
+      document.addEventListener("input", scheduleSave);
+      document.addEventListener("click", scheduleSave);
+
+      function loadProgress() {
+        let raw;
+        try { raw = localStorage.getItem(STORAGE_KEY); } catch (err) { return; }
+        if (!raw) return;
+        let state;
+        try { state = JSON.parse(raw); } catch (err) { return; }
+        if (state.fields) {
+          Object.keys(state.fields).forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.value = state.fields[id];
+          });
+        }
+        if (state.runFlags) Object.assign(runFlags, state.runFlags);
+        if (state.activeTab) {
+          const btn = document.querySelector(`.nav-btn[data-part="${state.activeTab}"]`);
+          if (btn) btn.click();
+        }
+      }
+
+      // =================================================================
+      // Init
+      // =================================================================
+      loadProgress();
+      updateBReadouts();
+      renderP2Plots();
+    })();
+  </script>
+</body>
+
+</html>

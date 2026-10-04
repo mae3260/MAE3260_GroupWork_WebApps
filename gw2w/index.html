@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GroupWork 2W &mdash; Closed-Loop System Design</title>
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0F1115;
+    --panel: #171A21;
+    --panel2: #1D212B;
+    --line: #282D3A;
+    --amber: #FFB454;
+    --cyan: #5EEAD4;
+    --rose: #FB7185;
+    --pink: #F472B6;
+    --fg: #E7E9EE;
+    --muted: #8B92A5;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--ink); color: var(--fg);
+    font-family: 'Inter', sans-serif;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  header h1 {
+    font-size: 14px; margin: 0; font-weight: 600;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em;
+  }
+  header h1 span { color: var(--muted); font-weight: 400; }
+
+  main { flex: 1; display: flex; overflow: hidden; }
+
+  nav {
+    width: 220px; flex-shrink: 0;
+    background: var(--panel);
+    border-left: 1px solid var(--line);
+    order: 2;
+    padding: 16px 14px;
+    overflow-y: auto;
+  }
+  nav p.label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted);
+    letter-spacing: 0.1em; margin: 14px 0 8px 0;
+  }
+  nav p.label:first-child { margin-top: 0; }
+  .nav-btn {
+    display: block; width: 100%; text-align: left;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    padding: 9px 12px; margin-bottom: 6px;
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 6px;
+    color: var(--fg); cursor: pointer;
+  }
+  .nav-btn.active { border-color: var(--amber); color: var(--amber); }
+  .nav-btn small { display: block; font-family: 'Inter', sans-serif; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .content { flex: 1; order: 1; overflow-y: auto; padding: 28px 40px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  h2.section-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--amber);
+    margin: 0 0 14px 0;
+  }
+  h3.problem-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--cyan);
+    margin: 0 0 10px 0;
+  }
+  p.instructions {
+    font-size: 14.5px; line-height: 1.65; color: var(--fg); margin: 0 0 16px 0;
+  }
+  ul.goals, ol.steps-list { padding-left: 20px; margin: 0 0 16px 0; }
+  ul.goals li, .steps-list li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .eq-block {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    text-align: center;
+    font-size: 16px;
+  }
+  .given-line {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted);
+    margin: 0 0 18px 0;
+  }
+  .given-line b { color: var(--fg); font-weight: 600; }
+
+  .panel-box {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 18px 20px; margin-bottom: 18px;
+  }
+
+  .slider-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .slider-row:last-child { margin-bottom: 0; }
+  .slider-row label { font-size: 12.5px; color: var(--muted); width: 90px; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+  .slider-row input[type="range"] { flex: 1; accent-color: var(--amber); }
+  .slider-value {
+    width: 70px; text-align: right; font-size: 13px; color: var(--amber); font-weight: 600;
+    font-family: 'JetBrains Mono', monospace; flex-shrink: 0;
+  }
+
+  .form-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    margin-bottom: 16px;
+  }
+  .form-grid.two { grid-template-columns: repeat(2, 1fr); }
+  .form-grid.stack { grid-template-columns: 1fr; }
+  .field {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px;
+  }
+  .field.invalid { border-color: var(--rose); }
+  .field label {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 8px;
+  }
+  .field input[type="text"], .field input[type="number"] {
+    width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px;
+    color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    padding: 8px 10px;
+  }
+  .field input:focus { outline: none; border-color: var(--amber); }
+  .field .err-msg { font-size: 11px; color: var(--rose); margin-top: 6px; min-height: 14px; }
+
+  .value-with-units { display: flex; align-items: center; gap: 6px; }
+  .value-with-units input[type="number"] { width: auto; flex: 1 1 auto; min-width: 0; }
+  .value-with-units select.type-select { flex: 0 0 auto; padding: 8px 6px; }
+  .value-with-units .unit-slash { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+
+  .reflection-box {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px;
+  }
+  .reflection-box textarea {
+    width: 100%; min-height: 90px; resize: vertical;
+    background: var(--ink); border: 1px solid var(--line); border-radius: 5px;
+    color: var(--fg); font-family: 'Inter', sans-serif; font-size: 14px;
+    padding: 10px 12px; line-height: 1.5;
+  }
+  .reflection-box textarea:focus { outline: none; border-color: var(--amber); }
+
+  .run-btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+    padding: 10px 22px; border-radius: 6px; border: none;
+    background: var(--amber); color: var(--ink); cursor: pointer;
+  }
+  .run-btn:hover { filter: brightness(1.08); }
+  .run-btn:active { transform: scale(0.98); }
+  .run-btn.secondary { background: none; color: var(--muted); border: 1px solid var(--line); }
+  .run-btn.secondary:hover { color: var(--rose); border-color: var(--rose); }
+
+  .match-banner {
+    display: none;
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+    padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line);
+  }
+  .match-banner.match { display: block; border-color: var(--cyan); color: var(--cyan); }
+  .match-banner.no-match { display: block; border-color: var(--rose); color: var(--rose); }
+
+  .stats-line {
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--muted);
+    margin: 14px 0 0 0; padding: 10px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  }
+  .stats-line b { color: var(--fg); }
+
+  .plot-host { margin-top: 18px; height: 380px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+  .placeholder {
+    display: flex; align-items: center; justify-content: center; height: 100%;
+    color: var(--muted); font-size: 13px; text-align: center; max-width: 420px; margin: 0 auto; padding: 0 20px;
+  }
+
+  select.type-select {
+    background: var(--ink); border: 1px solid var(--line); border-radius: 5px;
+    color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    padding: 8px 10px;
+  }
+  select.type-select:focus { outline: none; border-color: var(--amber); }
+
+  .layout-with-sidebar { display: flex; gap: 20px; align-items: flex-start; }
+  .layout-main { flex: 1; min-width: 0; }
+  .syntax-ref {
+    width: 200px; flex-shrink: 0;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px;
+  }
+  .syntax-ref h4 {
+    margin: 0 0 10px 0; font-size: 11px; color: var(--muted); letter-spacing: 0.08em;
+    font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+  }
+  .syntax-ref .syn-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px; font-size: 12px; gap: 8px;
+  }
+  .syntax-ref .syn-row span { color: var(--muted); }
+  .syntax-ref .syn-row code {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan);
+    background: var(--ink); padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+  }
+
+  .upload-block {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px;
+    margin: 0 0 18px 0;
+  }
+  .upload-block input[type="file"] {
+    font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--fg);
+  }
+  .upload-thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .thumb-wrap { position: relative; width: 90px; height: 120px; }
+  .thumb-img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid var(--line);
+    display: block;
+  }
+  .thumb-remove {
+    position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px;
+    line-height: 1; display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .diagram-block { cursor: pointer; }
+  .diagram-block rect, .diagram-block circle { transition: stroke .15s, stroke-width .15s, fill .15s; }
+  .diagram-block:hover rect, .diagram-block:hover circle { stroke: #8B92A5; }
+  .diagram-block.selected rect, .diagram-block.selected circle {
+    stroke: var(--amber); stroke-width: 3; fill: #2a2410;
+  }
+
+  .note-box {
+    background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 4px;
+    padding: 12px 16px; margin: 0 0 18px 0; font-size: 13px; line-height: 1.6; color: var(--fg);
+  }
+
+  .katex { color: var(--fg); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>GROUPWORK 2W <span>&mdash; Closed-Loop System Design (M&amp;AE 3260)</span></h1>
+</header>
+
+<main>
+  <nav>
+    <p class="label">BACKGROUND</p>
+    <button class="nav-btn active" data-part="intro">Intro<small>System &amp; learning goals</small></button>
+
+    <p class="label">PROBLEM 1</p>
+    <button class="nav-btn" data-part="a">a) Closed-Loop Response<small>Enter expressions</small></button>
+    <button class="nav-btn" data-part="b">b) Settling Time<small>Verify + reflection</small></button>
+    <button class="nav-btn" data-part="c">c) Steady-State Error<small>Verify + reflection</small></button>
+    <button class="nav-btn" data-part="d">d) Changing K<small>Add to plot + reflection</small></button>
+
+    <p class="label">OPTIONAL</p>
+    <button class="nav-btn" data-part="opt">Sensor Miswiring<small>Discussion (optional)</small></button>
+
+    <p class="label">SUBMIT</p>
+    <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+  </nav>
+
+  <div class="content">
+    <div class="wrap">
+
+      <!-- ============== INTRO ============== -->
+      <section id="part-intro">
+        <h2 class="section-title">Closed-Loop System Design: Rotational System</h2>
+
+        <p class="instructions"><b>Learning Goals:</b></p>
+        <ul class="goals">
+          <li>Understand performance metrics for 1st order systems</li>
+          <li>Design a proportional feedback controller to meet a performance goal of the system behavior</li>
+          <li>Verify the performance goal in simulation</li>
+          <li>Observe the relationship between control gain and control signal magnitude</li>
+        </ul>
+
+        <p class="instructions">
+          Consider a simple rotational system with moment of inertia I&nbsp;=&nbsp;25 [kg&middot;m&sup2;]
+          and damping coefficient b&nbsp;=&nbsp;3 [N&middot;m&middot;s/rad]. The equation of motion is:
+        </p>
+        <div class="eq-block" id="eq-eom"></div>
+        <p class="instructions">
+          where &omega;(t) is the angular speed of the system and T(t) is the input torque. To control
+          the rotational speed to some desired reference speed r(t), we use a <b>proportional control</b>
+          law:
+        </p>
+        <div class="eq-block" id="eq-control"></div>
+        <p class="instructions">
+          where the torque T(t) automatically adjusts based on how large (and what sign) the error is
+          &mdash; the difference between the desired reference speed r(t) and the actual speed
+          &omega;(t). The open-loop system (Equation 1) and the control law (Equation 2) together form
+          a <b>closed-loop</b> system: the reference r is compared to the actual speed &omega; to form
+          an error e&nbsp;=&nbsp;r&nbsp;&minus;&nbsp;&omega;, which is scaled by gain K to produce the
+          control torque T&nbsp;=&nbsp;Ke, which drives the plant.
+        </p>
+      </section>
+
+      <!-- ============== PART a) ============== -->
+      <section id="part-a" style="display:none;">
+        <h3 class="problem-title">a) Closed-Loop Response</h3>
+        <p class="instructions">
+          Before class, you found the closed loop system response with a step input constant
+          reference speed. Enter your expression below and verify your answer for the case of
+          r<sub>0</sub>&nbsp;=&nbsp;1 [rad/s]. Write your answers in terms of K, I, b, and r0, in
+          the form:
+        </p>
+        <div class="eq-block" id="eq-form-a"></div>
+        <p class="given-line">GIVEN &middot; I = <b>25</b> &middot; b = <b>3</b> &middot; BASELINE &middot; K = <b>1</b> &middot; r0 = <b>1</b></p>
+
+        <div class="layout-with-sidebar">
+          <div class="syntax-ref">
+            <h4>Syntax</h4>
+            <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+            <div class="syn-row"><span>divide</span><code>a/b</code></div>
+            <div class="syn-row"><span>add</span><code>a+b</code></div>
+            <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+            <div class="syn-row"><span>power</span><code>a^b</code></div>
+            <div class="syn-row"><span>exponential</span><code>exp(a)</code></div>
+            <div class="syn-row"><span>exponential</span><code>e^(a)</code></div>
+            <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+          </div>
+
+          <div class="layout-main">
+            <div class="form-grid stack">
+              <div class="field" id="field-a-ctr">
+                <label id="label-a-ctr"></label>
+                <input type="text" id="input-a-ctr" value="1" spellcheck="false" />
+                <div class="err-msg" id="err-a-ctr"></div>
+              </div>
+              <div class="field" id="field-a-css">
+                <label id="label-a-css"></label>
+                <input type="text" id="input-a-css" value="1" spellcheck="false" />
+                <div class="err-msg" id="err-a-css"></div>
+              </div>
+              <div class="field" id="field-a-tau">
+                <label>tau =</label>
+                <input type="text" id="input-a-tau" value="1" spellcheck="false" />
+                <div class="err-msg" id="err-a-tau"></div>
+              </div>
+            </div>
+
+            <button class="run-btn" id="btn-a">SIMULATE</button>
+            <div class="match-banner" id="banner-a"></div>
+            <div class="plot-host" id="plot-a"><div class="placeholder">Enter your expressions above and click Simulate.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============== PART b) ============== -->
+      <section id="part-b" style="display:none;">
+        <h3 class="problem-title">b) Settling Time</h3>
+        <p class="instructions">
+          Suppose we wish to quickly spin up the system from an initial speed of 0 [rad/s] to
+          50 [rad/s] (r0&nbsp;=&nbsp;0 for t&nbsp;&le;&nbsp;0; r0&nbsp;=&nbsp;50 for t&nbsp;&gt;&nbsp;0).
+          Compute the range of gains K needed to achieve a 5% settling time t<sub>s</sub>&nbsp;&lt;&nbsp;2.5&nbsp;[s].
+          Pick a number for K in the range you've found, enter it below, and verify that your design
+          meets the settling time requirement. Recall t<sub>s</sub>&nbsp;&approx;&nbsp;3&tau;.
+        </p>
+        <p class="given-line">GIVEN &middot; I = <b>25</b> &middot; b = <b>3</b></p>
+
+        <p class="instructions">Upload your derivation/calculations:</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-b" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-b"></div>
+        </div>
+
+        <div class="panel-box">
+          <div class="form-grid two">
+            <div class="field">
+              <label class="mono">K =</label>
+              <input type="number" id="input-b-K" value="1" step="any" />
+            </div>
+            <div class="field">
+              <label class="mono">r0 =</label>
+              <div class="value-with-units">
+                <input type="number" id="input-b-r0" value="50" step="any" />
+                <select class="type-select" id="input-b-r0-angleunit">
+                  <option value="rad">rad</option>
+                  <option value="deg">deg</option>
+                </select>
+                <span class="unit-slash">/</span>
+                <select class="type-select" id="input-b-r0-timeunit">
+                  <option value="s">s</option>
+                  <option value="min">min</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="run-btn" id="btn-b">SIMULATE</button>
+        <p class="stats-line" id="stats-b"></p>
+        <div class="plot-host" id="plot-b"><div class="placeholder">Enter K and r0 above and click Simulate.</div></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection</h3>
+        <p class="instructions">How does the settling time change if the final reference is 100 rad/s instead of 50 rad/s? Try it above, then describe what you observed.</p>
+        <div class="reflection-box">
+          <textarea id="input-b-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PART c) ============== -->
+      <section id="part-c" style="display:none;">
+        <h3 class="problem-title">c) Steady-State Error</h3>
+        <p class="instructions">
+          Starting with the error equation e(t)&nbsp;=&nbsp;r(t)&nbsp;&minus;&nbsp;&omega;(t), derive
+          an analytic expression for the steady-state error e<sub>ss</sub>&nbsp;=&nbsp;lim<sub>t&rarr;&infin;</sub>&nbsp;e(t).
+          Evaluate your expression using the system parameters, the gain value found in the previous
+          step, and a final step value of r0&nbsp;=&nbsp;50&nbsp;[rad/s]. Enter your K, r0, and
+          e<sub>ss</sub> expression (in terms of r0, K, and b) below to verify your answer.
+        </p>
+        <p class="given-line">GIVEN &middot; I = <b>25</b> &middot; b = <b>3</b></p>
+
+        <p class="instructions">Upload your derivation/calculations:</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-c" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-c"></div>
+        </div>
+
+        <div class="panel-box">
+          <div class="form-grid">
+            <div class="field" id="field-c-K">
+              <label class="mono">K =</label>
+              <input type="number" id="input-c-K" value="1" step="any" />
+              <div class="err-msg" id="err-c-K"></div>
+            </div>
+            <div class="field" id="field-c-r0">
+              <label class="mono">r0 =</label>
+              <div class="value-with-units">
+                <input type="number" id="input-c-r0" value="50" step="any" />
+                <select class="type-select" id="input-c-r0-angleunit">
+                  <option value="rad">rad</option>
+                  <option value="deg">deg</option>
+                </select>
+                <span class="unit-slash">/</span>
+                <select class="type-select" id="input-c-r0-timeunit">
+                  <option value="s">s</option>
+                  <option value="min">min</option>
+                </select>
+              </div>
+              <div class="err-msg" id="err-c-r0"></div>
+            </div>
+            <div class="field" id="field-c-ess">
+              <label class="mono">e<sub>ss</sub> =</label>
+              <input type="text" id="input-c-ess" value="" spellcheck="false" />
+              <div class="err-msg" id="err-c-ess"></div>
+            </div>
+          </div>
+        </div>
+
+        <button class="run-btn" id="btn-c">SIMULATE</button>
+        <div class="match-banner" id="banner-c"></div>
+        <p class="stats-line" id="stats-c"></p>
+        <div class="plot-host" id="plot-c"><div class="placeholder">Enter K, r0, and your ess value above and click Simulate.</div></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection</h3>
+        <p class="instructions">What applications can you think of where it might be okay to have a nonzero steady-state error? (Some motivating examples: cruise control in a car vs. a satellite attitude control system.)</p>
+        <div class="reflection-box">
+          <textarea id="input-c-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PART d) ============== -->
+      <section id="part-d" style="display:none;">
+        <h3 class="problem-title">d) Changing K</h3>
+        <p class="instructions">
+          Continuing with a constant reference speed of 50 [rad/s], use various values of K and
+          generate plots of the response. Pick one value of K <b>outside</b> of the range you
+          computed in part b), then click Add to Plot. Add a few more values to compare.
+        </p>
+        <p class="given-line">GIVEN &middot; I = <b>25</b> &middot; b = <b>3</b> &middot; r0 = <b>50</b> [rad/s] (fixed)</p>
+
+        <div class="panel-box">
+          <div class="slider-row">
+            <label for="input-d-K">K</label>
+            <input type="range" id="input-d-K" min="0" max="100" step="0.5" value="1" />
+            <span class="slider-value" id="val-d-K">1</span>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="run-btn" id="btn-add-d">ADD TO PLOT</button>
+          <button class="run-btn secondary" id="btn-clear-d">CLEAR</button>
+        </div>
+
+        <p class="stats-line" style="margin-top:14px;">rotational speed &omega;(t)</p>
+        <div class="plot-host" id="plot-d1"><div class="placeholder">Pick a K value and click Add to Plot.</div></div>
+
+        <p class="stats-line">control torque T(t)</p>
+        <div class="plot-host" id="plot-d2"></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection</h3>
+        <p class="instructions">Continuing with the example of a constant reference speed of 50 [rad/s], what would happen if you changed the control gain, K?</p>
+        <div class="reflection-box">
+          <textarea id="input-d-reflection1" placeholder="Type your answer here..."></textarea>
+        </div>
+
+        <p class="instructions" style="margin-top:18px;">
+          Pick one value of K outside of the range of values that you computed in (b). Comment on how the settling time, steady-state error, and maximum control effort change with changing K.<br />
+          <i>Note: &ldquo;Control effort&rdquo; refers to the magnitude of the control input T(t) over all time.</i>
+        </p>
+        <div class="reflection-box">
+          <textarea id="input-d-reflection2" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== OPTIONAL ============== -->
+      <section id="part-opt" style="display:none;">
+        <h3 class="problem-title">Optional Post-Question Discussion</h3>
+        <p class="instructions">
+          <b>i)</b> Consider the case where you connect the sensor incorrectly and this mistake
+          results in a summation block of the form e(t)&nbsp;=&nbsp;r(t)&nbsp;+&nbsp;&omega;(t)
+          (instead of r(t)&nbsp;&minus;&nbsp;&omega;(t)). How would the system change in this
+          situation?
+        </p>
+        <div class="reflection-box">
+          <textarea id="input-opt-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+
+        <p class="instructions" style="margin-top:20px;">
+          <b>ii)</b> Click the block below that represents the open-loop system.
+        </p>
+
+        <div class="panel-box">
+          <svg id="ol-diagram" viewBox="0 0 760 220" style="width:100%; height:auto; display:block;">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#8B92A5" />
+              </marker>
+            </defs>
+
+            <!-- r input -->
+            <text x="8" y="106" font-family="JetBrains Mono, monospace" font-size="15" fill="#E7E9EE">r</text>
+            <line x1="22" y1="102" x2="62" y2="102" stroke="#8B92A5" stroke-width="1.5" marker-end="url(#arrow)" />
+
+            <!-- sum junction -->
+            <g class="diagram-block" id="blk-sum" data-block="sum" data-label="Summing junction">
+              <circle cx="80" cy="102" r="18" fill="#171A21" stroke="#282D3A" stroke-width="1.5" />
+              <text x="80" y="97" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" fill="#5EEAD4">+</text>
+              <text x="80" y="112" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" fill="#FB7185">&minus;</text>
+            </g>
+
+            <line x1="98" y1="102" x2="150" y2="102" stroke="#8B92A5" stroke-width="1.5" marker-end="url(#arrow)" />
+            <text x="110" y="90" font-family="JetBrains Mono, monospace" font-size="11" fill="#8B92A5">e</text>
+
+            <!-- controller -->
+            <g class="diagram-block" id="blk-ctrl" data-block="controller" data-label="Controller">
+              <rect x="150" y="62" width="160" height="80" rx="6" fill="#171A21" stroke="#282D3A" stroke-width="1.5" />
+              <text x="230" y="96" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" fill="#E7E9EE">Controller</text>
+              <text x="230" y="114" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#8B92A5">T = K(r&minus;&omega;)</text>
+            </g>
+
+            <line x1="310" y1="102" x2="362" y2="102" stroke="#8B92A5" stroke-width="1.5" marker-end="url(#arrow)" />
+            <text x="322" y="90" font-family="JetBrains Mono, monospace" font-size="11" fill="#8B92A5">T</text>
+
+            <!-- plant -->
+            <g class="diagram-block" id="blk-plant" data-block="plant" data-label="Plant (open-loop system)">
+              <rect x="362" y="62" width="200" height="80" rx="6" fill="#171A21" stroke="#282D3A" stroke-width="1.5" />
+              <text x="462" y="90" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" fill="#E7E9EE">Plant</text>
+              <text x="462" y="110" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#8B92A5">I d&omega;/dt + b&omega; = T(t)</text>
+            </g>
+
+            <line x1="562" y1="102" x2="660" y2="102" stroke="#8B92A5" stroke-width="1.5" marker-end="url(#arrow)" />
+            <text x="672" y="106" font-family="JetBrains Mono, monospace" font-size="15" fill="#E7E9EE">&omega;</text>
+
+            <!-- feedback path -->
+            <line x1="600" y1="102" x2="600" y2="180" stroke="#8B92A5" stroke-width="1.5" />
+            <line x1="600" y1="180" x2="80" y2="180" stroke="#8B92A5" stroke-width="1.5" />
+            <line x1="80" y1="180" x2="80" y2="120" stroke="#8B92A5" stroke-width="1.5" marker-end="url(#arrow)" />
+          </svg>
+        </div>
+
+        <button class="run-btn" id="btn-opt-check">CHECK</button>
+        <div class="match-banner" id="banner-opt2"></div>
+      </section>
+
+      <!-- ============== SUBMISSION ============== -->
+      <section id="part-submission" style="display:none;">
+        <h2 class="section-title">Submission</h2>
+
+        <div class="form-grid two">
+          <div class="field">
+            <label class="mono">Your NetID</label>
+            <input type="text" id="input-netid" placeholder="netid" spellcheck="false" />
+          </div>
+          <div class="field">
+            <label class="mono">Group member NetIDs</label>
+            <input type="text" id="input-group-netids" placeholder="person1, person2, person3, ..." spellcheck="false" />
+          </div>
+        </div>
+
+        <ul class="steps-list" style="margin-top: 22px;">
+          <li>Enter your NetID and group member NetIDs above and export PDF.</li>
+          <li>Append the exported PDF to your analytical solutions.</li>
+          <li>Submit the combined PDF to the Gradescope submission link by Monday 11:59PM.</li>
+        </ul>
+
+        <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+        <p class="stats-line" id="exportStatus"></p>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  const GIVEN = { I: 25, b: 3 };
+  const PLOT_OPTS = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+
+  function plotLayout(yTitle, xRange, yRange) {
+    return {
+      paper_bgcolor: "#171A21",
+      plot_bgcolor: "#171A21",
+      font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 11 },
+      margin: { l: 55, r: 20, t: 20, b: 45 },
+      xaxis: { title: "time t [s]", gridcolor: "#282D3A", zerolinecolor: "#282D3A", range: xRange, autorange: false },
+      yaxis: { title: yTitle, gridcolor: "#282D3A", zerolinecolor: "#282D3A", range: yRange, autorange: false },
+      legend: { orientation: "h", y: -0.22, font: { size: 10 } },
+    };
+  }
+
+  // Fixed axis ranges so plots don't rescale with different inputs.
+  const AXIS_A = { x: [0, 40], y: [-0.5, 1.5] };      // baseline K=1,r0=1
+  const AXIS_BC = { x: [0, 10], y: [-5, 105] };        // K,r0 up to ~100
+  const AXIS_D1 = { x: [0, 10], y: [-5, 105] };        // response, r0=50 fixed
+  const AXIS_D2 = { x: [0, 10], y: [-100, 5200] };     // torque, up to K=100 * r0=50
+
+  // ---------------------------------------------------------------
+  // KaTeX
+  // ---------------------------------------------------------------
+  katex.render("I\\dot{\\omega} = -b\\,\\omega + T", document.getElementById("eq-eom"), { throwOnError: false, displayMode: true });
+  katex.render("T = Ke = K(r-\\omega)", document.getElementById("eq-control"), { throwOnError: false, displayMode: true });
+  katex.render("\\omega(t) = C_{tr}\\,r_0\\,e^{-t/\\tau} + C_{ss}\\,r_0", document.getElementById("eq-form-a"), { throwOnError: false, displayMode: true });
+  katex.render("C_{tr} =", document.getElementById("label-a-ctr"), { throwOnError: false });
+  katex.render("C_{ss} =", document.getElementById("label-a-css"), { throwOnError: false });
+
+  // ---------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------
+  const SECTION_IDS = {
+    "intro": "part-intro",
+    "a": "part-a", "b": "part-b",
+    "c": "part-c",
+    "d": "part-d",
+    "opt": "part-opt",
+    "submission": "part-submission",
+  };
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+      document.getElementById(SECTION_IDS[btn.dataset.part]).style.display = "block";
+    });
+  });
+
+  const runFlags = {};
+
+  // ---------------------------------------------------------------
+  // Core physics: CL = feedback(K*G,1), G = 1/(I*s+b)
+  //   tau = I/(b+K), DC gain = K/(b+K)
+  //   y(t) = r0 * DCgain * (1 - exp(-t/tau))
+  // ---------------------------------------------------------------
+  function closedLoopResponse(K, r0, duration, N) {
+    const tau = GIVEN.I / (GIVEN.b + K);
+    const dcGain = K / (GIVEN.b + K);
+    const npts = N || 300;
+    const t = Array.from({ length: npts }, (_, i) => (i / (npts - 1)) * duration);
+    const y = t.map((tt) => r0 * dcGain * (1 - Math.exp(-tt / tau)));
+    return { t, y, tau, dcGain };
+  }
+
+  // ---------------------------------------------------------------
+  // Part a): scalar expressions Ctr, Css, tau (not vectors -- these are
+  // constants in the closed-form solution, matching the source .mlx)
+  // ---------------------------------------------------------------
+  function clearFieldError(id) {
+    document.getElementById(`field-${id}`).classList.remove("invalid");
+    document.getElementById(`err-${id}`).textContent = "";
+  }
+  function setFieldError(id, msg) {
+    document.getElementById(`field-${id}`).classList.add("invalid");
+    document.getElementById(`err-${id}`).textContent = msg;
+  }
+  function evalScalarField(id, scope) {
+    const raw = document.getElementById(`input-${id}`).value.trim();
+    clearFieldError(id);
+    if (!raw) { setFieldError(id, "Enter an expression."); return null; }
+    let v;
+    try { v = math.evaluate(raw, scope); }
+    catch (e) { setFieldError(id, "Couldn't parse this expression."); return null; }
+    if (typeof v !== "number" || !isFinite(v)) { setFieldError(id, "Must evaluate to a real number."); return null; }
+    return v;
+  }
+
+  function runPartA() {
+    const scope = { K: 1, I: GIVEN.I, b: GIVEN.b, r0: 1 };
+    const ctr = evalScalarField("a-ctr", scope);
+    const css = evalScalarField("a-css", scope);
+    const tau = evalScalarField("a-tau", scope);
+
+    document.getElementById("banner-a").className = "match-banner";
+    document.getElementById("banner-a").textContent = "";
+
+    if (ctr === null || css === null || tau === null) return;
+    if (tau === 0) { setFieldError("a-tau", "tau can't be zero (division by zero)."); return; }
+
+    const { t, y: yCorrect } = closedLoopResponse(1, 1, 40, 300);
+    const yUser = t.map((tt) => ctr * 1 * Math.exp(-tt / tau) + css * 1);
+
+    let sumSq = 0, maxAbs = 0;
+    for (let i = 0; i < t.length; i++) {
+      const d = yUser[i] - yCorrect[i];
+      sumSq += d * d;
+      maxAbs = Math.max(maxAbs, Math.abs(yCorrect[i]));
+    }
+    const relErr = Math.sqrt(sumSq / t.length) / (maxAbs || 1);
+
+    const banner = document.getElementById("banner-a");
+    if (relErr < 0.01) {
+      banner.className = "match-banner match";
+      banner.textContent = `\u2713 Matches the correct solution (relative error ${(relErr * 100).toFixed(2)}%).`;
+    } else {
+      banner.className = "match-banner no-match";
+      banner.textContent = `\u2717 Doesn't match yet (relative error ${(relErr * 100).toFixed(2)}%).`;
+    }
+
+    Plotly.newPlot(
+      "plot-a",
+      [
+        { x: t, y: yUser, mode: "lines", name: "Your Answer", line: { color: "#FFB454", width: 2.5 } },
+        { x: t, y: yCorrect, mode: "lines", name: "Correct Soln", line: { color: "#5EEAD4", width: 2.5, dash: "dash" } },
+      ],
+      plotLayout("rotational speed \u03c9(t)", AXIS_A.x, AXIS_A.y),
+      PLOT_OPTS
+    );
+    runFlags["a"] = true;
+  }
+  document.getElementById("btn-a").addEventListener("click", runPartA);
+
+  // ---------------------------------------------------------------
+  // Part b): Settling Time -- verify K,r0 achieve ts < 2.5s (5% threshold)
+  // ---------------------------------------------------------------
+  // ---------------------------------------------------------------
+  // r0's units (rad/s) -- angle and time are each independently
+  // selectable. readR0() always returns the true value in rad/s
+  // regardless of which unit combination the student chose.
+  // ---------------------------------------------------------------
+  const ANGLE_FACTORS = { rad: 1, deg: Math.PI / 180 };
+  const TIME_FACTORS = { s: 1, min: 60 };
+  const r0PrevFactor = { b: 1, c: 1 };
+
+  function r0Factor(prefix) {
+    const angleUnit = document.getElementById(`input-${prefix}-r0-angleunit`).value;
+    const timeUnit = document.getElementById(`input-${prefix}-r0-timeunit`).value;
+    return ANGLE_FACTORS[angleUnit] / TIME_FACTORS[timeUnit];
+  }
+  function readR0(prefix) {
+    const raw = Number(document.getElementById(`input-${prefix}-r0`).value);
+    return raw * r0Factor(prefix);
+  }
+  function onR0UnitChange(prefix) {
+    const el = document.getElementById(`input-${prefix}-r0`);
+    const newFactor = r0Factor(prefix);
+    const raw = Number(el.value);
+    if (isFinite(raw)) {
+      const trueValue = raw * r0PrevFactor[prefix];
+      el.value = Number((trueValue / newFactor).toPrecision(6));
+    }
+    r0PrevFactor[prefix] = newFactor;
+    if (prefix === "b") runPartB();
+    else runPartC();
+  }
+  ["b", "c"].forEach((prefix) => {
+    document.getElementById(`input-${prefix}-r0-angleunit`).addEventListener("change", () => onR0UnitChange(prefix));
+    document.getElementById(`input-${prefix}-r0-timeunit`).addEventListener("change", () => onR0UnitChange(prefix));
+  });
+
+  // Exposed so a restored autosave state (which sets the unit <select>s'
+  // values directly, not via user interaction) can sync r0PrevFactor
+  // WITHOUT re-running onR0UnitChange's number conversion -- the restored
+  // number already matches the restored unit.
+  function syncR0UnitDisplay(prefix) {
+    r0PrevFactor[prefix] = r0Factor(prefix);
+  }
+
+  function runPartB() {
+    const K = Number(document.getElementById("input-b-K").value);
+    const r0 = readR0("b");
+    if (!isFinite(K) || !isFinite(r0) || GIVEN.b + K === 0) {
+      document.getElementById("stats-b").textContent = "Enter valid numbers for K and r0.";
+      return;
+    }
+    const { t, y, tau } = closedLoopResponse(K, r0, 10, 300);
+    const settlingTime = -tau * Math.log(0.05);
+    const within = settlingTime < 2.5;
+
+    document.getElementById("stats-b").innerHTML =
+      `settling time (5% threshold): <b>${settlingTime.toFixed(3)} s</b> &middot; target: t<sub>s</sub> &lt; 2.5s &middot; ` +
+      (within ? `<span style="color:#5EEAD4">\u2713 meets requirement</span>` : `<span style="color:#FB7185">\u2717 does not meet requirement</span>`);
+
+    Plotly.newPlot(
+      "plot-b",
+      [{ x: t, y: y, mode: "lines", name: "\u03c9(t)", line: { color: "#FFB454", width: 2.5 } }],
+      plotLayout("rotational speed \u03c9 [rad/s]", AXIS_BC.x, AXIS_BC.y),
+      PLOT_OPTS
+    );
+    runFlags["b"] = true;
+  }
+  document.getElementById("btn-b").addEventListener("click", runPartB);
+
+  // ---------------------------------------------------------------
+  // Part c): Steady-State Error -- verify K, r0, ess
+  // ---------------------------------------------------------------
+  function runPartC() {
+    ["c-K", "c-r0", "c-ess"].forEach(clearFieldError);
+    const K = Number(document.getElementById("input-c-K").value);
+    const r0 = readR0("c");
+
+    document.getElementById("banner-c").className = "match-banner";
+    document.getElementById("banner-c").textContent = "";
+    document.getElementById("stats-c").textContent = "";
+
+    let ok = true;
+    if (!isFinite(K)) { setFieldError("c-K", "Enter a number."); ok = false; }
+    if (!isFinite(r0)) { setFieldError("c-r0", "Enter a number."); ok = false; }
+
+    const essRaw = document.getElementById("input-c-ess").value.trim();
+    const PURE_NUMBER = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
+    let ess = null;
+    if (!essRaw) {
+      setFieldError("c-ess", "Enter an expression.");
+      ok = false;
+    } else if (PURE_NUMBER.test(essRaw)) {
+      setFieldError("c-ess", "Enter an expression (e.g. in terms of r0, K, b), not just a number.");
+      ok = false;
+    } else {
+      try {
+        const v = math.evaluate(essRaw, { r0: r0, K: K, b: GIVEN.b });
+        if (typeof v !== "number" || !isFinite(v)) throw new Error("not a number");
+        ess = v;
+      } catch (err) {
+        setFieldError("c-ess", "Couldn't evaluate this expression.");
+        ok = false;
+      }
+    }
+
+    if (!ok) return;
+    if (GIVEN.b + K === 0) { setFieldError("c-K", "b + K can't be zero."); return; }
+
+    const { t, y, tau, dcGain } = closedLoopResponse(K, r0, 10, 300);
+    const predictedSs = r0 - ess;
+    const refLine = t.map(() => r0);
+    const predictedLine = t.map(() => predictedSs);
+
+    const trueEss = r0 * GIVEN.b / (GIVEN.b + K);
+    const relErr = Math.abs(ess - trueEss) / (Math.abs(trueEss) || 1);
+
+    const banner = document.getElementById("banner-c");
+    if (relErr < 0.01) {
+      banner.className = "match-banner match";
+      banner.textContent = `\u2713 \u03c9(t) settles to your predicted value (relative error ${(relErr * 100).toFixed(2)}%).`;
+    } else {
+      banner.className = "match-banner no-match";
+      banner.textContent = `\u2717 \u03c9(t) does not settle to your predicted value yet (relative error ${(relErr * 100).toFixed(2)}%).`;
+    }
+
+    document.getElementById("stats-c").innerHTML = `true steady-state value: <b>${(r0 * dcGain).toFixed(4)}</b>`;
+
+    Plotly.newPlot(
+      "plot-c",
+      [
+        { x: t, y: y, mode: "lines", name: "\u03c9(t)", line: { color: "#FFB454", width: 2.5 } },
+        { x: t, y: predictedLine, mode: "lines", name: "predicted \u03c9_ss", line: { color: "#F472B6", width: 2, dash: "dot" } },
+        { x: t, y: refLine, mode: "lines", name: "r0", line: { color: "#FB7185", width: 2, dash: "dot" } },
+      ],
+      plotLayout("rotational speed \u03c9 [rad/s]", AXIS_BC.x, AXIS_BC.y),
+      PLOT_OPTS
+    );
+    runFlags["c"] = true;
+  }
+  document.getElementById("btn-c").addEventListener("click", runPartC);
+
+  // ---------------------------------------------------------------
+  // Part d): Changing K -- Add to Plot, response + control torque
+  // ---------------------------------------------------------------
+  const D_PALETTE = ["#FFB454", "#5EEAD4", "#FB7185", "#A78BFA", "#F472B6", "#34D399", "#60A5FA", "#FDE047"];
+  let dTraceCount = 0;
+  let dResponseTraces = [];
+  let dTorqueTraces = [];
+
+  const dSlider = document.getElementById("input-d-K");
+  const dValueLabel = document.getElementById("val-d-K");
+  dSlider.addEventListener("input", () => { dValueLabel.textContent = dSlider.value; });
+
+  function addToPlotD() {
+    const K = Number(dSlider.value);
+    const r0 = 50;
+    const { t, y, tau } = closedLoopResponse(K, r0, 10, 400);
+    const torque = t.map((tt, i) => K * (r0 - y[i]));
+
+    const color = D_PALETTE[dTraceCount % D_PALETTE.length];
+    dTraceCount += 1;
+
+    dResponseTraces.push({ x: t, y: y, mode: "lines", name: `K=${K}`, line: { color, width: 2.2 } });
+    dTorqueTraces.push({ x: t, y: torque, mode: "lines", name: `K=${K}`, line: { color, width: 2.2 } });
+    redrawD();
+  }
+
+  function redrawD() {
+    if (dResponseTraces.length === 0) {
+      document.getElementById("plot-d1").innerHTML = '<div class="placeholder">Pick a K value and click Add to Plot.</div>';
+      document.getElementById("plot-d2").innerHTML = "";
+      return;
+    }
+    Plotly.newPlot("plot-d1", dResponseTraces, plotLayout("rotational speed \u03c9(t)", AXIS_D1.x, AXIS_D1.y), PLOT_OPTS);
+    Plotly.newPlot("plot-d2", dTorqueTraces, plotLayout("control torque T(t) [Nm]", AXIS_D2.x, AXIS_D2.y), PLOT_OPTS);
+  }
+
+  function clearPlotD() {
+    dResponseTraces = [];
+    dTorqueTraces = [];
+    dTraceCount = 0;
+    redrawD();
+  }
+
+  document.getElementById("btn-add-d").addEventListener("click", addToPlotD);
+  document.getElementById("btn-clear-d").addEventListener("click", clearPlotD);
+
+  // ---------------------------------------------------------------
+  // Optional ii): click-the-block open-loop identification
+  // ---------------------------------------------------------------
+  let selectedBlock = null;
+  document.querySelectorAll(".diagram-block").forEach((blk) => {
+    blk.addEventListener("click", () => {
+      if (selectedBlock === blk) {
+        blk.classList.remove("selected");
+        selectedBlock = null;
+        return;
+      }
+      if (selectedBlock) selectedBlock.classList.remove("selected");
+      blk.classList.add("selected");
+      selectedBlock = blk;
+    });
+  });
+  document.getElementById("btn-opt-check").addEventListener("click", () => {
+    const banner = document.getElementById("banner-opt2");
+    if (!selectedBlock) {
+      banner.className = "match-banner no-match";
+      banner.textContent = "Click a block in the diagram first.";
+      return;
+    }
+    const correct = selectedBlock.dataset.block === "plant";
+    if (correct) {
+      banner.className = "match-banner match";
+      banner.textContent = "\u2713 Correct \u2014 the plant (I d\u03c9/dt + b\u03c9 = T(t)) is the open-loop system.";
+    } else {
+      banner.className = "match-banner no-match";
+      banner.textContent = "\u2717 Not quite \u2014 the open-loop system is just the original plant equation, before the controller or feedback are added.";
+    }
+  });
+
+  // ---------------------------------------------------------------
+  // Submission: bundle everything into a PDF
+  // ---------------------------------------------------------------
+  function setExportStatus(text, isError) {
+    const el = document.getElementById("exportStatus");
+    el.textContent = text;
+    el.style.color = isError ? "#FB7185" : "#8B92A5";
+  }
+  function reflectionText(id) {
+    const v = document.getElementById(id).value.trim();
+    return v || "(No response entered.)";
+  }
+
+  function fieldLabelFor(id) {
+    if (id === "input-netid") return "Your NetID";
+    if (id === "input-group-netids") return "Group member NetIDs";
+    const m = id.match(/^input-(a|b|c|d|opt)-(.+)$/);
+    if (m) {
+      const [, part, field] = m;
+      const partLabel = part === "opt" ? "Optional" : `Part ${part}`;
+      return `${partLabel} (${field.replace(/-/g, " ")})`;
+    }
+    return id;
+  }
+
+  function findBlankItems() {
+    const blanks = [];
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((el) => {
+      if (el.type === "range") return; // sliders always have a value
+      if (el.value.trim() === "") blanks.push(fieldLabelFor(el.id));
+    });
+    Object.keys(uploadedImages).forEach((key) => {
+      if (!uploadedImages[key] || uploadedImages[key].length === 0) {
+        blanks.push(`Part ${key} (uploaded image)`);
+      }
+    });
+    return blanks;
+  }
+
+  async function exportPdf() {
+    const blanks = findBlankItems();
+    if (blanks.length > 0) {
+      const proceed = confirm(
+        `The following are still blank:\n\n${blanks.map((b) => "\u2022 " + b).join("\n")}\n\nDo you want to export the PDF anyway?`
+      );
+      if (!proceed) return;
+    }
+
+    const btn = document.getElementById("exportPdfBtn");
+    const originalLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "EXPORTING\u2026";
+    setExportStatus("");
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "pt", format: "letter" });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 48;
+      const maxWidth = pageWidth - margin * 2;
+      let y = margin;
+
+      function ensureSpace(h) { if (y + h > pageHeight - margin) { doc.addPage(); y = margin; } }
+      function addHeading(text) {
+        ensureSpace(30);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(15);
+        doc.text(text, margin, y); y += 22;
+      }
+      function addText(text, opts) {
+        const size = (opts && opts.size) || 10.5;
+        const bold = !!(opts && opts.bold);
+        doc.setFont("helvetica", bold ? "bold" : "normal"); doc.setFontSize(size);
+        const lines = doc.splitTextToSize(text, maxWidth);
+        const lineHeight = size * 1.35;
+        lines.forEach((line) => { ensureSpace(lineHeight); doc.text(line, margin, y); y += lineHeight; });
+        y += 4;
+      }
+      async function addPlotImage(divId, fallbackLabel) {
+        let dataUrl;
+        try { dataUrl = await Plotly.toImage(divId, { format: "png", width: 900, height: 460 }); }
+        catch (err) { addText(`(${fallbackLabel}: plot image could not be captured.)`); return; }
+        const imgWidth = maxWidth;
+        const imgHeight = imgWidth * (460 / 900);
+        ensureSpace(imgHeight + 10);
+        doc.addImage(dataUrl, "PNG", margin, y, imgWidth, imgHeight);
+        y += imgHeight + 16;
+      }
+      function addUploadedImages(key) {
+        const entries = uploadedImages[key] || [];
+        if (entries.length === 0) return;
+        addText(`Uploaded work (${entries.length} image${entries.length > 1 ? "s" : ""}):`);
+        const maxW = maxWidth / 2;
+        const maxH = (pageHeight - margin * 2) / 2;
+        entries.forEach((entry) => {
+          const aspect = entry.height / entry.width;
+          let w = maxW;
+          let h = w * aspect;
+          if (h > maxH) {
+            h = maxH;
+            w = h / aspect;
+          }
+          ensureSpace(h + 10);
+          const xPos = margin + (maxWidth - w) / 2; // center within the content column
+          doc.addImage(entry.dataUrl, "JPEG", xPos, y, w, h);
+          y += h + 16;
+        });
+      }
+
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+      doc.splitTextToSize("GroupWork 2W \u2014 Closed-Loop System Design", maxWidth).forEach((line) => { doc.text(line, margin, y); y += 20; });
+      y += 6;
+
+      const netId = document.getElementById("input-netid").value.trim() || "(not entered)";
+      const groupIds = document.getElementById("input-group-netids").value.trim() || "(not entered)";
+      addText(`Your NetID: ${netId}`, { bold: true, size: 11.5 });
+      addText(`Group member NetIDs: ${groupIds}`, { bold: true, size: 11.5 });
+      y += 8;
+
+      addHeading("a) Closed-Loop Response");
+      addText(`Ctr = ${document.getElementById("input-a-ctr").value}`);
+      addText(`Css = ${document.getElementById("input-a-css").value}`);
+      addText(`tau = ${document.getElementById("input-a-tau").value}`);
+      if (runFlags["a"]) await addPlotImage("plot-a", "Part a plot"); else addText("(Not yet simulated.)");
+
+      addHeading("b) Settling Time");
+      addText(`K = ${document.getElementById("input-b-K").value}, r0 = ${document.getElementById("input-b-r0").value} ${document.getElementById("input-b-r0-angleunit").value}/${document.getElementById("input-b-r0-timeunit").value}`);
+      const statsB = document.getElementById("stats-b").textContent.trim();
+      if (statsB) addText(statsB);
+      if (runFlags["b"]) await addPlotImage("plot-b", "Part b plot"); else addText("(Not yet simulated.)");
+      addUploadedImages("b");
+
+      addHeading("b) Reflection");
+      addText("How does the settling time change if the final reference is 100 rad/s instead of 50 rad/s?", { size: 9.5 });
+      addText(reflectionText("input-b-reflection"));
+
+      addHeading("c) Steady-State Error");
+      addText(`K = ${document.getElementById("input-c-K").value}, r0 = ${document.getElementById("input-c-r0").value} ${document.getElementById("input-c-r0-angleunit").value}/${document.getElementById("input-c-r0-timeunit").value}, ess = ${document.getElementById("input-c-ess").value}`);
+      if (runFlags["c"]) await addPlotImage("plot-c", "Part c plot"); else addText("(Not yet simulated.)");
+      addUploadedImages("c");
+
+      addHeading("c) Reflection");
+      addText("What applications can you think of where it might be okay to have a nonzero steady-state error?", { size: 9.5 });
+      addText(reflectionText("input-c-reflection"));
+
+      addHeading("d) Changing K");
+      if (dResponseTraces.length > 0) {
+        addText(`K values plotted: ${dResponseTraces.map((tr) => tr.name).join(", ")}`);
+        await addPlotImage("plot-d1", "Part d response plot");
+        await addPlotImage("plot-d2", "Part d torque plot");
+      } else {
+        addText("(No K values plotted yet.)");
+      }
+
+      addHeading("d) Reflection");
+      addText("Continuing with the example of a constant reference speed of 50 rad/s, what would happen if you changed the control gain, K?", { size: 9.5 });
+      addText(reflectionText("input-d-reflection1"));
+      addText("Pick one value of K outside of the range of values that you computed in (b). Comment on how the settling time, steady-state error, and maximum control effort change with changing K.", { size: 9.5 });
+      addText(reflectionText("input-d-reflection2"));
+
+      addHeading("Optional: Sensor Miswiring");
+      addText("i) How would the system change if e(t) = r(t) + \u03c9(t) instead of r(t) \u2212 \u03c9(t)?", { size: 9.5 });
+      addText(reflectionText("input-opt-reflection"));
+      addText("ii) Click-the-block open-loop identification:", { size: 9.5 });
+      if (selectedBlock) {
+        const correct = selectedBlock.dataset.block === "plant";
+        addText(`Selected: ${selectedBlock.dataset.label} \u2014 ${correct ? "correct" : "incorrect"}`);
+      } else {
+        addText("(No block selected.)");
+      }
+
+      const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+      doc.save(`GroupWork2W_${safeNetId}.pdf`);
+      setExportStatus("PDF downloaded.");
+    } catch (err) {
+      console.error("PDF export failed:", err);
+      setExportStatus(`Could not export PDF: ${err.message}`, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  }
+  document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+  // ---------------------------------------------------------------
+  // Multi-image "upload your work" widgets (parts b and c). Each
+  // accepts multiple photos of a handwritten derivation, resizes to a
+  // fixed max dimension, and re-compresses as JPEG so the exported
+  // PDF stays a predictable size regardless of what the student
+  // uploads (a 12MB phone photo comes out the same controlled size
+  // as a small screenshot).
+  // ---------------------------------------------------------------
+  const MAX_IMAGE_DIM = 1200; // px, longest edge
+  const IMAGE_QUALITY = 0.7; // JPEG quality
+
+  const uploadedImages = { b: [], c: [] };
+
+  function resizeAndCompressImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Could not read file."));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("Could not load image."));
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > height && width > MAX_IMAGE_DIM) {
+            height = Math.round((height * MAX_IMAGE_DIM) / width);
+            width = MAX_IMAGE_DIM;
+          } else if (height >= width && height > MAX_IMAGE_DIM) {
+            width = Math.round((width * MAX_IMAGE_DIM) / height);
+            height = MAX_IMAGE_DIM;
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#FFFFFF"; // flatten transparency (e.g. PNG) onto white before JPEG
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve({ dataUrl: canvas.toDataURL("image/jpeg", IMAGE_QUALITY), width, height });
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderThumbnails(key) {
+    const host = document.getElementById(`upload-thumbs-${key}`);
+    host.innerHTML = "";
+    uploadedImages[key].forEach((entry, i) => {
+      const wrap = document.createElement("div");
+      wrap.className = "thumb-wrap";
+      const img = document.createElement("img");
+      img.src = entry.dataUrl;
+      img.className = "thumb-img";
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "thumb-remove";
+      removeBtn.textContent = "\u00d7";
+      removeBtn.title = "Remove";
+      removeBtn.addEventListener("click", () => {
+        uploadedImages[key].splice(i, 1);
+        renderThumbnails(key);
+      });
+      wrap.appendChild(img);
+      wrap.appendChild(removeBtn);
+      host.appendChild(wrap);
+    });
+  }
+
+  function wireImageUpload(key) {
+    const input = document.getElementById(`upload-input-${key}`);
+    input.addEventListener("change", async () => {
+      const files = Array.from(input.files || []);
+      for (const file of files) {
+        try {
+          const entry = await resizeAndCompressImage(file);
+          uploadedImages[key].push(entry);
+        } catch (err) {
+          console.error("Image upload failed:", err);
+        }
+      }
+      renderThumbnails(key);
+      input.value = ""; // allow re-selecting the same file(s) later
+      scheduleSave();
+    });
+  }
+  wireImageUpload("b");
+  wireImageUpload("c");
+
+  // ---------------------------------------------------------------
+  // Progress autosave (localStorage) -- silently persists every field,
+  // the active tab, Part d)'s plotted traces, and the optional
+  // diagram's selection, and restores them on page load so a refresh
+  // doesn't lose progress. This is a plain hosted page (not a Claude
+  // Artifact), so localStorage is fully available here.
+  // ---------------------------------------------------------------
+  const STORAGE_KEY = "gw2w_progress_v1";
+
+  function collectFieldValues() {
+    const values = {};
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"], select[id^="input-"]').forEach((el) => {
+      values[el.id] = el.value;
+    });
+    return values;
+  }
+
+  function currentActiveTab() {
+    const active = document.querySelector(".nav-btn.active");
+    return active ? active.dataset.part : "intro";
+  }
+
+  function saveProgress() {
+    try {
+      const state = {
+        activeTab: currentActiveTab(),
+        fields: collectFieldValues(),
+        dTraces: { response: dResponseTraces, torque: dTorqueTraces },
+        selectedBlock: selectedBlock ? selectedBlock.dataset.block : null,
+        uploadedImages: uploadedImages,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (err) {
+      // storage unavailable (e.g. private browsing, or quota exceeded by
+      // large images) -- fail silently
+    }
+  }
+
+  let saveTimer = null;
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveProgress, 250);
+  }
+  document.addEventListener("input", scheduleSave);
+  document.addEventListener("click", scheduleSave);
+
+  function loadProgress() {
+    let raw;
+    try { raw = localStorage.getItem(STORAGE_KEY); } catch (err) { return; }
+    if (!raw) return;
+    let state;
+    try { state = JSON.parse(raw); } catch (err) { return; }
+
+    if (state.fields) {
+      Object.keys(state.fields).forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = state.fields[id];
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    }
+    syncR0UnitDisplay("b");
+    syncR0UnitDisplay("c");
+
+    ["btn-a", "btn-b", "btn-c"].forEach((id) => {
+      const btn = document.getElementById(id);
+      if (btn) btn.click();
+    });
+
+    if (state.dTraces) {
+      dResponseTraces = state.dTraces.response || [];
+      dTorqueTraces = state.dTraces.torque || [];
+      dTraceCount = dResponseTraces.length;
+      redrawD();
+    }
+
+    if (state.selectedBlock) {
+      const blk = document.querySelector(`.diagram-block[data-block="${state.selectedBlock}"]`);
+      if (blk) {
+        blk.classList.add("selected");
+        selectedBlock = blk;
+      }
+    }
+
+    if (state.uploadedImages) {
+      uploadedImages.b = state.uploadedImages.b || [];
+      uploadedImages.c = state.uploadedImages.c || [];
+      renderThumbnails("b");
+      renderThumbnails("c");
+    }
+
+    if (state.activeTab) {
+      const btn = document.querySelector(`.nav-btn[data-part="${state.activeTab}"]`);
+      if (btn) btn.click();
+    }
+  }
+
+  loadProgress();
+})();
+</script>
+</body>
+</html>

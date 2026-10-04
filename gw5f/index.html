@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GroupWork 5F &mdash; Frequency Response</title>
+
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink: #0F1115;
+      --panel: #171A21;
+      --panel2: #1D212B;
+      --line: #282D3A;
+      --amber: #FFB454;
+      --cyan: #5EEAD4;
+      --rose: #FB7185;
+      --pink: #F472B6;
+      --fg: #E7E9EE;
+      --muted: #8B92A5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--ink);
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+
+    header h1 {
+      font-size: 14px;
+      margin: 0;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    header h1 span {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    nav {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      order: 2;
+      padding: 16px 14px;
+      overflow-y: auto;
+    }
+
+    nav p.label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin: 14px 0 8px 0;
+    }
+
+    nav p.label:first-child {
+      margin-top: 0;
+    }
+
+    .nav-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 9px 12px;
+      margin-bottom: 6px;
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--fg);
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .nav-btn small {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .content {
+      flex: 1;
+      order: 1;
+      overflow-y: auto;
+      padding: 28px 40px;
+    }
+
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    h2.section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      color: var(--amber);
+      margin: 0 0 14px 0;
+    }
+
+    h3.problem-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: var(--cyan);
+      margin: 0 0 10px 0;
+    }
+
+    h4.part-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--fg);
+      margin: 22px 0 8px 0;
+    }
+
+    p.instructions {
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: var(--fg);
+      margin: 0 0 16px 0;
+    }
+
+    ul.goals {
+      padding-left: 20px;
+      margin: 0 0 16px 0;
+    }
+
+    ul.goals li {
+      margin-bottom: 6px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--fg);
+    }
+
+    .eq-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .given-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 18px 0;
+      line-height: 1.8;
+    }
+
+    .given-line b {
+      color: var(--fg);
+      font-weight: 600;
+    }
+
+    .note-box {
+      background: var(--panel2);
+      border-left: 3px solid var(--amber);
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 0 0 18px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--fg);
+    }
+
+    .note-box code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--cyan);
+      background: var(--ink);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .panel-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .form-grid.one {
+      grid-template-columns: 1fr;
+    }
+
+    .form-grid.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .field {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .field label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"] {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .field .err-msg {
+      font-size: 11px;
+      color: var(--rose);
+      margin-top: 6px;
+      min-height: 14px;
+    }
+
+    .numfield-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .numfield-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .numfield-row label {
+      font-size: 13px;
+      color: var(--muted);
+      width: 70px;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+
+    .numfield-row input[type="number"] {
+      width: 160px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .numfield-row input[type="number"]:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .layout-with-sidebar {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .layout-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .syntax-ref {
+      width: 200px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .syntax-ref h4 {
+      margin: 0 0 10px 0;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+    }
+
+    .syntax-ref .syn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+      gap: 8px;
+    }
+
+    .syntax-ref .syn-row span {
+      color: var(--muted);
+    }
+
+    .syntax-ref .syn-row code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--cyan);
+      background: var(--ink);
+      padding: 1px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .reflection-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .reflection-box textarea {
+      width: 100%;
+      min-height: 90px;
+      resize: vertical;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 10px 12px;
+      line-height: 1.5;
+    }
+
+    .reflection-box textarea:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .run-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 6px;
+      border: none;
+      background: var(--amber);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .run-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .run-btn:active {
+      transform: scale(0.98);
+    }
+
+    .run-btn.secondary {
+      background: none;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .run-btn.secondary:hover {
+      color: var(--rose);
+      border-color: var(--rose);
+    }
+
+    .match-banner {
+      display: none;
+      margin-top: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+    }
+
+    .match-banner.match {
+      display: block;
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .match-banner.no-match {
+      display: block;
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+
+    .field-err {
+      font-size: 11px;
+      color: var(--rose);
+      margin: 8px 0 0 0;
+      min-height: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .plots-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .plots-row .plot-col {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .plot-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin: 0 0 6px 2px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .plot-host {
+      height: 340px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .plot-host.tall {
+      height: 400px;
+    }
+
+    .placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      max-width: 320px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .steps-list {
+      padding-left: 20px;
+      margin: 0 0 16px 0;
+    }
+
+    .steps-list li {
+      margin-bottom: 6px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--fg);
+    }
+
+    .upload-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 0 0 18px 0;
+    }
+
+    .upload-block input[type="file"] {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      color: var(--fg);
+    }
+
+    .upload-thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .thumb-wrap {
+      position: relative;
+      width: 90px;
+      height: 120px;
+    }
+
+    .thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    .thumb-remove {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: var(--ink);
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .upload-status {
+      font-size: 11px;
+      color: var(--cyan);
+      margin: 8px 0 0 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .upload-err {
+      font-size: 11px;
+      color: var(--rose);
+      margin: 8px 0 0 0;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.5;
+    }
+
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin: 4px 6px 4px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .file-chip .chip-remove {
+      background: none;
+      border: none;
+      color: var(--rose);
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0;
+    }
+
+    .anim-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .anim-controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .anim-controls-row .field {
+      min-width: 110px;
+      margin: 0;
+    }
+
+    .anim-controls-row .anim-speed-note {
+      margin: 0 0 10px 0;
+    }
+
+    .anim-controls-row .anim-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .anim-controls-row .field-err {
+      margin: 0 0 10px 0;
+    }
+
+    .anim-main-row {
+      display: flex;
+      gap: 20px;
+      align-items: stretch;
+      height: 560px;
+    }
+
+    .anim-svg-host {
+      width: 160px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .anim-svg-host svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .anim-plots-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .anim-plot-host {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 14px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .anim-plot-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-shrink: 0;
+      margin: 0 0 6px 0;
+    }
+
+    .anim-plot-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .anim-ylim-control {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .anim-ylim-control input[type="number"] {
+      width: 54px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 3px 5px;
+    }
+
+    .anim-ylim-control input[type="number"]:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .anim-ylim-control button {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      width: 20px;
+      height: 20px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .anim-plot-host svg {
+      display: block;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .anim-axis-line {
+      stroke: #8B92A5;
+      stroke-width: 1;
+    }
+
+    .anim-grid-line {
+      stroke: #282D3A;
+      stroke-width: 1;
+    }
+
+    .anim-axis-label {
+      fill: #8B92A5;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .katex {
+      color: var(--fg);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="dot"></div>
+    <h1>GROUPWORK 5F <span>&mdash; Frequency Response (M&amp;AE 3260)</span></h1>
+  </header>
+
+  <main>
+    <nav>
+      <p class="label">BACKGROUND</p>
+      <button class="nav-btn active" data-part="intro">Intro<small>Theory &amp; setup</small></button>
+
+      <p class="label">PROBLEM 1</p>
+      <button class="nav-btn" data-part="p1">Bode Plots<small>Discussion</small></button>
+
+      <p class="label">PROBLEM 2</p>
+      <button class="nav-btn" data-part="p2">Freq &rarr; Time<small>&omega; = 0.5, animation</small></button>
+
+      <p class="label">PROBLEM 3</p>
+      <button class="nav-btn" data-part="p3">Across Frequencies<small>&omega; = 3, 20</small></button>
+
+      <p class="label">PROBLEM 4</p>
+      <button class="nav-btn" data-part="p4">Time &rarr; Freq<small>&omega; = 2, 10</small></button>
+
+      <p class="label">PROBLEM 5</p>
+      <button class="nav-btn" data-part="p5">Vary Damping<small>Add to plot</small></button>
+
+      <p class="label">SUBMIT</p>
+      <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+    </nav>
+
+    <div class="content">
+      <div class="wrap">
+
+        <!-- ============== INTRO ============== -->
+        <section id="part-intro">
+          <h2 class="section-title">Frequency Response</h2>
+
+          <p class="instructions"><b>Learning Goals:</b></p>
+          <ul class="goals">
+            <li>Understand how to read log-based magnitude and phase plots</li>
+            <li>Understand how to measure the amplitude ratio and phase difference between two sinusoids with the same
+              frequency &omega; from a time history plot</li>
+            <li>Understand how to read an amplitude ratio and phase plot (frequency response), and generate the correct
+              output sinusoidal signal</li>
+          </ul>
+
+          <p class="instructions">
+            Consider the spring-mass-damper system m&#7817;+b&#7819;+kx=f(t) with a sinusoidal force input
+            f(t)=F sin(&omega;t). The steady-state output is also sinusoidal, at the same frequency but with
+            its own amplitude and phase:
+          </p>
+          <div class="eq-block" id="eq-xt"></div>
+          <p class="instructions">The magnitude and phase come from the transfer function evaluated at s=j&omega;:</p>
+          <div class="eq-block" id="eq-bode"></div>
+          <div class="note-box">
+            The Bode phase plots below use the same continuous convention MATLAB's <code>bode()</code> uses:
+            0&deg; at &omega;=0, decreasing smoothly down to &minus;180&deg; as &omega;&rarr;&infin;, passing
+            through &minus;90&deg; at &omega;=&omega;n. Watch the sign carefully when reading values off a
+            time-history plot instead of the Bode plot directly &mdash; it's easy to get backwards.
+          </div>
+        </section>
+
+        <!-- ============== PROBLEM 1 ============== -->
+        <section id="part-p1" style="display:none;">
+          <h3 class="problem-title">Problem 1: Understanding Bode Plots</h3>
+          <p class="instructions">
+            Amplitude ratio and phase difference plots are typically called "Bode" plots, as Hendrik Wade
+            Bode developed a process for hand-drawing them based on asymptotes in the 1930s.
+          </p>
+          <p class="instructions">
+            Discuss what a Bode plot means amongst your group and write down your answer. Be thorough and
+            make your understanding of the concept clear &mdash; be more specific than "the magnitude and
+            phase of the frequency response."
+          </p>
+          <div class="reflection-box">
+            <textarea id="input-p1-reflection" placeholder="Type your answer here..."></textarea>
+          </div>
+        </section>
+
+        <!-- ============== PROBLEM 2 ============== -->
+        <section id="part-p2" style="display:none;">
+          <h3 class="problem-title">Problem 2: Frequency Domain &rarr; Time Domain</h3>
+          <p class="given-line">GIVEN &middot; m = <b>0.1 kg</b> &middot; k = <b>1 N/m</b> &middot; b = <b>0.2 Ns/m</b>
+            &middot; F = <b>1 N</b> &middot; &omega; = <b>0.5 rad/s</b></p>
+
+          <h4 class="part-title">Frequency Response (Bode plot)</h4>
+          <p class="instructions">Record the amplitude ratio and phase difference at &omega; = 0.5 rad/s from the plots
+            below.</p>
+          <div class="note-box">
+            <b>Navigating the plots:</b> click and drag inside a plot to zoom into a box. Drag along an axis
+            (on the tick labels) to pan that axis. <b>Double-click</b> the plot to zoom back out to the full view.
+            Hover over the curve to see its exact values.
+          </div>
+          <div class="plots-row">
+            <div class="plot-col">
+              <p class="plot-label">amplitude ratio |G(j&omega;)|</p>
+              <div class="plot-host" id="plot-bode-mag-p2"></div>
+            </div>
+            <div class="plot-col">
+              <p class="plot-label">phase difference (degrees)</p>
+              <div class="plot-host" id="plot-bode-phase-p2"></div>
+            </div>
+          </div>
+          <div class="form-grid two" style="margin-top:16px;">
+            <div class="field"><label>your recorded amplitude ratio</label><input type="number" id="input-p2-record-mag"
+                value="" step="any" /></div>
+            <div class="field"><label>your recorded phase (deg)</label><input type="number" id="input-p2-record-phase"
+                value="" step="any" /></div>
+          </div>
+
+          <h4 class="part-title">Time Response</h4>
+          <p class="instructions">Plug in your values and enter your x(t) below, with &phi; in radians.</p>
+          <div class="layout-with-sidebar">
+            <div class="syntax-ref">
+              <h4>Syntax</h4>
+              <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+              <div class="syn-row"><span>add</span><code>a+b</code></div>
+              <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+              <div class="syn-row"><span>sine</span><code>sin(a)</code></div>
+              <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+            </div>
+            <div class="layout-main">
+              <div class="form-grid one">
+                <div class="field"><label>x(t) =</label><input type="text" id="input-p2-xt" value=""
+                    placeholder="in terms of t" spellcheck="false" /></div>
+              </div>
+              <button class="run-btn" id="btn-p2-xt-check">PLOT</button>
+              <p class="field-err" id="err-p2-xt"></p>
+              <div class="plot-host" id="plot-p2-time">
+                <div class="placeholder">Enter x(t) and click Plot.</div>
+              </div>
+            </div>
+          </div>
+
+          <h4 class="part-title">Animation</h4>
+          <p class="instructions">
+            Watch the spring-mass-damper respond to the force. This animation panel is shared with Problems
+            3 and 4 &mdash; just change &omega; and F below.
+          </p>
+          <div id="anim-shared"></div>
+
+          <h4 class="part-title">Discussion</h4>
+          <p class="instructions">Discuss the amplitude ratio and phase difference between the force input (arrow) and
+            displacement output (mass location), as seen in the animation.</p>
+          <div class="reflection-box">
+            <textarea id="input-p2-reflection" placeholder="Type your answer here..."></textarea>
+          </div>
+        </section>
+
+        <!-- ============== PROBLEM 3 ============== -->
+        <section id="part-p3" style="display:none;">
+          <h3 class="problem-title">Problem 3: Frequency Response Across Frequencies</h3>
+          <p class="instructions">
+            Repeat Problem 2 for &omega; = 3 and &omega; = 20 rad/s. This time, find the value of F that
+            makes the output amplitude X equal to 1 for each case, then verify with the time response.
+          </p>
+          <p class="given-line">GIVEN &middot; m = <b>0.1 kg</b> &middot; k = <b>1 N/m</b> &middot; b = <b>0.2 Ns/m</b>
+            (same system as Problem 2)</p>
+
+          <h4 class="part-title">Frequency Response (Bode plot)</h4>
+          <div class="note-box">
+            These are the <b>same Bode plots from Problem 2</b> (m = 0.1, k = 1, b = 0.2).
+            Drag to zoom,
+            drag an axis to pan, and double-click to zoom back out.
+          </div>
+          <div class="plots-row">
+            <div class="plot-col">
+              <p class="plot-label">amplitude ratio |G(j&omega;)|</p>
+              <div class="plot-host" id="plot-bode-mag-p3"></div>
+            </div>
+            <div class="plot-col">
+              <p class="plot-label">phase difference (degrees)</p>
+              <div class="plot-host" id="plot-bode-phase-p3"></div>
+            </div>
+          </div>
+
+          <div id="p3-case-3"></div>
+          <div id="p3-case-20"></div>
+
+          <h4 class="part-title">Discussion</h4>
+          <p class="instructions">Discuss with your group how the time-domain responses differ across the three cases
+            (&omega; = 0.5, 3, 20). Note in particular how the phase changes as frequency increases &mdash; use the
+            shared Animation panel in Problem 2 (switch &omega; and F) to help visualize this.</p>
+          <div class="reflection-box">
+            <textarea id="input-p3-reflection" placeholder="Type your answer here..."></textarea>
+          </div>
+        </section>
+
+        <!-- ============== PROBLEM 4 ============== -->
+        <section id="part-p4" style="display:none;">
+          <h3 class="problem-title">Problem 4: Time Domain &rarr; Frequency Domain</h3>
+          <p class="instructions">
+            Now go in reverse: given only the time-domain plot of f(t) and x(t) below (no formula shown),
+            calculate the amplitude ratio and phase difference by reading the plot, then verify against the
+            Bode plot values.
+          </p>
+          <p class="given-line">GIVEN &middot; m = <b>0.1 kg</b> &middot; k = <b>1 N/m</b> &middot; b = <b>0.2 Ns/m</b>
+            &middot; F = <b>1 N</b> (same system)</p>
+
+          <div id="p4-case-2"></div>
+          <div id="p4-case-10"></div>
+
+          <h4 class="part-title">Discussion</h4>
+          <p class="instructions">Discuss with your group how to calculate amplitude ratio and phase from the sinusoidal
+            time histories, particularly the sign of the phase &phi;.</p>
+          <div class="reflection-box">
+            <textarea id="input-p4-reflection" placeholder="Type your answer here..."></textarea>
+          </div>
+        </section>
+
+        <!-- ============== PROBLEM 5 ============== -->
+        <section id="part-p5" style="display:none;">
+          <h3 class="problem-title">Problem 5: Frequency Response for Different Damping</h3>
+          <p class="instructions">
+            Explore the effect of changing damping on the frequency response. Create and overlay Bode plots
+            for a few underdamped systems, as well as one overdamped and one critically damped system, on
+            the same axes.
+          </p>
+          <p class="given-line">GIVEN &middot; m = <b>0.1 kg</b> &middot; k = <b>1 N/m</b> (critically damped at b
+            &asymp; 0.632 Ns/m)</p>
+
+          <div class="panel-box">
+            <div class="numfield-row"><label>b [Ns/m]</label><input type="number" id="input-p5-b" value="0.2"
+                step="any" /><span class="mono" id="p5-zeta-display" style="color:var(--muted); font-size:12px;"></span>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="run-btn" id="btn-p5-add">ADD TO PLOT</button>
+            <button class="run-btn secondary" id="btn-p5-clear">CLEAR PLOT</button>
+          </div>
+          <p class="field-err" id="err-p5"></p>
+          <div class="plots-row">
+            <div class="plot-col">
+              <p class="plot-label">amplitude ratio |G(j&omega;)|</p>
+              <div class="plot-host" id="plot-bode-mag-p5"></div>
+            </div>
+            <div class="plot-col">
+              <p class="plot-label">phase difference (degrees)</p>
+              <div class="plot-host" id="plot-bode-phase-p5"></div>
+            </div>
+          </div>
+
+          <h4 class="part-title">Discussion</h4>
+          <p class="instructions">Discuss how the amplitude ratio and phase difference vary with damping.</p>
+          <div class="reflection-box">
+            <textarea id="input-p5-reflection" placeholder="Type your answer here..."></textarea>
+          </div>
+        </section>
+
+        <!-- ============== SUBMISSION ============== -->
+        <section id="part-submission" style="display:none;">
+          <h2 class="section-title">Submission</h2>
+
+          <div class="form-grid two">
+            <div class="field">
+              <label class="mono">Your NetID</label>
+              <input type="text" id="input-netid" placeholder="netid" spellcheck="false" />
+            </div>
+            <div class="field">
+              <label class="mono">Group member NetIDs</label>
+              <input type="text" id="input-group-netids" placeholder="person1, person2, person3, ..."
+                spellcheck="false" />
+            </div>
+          </div>
+
+          <ul class="steps-list" style="margin-top: 22px;">
+            <li>Enter your NetID and group member NetIDs above and export PDF.</li>
+            <li>Submit: discussion (1); Bode plot, time-domain response, and discussion (2); time-domain plots and
+              discussion (3); time histories with readings and calculations (4); Bode plot with overlaid responses and
+              discussion (5).</li>
+            <li>Optionally, attach an existing PDF below and it will be appended to the end of the exported file.</li>
+          </ul>
+
+          <p class="instructions">Append an existing PDF to the end of your export (optional):</p>
+          <div class="upload-block">
+            <input type="file" id="upload-input-appendix" accept="application/pdf" multiple />
+            <div id="upload-thumbs-appendix" style="display:flex; flex-wrap:wrap; margin-top:10px;"></div>
+            <p class="upload-status" id="upload-status-appendix" style="display:none;"></p>
+            <p class="upload-err" id="upload-err-appendix"></p>
+          </div>
+
+          <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+          <p class="field-err" id="exportStatus" style="color:var(--muted);"></p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const PLOT_OPTS = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+      const GIVEN = { m: 0.1, k: 1.0 };
+      const D_PALETTE = ["#FFB454", "#5EEAD4", "#FB7185", "#A78BFA", "#F472B6", "#34D399", "#60A5FA", "#FDE047"];
+
+      function plotLayout(yTitle, opts) {
+        opts = opts || {};
+        return {
+          paper_bgcolor: "#171A21",
+          plot_bgcolor: "#171A21",
+          font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
+          margin: { l: 55, r: 15, t: 15, b: 40 },
+          xaxis: Object.assign({ title: opts.xTitle || "time t [s]", gridcolor: "#282D3A", zerolinecolor: "#282D3A" }, opts.xaxis || {}),
+          yaxis: Object.assign({ title: yTitle, gridcolor: "#282D3A", zerolinecolor: "#282D3A" }, opts.yaxis || {}),
+          legend: { orientation: "h", y: -0.25, font: { size: 9 } },
+          showlegend: true,
+        };
+      }
+
+      // ---------------------------------------------------------------
+      // Core physics. G(jw) = (1/m) / [(wn^2-w^2) + j(2*zeta*wn*w)].
+      // Phase uses atan2 for the correct continuous branch (0 at w=0,
+      // -90 at w=wn, -180 as w->inf) -- NOT the plain atan() the PDF's
+      // formula literally shows, which gives the wrong sign for w>wn.
+      // Verified against scipy.signal.bode at w=0.5,3,20 (b=0.2) to
+      // confirm this matches MATLAB's bode() convention exactly before
+      // shipping.
+      //
+      // The "true" time-domain response is the pure steady-state sinusoid
+      // X*sin(wt+phi) with NO transient term. This is exact, not an
+      // approximation: the reference script sets the ODE's initial
+      // conditions to match the steady-state trajectory precisely
+      // (x0=X*sin(phi), v0=w*X*cos(phi)), which eliminates the transient
+      // entirely -- verified by full ODE simulation (scipy.odeint) against
+      // this closed form: max difference ~2e-7, i.e. numerical noise only.
+      // ---------------------------------------------------------------
+      function wn_of(b) { return Math.sqrt(GIVEN.k / GIVEN.m); }
+      function zeta_of(b) { return b / (2 * Math.sqrt(GIVEN.m * GIVEN.k)); }
+      function magnitude(w, b) {
+        const wn = wn_of(b), zeta = zeta_of(b);
+        return (1 / GIVEN.m) / Math.sqrt((w * w - wn * wn) ** 2 + (2 * zeta * wn * w) ** 2);
+      }
+      function phaseRad(w, b) {
+        const wn = wn_of(b), zeta = zeta_of(b);
+        return -Math.atan2(2 * zeta * wn * w, wn * wn - w * w);
+      }
+      function trueXofT(tArr, w, F, b) {
+        const mag = magnitude(w, b), ph = phaseRad(w, b);
+        return tArr.map((t) => mag * F * Math.sin(w * t + ph));
+      }
+
+      // ---------------------------------------------------------------
+      // KaTeX
+      // ---------------------------------------------------------------
+      katex.render("x(t) = X\\sin(\\omega t + \\phi)", document.getElementById("eq-xt"), { throwOnError: false, displayMode: true });
+      katex.render(
+        "\\frac{X}{F}=|G(j\\omega)|=\\frac{1/m}{\\sqrt{(\\omega^2-\\omega_n^2)^2+(2\\zeta\\omega_n\\omega)^2}},\\quad \\phi=\\angle G(j\\omega)",
+        document.getElementById("eq-bode"), { throwOnError: false, displayMode: true }
+      );
+
+      // ---------------------------------------------------------------
+      // Navigation
+      // ---------------------------------------------------------------
+      const SECTION_IDS = { "intro": "part-intro", "p1": "part-p1", "p2": "part-p2", "p3": "part-p3", "p4": "part-p4", "p5": "part-p5", "submission": "part-submission" };
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+          const section = document.getElementById(SECTION_IDS[btn.dataset.part]);
+          section.style.display = "block";
+          // Plots drawn while their tab was hidden need a resize to fit their box.
+          section.querySelectorAll(".js-plotly-plot").forEach((el) => Plotly.Plots.resize(el));
+        });
+      });
+
+      const runFlags = {};
+
+      // ---------------------------------------------------------------
+      // Bode plot rendering (log-log magnitude, semilog-x phase in
+      // degrees), matching the reference script's fixed axis ranges
+      // (x:[0.5,50], mag y:[0.001,10] log, phase y:[-180,0] linear).
+      // ---------------------------------------------------------------
+      const BODE_OMEGA = (() => {
+        const arr = [];
+        const N = 300;
+        for (let i = 0; i < N; i++) arr.push(Math.pow(10, -1 + 3 * (i / (N - 1)))); // logspace(-1, 2, N)
+        return arr;
+      })();
+
+      // MATLAB-style log grid: solid gridlines at each decade, dotted minor
+      // gridlines at 2..9 x each decade, decade labels as powers of 10, and a
+      // box drawn around the plotting area.
+      const LOG_AXIS = {
+        type: "log",
+        gridcolor: "#4A5163", gridwidth: 1,
+        minor: { dtick: "D1", showgrid: true, gridcolor: "#2E3444", griddash: "dot", ticks: "inside", ticklen: 3, tickcolor: "#8B92A5" },
+        ticks: "inside", ticklen: 6, tickcolor: "#8B92A5",
+        showline: true, linecolor: "#8B92A5", mirror: "ticks",
+      };
+      const BODE_X = Object.assign({}, LOG_AXIS, { range: [Math.log10(0.5), Math.log10(50)] });
+      const BODE_MAG_Y = Object.assign({}, LOG_AXIS, { range: [-3, 1] });
+      const BODE_PHASE_Y = {
+        range: [-180, 0], dtick: 30, gridcolor: "#4A5163",
+        minor: { dtick: 10, showgrid: true, gridcolor: "#2E3444", griddash: "dot" },
+        ticks: "inside", ticklen: 6, tickcolor: "#8B92A5",
+        showline: true, linecolor: "#8B92A5", mirror: "ticks", zeroline: false,
+      };
+      // ---------------------------------------------------------------
+      // Log-axis tick labels. Plotly's default labels the in-between ticks
+      // with bare digits ("2", "5"), which read like whole numbers. Instead:
+      // zoomed out, label only the powers of 10 (like MATLAB); zoomed in,
+      // label the in-between ticks with their full value (0.2, 20, ...).
+      // Re-applied on every zoom/pan and on double-click reset.
+      // ---------------------------------------------------------------
+      function logTickSpec(range, power) {
+        const lo = Math.min(range[0], range[1]), hi = Math.max(range[0], range[1]);
+        const span = hi - lo;
+        const mults = span > 1.3 ? [1] : span > 0.5 ? [1, 2, 5] : [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        const vals = [], text = [];
+        for (let d = Math.floor(lo); d <= Math.ceil(hi); d++) {
+          mults.forEach((m) => {
+            const lv = d + Math.log10(m);
+            if (lv < lo - 1e-9 || lv > hi + 1e-9) return;
+            const v = m * Math.pow(10, d);
+            vals.push(v);
+            text.push(power && m === 1 ? `10<sup>${d}</sup>` : String(Number(v.toPrecision(3))));
+          });
+        }
+        if (vals.length < 2) return { tickmode: "auto", tickvals: null, ticktext: null };
+        return { tickmode: "array", tickvals: vals, ticktext: text };
+      }
+      function applyLogTicks(gd, power) {
+        const update = {};
+        ["xaxis", "yaxis"].forEach((ax) => {
+          const fa = gd._fullLayout && gd._fullLayout[ax];
+          if (!fa || fa.type !== "log") return;
+          Object.entries(logTickSpec(fa.range, power)).forEach(([k, v]) => { update[`${ax}.${k}`] = v; });
+        });
+        if (Object.keys(update).length) Plotly.relayout(gd, update);
+      }
+      function newLogPlot(divId, data, layout, config) {
+        return Plotly.newPlot(divId, data, layout, config).then((gd) => {
+          if (gd._logTickHandler) gd.removeListener("plotly_relayout", gd._logTickHandler);
+          gd._logTickHandler = (ev) => {
+            if (Object.keys(ev).every((k) => /tick/.test(k))) return; // our own relayout
+            applyLogTicks(gd, true);
+          };
+          gd.on("plotly_relayout", gd._logTickHandler);
+          applyLogTicks(gd, true);
+          return gd;
+        });
+      }
+
+      function bodeMagLayout() { return plotLayout("|G(j\u03c9)| [m/N]", { xTitle: "\u03c9 [rad/s]", xaxis: BODE_X, yaxis: BODE_MAG_Y }); }
+      function bodePhaseLayout() { return plotLayout("phase [deg]", { xTitle: "\u03c9 [rad/s]", xaxis: BODE_X, yaxis: BODE_PHASE_Y }); }
+
+      function renderBodeSingle(magDivId, phaseDivId, b) {
+        const mags = BODE_OMEGA.map((w) => magnitude(w, b));
+        const phases = BODE_OMEGA.map((w) => (phaseRad(w, b) * 180) / Math.PI);
+        newLogPlot(magDivId, [{ x: BODE_OMEGA, y: mags, mode: "lines", line: { color: "#FFB454", width: 2.2 }, showlegend: false }],
+          bodeMagLayout(), PLOT_OPTS);
+        newLogPlot(phaseDivId, [{ x: BODE_OMEGA, y: phases, mode: "lines", line: { color: "#5EEAD4", width: 2.2 }, showlegend: false }],
+          bodePhaseLayout(), PLOT_OPTS);
+      }
+      renderBodeSingle("plot-bode-mag-p2", "plot-bode-phase-p2", 0.2);
+      renderBodeSingle("plot-bode-mag-p3", "plot-bode-phase-p3", 0.2);
+
+      // ---------------------------------------------------------------
+      // Problem 2: plot the student's x(t) against the input force.
+      // No right/wrong banner -- the correct x(t) is overlaid (dotted) instead.
+      // ---------------------------------------------------------------
+      function plotXtFormula(exprId, errId, plotId, w, F) {
+        const errEl = document.getElementById(errId);
+        errEl.textContent = "";
+        const raw = document.getElementById(exprId).value.trim();
+        if (!raw) { errEl.textContent = "Enter an expression."; return false; }
+        if (!/\bt\b/.test(raw)) { errEl.textContent = "Enter an expression in terms of t."; return false; }
+
+        const N = 800;
+        const tArr = Array.from({ length: N }, (_, i) => (i / (N - 1)) * 20); // matches tmax=20
+        let yUser;
+        try {
+          yUser = tArr.map((t) => {
+            const v = math.evaluate(raw, { t });
+            if (typeof v !== "number" || !isFinite(v)) throw new Error("not a number");
+            return v;
+          });
+        } catch (err) {
+          errEl.textContent = "Couldn't evaluate this expression.";
+          return false;
+        }
+        const yTrue = trueXofT(tArr, w, F, 0.2);
+        const yForce = tArr.map((t) => F * Math.sin(w * t));
+
+        Plotly.newPlot(plotId, [
+          { x: tArr, y: yForce, mode: "lines", line: { color: "#A78BFA", width: 1.8 }, name: "f(t)" },
+          { x: tArr, y: yUser, mode: "lines", line: { color: "#60A5FA", width: 2.2 }, name: "your x(t)" },
+          { x: tArr, y: yTrue, mode: "lines", line: { color: "#34D399", width: 2, dash: "dot" }, name: "correct x(t)" },
+        ], plotLayout("x [m], f [N]"), PLOT_OPTS);
+        return true;
+      }
+      document.getElementById("btn-p2-xt-check").addEventListener("click", () => {
+        plotXtFormula("input-p2-xt", "err-p2-xt", "plot-p2-time", 0.5, 1);
+        runFlags.p2 = true;
+        scheduleSave();
+      });
+
+      // ---------------------------------------------------------------
+      // Problem 3: dynamically build two near-identical sub-case panels
+      // (omega=3, omega=20), each: find F for X=1, then verify x(t).
+      // ---------------------------------------------------------------
+      // Force amplitude used for f(t) and the correct x(t): the student's own F,
+      // or the F that gives X = 1 if the field is blank.
+      function forceAmpFor(key, w) {
+        const raw = document.getElementById(`input-${key}-F`).value.trim();
+        const F = Number(raw);
+        return raw !== "" && isFinite(F) ? F : 1 / magnitude(w, 0.2);
+      }
+      function buildFreqCasePanel(containerId, w, key) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `
+      <h4 class="part-title">\u03c9 = ${w} rad/s</h4>
+      <p class="instructions">Find the value of F that makes the output amplitude X = 1 at this frequency.</p>
+      <div class="form-grid one">
+        <div class="field"><label>F (for X = 1)</label><input type="number" id="input-${key}-F" value="" step="any" /></div>
+      </div>
+      <p class="instructions" style="margin-top:16px;">Now enter x(t) and plot it against f(t):</p>
+      <div class="form-grid one">
+        <div class="field"><label>x(t) =</label><input type="text" id="input-${key}-xt" value="" placeholder="in terms of t" spellcheck="false" /></div>
+      </div>
+      <button class="run-btn" id="btn-${key}-xt-check">PLOT</button>
+      <p class="field-err" id="err-${key}-xt"></p>
+      <div class="plot-host" id="plot-${key}-time"><div class="placeholder">Enter F above, then x(t), and click Plot.</div></div>
+    `;
+        document.getElementById(`btn-${key}-xt-check`).addEventListener("click", () => {
+          plotXtFormula(`input-${key}-xt`, `err-${key}-xt`, `plot-${key}-time`, w, forceAmpFor(key, w));
+          runFlags[key] = true;
+          scheduleSave();
+        });
+      }
+      buildFreqCasePanel("p3-case-3", 3, "p3c3");
+      buildFreqCasePanel("p3-case-20", 20, "p3c20");
+
+      // ---------------------------------------------------------------
+      // Problem 4: dynamically build two sub-case panels (omega=2,10),
+      // each showing ONLY f(t) and true x(t) (no formula), asking the
+      // student to read amplitude ratio and phase off the plot.
+      // ---------------------------------------------------------------
+      function buildReadOffPanel(containerId, w, key) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `
+      <h4 class="part-title">\u03c9 = ${w} rad/s</h4>
+      <div class="plot-host" id="plot-${key}-time"></div>
+      <div class="form-grid two" style="margin-top:16px;">
+        <div class="field"><label>your calculated amplitude ratio</label><input type="number" id="input-${key}-mag" value="" step="any" /></div>
+        <div class="field"><label>your calculated phase (deg)</label><input type="number" id="input-${key}-phase" value="" step="any" /></div>
+      </div>
+    `;
+        const N = 800;
+        const tArr = Array.from({ length: N }, (_, i) => (i / (N - 1)) * 20);
+        const yForce = tArr.map((t) => 1 * Math.sin(w * t));
+        const yTrue = trueXofT(tArr, w, 1, 0.2);
+        Plotly.newPlot(`plot-${key}-time`, [
+          { x: tArr, y: yForce, mode: "lines", line: { color: "#A78BFA", width: 1.8 }, name: "f(t)" },
+          { x: tArr, y: yTrue, mode: "lines", line: { color: "#34D399", width: 2.2 }, name: "x(t)" },
+        ], plotLayout("x [m], f [N]"), PLOT_OPTS);
+      }
+      buildReadOffPanel("p4-case-2", 2, "p4c2");
+      buildReadOffPanel("p4-case-10", 10, "p4c10");
+
+      // ---------------------------------------------------------------
+      // Problem 5: Add-to-Plot for Bode traces with varying b.
+      // ---------------------------------------------------------------
+      const p5Traces = [];
+      function updateP5ZetaDisplay() {
+        const b = Number(document.getElementById("input-p5-b").value);
+        const el = document.getElementById("p5-zeta-display");
+        if (isFinite(b) && b > 0) {
+          const z = zeta_of(b);
+          const regime = z < 1 ? "underdamped" : z === 1 ? "critically damped" : "overdamped";
+          el.textContent = `\u2192 \u03b6 = ${z.toFixed(3)} (${regime})`;
+        } else { el.textContent = ""; }
+      }
+      document.getElementById("input-p5-b").addEventListener("input", updateP5ZetaDisplay);
+      updateP5ZetaDisplay();
+
+      function redrawP5() {
+        const magHost = "plot-bode-mag-p5", phaseHost = "plot-bode-phase-p5";
+        if (p5Traces.length === 0) {
+          document.getElementById(magHost).innerHTML = '<div class="placeholder">Enter b and click Add to Plot.</div>';
+          document.getElementById(phaseHost).innerHTML = "";
+          return;
+        }
+        const magTraces = [], phaseTraces = [];
+        p5Traces.forEach((tr) => {
+          const mags = BODE_OMEGA.map((w) => magnitude(w, tr.b));
+          const phases = BODE_OMEGA.map((w) => (phaseRad(w, tr.b) * 180) / Math.PI);
+          magTraces.push({ x: BODE_OMEGA, y: mags, mode: "lines", line: { color: tr.color, width: 2.2 }, name: tr.label });
+          phaseTraces.push({ x: BODE_OMEGA, y: phases, mode: "lines", line: { color: tr.color, width: 2.2 }, name: tr.label });
+        });
+        newLogPlot(magHost, magTraces, bodeMagLayout(), PLOT_OPTS);
+        newLogPlot(phaseHost, phaseTraces, bodePhaseLayout(), PLOT_OPTS);
+      }
+      document.getElementById("btn-p5-add").addEventListener("click", () => {
+        const errEl = document.getElementById("err-p5");
+        errEl.textContent = "";
+        const b = Number(document.getElementById("input-p5-b").value);
+        if (!isFinite(b) || b <= 0) { errEl.textContent = "b must be a positive number."; return; }
+        const z = zeta_of(b);
+        const color = D_PALETTE[p5Traces.length % D_PALETTE.length];
+        p5Traces.push({ b, label: `b=${b} (\u03b6=${z.toFixed(2)})`, color });
+        redrawP5();
+        runFlags.p5 = true;
+        scheduleSave();
+      });
+      document.getElementById("btn-p5-clear").addEventListener("click", () => {
+        p5Traces.length = 0;
+        redrawP5();
+        scheduleSave();
+      });
+      redrawP5();
+
+      // ---------------------------------------------------------------
+      // Shared animation panel (Problem 2's tab): spring-mass-damper SVG,
+      // driven by the closed-form true response. Reusable for any
+      // (omega, F) pair by just changing the inputs -- Problems 3 and 4
+      // reference this same panel rather than duplicating it.
+      // ---------------------------------------------------------------
+      // Fixed, un-normalized scale constants: the same physical-to-pixel
+      // conversion is used no matter what omega/F the student enters, so a
+      // larger F (or a system whose |G(jw)| is larger) genuinely displaces
+      // the mass more on screen -- nothing is auto-scaled to a constant size.
+      // Likewise playback always advances at PLAYBACK_SPEED x real time, the
+      // same multiplier for every omega, so the relative speed of a fast vs.
+      // slow system is preserved (a w=20 case really does visibly oscillate
+      // faster than a w=0.5 case) rather than each case being stretched to
+      // fit a fixed number of periods on screen.
+      const X_PX_PER_M = 30;   // pixels per meter of displacement
+      const F_PX_PER_N = 25;   // pixels per Newton of applied force
+      const PLAYBACK_SPEED = 1; // 1x = real time
+      // The SVG viewBox is narrow (200) but tall (700) -- a high height:width
+      // ratio -- so the mass/arrow have a lot of vertical travel room before
+      // hitting the top/bottom edge, even though the on-screen box is narrower
+      // than it used to be.
+      const ANIM_VIEWBOX_W = 200, ANIM_VIEWBOX_H = 700;
+      const ANIM_REST_Y = ANIM_VIEWBOX_H / 2;  // vertical pixel position of the mass at x=0
+
+      // Strip-chart (force-vs-time / displacement-vs-time) constants. These are
+      // deliberately lower-resolution (fewer px/unit) than the mass-spring
+      // diagram's constants above: Problem 3 has students drive this same panel
+      // with F up to ~40 N (solving for X = 1 m at omega = 20), so the axis
+      // range has to cover that without the trace running off the chart.
+      // Default y-axis half-ranges (units, not px) -- students can override these
+      // live with the y-limit inputs above each chart to zoom in/out.
+      const X_YLIM_DEFAULT = 8;    // +/- 8 m
+      const F_YLIM_DEFAULT = 50;   // +/- 50 N
+      const pxPerUnitForYLim = (yLim) => (PLOT_H / 2) / yLim;
+      const WINDOW_SECONDS = 10;               // rolling time window shown
+      const PLOT_W = 560, PLOT_H = 300;        // internal SVG coordinate size of the plotting area
+      // (each chart is stretched with preserveAspectRatio="none" to fill its
+      // box exactly, so this ratio doesn't need to match the on-screen box --
+      // only PLOT_H/px-per-unit above matters for how much value range fits)
+      const TIME_PX_PER_S = PLOT_W / WINDOW_SECONDS;
+      // Margins reserve room for y-axis (value) and x-axis (time) tick labels.
+      const PLOT_MARGIN_LEFT = 46, PLOT_MARGIN_RIGHT = 10, PLOT_MARGIN_TOP = 10, PLOT_MARGIN_BOTTOM = 24;
+      const PLOT_VIEW_W = PLOT_MARGIN_LEFT + PLOT_W + PLOT_MARGIN_RIGHT;
+      const PLOT_VIEW_H = PLOT_MARGIN_TOP + PLOT_H + PLOT_MARGIN_BOTTOM;
+      const PLOT_MID_Y = PLOT_MARGIN_TOP + PLOT_H / 2;
+
+      function niceStep(rough) {
+        const pow10 = Math.pow(10, Math.floor(Math.log10(rough)));
+        const norm = rough / pow10;
+        const step = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10;
+        return step * pow10;
+      }
+      // Static value-axis ticks: depend only on the fixed pixels-per-unit scale
+      // and chart height, not on the current omega/F, so they're built once.
+      function valueTicks(pxPerUnit, targetCountPerSide) {
+        const halfUnits = (PLOT_H / 2) / pxPerUnit;
+        const step = niceStep(halfUnits / (targetCountPerSide || 4));
+        const ticks = [0];
+        for (let v = step; v <= halfUnits + 1e-9; v += step) { ticks.push(v); ticks.push(-v); }
+        return ticks.sort((a, b) => a - b);
+      }
+      function fmtTick(v) { return Math.abs(v) < 1e-9 ? "0" : (Number.isInteger(v) ? String(v) : v.toFixed(2)); }
+      // Builds the static axis markup (gridlines + labels) for one strip chart.
+      function axesMarkup(pxPerUnit, unitLabel) {
+        let s = "";
+        // y-axis (value) ticks + gridlines
+        valueTicks(pxPerUnit).forEach((v) => {
+          const y = PLOT_MID_Y - v * pxPerUnit;
+          s += `<line class="anim-grid-line" x1="${PLOT_MARGIN_LEFT}" y1="${y}" x2="${PLOT_MARGIN_LEFT + PLOT_W}" y2="${y}" />`;
+          s += `<text class="anim-axis-label" x="${PLOT_MARGIN_LEFT - 6}" y="${y + 3}" text-anchor="end">${fmtTick(v)}</text>`;
+        });
+        // x-axis (time, seconds ago) ticks every 2s across the rolling window
+        for (let o = 0; o <= WINDOW_SECONDS + 1e-9; o += 2) {
+          const x = PLOT_MARGIN_LEFT + PLOT_W - o * TIME_PX_PER_S;
+          s += `<line class="anim-grid-line" x1="${x}" y1="${PLOT_MARGIN_TOP}" x2="${x}" y2="${PLOT_MARGIN_TOP + PLOT_H}" />`;
+          s += `<text class="anim-axis-label" x="${x}" y="${PLOT_MARGIN_TOP + PLOT_H + 16}" text-anchor="middle">${o === 0 ? "0" : "-" + o}</text>`;
+        }
+        // axis lines (left = value axis, bottom = time axis) drawn on top of the grid
+        s += `<line class="anim-axis-line" x1="${PLOT_MARGIN_LEFT}" y1="${PLOT_MARGIN_TOP}" x2="${PLOT_MARGIN_LEFT}" y2="${PLOT_MARGIN_TOP + PLOT_H}" />`;
+        s += `<line class="anim-axis-line" x1="${PLOT_MARGIN_LEFT}" y1="${PLOT_MARGIN_TOP + PLOT_H}" x2="${PLOT_MARGIN_LEFT + PLOT_W}" y2="${PLOT_MARGIN_TOP + PLOT_H}" />`;
+        s += `<text class="anim-axis-label" x="${PLOT_MARGIN_LEFT + PLOT_W / 2}" y="${PLOT_VIEW_H - 2}" text-anchor="middle">time [s ago]</text>`;
+        s += `<text class="anim-axis-label" transform="translate(12, ${PLOT_MID_Y}) rotate(-90)" text-anchor="middle">${unitLabel}</text>`;
+        return s;
+      }
+
+      function buildAnimationPanel() {
+        const host = document.getElementById("anim-shared");
+        host.innerHTML = `
+      <div class="anim-panel">
+        <div class="anim-controls-row">
+          <div class="field"><label>&omega; [rad/s]</label><input type="number" id="input-anim-w" value="0.5" step="any" /></div>
+          <div class="field"><label>F [N]</label><input type="number" id="input-anim-F" value="1" step="any" /></div>
+          <p class="mono anim-speed-note" style="font-size:11px; color:var(--muted);">Speed: ${PLAYBACK_SPEED}&times; (real time) &mdash; same for every &omega;</p>
+          <div class="anim-buttons">
+            <button class="run-btn" id="btn-anim-play">PLAY</button>
+            <button class="run-btn secondary" id="btn-anim-reset">RESET</button>
+          </div>
+          <p class="field-err" id="err-anim" style="color:var(--muted);"></p>
+        </div>
+        <div class="anim-main-row">
+          <div class="anim-svg-host">
+            <svg id="anim-svg" viewBox="0 0 ${ANIM_VIEWBOX_W} ${ANIM_VIEWBOX_H}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+              <line x1="20" y1="20" x2="180" y2="20" stroke="#8B92A5" stroke-width="4" />
+              <polyline id="anim-spring" points="" stroke="#5EEAD4" stroke-width="2" fill="none" />
+              <rect id="anim-mass" x="70" y="${ANIM_REST_Y - 20}" width="60" height="40" rx="4" fill="#FFB454" />
+              <line id="anim-force-line" x1="100" y1="${ANIM_REST_Y}" x2="100" y2="${ANIM_REST_Y}" stroke="#FB7185" stroke-width="3" />
+              <polygon id="anim-force-arrow" points="95,${ANIM_REST_Y} 105,${ANIM_REST_Y} 100,${ANIM_REST_Y}" fill="#FB7185" />
+              <text x="100" y="${ANIM_VIEWBOX_H - 10}" fill="#8B92A5" font-size="10" text-anchor="middle" font-family="JetBrains Mono, monospace">force F(t) shown in red</text>
+            </svg>
+          </div>
+          <div class="anim-plots-col">
+            <div class="anim-plot-host">
+              <div class="anim-plot-title-row">
+                <p class="anim-plot-title">force / input f(t) [N] vs. time [s] &mdash; last ${WINDOW_SECONDS}s, red (matches the arrow)</p>
+                <div class="anim-ylim-control">
+                  <button type="button" id="btn-force-zoom-out" title="Zoom out (larger range)">&minus;</button>
+                  <label for="input-force-ylim">y max &plusmn;</label>
+                  <input type="number" id="input-force-ylim" value="${F_YLIM_DEFAULT}" min="0.1" step="any" />
+                  <span>N</span>
+                  <button type="button" id="btn-force-zoom-in" title="Zoom in (smaller range)">&plus;</button>
+                </div>
+              </div>
+              <svg id="anim-plot-force" viewBox="0 0 ${PLOT_VIEW_W} ${PLOT_VIEW_H}" preserveAspectRatio="none">
+                <g id="anim-force-axes">${axesMarkup(pxPerUnitForYLim(F_YLIM_DEFAULT), "f(t) [N]")}</g>
+                <polyline id="anim-plot-force-line" points="" stroke="#FB7185" stroke-width="2" fill="none" />
+              </svg>
+            </div>
+            <div class="anim-plot-host">
+              <div class="anim-plot-title-row">
+                <p class="anim-plot-title">displacement / output x(t) [m] vs. time [s] &mdash; last ${WINDOW_SECONDS}s, amber (matches the mass)</p>
+                <div class="anim-ylim-control">
+                  <button type="button" id="btn-x-zoom-out" title="Zoom out (larger range)">&minus;</button>
+                  <label for="input-x-ylim">y max &plusmn;</label>
+                  <input type="number" id="input-x-ylim" value="${X_YLIM_DEFAULT}" min="0.1" step="any" />
+                  <span>m</span>
+                  <button type="button" id="btn-x-zoom-in" title="Zoom in (smaller range)">&plus;</button>
+                </div>
+              </div>
+              <svg id="anim-plot-x" viewBox="0 0 ${PLOT_VIEW_W} ${PLOT_VIEW_H}" preserveAspectRatio="none">
+                <g id="anim-x-axes">${axesMarkup(pxPerUnitForYLim(X_YLIM_DEFAULT), "x(t) [m]")}</g>
+                <polyline id="anim-plot-x-line" points="" stroke="#FFB454" stroke-width="2" fill="none" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+        let playing = false;
+        let animStart = null;
+        let rafId = null;
+        let histF = [];   // rolling {t, v} samples for the force strip chart
+        let histX = [];   // rolling {t, v} samples for the displacement strip chart
+        let lastSimTime = 0;
+        let forceYLim = F_YLIM_DEFAULT;   // student-adjustable y-axis half-range
+        let xYLim = X_YLIM_DEFAULT;
+
+        // Redraws the two strip-chart traces from the current history using the
+        // current y-limits, without needing a new animation frame -- used both
+        // from drawFrame and whenever a y-limit input/zoom button changes.
+        function renderTraces() {
+          const fPxPerUnit = pxPerUnitForYLim(forceYLim);
+          const xPxPerUnit = pxPerUnitForYLim(xYLim);
+          const tToPx = (t) => PLOT_MARGIN_LEFT + PLOT_W - (lastSimTime - t) * TIME_PX_PER_S;
+          const fPts = histF.map((p) => `${tToPx(p.t)},${PLOT_MID_Y - p.v * fPxPerUnit}`).join(" ");
+          const xPts = histX.map((p) => `${tToPx(p.t)},${PLOT_MID_Y - p.v * xPxPerUnit}`).join(" ");
+          document.getElementById("anim-plot-force-line").setAttribute("points", fPts);
+          document.getElementById("anim-plot-x-line").setAttribute("points", xPts);
+        }
+        function rescaleForce(newLim) {
+          if (!isFinite(newLim) || newLim <= 0) return;
+          forceYLim = newLim;
+          document.getElementById("input-force-ylim").value = forceYLim;
+          document.getElementById("anim-force-axes").innerHTML = axesMarkup(pxPerUnitForYLim(forceYLim), "f(t) [N]");
+          renderTraces();
+        }
+        function rescaleX(newLim) {
+          if (!isFinite(newLim) || newLim <= 0) return;
+          xYLim = newLim;
+          document.getElementById("input-x-ylim").value = xYLim;
+          document.getElementById("anim-x-axes").innerHTML = axesMarkup(pxPerUnitForYLim(xYLim), "x(t) [m]");
+          renderTraces();
+        }
+
+        function resetHistory() {
+          histF = [];
+          histX = [];
+          document.getElementById("anim-plot-force-line").setAttribute("points", "");
+          document.getElementById("anim-plot-x-line").setAttribute("points", "");
+        }
+
+        function springPoints(y1, y2, zigzags) {
+          const pts = [];
+          const n = zigzags || 8;
+          pts.push(`100,${y1}`);
+          for (let i = 1; i < n; i++) {
+            const yy = y1 + ((y2 - y1) * i) / n;
+            const xx = i % 2 === 0 ? 90 : 110;
+            pts.push(`${xx},${yy}`);
+          }
+          pts.push(`100,${y2}`);
+          return pts.join(" ");
+        }
+
+        function drawFrame(simTime) {
+          const w = Number(document.getElementById("input-anim-w").value);
+          const F = Number(document.getElementById("input-anim-F").value);
+          if (!isFinite(w) || w <= 0 || !isFinite(F)) { document.getElementById("err-anim").textContent = "\u03c9 and F must be positive numbers."; return; }
+          document.getElementById("err-anim").textContent = "";
+
+          const mag = magnitude(w, 0.2), ph = phaseRad(w, 0.2);
+          const x = mag * F * Math.sin(w * simTime + ph);
+          const f = F * Math.sin(w * simTime);
+
+          const massY = ANIM_REST_Y + x * X_PX_PER_M;
+
+          document.getElementById("anim-mass").setAttribute("y", massY - 20);
+          document.getElementById("anim-spring").setAttribute("points", springPoints(20, massY - 20, 8));
+          // Vertical system (mass hangs from the spring), so the applied force
+          // is drawn as a vertical arrow acting through the mass's own center
+          // (x=100, the center of the mass rect) -- pointing down for
+          // positive f(t) (same direction as positive x, i.e. downward
+          // displacement), up for negative f(t).
+          const forceY2 = massY + f * F_PX_PER_N;
+          document.getElementById("anim-force-line").setAttribute("x1", 100);
+          document.getElementById("anim-force-line").setAttribute("y1", massY);
+          document.getElementById("anim-force-line").setAttribute("x2", 100);
+          document.getElementById("anim-force-line").setAttribute("y2", forceY2);
+          const arrowDir = f >= 0 ? 1 : -1;
+          document.getElementById("anim-force-arrow").setAttribute("points", `${95},${forceY2} ${105},${forceY2} ${100},${forceY2 + 10 * arrowDir}`);
+
+          // Scroll the two strip charts: newest sample at the right edge
+          // (x = PLOT_W), older samples scroll left and drop off once older
+          // than WINDOW_SECONDS -- a real-time oscilloscope-style trace using
+          // the exact same f(t)/x(t) values just drawn above.
+          histF.push({ t: simTime, v: f });
+          histX.push({ t: simTime, v: x });
+          const cutoff = simTime - WINDOW_SECONDS;
+          while (histF.length && histF[0].t < cutoff) histF.shift();
+          while (histX.length && histX[0].t < cutoff) histX.shift();
+          lastSimTime = simTime;
+          renderTraces();
+        }
+
+        function tick(ts) {
+          if (!playing) return;
+          if (animStart === null) animStart = ts;
+          const elapsedReal = (ts - animStart) / 1000;
+          const simTime = elapsedReal * PLAYBACK_SPEED;
+          drawFrame(simTime);
+          rafId = requestAnimationFrame(tick);
+        }
+
+        document.getElementById("btn-anim-play").addEventListener("click", (e) => {
+          playing = !playing;
+          e.target.textContent = playing ? "PAUSE" : "PLAY";
+          if (playing) { animStart = null; rafId = requestAnimationFrame(tick); }
+          else if (rafId) cancelAnimationFrame(rafId);
+        });
+        document.getElementById("btn-anim-reset").addEventListener("click", () => {
+          playing = false;
+          document.getElementById("btn-anim-play").textContent = "PLAY";
+          if (rafId) cancelAnimationFrame(rafId);
+          resetHistory();
+          drawFrame(0);
+        });
+        // Changing omega or F mid-run starts a new "case" -- clear the strip
+        // charts so the old case's trace doesn't visually blend into the new
+        // one, without interrupting playback itself.
+        document.getElementById("input-anim-w").addEventListener("input", resetHistory);
+        document.getElementById("input-anim-F").addEventListener("input", resetHistory);
+
+        // Manual y-axis zoom: type an exact +/- limit, or use the +/- buttons
+        // to halve/double the current range. Doesn't affect playback or history.
+        document.getElementById("input-force-ylim").addEventListener("change", (e) => rescaleForce(Number(e.target.value)));
+        document.getElementById("input-x-ylim").addEventListener("change", (e) => rescaleX(Number(e.target.value)));
+        document.getElementById("btn-force-zoom-in").addEventListener("click", () => rescaleForce(forceYLim / 2));
+        document.getElementById("btn-force-zoom-out").addEventListener("click", () => rescaleForce(forceYLim * 2));
+        document.getElementById("btn-x-zoom-in").addEventListener("click", () => rescaleX(xYLim / 2));
+        document.getElementById("btn-x-zoom-out").addEventListener("click", () => rescaleX(xYLim * 2));
+
+        drawFrame(0);
+      }
+      buildAnimationPanel();
+
+      // ---------------------------------------------------------------
+      // Appendix PDF(s) on the Submission tab.
+      // ---------------------------------------------------------------
+      let appendixFiles = [];
+      function renderFileChips() {
+        const host = document.getElementById("upload-thumbs-appendix");
+        host.innerHTML = "";
+        appendixFiles.forEach((file, i) => {
+          const chip = document.createElement("div");
+          chip.className = "file-chip";
+          const nameSpan = document.createElement("span"); nameSpan.textContent = file.name;
+          const removeBtn = document.createElement("button");
+          removeBtn.className = "chip-remove"; removeBtn.textContent = "\u00d7"; removeBtn.title = "Remove";
+          removeBtn.addEventListener("click", () => { appendixFiles.splice(i, 1); renderFileChips(); });
+          chip.appendChild(nameSpan); chip.appendChild(removeBtn);
+          host.appendChild(chip);
+        });
+        const statusEl = document.getElementById("upload-status-appendix");
+        if (statusEl) {
+          const n = appendixFiles.length;
+          statusEl.style.display = n > 0 ? "block" : "none";
+          statusEl.textContent = n > 0 ? `\u2713 ${n} file${n > 1 ? "s" : ""} selected` : "";
+        }
+      }
+      const appendixInput = document.getElementById("upload-input-appendix");
+      appendixInput.addEventListener("change", () => {
+        const errEl = document.getElementById("upload-err-appendix");
+        const chosen = Array.from(appendixInput.files || []);
+        const nonPdf = chosen.filter((f) => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+        const pdfs = chosen.filter((f) => !nonPdf.includes(f));
+        appendixFiles = appendixFiles.concat(pdfs);
+        if (errEl) errEl.textContent = nonPdf.length > 0 ? `Skipped (not a PDF): ${nonPdf.map((f) => f.name).join(", ")}` : "";
+        renderFileChips();
+        appendixInput.value = "";
+        scheduleSave();
+      });
+
+      // ---------------------------------------------------------------
+      // Submission: bundle everything into a PDF
+      // ---------------------------------------------------------------
+      function setExportStatus(text, isError) {
+        const el = document.getElementById("exportStatus");
+        el.textContent = text; el.style.color = isError ? "#FB7185" : "#8B92A5";
+      }
+      function reflectionText(id) {
+        const v = document.getElementById(id).value.trim();
+        return v || "(No response entered.)";
+      }
+      function fieldLabelFor(id) {
+        if (id === "input-netid") return "Your NetID";
+        if (id === "input-group-netids") return "Group member NetIDs";
+        const m = id.match(/^input-(p[\w\d]+)-(.+)$/);
+        if (m) { const [, part, field] = m; return `${part} (${field.replace(/-/g, " ")})`; }
+        return id;
+      }
+      function findBlankItems() {
+        const blanks = [];
+        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((el) => {
+          if (el.closest("#anim-shared")) return; // animation inputs aren't a graded deliverable
+          if (el.value.trim() === "") blanks.push(fieldLabelFor(el.id));
+        });
+        if (p5Traces.length === 0) blanks.push("Problem 5 (no Bode traces plotted)");
+        return blanks;
+      }
+
+      async function exportPdf() {
+        const blanks = findBlankItems();
+        if (blanks.length > 0) {
+          const proceed = confirm(`The following are still blank:\n\n${blanks.map((b) => "\u2022 " + b).join("\n")}\n\nDo you want to export the PDF anyway?`);
+          if (!proceed) return;
+        }
+
+        const btn = document.getElementById("exportPdfBtn");
+        const originalLabel = btn.textContent;
+        btn.disabled = true; btn.textContent = "EXPORTING\u2026";
+        setExportStatus("");
+
+        try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ unit: "pt", format: "letter" });
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+          const margin = 48;
+          const maxWidth = pageWidth - margin * 2;
+          let y = margin;
+
+          function ensureSpace(h) { if (y + h > pageHeight - margin) { doc.addPage(); y = margin; } }
+          function addHeading(text) {
+            ensureSpace(30);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(15);
+            doc.text(text, margin, y); y += 22;
+          }
+          function addText(text, opts) {
+            const size = (opts && opts.size) || 10.5;
+            const bold = !!(opts && opts.bold);
+            doc.setFont("helvetica", bold ? "bold" : "normal"); doc.setFontSize(size);
+            const lines = doc.splitTextToSize(text, maxWidth);
+            const lineHeight = size * 1.35;
+            lines.forEach((line) => { ensureSpace(lineHeight); doc.text(line, margin, y); y += lineHeight; });
+            y += 4;
+          }
+          async function addPlotImagePair(divIdA, divIdB, fallbackLabel) {
+            const halfW = (maxWidth - 12) / 2;
+            let urlA, urlB;
+            try { urlA = await Plotly.toImage(divIdA, { format: "png", width: 700, height: 460 }); } catch (e) { urlA = null; }
+            try { urlB = await Plotly.toImage(divIdB, { format: "png", width: 700, height: 460 }); } catch (e) { urlB = null; }
+            if (!urlA && !urlB) { addText(`(${fallbackLabel}: plot images could not be captured.)`); return; }
+            const h = halfW * (460 / 700);
+            ensureSpace(h + 10);
+            if (urlA) doc.addImage(urlA, "PNG", margin, y, halfW, h);
+            if (urlB) doc.addImage(urlB, "PNG", margin + halfW + 12, y, halfW, h);
+            y += h + 16;
+          }
+          async function addPlotImage(divId, fallbackLabel) {
+            let dataUrl;
+            try { dataUrl = await Plotly.toImage(divId, { format: "png", width: 900, height: 460 }); }
+            catch (err) { addText(`(${fallbackLabel}: plot image could not be captured.)`); return; }
+            const imgWidth = maxWidth, imgHeight = imgWidth * (460 / 900);
+            ensureSpace(imgHeight + 10);
+            doc.addImage(dataUrl, "PNG", margin, y, imgWidth, imgHeight);
+            y += imgHeight + 16;
+          }
+
+          doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+          doc.splitTextToSize("GroupWork 5F \u2014 Frequency Response", maxWidth).forEach((line) => { doc.text(line, margin, y); y += 20; });
+          y += 6;
+
+          const netId = document.getElementById("input-netid").value.trim() || "(not entered)";
+          const groupIds = document.getElementById("input-group-netids").value.trim() || "(not entered)";
+          addText(`Your NetID: ${netId}`, { bold: true, size: 11.5 });
+          addText(`Group member NetIDs: ${groupIds}`, { bold: true, size: 11.5 });
+          y += 8;
+
+          addHeading("Problem 1: Understanding Bode Plots");
+          addText(reflectionText("input-p1-reflection"));
+
+          addHeading("Problem 2: Frequency Domain to Time Domain (w=0.5)");
+          addText(`Recorded: amplitude ratio = ${document.getElementById("input-p2-record-mag").value}, phase = ${document.getElementById("input-p2-record-phase").value} deg`);
+          await addPlotImagePair("plot-bode-mag-p2", "plot-bode-phase-p2", "Problem 2 Bode plots");
+          addText(`x(t) = ${document.getElementById("input-p2-xt").value}`);
+          if (runFlags.p2) await addPlotImage("plot-p2-time", "Problem 2 time response"); else addText("(Not yet checked.)");
+          addText("Discussion:", { bold: true, size: 10.5 });
+          addText(reflectionText("input-p2-reflection"));
+
+          addHeading("Problem 3: Frequency Response Across Frequencies");
+          for (const key of ["p3c3", "p3c20"]) {
+            addText(`F = ${document.getElementById(`input-${key}-F`).value}, x(t) = ${document.getElementById(`input-${key}-xt`).value}`);
+            if (runFlags[key]) await addPlotImage(`plot-${key}-time`, `Problem 3 (${key}) plot`); else addText("(Not yet checked.)");
+          }
+          addText("Discussion:", { bold: true, size: 10.5 });
+          addText(reflectionText("input-p3-reflection"));
+
+          addHeading("Problem 4: Time Domain to Frequency Domain");
+          for (const key of ["p4c2", "p4c10"]) {
+            addText(`Calculated: amplitude ratio = ${document.getElementById(`input-${key}-mag`).value}, phase = ${document.getElementById(`input-${key}-phase`).value} deg`);
+            await addPlotImage(`plot-${key}-time`, `Problem 4 (${key}) plot`);
+          }
+          addText("Discussion:", { bold: true, size: 10.5 });
+          addText(reflectionText("input-p4-reflection"));
+
+          addHeading("Problem 5: Frequency Response for Different Damping");
+          if (p5Traces.length > 0) {
+            addText(`Values plotted: ${p5Traces.map((t) => t.label).join("; ")}`);
+            await addPlotImagePair("plot-bode-mag-p5", "plot-bode-phase-p5", "Problem 5 Bode plots");
+          } else {
+            addText("(No traces plotted yet.)");
+          }
+          addText("Discussion:", { bold: true, size: 10.5 });
+          addText(reflectionText("input-p5-reflection"));
+
+          const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+
+          if (appendixFiles.length > 0) {
+            const { PDFDocument } = window.PDFLib;
+            const mergedDoc = await PDFDocument.load(doc.output("arraybuffer"));
+            const failedAppendix = [];
+            for (const file of appendixFiles) {
+              try {
+                const fileBytes = await file.arrayBuffer();
+                const appendixDoc = await PDFDocument.load(fileBytes);
+                const copiedPages = await mergedDoc.copyPages(appendixDoc, appendixDoc.getPageIndices());
+                copiedPages.forEach((p) => mergedDoc.addPage(p));
+              } catch (err) { console.error("Could not append PDF:", file.name, err); failedAppendix.push(file.name); }
+            }
+            const mergedBytes = await mergedDoc.save();
+            const blob = new Blob([mergedBytes], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = `GroupWork5F_${safeNetId}.pdf`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            setExportStatus(failedAppendix.length > 0
+              ? `PDF downloaded, but could not append: ${failedAppendix.join(", ")} (make sure these are valid PDF files).`
+              : "PDF downloaded (with appendix attached).");
+          } else {
+            doc.save(`GroupWork5F_${safeNetId}.pdf`);
+            setExportStatus("PDF downloaded.");
+          }
+        } catch (err) {
+          console.error("PDF export failed:", err);
+          setExportStatus(`Could not export PDF: ${err.message}`, true);
+        } finally {
+          btn.disabled = false; btn.textContent = originalLabel;
+        }
+      }
+      document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+      // ---------------------------------------------------------------
+      // Progress autosave (localStorage)
+      // ---------------------------------------------------------------
+      const STORAGE_KEY = "gw5f_progress_v1";
+
+      function collectFieldValues() {
+        const values = {};
+        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((el) => { values[el.id] = el.value; });
+        return values;
+      }
+      function currentActiveTab() {
+        const active = document.querySelector(".nav-btn.active");
+        return active ? active.dataset.part : "intro";
+      }
+      function saveProgress() {
+        try {
+          const state = { activeTab: currentActiveTab(), fields: collectFieldValues(), p5Traces };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (err) { /* storage unavailable -- fail silently */ }
+      }
+      let saveTimer = null;
+      function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveProgress, 250); }
+      document.addEventListener("input", scheduleSave);
+      document.addEventListener("click", scheduleSave);
+
+      function loadProgress() {
+        let raw;
+        try { raw = localStorage.getItem(STORAGE_KEY); } catch (err) { return; }
+        if (!raw) return;
+        let state;
+        try { state = JSON.parse(raw); } catch (err) { return; }
+
+        if (state.fields) {
+          Object.keys(state.fields).forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.value = state.fields[id];
+          });
+        }
+        updateP5ZetaDisplay();
+        if (state.p5Traces && state.p5Traces.length > 0) {
+          p5Traces.length = 0;
+          state.p5Traces.forEach((t) => p5Traces.push(t));
+          redrawP5();
+        }
+        if (state.fields && state.fields["input-p2-xt"]) plotXtFormula("input-p2-xt", "err-p2-xt", "plot-p2-time", 0.5, 1);
+        if (state.fields && state.fields["input-p3c3-xt"]) plotXtFormula("input-p3c3-xt", "err-p3c3-xt", "plot-p3c3-time", 3, forceAmpFor("p3c3", 3));
+        if (state.fields && state.fields["input-p3c20-xt"]) plotXtFormula("input-p3c20-xt", "err-p3c20-xt", "plot-p3c20-time", 20, forceAmpFor("p3c20", 20));
+        if (state.activeTab) {
+          const btn = document.querySelector(`.nav-btn[data-part="${state.activeTab}"]`);
+          if (btn) btn.click();
+        }
+      }
+      loadProgress();
+    })();
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GroupWork 7F &mdash; State Space Advanced (Loudspeaker)</title>
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0F1115; --panel: #171A21; --panel2: #1D212B; --line: #282D3A;
+    --amber: #FFB454; --cyan: #5EEAD4; --rose: #FB7185; --pink: #F472B6;
+    --fg: #E7E9EE; --muted: #8B92A5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--ink); color: var(--fg); font-family: 'Inter', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  header h1 { font-size: 14px; margin: 0; font-weight: 600; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+
+  main { flex: 1; display: flex; overflow: hidden; }
+  nav { width: 220px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line); order: 2; padding: 16px 14px; overflow-y: auto; }
+  nav p.label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; margin: 14px 0 8px 0; }
+  nav p.label:first-child { margin-top: 0; }
+  .nav-btn { display: block; width: 100%; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 9px 12px; margin-bottom: 6px; background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; color: var(--fg); cursor: pointer; }
+  .nav-btn.active { border-color: var(--amber); color: var(--amber); }
+  .nav-btn small { display: block; font-family: 'Inter', sans-serif; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .content { flex: 1; order: 1; overflow-y: auto; padding: 28px 40px; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+
+  h2.section-title { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--amber); margin: 0 0 14px 0; }
+  h3.problem-title { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--cyan); margin: 0 0 10px 0; }
+  h4.part-title { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--fg); margin: 22px 0 8px 0; }
+  p.instructions { font-size: 14.5px; line-height: 1.65; color: var(--fg); margin: 0 0 16px 0; }
+  ul.goals { padding-left: 20px; margin: 0 0 16px 0; }
+  ul.goals li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .eq-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; margin: 14px 0; text-align: center; font-size: 16px; overflow-x: auto; }
+  .given-line { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin: 0 0 18px 0; line-height: 1.8; }
+  .given-line b { color: var(--fg); font-weight: 600; }
+  .note-box { background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 4px; padding: 12px 16px; margin: 0 0 18px 0; font-size: 13px; line-height: 1.6; color: var(--fg); }
+  .note-box code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan); background: var(--ink); padding: 1px 5px; border-radius: 3px; }
+  table.param-table { width: 100%; border-collapse: collapse; margin: 0 0 18px 0; font-size: 13px; }
+  table.param-table th, table.param-table td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; }
+  table.param-table th { background: var(--panel2); color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  table.param-table td { font-family: 'JetBrains Mono', monospace; }
+
+  .panel-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
+  .panel-box h4 { margin: 0 0 12px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .matrix-wrap { display: flex; align-items: center; gap: 10px; overflow-x: auto; padding: 6px 0; }
+  .matrix-bracket { font-size: 46px; color: var(--muted); font-family: serif; line-height: 1; user-select: none; }
+  .matrix-grid { display: grid; gap: 6px; }
+  .matrix-grid input { width: 84px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 7px 6px; text-align: center; }
+  .matrix-grid input:focus { outline: none; border-color: var(--amber); }
+  .matrix-grid.readonly input { color: var(--muted); background: var(--panel2); }
+
+  .field { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .field label { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .field input[type="text"] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 8px 10px; }
+  .field input:focus { outline: none; border-color: var(--amber); }
+  .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 16px; }
+
+  .slider-row { display: flex; align-items: center; gap: 16px; margin-bottom: 6px; }
+  .slider-row input[type="range"] { flex: 1; accent-color: var(--amber); }
+  .slider-row .b-readout { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--amber); min-width: 210px; text-align: right; }
+
+  .reflection-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  .reflection-box textarea { width: 100%; min-height: 90px; resize: vertical; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'Inter', sans-serif; font-size: 14px; padding: 10px 12px; line-height: 1.5; }
+  .reflection-box textarea:focus { outline: none; border-color: var(--amber); }
+
+  .run-btn { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; padding: 10px 22px; border-radius: 6px; border: none; background: var(--amber); color: var(--ink); cursor: pointer; margin-right: 8px; margin-bottom: 8px; }
+  .run-btn:hover { filter: brightness(1.08); }
+  .run-btn:active { transform: scale(0.98); }
+  .run-btn.secondary { background: none; color: var(--muted); border: 1px solid var(--line); }
+  .run-btn.secondary:hover { color: var(--rose); border-color: var(--rose); }
+  .run-btn:disabled { opacity: 0.45; cursor: default; }
+
+  .match-banner { display: none; margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line); }
+  .match-banner.match { display: block; border-color: var(--cyan); color: var(--cyan); }
+  .match-banner.no-match { display: block; border-color: var(--rose); color: var(--rose); }
+  .field-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; min-height: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .bode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0 20px 0; }
+  .bode-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+  .bode-panel h5 { margin: 0 0 8px 0; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--pink); text-transform: uppercase; letter-spacing: 0.03em; }
+  .plot-host { height: 210px; background: var(--panel); border-radius: 6px; }
+  .plot-host.tall { height: 260px; }
+  .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 13px; text-align: center; max-width: 320px; margin: 0 auto; padding: 0 20px; }
+
+  .audio-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 14px 0; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--fg); }
+  .checkbox-row input { width: 16px; height: 16px; }
+  .audio-status { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin: 6px 0 0 0; }
+
+  .katex { color: var(--fg); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>GROUPWORK 7F <span>&mdash; State Space Advanced: Loudspeaker (M&amp;AE 3260)</span></h1>
+</header>
+
+<main>
+  <nav>
+    <p class="label">BACKGROUND</p>
+    <button class="nav-btn active" data-part="intro">Intro<small>Loudspeaker model</small></button>
+
+    <p class="label">PROBLEM 1</p>
+    <button class="nav-btn" data-part="p1">State Space<small>A, B, C, D</small></button>
+
+    <p class="label">PROBLEM 2</p>
+    <button class="nav-btn" data-part="p2">Frequency Response<small>MIMO Bode plots</small></button>
+
+    <p class="label">PROBLEM 3</p>
+    <button class="nav-btn" data-part="p3">Listen<small>Raw vs. filtered</small></button>
+
+    <p class="label">PROBLEM 4</p>
+    <button class="nav-btn" data-part="p4">Noise &amp; Filter<small>Tune &tau;<sub>f</sub></small></button>
+
+    <p class="label">SUBMIT</p>
+    <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+  </nav>
+
+  <div class="content">
+    <div class="wrap">
+
+      <!-- ============== INTRO ============== -->
+      <section id="part-intro">
+        <h2 class="section-title">State Space Advanced: The Loudspeaker</h2>
+        <p class="instructions"><b>Learning Goals:</b></p>
+        <ul class="goals">
+          <li>Create a MIMO state-space system with many components</li>
+          <li>Analyze the behavior of a MIMO system</li>
+          <li>Create state-space representations of high-pass or low-pass filters</li>
+          <li>Gain familiarity with audio applications of system dynamics</li>
+        </ul>
+        <p class="instructions">
+          A loudspeaker converts an electronic signal into sound. A voice coil (an RL circuit) sits inside a
+          permanent magnet; current through the coil produces a force that drives a spring-mass-damper cone.
+          The cone's motion, in turn, induces a back-EMF in the coil, and its acceleration is what generates
+          the sound pressure wave.
+        </p>
+        <div class="eq-block" id="eq-physics"></div>
+        <p class="instructions">
+          Two input voltages &mdash; a signal v<sub>s</sub> and a noise v<sub>n</sub> &mdash; are first summed
+          through a low-pass filter (time constant &tau;<sub>f</sub>) before reaching the coil:
+        </p>
+        <div class="eq-block" id="eq-filter"></div>
+
+        <table class="param-table">
+          <tr><th>parameter</th><th>meaning</th><th>value</th></tr>
+          <tr><td>m</td><td>moving mass</td><td>0.0179 kg</td></tr>
+          <tr><td>k</td><td>mechanical stiffness</td><td>893 N/m</td></tr>
+          <tr><td>b</td><td>mechanical damping</td><td>3.28 Ns/m</td></tr>
+          <tr><td>B</td><td>magnetic flux density</td><td>1.0 T</td></tr>
+          <tr><td>l</td><td>voice coil wire length</td><td>7.82 m</td></tr>
+          <tr><td>L</td><td>voice coil inductance</td><td>0.00073 H</td></tr>
+          <tr><td>R</td><td>voice coil resistance</td><td>6.4 &Omega;</td></tr>
+          <tr><td>Ka</td><td>acceleration &rarr; sound pressure constant</td><td>350</td></tr>
+        </table>
+        <div class="note-box">
+          These are the (fixed) parameters of a real driver, the Dayton Audio RS180-8. The only parameter
+          you'll adjust interactively is the filter time constant &tau;<sub>f</sub>, in Problems 2 and 4.
+          <b>Headphone note:</b> this tool synthesizes its own demo audio (a frequency sweep) and noise (pink
+          noise) directly in your browser &mdash; nothing is uploaded or embedded from any external track.
+          Keep your volume low the first time you press play.
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 1 ============== -->
+      <section id="part-p1" style="display:none;">
+        <h3 class="problem-title">Problem 1: Derive the State Space</h3>
+        <p class="instructions">
+          Using the physics above, derive the state-space representation &#7819; = Ax + Bu, y = Cx + Du, with:
+        </p>
+        <div class="eq-block" id="eq-vectors"></div>
+        <p class="instructions">
+          Enter your A, B, and C matrices below, in terms of m, k, b, B, l, L, R, Ka, and &tau;<sub>f</sub>
+          (type <code class="mono">Tauf</code> for &tau;<sub>f</sub>). Leave an entry as <code class="mono">0</code>
+          where appropriate.
+        </p>
+
+        <div class="panel-box">
+          <h4>A matrix (4&times;4)</h4>
+          <div class="matrix-wrap">
+            <span class="matrix-bracket">[</span>
+            <div class="matrix-grid" id="grid-A" style="grid-template-columns: repeat(4, 1fr);"></div>
+            <span class="matrix-bracket">]</span>
+          </div>
+          <button class="run-btn" id="btn-check-A" style="margin-top:14px;">CHECK A</button>
+          <p class="field-err" id="err-A"></p>
+          <div class="match-banner" id="banner-A"></div>
+        </div>
+
+        <div class="panel-box">
+          <h4>B matrix (4&times;2)</h4>
+          <div class="matrix-wrap">
+            <span class="matrix-bracket">[</span>
+            <div class="matrix-grid" id="grid-B" style="grid-template-columns: repeat(2, 1fr);"></div>
+            <span class="matrix-bracket">]</span>
+          </div>
+          <button class="run-btn" id="btn-check-B" style="margin-top:14px;">CHECK B</button>
+          <p class="field-err" id="err-B"></p>
+          <div class="match-banner" id="banner-B"></div>
+        </div>
+
+        <div class="panel-box">
+          <h4>C matrix (2&times;4)</h4>
+          <div class="matrix-wrap">
+            <span class="matrix-bracket">[</span>
+            <div class="matrix-grid" id="grid-C" style="grid-template-columns: repeat(4, 1fr);"></div>
+            <span class="matrix-bracket">]</span>
+          </div>
+          <button class="run-btn" id="btn-check-C" style="margin-top:14px;">CHECK C</button>
+          <p class="field-err" id="err-C"></p>
+          <div class="match-banner" id="banner-C"></div>
+        </div>
+
+        <div class="panel-box">
+          <h4>D matrix (2&times;2)</h4>
+          <div class="matrix-wrap">
+            <span class="matrix-bracket">[</span>
+            <div class="matrix-grid" id="grid-D" style="grid-template-columns: repeat(2, 1fr);"></div>
+            <span class="matrix-bracket">]</span>
+          </div>
+          <button class="run-btn" id="btn-check-D" style="margin-top:14px;">CHECK D</button>
+          <p class="field-err" id="err-D"></p>
+          <div class="match-banner" id="banner-D"></div>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 2 ============== -->
+      <section id="part-p2" style="display:none;">
+        <h3 class="problem-title">Problem 2: Analyze the Frequency Response</h3>
+        <p class="instructions">
+          Make sure &tau;<sub>f</sub> = 10<sup>&minus;10</sup> (this places the low-pass filter well above the
+          audible spectrum) and click Update, then generate the Bode plots. There are two inputs (v<sub>s</sub>,
+          v<sub>n</sub>) and two outputs (x, a) &mdash; so there are four input/output pairs, each with its own
+          magnitude and phase plot.
+        </p>
+
+        <div class="panel-box">
+          <h4>Filter time constant &tau;<sub>f</sub></h4>
+          <div class="field"><label>&tau;<sub>f</sub> (s) &mdash; accepts 1e-10 or 10^(-10)</label><input type="text" id="input-tauf-p2" value="1e-10" spellcheck="false" /></div>
+          <p class="b-readout mono" id="tauf-readout-p2" style="margin: 8px 0 0 0;"></p>
+          <button class="run-btn" id="btn-p2-update">UPDATE &amp; GENERATE BODE PLOTS</button>
+        </div>
+
+        <div class="bode-grid">
+          <div class="bode-panel">
+            <h5>In(1) v<sub>s</sub> &rarr; Out(1) x</h5>
+            <div class="plot-host" id="plot-mag-x-vs"><div class="placeholder">Click Update above.</div></div>
+            <div class="plot-host" id="plot-phase-x-vs"></div>
+          </div>
+          <div class="bode-panel">
+            <h5>In(1) v<sub>s</sub> &rarr; Out(2) a</h5>
+            <div class="plot-host" id="plot-mag-a-vs"></div>
+            <div class="plot-host" id="plot-phase-a-vs"></div>
+          </div>
+          <div class="bode-panel">
+            <h5>In(2) v<sub>n</sub> &rarr; Out(1) x</h5>
+            <div class="plot-host" id="plot-mag-x-vn"></div>
+            <div class="plot-host" id="plot-phase-x-vn"></div>
+          </div>
+          <div class="bode-panel">
+            <h5>In(2) v<sub>n</sub> &rarr; Out(2) a</h5>
+            <div class="plot-host" id="plot-mag-a-vn"></div>
+            <div class="plot-host" id="plot-phase-a-vn"></div>
+          </div>
+        </div>
+
+        <h4 class="part-title">Discussion</h4>
+        <p class="instructions">How and why are these Bode plots different from any others you've seen in this class? What are In(1), In(2), Out(1), and Out(2)?</p>
+        <div class="reflection-box"><textarea id="input-p2-reflection" placeholder="Type your answer here..."></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 3 ============== -->
+      <section id="part-p3" style="display:none;">
+        <h3 class="problem-title">Problem 3: Listen to the System</h3>
+        <p class="instructions">
+          Turn your volume down low. The demo "signal" is a synthesized sweep from 20 Hz to 20 kHz &mdash;
+          the same range as human hearing &mdash; so you can hear exactly which frequencies the speaker
+          reproduces well. Compare the raw signal to the signal after it passes through your state-space
+          speaker model (using the filtered acoustic output, a(t)).
+        </p>
+        <p class="given-line">Using &tau;<sub>f</sub> = <b id="p3-tauf-echo">10<sup>&minus;10</sup></b> (set in Problem 2).</p>
+
+        <div class="audio-controls">
+          <button class="run-btn" id="btn-p3-play-raw">&#9654; PLAY RAW SIGNAL</button>
+          <button class="run-btn" id="btn-p3-play-filtered">&#9654; PLAY THROUGH SPEAKER MODEL</button>
+          <button class="run-btn secondary" id="btn-p3-stop">&#9632; STOP</button>
+        </div>
+        <p class="audio-status" id="p3-audio-status">Ready.</p>
+        <p class="plot-label" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin: 18px 0 6px 0;">TIME-DOMAIN WAVEFORMS (RAW vs. FILTERED)</p>
+        <div class="plot-host tall" id="plot-p3-wave"></div>
+
+        <h4 class="part-title">Discussion</h4>
+        <p class="instructions">How does the speaker change the sound? The range of human hearing is 20 Hz&ndash;20 kHz &mdash; what shortcomings does this speaker have in reproducing audible sound? (Look at the Bode plots from Problem 2.)</p>
+        <div class="reflection-box"><textarea id="input-p3-reflection" placeholder="Type your answer here..."></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 4 ============== -->
+      <section id="part-p4" style="display:none;">
+        <h3 class="problem-title">Problem 4: Noise and Filter</h3>
+        <p class="instructions">
+          Check "noise" to add synthesized pink noise to the input and listen again &mdash; there should now
+          be unwanted noise. Speech and music mostly concentrate their energy below a few kHz, while broadband
+          (pink/white) noise spans the whole audible range; a low-pass filter can only attenuate noise by also
+          attenuating the signal wherever their spectra overlap. Choose a &tau;<sub>f</sub> and click Update to
+          see how the trade-off plays out.
+        </p>
+
+        <div class="checkbox-row" style="margin-bottom:14px;">
+          <input type="checkbox" id="input-noise" />
+          <label for="input-noise">add noise (pink noise, synthesized)</label>
+        </div>
+
+        <div class="panel-box">
+          <h4>Filter time constant &tau;<sub>f</sub></h4>
+          <div class="field"><label>&tau;<sub>f</sub> (s) &mdash; accepts 1e-10 or 10^(-10)</label><input type="text" id="input-tauf-p4" value="1e-10" spellcheck="false" /></div>
+          <p class="b-readout mono" id="tauf-readout-p4" style="margin: 8px 0 0 0;"></p>
+          <button class="run-btn" id="btn-p4-update">UPDATE (REGENERATE BODE PLOTS)</button>
+        </div>
+
+        <div class="bode-grid">
+          <div class="bode-panel">
+            <h5>In(1) v<sub>s</sub> &rarr; Out(1) x</h5>
+            <div class="plot-host" id="plot-p4-mag-x-vs"><div class="placeholder">Click Update above.</div></div>
+            <div class="plot-host" id="plot-p4-phase-x-vs"></div>
+          </div>
+          <div class="bode-panel">
+            <h5>In(1) v<sub>s</sub> &rarr; Out(2) a</h5>
+            <div class="plot-host" id="plot-p4-mag-a-vs"></div>
+            <div class="plot-host" id="plot-p4-phase-a-vs"></div>
+          </div>
+        </div>
+
+        <div class="audio-controls">
+          <button class="run-btn" id="btn-p4-play-raw">&#9654; PLAY RAW (SIGNAL+NOISE)</button>
+          <button class="run-btn" id="btn-p4-play-filtered">&#9654; PLAY THROUGH SPEAKER MODEL</button>
+          <button class="run-btn secondary" id="btn-p4-stop">&#9632; STOP</button>
+        </div>
+        <p class="audio-status" id="p4-audio-status">Ready.</p>
+        <div class="plot-host tall" id="plot-p4-wave"></div>
+
+        <h4 class="part-title">Discussion</h4>
+        <p class="instructions">How are the bode plots different? How are the sound of the signal and the noise different? Try choosing different values of &tau;<sub>f</sub> and see how that changes things.</p>
+        <div class="reflection-box"><textarea id="input-p4-reflection" placeholder="Type your answer here..."></textarea></div>
+      </section>
+
+      <!-- ============== SUBMISSION ============== -->
+      <section id="part-submission" style="display:none;">
+        <h2 class="section-title">Submission</h2>
+        <p class="instructions">Export a PDF with your A, B, C, D matrices and your discussion answers from Problems 1&ndash;4.</p>
+        <div class="panel-box">
+          <h4>Group Info</h4>
+          <div class="form-grid">
+            <div class="field"><label>your NetID</label><input type="text" id="input-netid" placeholder="netid" spellcheck="false" /></div>
+            <div class="field"><label>group member NetIDs</label><input type="text" id="input-group-netids" placeholder="netid1, netid2, ..." spellcheck="false" /></div>
+          </div>
+        </div>
+        <button class="run-btn" id="exportPdfBtn">EXPORT PDF</button>
+        <p class="field-err" id="export-status"></p>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // =================================================================
+  // Physical model (fixed parameters -- Dayton Audio RS180-8)
+  // =================================================================
+  const P = { m: 0.0179, k: 893, b: 3.28, B: 1.0, l: 7.82, L: 0.00073, R: 6.4, Ka: 350 };
+
+  function correctA(p) {
+    return [
+      [0, 1, 0, 0],
+      [-p.k / p.m, -p.b / p.m, p.B * p.l / p.m, 0],
+      [0, -p.B * p.l / p.L, -p.R / p.L, 1 / p.L],
+      [0, 0, 0, -1 / p.Tauf],
+    ];
+  }
+  function correctB(p) { return [[0, 0], [0, 0], [0, 0], [1 / p.Tauf, 1 / p.Tauf]]; }
+  function correctC(p) { return [[1, 0, 0, 0], [-p.Ka * p.k / p.m, -p.Ka * p.b / p.m, p.Ka * p.B * p.l / p.m, 0]]; }
+  function correctD(p) { return [[0, 0], [0, 0]]; }
+
+  // =================================================================
+  // Generic real-matrix exponential (scaling & squaring + Taylor) and
+  // zero-order-hold discretization. Verified against scipy's
+  // cont2discrete (method='zoh') to ~1e-12 relative accuracy across
+  // Tauf from 1e-10 to 1e-3, including the full augmented 4-state,
+  // 2-input system (not a decoupled approximation).
+  // =================================================================
+  function matMul(A, B) {
+    const n = A.length, m = B[0].length, p = B.length;
+    const C = Array.from({ length: n }, () => new Array(m).fill(0));
+    for (let i = 0; i < n; i++) for (let kk = 0; kk < p; kk++) { const a = A[i][kk]; if (a === 0) continue; for (let j = 0; j < m; j++) C[i][j] += a * B[kk][j]; }
+    return C;
+  }
+  function matAdd(A, B) { return A.map((row, i) => row.map((v, j) => v + B[i][j])); }
+  function matScale(A, s) { return A.map((row) => row.map((v) => v * s)); }
+  function eye(n) { return Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))); }
+  function matNormInf(A) { return Math.max(...A.map((row) => row.reduce((s, v) => s + Math.abs(v), 0))); }
+  function expm(A) {
+    const n = A.length;
+    const norm = matNormInf(A);
+    let s = 0, scale = 1;
+    while (norm / scale > 0.5) { scale *= 2; s++; }
+    const As = matScale(A, 1 / scale);
+    let term = eye(n), result = eye(n);
+    for (let i = 1; i <= 18; i++) { term = matScale(matMul(term, As), 1 / i); result = matAdd(result, term); }
+    for (let i = 0; i < s; i++) result = matMul(result, result);
+    return result;
+  }
+  function zohDiscretize(A, B, dt) {
+    const n = A.length, p = B[0].length, N = n + p;
+    const M = Array.from({ length: N }, () => new Array(N).fill(0));
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) M[i][j] = A[i][j] * dt;
+    for (let i = 0; i < n; i++) for (let j = 0; j < p; j++) M[i][n + j] = B[i][j] * dt;
+    const E = expm(M);
+    return { Ad: E.slice(0, n).map((row) => row.slice(0, n)), Bd: E.slice(0, n).map((row) => row.slice(n, n + p)) };
+  }
+
+  // =================================================================
+  // Complex arithmetic + complex Gauss-Jordan matrix inverse (for MIMO
+  // frequency response), verified against python-control / scipy.
+  // =================================================================
+  function cAdd(a, b) { return { re: a.re + b.re, im: a.im + b.im }; }
+  function cSub(a, b) { return { re: a.re - b.re, im: a.im - b.im }; }
+  function cMul(a, b) { return { re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re }; }
+  function cDiv(a, b) { const d = b.re * b.re + b.im * b.im; return { re: (a.re * b.re + a.im * b.im) / d, im: (a.im * b.re - a.re * b.im) / d }; }
+  function complexMatInv(M) {
+    const n = M.length;
+    const A = M.map((row) => row.map((v) => ({ re: v.re, im: v.im })));
+    const I = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => ({ re: i === j ? 1 : 0, im: 0 })));
+    for (let col = 0; col < n; col++) {
+      let pivotRow = col, maxMag = Math.hypot(A[col][col].re, A[col][col].im);
+      for (let r = col + 1; r < n; r++) { const mg = Math.hypot(A[r][col].re, A[r][col].im); if (mg > maxMag) { maxMag = mg; pivotRow = r; } }
+      if (pivotRow !== col) { [A[col], A[pivotRow]] = [A[pivotRow], A[col]]; [I[col], I[pivotRow]] = [I[pivotRow], I[col]]; }
+      const piv = A[col][col];
+      for (let j = 0; j < n; j++) { A[col][j] = cDiv(A[col][j], piv); I[col][j] = cDiv(I[col][j], piv); }
+      for (let r = 0; r < n; r++) {
+        if (r === col) continue;
+        const factor = A[r][col];
+        if (factor.re === 0 && factor.im === 0) continue;
+        for (let j = 0; j < n; j++) { A[r][j] = cSub(A[r][j], cMul(factor, A[col][j])); I[r][j] = cSub(I[r][j], cMul(factor, I[col][j])); }
+      }
+    }
+    return I;
+  }
+  function freqResponse(A, B, C, f) {
+    const n = A.length, w = 2 * Math.PI * f;
+    const M = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => ({ re: -A[i][j], im: i === j ? w : 0 })));
+    const Minv = complexMatInv(M);
+    const nIn = B[0].length, nOut = C.length;
+    const MinvB = Minv.map((row) => Array.from({ length: nIn }, (_, col) => {
+      let s = { re: 0, im: 0 };
+      for (let kk = 0; kk < n; kk++) s = cAdd(s, cMul(row[kk], { re: B[kk][col], im: 0 }));
+      return s;
+    }));
+    return C.map((crow) => Array.from({ length: nIn }, (_, col) => {
+      let s = { re: 0, im: 0 };
+      for (let kk = 0; kk < n; kk++) s = cAdd(s, cMul({ re: crow[kk], im: 0 }, MinvB[kk][col]));
+      return s;
+    }));
+  }
+
+  // =================================================================
+  // KaTeX
+  // =================================================================
+  katex.render("f = B\\ell\\, i,\\qquad m\\ddot{x}+b\\dot{x}+kx = f,\\qquad v_m = B\\ell\\,\\dot{x},\\qquad v_f = L\\frac{di}{dt}+Ri+v_m,\\qquad a = K_a\\ddot{x}",
+    document.getElementById("eq-physics"), { throwOnError: false, displayMode: true });
+  katex.render("\\dot{v}_f = -\\frac{1}{\\tau_f}v_f + \\frac{1}{\\tau_f}v_s + \\frac{1}{\\tau_f}v_n",
+    document.getElementById("eq-filter"), { throwOnError: false, displayMode: true });
+  katex.render("x=\\begin{bmatrix}x\\\\ \\dot{x}\\\\ i\\\\ v_f\\end{bmatrix},\\quad u=\\begin{bmatrix}v_s\\\\ v_n\\end{bmatrix},\\quad y=\\begin{bmatrix}x\\\\ a\\end{bmatrix}",
+    document.getElementById("eq-vectors"), { throwOnError: false, displayMode: true });
+
+  // =================================================================
+  // Navigation
+  // =================================================================
+  const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+      document.getElementById(SECTION_IDS[btn.dataset.part]).style.display = "block";
+    });
+  });
+
+  const runFlags = {};
+
+  // =================================================================
+  // Problem 1: matrix-entry checkers
+  // =================================================================
+  function buildMatrixGrid(gridId, rows, cols) {
+    const grid = document.getElementById(gridId);
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        const inp = document.createElement("input");
+        inp.type = "text"; inp.id = `${gridId}-${i}-${j}`; inp.value = ""; inp.spellcheck = false;
+        inp.placeholder = "0";
+        grid.appendChild(inp);
+      }
+    }
+  }
+  buildMatrixGrid("grid-A", 4, 4);
+  buildMatrixGrid("grid-B", 4, 2);
+  buildMatrixGrid("grid-C", 2, 4);
+  buildMatrixGrid("grid-D", 2, 2);
+
+  function readMatrixExprs(gridId, rows, cols) {
+    const exprs = [];
+    for (let i = 0; i < rows; i++) {
+      const row = [];
+      for (let j = 0; j < cols; j++) {
+        const v = document.getElementById(`${gridId}-${i}-${j}`).value.trim();
+        row.push(v === "" ? "0" : v);
+      }
+      exprs.push(row);
+    }
+    return exprs;
+  }
+  // Several distinct test parameter sets (fixed random perturbations of
+  // the true values) so a correct entry must be symbolically right, not
+  // just numerically coincidental at the one true parameter set.
+  const TEST_PARAM_SETS = [
+    { m: 0.0179, k: 893, b: 3.28, B: 1.0, l: 7.82, L: 0.00073, R: 6.4, Ka: 350, Tauf: 1e-10 },
+    { m: 0.031, k: 410, b: 1.1, B: 0.9, l: 4.888888888888889, L: 0.0012, R: 3.1, Ka: 210, Tauf: 5e-5 },
+    { m: 0.008, k: 1500, b: 6.7, B: 1.2, l: 10.25, L: 0.0004, R: 9.8, Ka: 700, Tauf: 2e-3 },
+    { m: 0.05, k: 250, b: 0.5, B: 0.85, l: 3.411764705882353, L: 0.0021, R: 15.0, Ka: 90, Tauf: 1e-7 },
+  ];
+  function checkMatrix(gridId, rows, cols, refFn, errId, bannerId) {
+    const errEl = document.getElementById(errId);
+    const bannerEl = document.getElementById(bannerId);
+    errEl.textContent = ""; bannerEl.className = "match-banner"; bannerEl.textContent = "";
+    const exprs = readMatrixExprs(gridId, rows, cols);
+    let ok = true;
+    for (const p of TEST_PARAM_SETS) {
+      const scope = Object.assign({}, p);
+      const ref = refFn(p);
+      let studentVals;
+      try {
+        studentVals = exprs.map((row) => row.map((tok) => {
+          const v = math.evaluate(tok, scope);
+          if (typeof v !== "number" || !isFinite(v)) throw new Error("nan");
+          return v;
+        }));
+      } catch (e) { errEl.textContent = "Couldn't evaluate one of the entries."; return false; }
+      for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) {
+        const tol = Math.max(1e-6, Math.abs(ref[i][j]) * 1e-4);
+        if (Math.abs(studentVals[i][j] - ref[i][j]) > tol) ok = false;
+      }
+      if (!ok) break;
+    }
+    bannerEl.className = ok ? "match-banner match" : "match-banner no-match";
+    bannerEl.textContent = ok ? "✓ Correct." : "✗ Not quite — try again.";
+    return ok;
+  }
+  document.getElementById("btn-check-A").addEventListener("click", () => { checkMatrix("grid-A", 4, 4, correctA, "err-A", "banner-A"); scheduleSave(); });
+  document.getElementById("btn-check-B").addEventListener("click", () => { checkMatrix("grid-B", 4, 2, correctB, "err-B", "banner-B"); scheduleSave(); });
+  document.getElementById("btn-check-C").addEventListener("click", () => { checkMatrix("grid-C", 2, 4, correctC, "err-C", "banner-C"); scheduleSave(); });
+  document.getElementById("btn-check-D").addEventListener("click", () => { checkMatrix("grid-D", 2, 2, correctD, "err-D", "banner-D"); scheduleSave(); });
+
+  // =================================================================
+  // Shared Bode-plot renderer (used by Problems 2 & 4, always the
+  // verified reference A/B/C so exploration isn't corrupted by an
+  // unfinished Problem 1).
+  // =================================================================
+  const PLOT_OPTS = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+  // ---------------------------------------------------------------
+  // Log-axis tick labels. Plotly's default labels the in-between ticks
+  // with bare digits ("2", "5"), which read like whole numbers. Instead:
+  // zoomed out, label only the powers of 10 (like MATLAB); zoomed in,
+  // label the in-between ticks with their full value (0.2, 20, ...).
+  // Re-applied on every zoom/pan and on double-click reset.
+  // ---------------------------------------------------------------
+  function logTickSpec(range, power) {
+    const lo = Math.min(range[0], range[1]), hi = Math.max(range[0], range[1]);
+    const span = hi - lo;
+    const mults = span > 1.3 ? [1] : span > 0.5 ? [1, 2, 5] : [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const vals = [], text = [];
+    for (let d = Math.floor(lo); d <= Math.ceil(hi); d++) {
+      mults.forEach((m) => {
+        const lv = d + Math.log10(m);
+        if (lv < lo - 1e-9 || lv > hi + 1e-9) return;
+        const v = m * Math.pow(10, d);
+        vals.push(v);
+        text.push(power && m === 1 ? `10<sup>${d}</sup>` : String(Number(v.toPrecision(3))));
+      });
+    }
+    if (vals.length < 2) return { tickmode: "auto", tickvals: null, ticktext: null };
+    return { tickmode: "array", tickvals: vals, ticktext: text };
+  }
+  function applyLogTicks(gd, power) {
+    const update = {};
+    ["xaxis", "yaxis"].forEach((ax) => {
+      const fa = gd._fullLayout && gd._fullLayout[ax];
+      if (!fa || fa.type !== "log") return;
+      Object.entries(logTickSpec(fa.range, power)).forEach(([k, v]) => { update[`${ax}.${k}`] = v; });
+    });
+    if (Object.keys(update).length) Plotly.relayout(gd, update);
+  }
+  function newLogPlot(divId, data, layout, config) {
+    return Plotly.newPlot(divId, data, layout, config).then((gd) => {
+      if (gd._logTickHandler) gd.removeListener("plotly_relayout", gd._logTickHandler);
+      gd._logTickHandler = (ev) => {
+        if (Object.keys(ev).every((k) => /tick/.test(k))) return; // our own relayout
+        applyLogTicks(gd, false);
+      };
+      gd.on("plotly_relayout", gd._logTickHandler);
+      applyLogTicks(gd, false);
+      return gd;
+    });
+  }
+
+  function plotLayout(yTitle, opts) {
+    opts = opts || {};
+    return {
+      paper_bgcolor: "#171A21", plot_bgcolor: "#171A21",
+      font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 9 },
+      margin: { l: 46, r: 10, t: 6, b: opts.xTitle ? 30 : 18 },
+      xaxis: Object.assign({ title: opts.xTitle || "", gridcolor: "#282D3A", zerolinecolor: "#282D3A", type: "log" }, opts.xaxis || {}),
+      yaxis: Object.assign({ title: yTitle, gridcolor: "#282D3A", zerolinecolor: "#282D3A" }, opts.yaxis || {}),
+      showlegend: false,
+    };
+  }
+  const FREQS = (() => {
+    const N = 300, arr = [];
+    for (let i = 0; i < N; i++) arr.push(Math.pow(10, Math.log10(20) + (Math.log10(20000) - Math.log10(20)) * (i / (N - 1))));
+    return arr;
+  })();
+  function unwrapDeg(arr) {
+    const out = arr.slice();
+    for (let i = 1; i < out.length; i++) {
+      let d = out[i] - out[i - 1];
+      while (d > 180) { out[i] -= 360; d = out[i] - out[i - 1]; }
+      while (d < -180) { out[i] += 360; d = out[i] - out[i - 1]; }
+    }
+    return out;
+  }
+  function renderBodeGrid(prefix, Tauf) {
+    const p = Object.assign({}, P, { Tauf });
+    const A = correctA(p), B = correctB(p), C = correctC(p);
+    const data = { magXvs: [], phaseXvs: [], magAvs: [], phaseAvs: [], magXvn: [], phaseXvn: [], magAvn: [], phaseAvn: [] };
+    FREQS.forEach((f) => {
+      const G = freqResponse(A, B, C, f);
+      const gXvs = G[0][0], gAvs = G[1][0], gXvn = G[0][1], gAvn = G[1][1];
+      data.magXvs.push(20 * Math.log10(Math.hypot(gXvs.re, gXvs.im)));
+      data.phaseXvs.push((Math.atan2(gXvs.im, gXvs.re) * 180) / Math.PI);
+      data.magAvs.push(20 * Math.log10(Math.hypot(gAvs.re, gAvs.im)));
+      data.phaseAvs.push((Math.atan2(gAvs.im, gAvs.re) * 180) / Math.PI);
+      data.magXvn.push(20 * Math.log10(Math.hypot(gXvn.re, gXvn.im)));
+      data.phaseXvn.push((Math.atan2(gXvn.im, gXvn.re) * 180) / Math.PI);
+      data.magAvn.push(20 * Math.log10(Math.hypot(gAvn.re, gAvn.im)));
+      data.phaseAvn.push((Math.atan2(gAvn.im, gAvn.re) * 180) / Math.PI);
+    });
+    ["Xvs", "Avs", "Xvn", "Avn"].forEach((key) => {
+      data["phase" + key] = unwrapDeg(data["phase" + key]);
+    });
+    function plot(magId, phaseId, mag, phase, color) {
+      newLogPlot(magId, [{ x: FREQS, y: mag, mode: "lines", line: { color, width: 2 } }], plotLayout("mag [dB]"), PLOT_OPTS);
+      newLogPlot(phaseId, [{ x: FREQS, y: phase, mode: "lines", line: { color, width: 2 } }], plotLayout("phase [deg]", { xTitle: "f [Hz]" }), PLOT_OPTS);
+    }
+    plot(`plot-${prefix}mag-x-vs`, `plot-${prefix}phase-x-vs`, data.magXvs, data.phaseXvs, "#5EEAD4");
+    plot(`plot-${prefix}mag-a-vs`, `plot-${prefix}phase-a-vs`, data.magAvs, data.phaseAvs, "#FFB454");
+    if (document.getElementById(`plot-${prefix}mag-x-vn`)) plot(`plot-${prefix}mag-x-vn`, `plot-${prefix}phase-x-vn`, data.magXvn, data.phaseXvn, "#F472B6");
+    if (document.getElementById(`plot-${prefix}mag-a-vn`)) plot(`plot-${prefix}mag-a-vn`, `plot-${prefix}phase-a-vn`, data.magAvn, data.phaseAvn, "#A78BFA");
+  }
+
+  // =================================================================
+  // Tauf state -- Problem 2 and Problem 4 each have their own
+  // independent tauf, since Problem 4 explores the tradeoff separately.
+  // =================================================================
+  function taufFromInput(el, fallback) {
+    const raw = el.value.trim();
+    let v = Number(raw);
+    if (!isFinite(v)) {
+      try { v = math.evaluate(raw); } catch (e) { v = NaN; }
+    }
+    return typeof v === "number" && isFinite(v) && v > 0 ? v : fallback;
+  }
+  function formatTauf(t) {
+    const exp = Math.log10(t);
+    return `τf = ${t.toExponential(2)} s  (corner freq ≈ ${(1 / (2 * Math.PI * t)).toExponential(2)} Hz)`;
+  }
+  let currentTaufP2 = 1e-10;
+  let currentTaufP4 = 1e-10;
+  function syncTaufDisplays() {
+    document.getElementById("tauf-readout-p2").textContent = formatTauf(currentTaufP2);
+    document.getElementById("tauf-readout-p4").textContent = formatTauf(currentTaufP4);
+    document.getElementById("p3-tauf-echo").textContent = currentTaufP2.toExponential(2) + " s";
+  }
+  document.getElementById("input-tauf-p2").addEventListener("input", (e) => {
+    currentTaufP2 = taufFromInput(e.target, currentTaufP2); syncTaufDisplays(); scheduleSave();
+  });
+  document.getElementById("input-tauf-p4").addEventListener("input", (e) => {
+    currentTaufP4 = taufFromInput(e.target, currentTaufP4); syncTaufDisplays(); scheduleSave();
+  });
+  document.getElementById("btn-p2-update").addEventListener("click", () => { renderBodeGrid("", currentTaufP2); runFlags.p2 = true; scheduleSave(); });
+  document.getElementById("btn-p4-update").addEventListener("click", () => { renderBodeGrid("p4-", currentTaufP4); runFlags.p4bode = true; scheduleSave(); });
+
+  // =================================================================
+  // Audio: signal synthesis, pink noise, ZOH simulation, playback
+  // =================================================================
+  const FS = 44100, DUR = 3.0, NSAMP = Math.round(FS * DUR);
+  function generateSweep() {
+    const f0 = 20, f1 = 20000;
+    const kk = Math.pow(f1 / f0, 1 / DUR);
+    const out = new Float32Array(NSAMP);
+    for (let n = 0; n < NSAMP; n++) {
+      const t = n / FS;
+      const phase = (2 * Math.PI * f0 * (Math.pow(kk, t) - 1)) / Math.log(kk);
+      let env = 1;
+      const fadeN = Math.round(0.02 * FS);
+      if (n < fadeN) env = n / fadeN; else if (n > NSAMP - fadeN) env = (NSAMP - n) / fadeN;
+      out[n] = 0.3 * Math.sin(phase) * env;
+    }
+    return out;
+  }
+  function generatePinkNoise() {
+    // Voss-McCartney algorithm
+    const out = new Float32Array(NSAMP);
+    const nRows = 16;
+    const rows = new Float32Array(nRows);
+    let runningSum = 0;
+    for (let n = 0; n < NSAMP; n++) {
+      let idx = n === 0 ? 0 : (n & -n); // lowest set bit trick -> which row to update
+      let rowIdx = 0;
+      let m = n + 1;
+      while ((m & 1) === 0 && rowIdx < nRows - 1) { m >>= 1; rowIdx++; }
+      runningSum -= rows[rowIdx];
+      const newVal = Math.random() * 2 - 1;
+      rows[rowIdx] = newVal;
+      runningSum += newVal;
+      const white = Math.random() * 2 - 1;
+      out[n] = (runningSum + white) / (nRows + 1);
+    }
+    // normalize to a modest fixed RMS
+    let sumSq = 0; for (let i = 0; i < NSAMP; i++) sumSq += out[i] * out[i];
+    const rms = Math.sqrt(sumSq / NSAMP);
+    const target = 0.05;
+    for (let i = 0; i < NSAMP; i++) out[i] = (out[i] / (rms || 1)) * target;
+    return out;
+  }
+  let cachedSweep = null, cachedPink = null;
+  function getSweep() { if (!cachedSweep) cachedSweep = generateSweep(); return cachedSweep; }
+  function getPink() { if (!cachedPink) cachedPink = generatePinkNoise(); return cachedPink; }
+
+  // Simulate the full 4-state MIMO system via exact ZOH discretization
+  // (Ad, Bd recomputed only when Tauf changes).
+  const dt = 1 / FS;
+  let simCache = { Tauf: null, Ad: null, Bd: null };
+  function getDiscreteSystem(Tauf) {
+    if (simCache.Tauf === Tauf) return simCache;
+    const p = Object.assign({}, P, { Tauf });
+    const { Ad, Bd } = zohDiscretize(correctA(p), correctB(p), dt);
+    simCache = { Tauf, Ad, Bd };
+    return simCache;
+  }
+  function simulate(vs, vn, Tauf) {
+    const { Ad, Bd } = getDiscreteSystem(Tauf);
+    const N = vs.length;
+    let x0 = 0, x1 = 0, x2 = 0, x3 = 0;
+    const xOut = new Float32Array(N), aOut = new Float32Array(N);
+    for (let n = 0; n < N; n++) {
+      xOut[n] = x0;
+      aOut[n] = P.Ka * (-(P.k / P.m) * x0 - (P.b / P.m) * x1 + (P.B * P.l / P.m) * x2);
+      const u0 = vs[n], u1 = vn[n];
+      const nx0 = Ad[0][0] * x0 + Ad[0][1] * x1 + Ad[0][2] * x2 + Ad[0][3] * x3 + Bd[0][0] * u0 + Bd[0][1] * u1;
+      const nx1 = Ad[1][0] * x0 + Ad[1][1] * x1 + Ad[1][2] * x2 + Ad[1][3] * x3 + Bd[1][0] * u0 + Bd[1][1] * u1;
+      const nx2 = Ad[2][0] * x0 + Ad[2][1] * x1 + Ad[2][2] * x2 + Ad[2][3] * x3 + Bd[2][0] * u0 + Bd[2][1] * u1;
+      const nx3 = Ad[3][0] * x0 + Ad[3][1] * x1 + Ad[3][2] * x2 + Ad[3][3] * x3 + Bd[3][0] * u0 + Bd[3][1] * u1;
+      x0 = nx0; x1 = nx1; x2 = nx2; x3 = nx3;
+    }
+    return { x: xOut, a: aOut };
+  }
+
+  let audioCtx = null;
+  function getAudioCtx() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+  let activeSources = [];
+  function stopAll() { activeSources.forEach((s) => { try { s.stop(); } catch (e) {} }); activeSources = []; }
+  function playBuffer(float32, gain) {
+    const ctx = getAudioCtx();
+    const buf = ctx.createBuffer(1, float32.length, FS);
+    const chan = buf.getChannelData(0);
+    for (let i = 0; i < float32.length; i++) chan[i] = float32[i] * gain;
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.connect(ctx.destination); src.start();
+    activeSources.push(src);
+    return src;
+  }
+  function sharedGain(rawArr, filtArr) {
+    let peak = 1e-9;
+    for (let i = 0; i < rawArr.length; i++) peak = Math.max(peak, Math.abs(rawArr[i]));
+    for (let i = 0; i < filtArr.length; i++) peak = Math.max(peak, Math.abs(filtArr[i]));
+    return 0.85 / peak;
+  }
+  function soloGain(arr) {
+    let peak = 1e-9;
+    for (let i = 0; i < arr.length; i++) peak = Math.max(peak, Math.abs(arr[i]));
+    return 0.85 / peak;
+  }
+  function plotWaveforms(divId, rawArr, filtArr) {
+    const N = rawArr.length;
+    const stride = Math.max(1, Math.floor(N / 4000));
+    const tArr = [], rawDs = [], filtDs = [];
+    for (let i = 0; i < N; i += stride) { tArr.push(i / FS); rawDs.push(rawArr[i]); filtDs.push(filtArr[i]); }
+    Plotly.newPlot(divId, [
+      { x: tArr, y: rawDs, mode: "lines", line: { color: "#8B92A5", width: 1 }, name: "raw" },
+      { x: tArr, y: filtDs, mode: "lines", line: { color: "#FFB454", width: 1 }, name: "filtered (a, normalized)" },
+    ], Object.assign(plotLayout("amplitude", { xTitle: "time [s]", xaxis: { type: "linear" } }), { showlegend: true, legend: { orientation: "h", y: -0.3 } }), PLOT_OPTS);
+  }
+
+  function buildProblemAudio(prefix, taufGetter, noiseGetter, statusId, waveId) {
+    let lastRaw = null, lastFilt = null, lastGain = 1;
+    function ensureSimulated() {
+      const Tauf = taufGetter();
+      const vsArr = getSweep();
+      const vnArr = noiseGetter() ? getPink() : new Float32Array(NSAMP);
+      const raw = new Float32Array(NSAMP);
+      for (let i = 0; i < NSAMP; i++) raw[i] = vsArr[i] + vnArr[i];
+      const { a } = simulate(vsArr, vnArr, Tauf);
+      lastRaw = raw; lastFilt = a;
+      lastGain = sharedGain(raw, a);
+      plotWaveforms(waveId, raw.map((v) => v * lastGain), a.map((v) => v * lastGain));
+      return { raw, a, gain: lastGain };
+    }
+    document.getElementById(`btn-${prefix}-play-raw`).addEventListener("click", () => {
+      stopAll();
+      const { raw } = ensureSimulated();
+      playBuffer(raw, soloGain(raw));
+      document.getElementById(statusId).textContent = "Playing raw signal" + (noiseGetter() ? " + noise" : "") + "...";
+      runFlags[prefix + "audio"] = true; scheduleSave();
+    });
+    document.getElementById(`btn-${prefix}-play-filtered`).addEventListener("click", () => {
+      stopAll();
+      const { a } = ensureSimulated();
+      playBuffer(a, soloGain(a));
+      document.getElementById(statusId).textContent = "Playing through speaker model...";
+      runFlags[prefix + "audio"] = true; scheduleSave();
+    });
+    document.getElementById(`btn-${prefix}-stop`).addEventListener("click", () => {
+      stopAll();
+      document.getElementById(statusId).textContent = "Stopped.";
+    });
+  }
+  buildProblemAudio("p3", () => currentTaufP2, () => false, "p3-audio-status", "plot-p3-wave");
+  buildProblemAudio("p4", () => currentTaufP4, () => document.getElementById("input-noise").checked, "p4-audio-status", "plot-p4-wave");
+
+  // =================================================================
+  // PDF export
+  // =================================================================
+  function setExportStatus(msg, isErr) {
+    const el = document.getElementById("export-status");
+    el.textContent = msg; el.style.color = isErr ? "var(--rose)" : "var(--cyan)";
+  }
+  function reflectionText(id) { const v = document.getElementById(id).value.trim(); return v || "(no answer entered)"; }
+  function matrixText(gridId, rows, cols) {
+    const rowsOut = [];
+    for (let i = 0; i < rows; i++) {
+      const cells = [];
+      for (let j = 0; j < cols; j++) cells.push(document.getElementById(`${gridId}-${i}-${j}`).value.trim() || "0");
+      rowsOut.push("[ " + cells.join(", ") + " ]");
+    }
+    return rowsOut.join("\n");
+  }
+  async function exportPdf() {
+    const btn = document.getElementById("exportPdfBtn");
+    const originalLabel = btn.textContent;
+    btn.disabled = true; btn.textContent = "EXPORTING…";
+    setExportStatus("");
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "pt", format: "letter" });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 48;
+      const maxWidth = pageWidth - margin * 2;
+      let y = margin;
+      function ensureSpace(h) { if (y + h > pageHeight - margin) { doc.addPage(); y = margin; } }
+      function addHeading(text) { ensureSpace(30); doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(text, margin, y); y += 22; }
+      function addText(text, opts) {
+        const size = (opts && opts.size) || 10.5, bold = !!(opts && opts.bold);
+        doc.setFont("helvetica", bold ? "bold" : "normal"); doc.setFontSize(size);
+        const lines = doc.splitTextToSize(text, maxWidth);
+        const lineHeight = size * 1.35;
+        lines.forEach((line) => { ensureSpace(lineHeight); doc.text(line, margin, y); y += lineHeight; });
+        y += 4;
+      }
+      async function addPlotImage(divId, fallbackLabel) {
+        let dataUrl;
+        try { dataUrl = await Plotly.toImage(divId, { format: "png", width: 700, height: 260 }); }
+        catch (err) { addText(`(${fallbackLabel}: plot image could not be captured.)`); return; }
+        const imgWidth = maxWidth * 0.6, imgHeight = imgWidth * (260 / 700);
+        ensureSpace(imgHeight + 8);
+        doc.addImage(dataUrl, "PNG", margin, y, imgWidth, imgHeight);
+        y += imgHeight + 10;
+      }
+
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+      doc.splitTextToSize("GroupWork 7F — State Space Advanced (Loudspeaker)", maxWidth).forEach((line) => { doc.text(line, margin, y); y += 20; });
+      y += 6;
+
+      const netId = document.getElementById("input-netid").value.trim() || "(not entered)";
+      const groupIds = document.getElementById("input-group-netids").value.trim() || "(not entered)";
+      addText(`Your NetID: ${netId}`, { bold: true, size: 11.5 });
+      addText(`Group member NetIDs: ${groupIds}`, { bold: true, size: 11.5 });
+      y += 8;
+
+      addHeading("Problem 1: State-Space Matrices");
+      addText("A =\n" + matrixText("grid-A", 4, 4), { size: 9.5 });
+      addText("B =\n" + matrixText("grid-B", 4, 2), { size: 9.5 });
+      addText("C =\n" + matrixText("grid-C", 2, 4), { size: 9.5 });
+      addText("D =\n" + matrixText("grid-D", 2, 2), { size: 9.5 });
+
+      addHeading("Problem 2: Frequency Response");
+      addText(`τf used: ${currentTaufP2.toExponential(3)} s`);
+      addText("Discussion:", { bold: true, size: 10.5 });
+      addText(reflectionText("input-p2-reflection"));
+      if (runFlags.p2) {
+        await addPlotImage("plot-mag-x-vs", "vs->x mag"); await addPlotImage("plot-mag-a-vs", "vs->a mag");
+        await addPlotImage("plot-mag-x-vn", "vn->x mag"); await addPlotImage("plot-mag-a-vn", "vn->a mag");
+      } else addText("(Bode plots not yet generated.)");
+
+      addHeading("Problem 3: Listening Test");
+      addText("Discussion:", { bold: true, size: 10.5 });
+      addText(reflectionText("input-p3-reflection"));
+      if (runFlags.p3audio) await addPlotImage("plot-p3-wave", "waveform"); else addText("(Audio not yet played.)");
+
+      addHeading("Problem 4: Noise and Filter");
+      addText(`Noise enabled: ${document.getElementById("input-noise").checked ? "yes" : "no"}`);
+      addText(`Final τf: ${currentTaufP4.toExponential(3)} s`);
+      addText("Discussion:", { bold: true, size: 10.5 });
+      addText(reflectionText("input-p4-reflection"));
+      if (runFlags.p4bode) { await addPlotImage("plot-p4-mag-x-vs", "vs->x mag (final)"); await addPlotImage("plot-p4-mag-a-vs", "vs->a mag (final)"); }
+      if (runFlags.p4audio) await addPlotImage("plot-p4-wave", "waveform (final)");
+
+      const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+      doc.save(`GroupWork7F_${safeNetId}.pdf`);
+      setExportStatus("PDF downloaded.");
+    } catch (err) {
+      console.error("PDF export failed:", err);
+      setExportStatus(`Could not export PDF: ${err.message}`, true);
+    } finally {
+      btn.disabled = false; btn.textContent = originalLabel;
+    }
+  }
+  document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+  // =================================================================
+  // Progress autosave (localStorage) -- matrix grids + text fields only
+  // (audio buffers are cheap to regenerate, not persisted)
+  // =================================================================
+  const STORAGE_KEY = "gw7f_progress_v1";
+  function collectFieldValues() {
+    const values = {};
+    document.querySelectorAll('input[id^="input-"], input[id^="grid-"], textarea[id^="input-"]').forEach((el) => {
+      values[el.id] = el.type === "checkbox" ? el.checked : el.value;
+    });
+    return values;
+  }
+  function currentActiveTab() { const active = document.querySelector(".nav-btn.active"); return active ? active.dataset.part : "intro"; }
+  function saveProgress() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeTab: currentActiveTab(), fields: collectFieldValues(), runFlags }));
+    } catch (err) { /* storage unavailable */ }
+  }
+  let saveTimer = null;
+  function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveProgress, 250); }
+  document.addEventListener("input", scheduleSave);
+  document.addEventListener("click", scheduleSave);
+  function loadProgress() {
+    let raw;
+    try { raw = localStorage.getItem(STORAGE_KEY); } catch (err) { return; }
+    if (!raw) return;
+    let state;
+    try { state = JSON.parse(raw); } catch (err) { return; }
+    if (state.fields) {
+      Object.keys(state.fields).forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.type === "checkbox") el.checked = !!state.fields[id]; else el.value = state.fields[id];
+      });
+    }
+    if (state.runFlags) Object.assign(runFlags, state.runFlags);
+    currentTaufP2 = taufFromInput(document.getElementById("input-tauf-p2"), currentTaufP2);
+    currentTaufP4 = taufFromInput(document.getElementById("input-tauf-p4"), currentTaufP4);
+    if (state.activeTab) { const b = document.querySelector(`.nav-btn[data-part="${state.activeTab}"]`); if (b) b.click(); }
+  }
+
+  // =================================================================
+  // Init
+  // =================================================================
+  loadProgress();
+  syncTaufDisplays();
+})();
+</script>
+</body>
+</html>

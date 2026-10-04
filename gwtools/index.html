@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GroupWork 6W &mdash; Bode Plot Generator</title>
+
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink: #0F1115;
+      --panel: #171A21;
+      --panel2: #1D212B;
+      --line: #282D3A;
+      --amber: #FFB454;
+      --cyan: #5EEAD4;
+      --rose: #FB7185;
+      --pink: #F472B6;
+      --fg: #E7E9EE;
+      --muted: #8B92A5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--ink);
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+
+    header h1 {
+      font-size: 14px;
+      margin: 0;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    header h1 span {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    nav {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      order: 2;
+      padding: 16px 14px;
+      overflow-y: auto;
+    }
+
+    nav p.label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin: 14px 0 8px 0;
+    }
+
+    nav p.label:first-child {
+      margin-top: 0;
+    }
+
+    .nav-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 9px 12px;
+      margin-bottom: 6px;
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--fg);
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .nav-btn small {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .nav-btn.disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .content {
+      flex: 1;
+      order: 1;
+      overflow-y: auto;
+      padding: 28px 40px;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h2.section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      color: var(--amber);
+      margin: 0 0 14px 0;
+    }
+
+    h3.problem-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: var(--cyan);
+      margin: 0 0 10px 0;
+    }
+
+    h4.part-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--fg);
+      margin: 22px 0 8px 0;
+    }
+
+    p.instructions {
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: var(--fg);
+      margin: 0 0 16px 0;
+    }
+
+    .eq-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      text-align: center;
+      font-size: 16px;
+      overflow-x: auto;
+    }
+
+    .note-box {
+      background: var(--panel2);
+      border-left: 3px solid var(--amber);
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 0 0 18px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--fg);
+    }
+
+    .note-box code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--cyan);
+      background: var(--ink);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .panel-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .panel-box h4 {
+      margin: 0 0 12px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .field {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .field label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"] {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .gain-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .gain-row label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .gain-row input {
+      width: 140px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .gain-row input:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .factor-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .factor-row .factor-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      width: 90px;
+      flex-shrink: 0;
+    }
+
+    .factor-row input[type="number"] {
+      width: 110px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 7px 9px;
+    }
+
+    .factor-row input:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .row-remove {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: var(--ink);
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+
+    .add-row-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: 1px dashed var(--line);
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .add-row-btn:hover {
+      color: var(--cyan);
+      border-color: var(--cyan);
+    }
+
+    .factor-group {
+      margin-bottom: 18px;
+    }
+
+    .factor-group-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 0 0 8px 0;
+    }
+
+    .empty-hint {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+      margin: 0 0 8px 0;
+    }
+
+    .run-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 6px;
+      border: none;
+      background: var(--amber);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .run-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .run-btn:active {
+      transform: scale(0.98);
+    }
+
+    .run-btn.secondary {
+      background: none;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .run-btn.secondary:hover {
+      color: var(--rose);
+      border-color: var(--rose);
+    }
+
+    .field-err {
+      font-size: 11px;
+      color: var(--rose);
+      margin: 8px 0 0 0;
+      min-height: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .plot-host {
+      margin-top: 14px;
+      height: 300px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .plot-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin: 18px 0 0 0;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .range-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      padding-bottom: 10px;
+    }
+
+    .checkbox-row input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .katex {
+      color: var(--fg);
+    }
+
+    .lesson-tabs,
+    .builder-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .lesson-tab {
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--panel);
+      color: var(--muted);
+      cursor: pointer;
+      font: 12px 'JetBrains Mono', monospace;
+      padding: 9px 12px;
+    }
+
+    .lesson-tab.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .factor-kind-toggle {
+      display: flex;
+      gap: 6px;
+      margin: 12px 0;
+    }
+
+    .factor-kind-toggle button {
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--muted);
+      cursor: pointer;
+      font: 12px 'JetBrains Mono', monospace;
+      padding: 8px 12px;
+    }
+
+    .factor-kind-toggle button.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .lesson-layout,
+    .builder-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.8fr) minmax(360px, 1.2fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .lesson-copy h3,
+    .builder-layout h3 {
+      color: var(--cyan);
+      font: 14px 'JetBrains Mono', monospace;
+      margin: 0 0 12px;
+    }
+
+    .lesson-copy p,
+    .lesson-copy li,
+    .builder-copy p {
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .lesson-copy ul {
+      padding-left: 20px;
+    }
+
+    .slider-control {
+      margin: 14px 0;
+    }
+
+    .slider-control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font: 12px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .slider-control output {
+      color: var(--amber);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--cyan);
+    }
+
+    .lesson-equation {
+      min-height: 50px;
+      display: grid;
+      place-items: center;
+      border-top: 1px solid var(--line);
+      margin-top: 14px;
+      padding-top: 10px;
+      overflow-x: auto;
+    }
+
+    .plot-pair {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+
+    .plot-pair .plot-host {
+      height: 260px;
+    }
+
+    .plot-pair .plot-label {
+      margin-top: 8px;
+    }
+
+    .source-links {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .source-links a {
+      color: var(--cyan);
+    }
+
+    .builder-toolbar select {
+      max-width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font: 12px 'JetBrains Mono', monospace;
+      padding: 9px;
+    }
+
+    .component-row {
+      border-top: 1px solid var(--line);
+      padding: 12px 0;
+    }
+
+    .component-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font: 12px 'JetBrains Mono', monospace;
+      margin-bottom: 8px;
+    }
+
+    .component-head span {
+      color: var(--cyan);
+    }
+
+    .component-equation {
+      color: var(--muted);
+      font: 11px 'JetBrains Mono', monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .builder-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      margin: 8px 0 2px;
+      min-height: 20px;
+    }
+
+    .builder-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font: 11px 'JetBrains Mono', monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .builder-legend-swatch {
+      width: 14px;
+      height: 3px;
+      flex: 0 0 14px;
+      background: currentColor;
+    }
+
+    .factor-order {
+      margin-top: 10px;
+    }
+
+    .factor-order label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font: 12px 'JetBrains Mono', monospace;
+    }
+
+    .factor-order input {
+      width: 90px;
+      padding: 6px 8px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font: 13px 'JetBrains Mono', monospace;
+    }
+
+    .builder-equation {
+      min-height: 64px;
+    }
+
+    .total-legend {
+      color: var(--amber);
+      font-size: 12px;
+      margin: 8px 0 0;
+    }
+
+    @media (max-width: 850px) {
+      body {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+      }
+
+      main {
+        min-height: calc(100vh - 49px);
+      }
+
+      nav {
+        width: 185px;
+      }
+
+      .content {
+        padding: 22px 20px;
+      }
+
+      .lesson-layout,
+      .builder-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      main {
+        flex-direction: column;
+      }
+
+      nav {
+        order: 0;
+        width: auto;
+        display: flex;
+        gap: 6px;
+        padding: 8px;
+        overflow-x: auto;
+        border-left: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      nav p.label {
+        display: none;
+      }
+
+      .nav-btn {
+        width: auto;
+        min-width: max-content;
+        margin: 0;
+      }
+
+      .nav-btn small {
+        display: none;
+      }
+
+      .content {
+        padding: 18px 12px;
+      }
+
+      .range-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .plot-pair .plot-host {
+        height: 230px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="dot"></div>
+    <h1>GROUPWORK 6W <span>&mdash; Bode Plot Generator (M&amp;AE 3260)</span></h1>
+  </header>
+
+  <main>
+    <nav>
+      <p class="label">BODE PLOTS</p>
+      <button class="nav-btn active" data-part="learn">Learn the Factors<small>One building block at a
+          time</small></button>
+      <button class="nav-btn" data-part="build">Build a Transfer Function<small>Combine and compare
+          contributions</small></button>
+      <button class="nav-btn" data-part="checker">Plot Accuracy Checker<small>Compare your sketch with the exact
+          response</small></button>
+    </nav>
+
+    <div class="content">
+      <div class="wrap">
+
+        <section id="part-learn">
+          <h2 class="section-title">Learn to Sketch Bode Plots</h2>
+          <div class="note-box lesson-basics">
+            <strong>Quick rules</strong>
+            <ul>
+              <li>Use log frequency ω [rad/s]. Magnitude = 20 log₁₀|G(jω)| dB; phase = angle of G(jω).</li>
+              <li>One decade is a 10× frequency change, such as 1 to 10 rad/s.</li>
+              <li>Multiply factors: add their dB magnitudes and phase angles.</li>
+              <li>First-order zero/pole: +20/-20 dB/decade and +90°/-90°.</li>
+              <li>Real factors change near ωc; complex pairs change by ±40 dB/decade and ±180°. ωn sets location; ζ
+                shapes the curve.</li>
+            </ul>
+          </div>
+          <div class="lesson-tabs" role="tablist" aria-label="Bode plot factors">
+            <button class="lesson-tab active" data-lesson="origin">At the origin</button>
+            <button class="lesson-tab" data-lesson="real">Real factors</button>
+            <button class="lesson-tab" data-lesson="complex">Complex pairs</button>
+          </div>
+          <div class="lesson-layout">
+            <div class="panel-box lesson-copy">
+              <h3 id="lesson-title"></h3>
+              <div id="lesson-instructions"></div>
+              <div id="lesson-controls"></div>
+              <div class="lesson-equation" id="lesson-equation"></div>
+            </div>
+            <div class="plot-pair">
+              <p class="plot-label">Magnitude contribution [dB]</p>
+              <div class="plot-host" id="plot-lesson-mag"></div>
+              <p class="plot-label">Phase contribution [degrees]</p>
+              <div class="plot-host" id="plot-lesson-phase"></div>
+            </div>
+          </div>
+          <p class="source-links">Further reading: <a
+              href="https://ctms.engin.umich.edu/CTMS/index.php?example=Introduction&amp;section=ControlFrequency"
+              target="_blank" rel="noreferrer">University of Michigan Control Tutorials: frequency-domain methods</a> ·
+            <a href="https://www.electronics-tutorials.ws/filter/filter_2.html" target="_blank" rel="noreferrer">First-
+              and second-order filter responses</a>
+          </p>
+        </section>
+
+        <section id="part-build" style="display:none;">
+          <h2 class="section-title">Build a Transfer Function</h2>
+          <p class="instructions">Add factors to build G(s). Each factor has its own colored curve; the bold amber curve
+            is the total.</p>
+          <div class="builder-layout">
+            <div>
+              <div class="panel-box">
+                <h4>Gain</h4>
+                <div id="builder-gain-control"></div>
+                <div class="lesson-equation builder-equation" id="builder-equation"></div>
+              </div>
+              <div class="panel-box">
+                <h4>Add a factor</h4>
+                <div class="builder-toolbar">
+                  <select id="builder-factor-type" aria-label="Factor type">
+                    <option value="zero-origin">Zero at origin</option>
+                    <option value="pole-origin">Pole at origin</option>
+                    <option value="real-zero">Real zero (corner frequency)</option>
+                    <option value="real-pole">Real pole (corner frequency)</option>
+                    <option value="complex-zero">Complex zero pair</option>
+                    <option value="complex-pole">Complex pole pair</option>
+                  </select>
+                  <button class="run-btn" id="builder-add">ADD FACTOR</button>
+                </div>
+                <div id="builder-components"></div>
+              </div>
+            </div>
+            <div class="plot-pair">
+              <p class="plot-label">Individual magnitude components and total [dB]</p>
+              <div class="builder-legend" id="builder-mag-legend" aria-label="Magnitude plot labels"></div>
+              <div class="plot-host" id="plot-builder-mag"></div>
+              <p class="plot-label">Individual phase components and total [degrees]</p>
+              <div class="builder-legend" id="builder-phase-legend" aria-label="Phase plot labels"></div>
+              <div class="plot-host" id="plot-builder-phase"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============== PLOT ACCURACY CHECKER ============== -->
+        <section id="part-checker" style="display:none;">
+          <h2 class="section-title">Plot Accuracy Checker</h2>
+          <p class="instructions">
+            Define a transfer function &mdash; either by building it from zeros, poles, and gain, or by typing
+            its numerator/denominator directly &mdash; then generate the exact magnitude and phase (Bode) plot
+            to compare against your hand-drawn sketch.
+          </p>
+
+          <div style="display:flex; gap:10px; margin-bottom:18px;">
+            <button class="run-btn" id="btn-mode-direct">FROM TRANSFER FUNCTION</button>
+            <button class="run-btn secondary" id="btn-mode-zpk">FROM ZEROS &amp; POLES</button>
+          </div>
+
+          <div class="eq-block" id="eq-tf"></div>
+
+          <div class="panel-box" id="panel-zpk">
+            <h4>Gain</h4>
+            <div class="gain-row">
+              <label>K =</label>
+              <input type="number" id="input-K" value="1" step="any" />
+            </div>
+
+            <h4>Zeros</h4>
+            <div class="factor-group">
+              <p class="factor-group-title">Real zeros &mdash; factor (s + z)</p>
+              <p class="empty-hint" id="hint-real-zeros">No real zeros added.</p>
+              <div id="list-real-zeros"></div>
+              <button class="add-row-btn" id="btn-add-real-zero">+ add real zero</button>
+            </div>
+            <div class="factor-group">
+              <p class="factor-group-title">Complex zero pairs &mdash; factor (s&sup2; + 2&zeta;&omega;n s +
+                &omega;n&sup2;)</p>
+              <p class="empty-hint" id="hint-pair-zeros">No complex zero pairs added.</p>
+              <div id="list-pair-zeros"></div>
+              <button class="add-row-btn" id="btn-add-pair-zero">+ add complex zero pair</button>
+            </div>
+
+            <h4>Poles</h4>
+            <div class="factor-group">
+              <p class="factor-group-title">Real poles &mdash; factor (s + p)</p>
+              <p class="empty-hint" id="hint-real-poles">No real poles added.</p>
+              <div id="list-real-poles"></div>
+              <button class="add-row-btn" id="btn-add-real-pole">+ add real pole</button>
+            </div>
+            <div class="factor-group" style="margin-bottom:0;">
+              <p class="factor-group-title">Complex pole pairs &mdash; factor (s&sup2; + 2&zeta;&omega;n s +
+                &omega;n&sup2;)</p>
+              <p class="empty-hint" id="hint-pair-poles">No complex pole pairs added.</p>
+              <div id="list-pair-poles"></div>
+              <button class="add-row-btn" id="btn-add-pair-pole">+ add complex pole pair</button>
+            </div>
+          </div>
+
+          <div class="panel-box" id="panel-direct" style="display:none;">
+            <h4>Numerator</h4>
+            <div class="field" style="margin-bottom:18px;">
+              <label>coefficients, highest power of s first</label>
+              <input type="text" id="input-num-coeffs" value="" placeholder="e.g. 2 2  (for 2s + 2)"
+                spellcheck="false" />
+            </div>
+            <h4>Denominator</h4>
+            <div class="field">
+              <label>coefficients, highest power of s first</label>
+              <input type="text" id="input-den-coeffs" value="" placeholder="e.g. 1 54 300 5000" spellcheck="false" />
+            </div>
+            <div class="note-box" style="margin: 16px 0 0 0;">
+              Enter coefficients separated by spaces or commas, same convention as MATLAB's <code>tf(num, den)</code>.
+              E.g. numerator <code>2 2</code> means 2s + 2; denominator <code>1 54 300 5000</code> means
+              s&sup3; + 54s&sup2; + 300s + 5000.
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <h4>Frequency Range [rad/s]</h4>
+            <div class="range-grid">
+              <div class="field"><label>&omega; min</label><input type="number" id="input-wmin" value="0.01"
+                  step="any" /></div>
+              <div class="field"><label>&omega; max</label><input type="number" id="input-wmax" value="100"
+                  step="any" /></div>
+              <div class="checkbox-row"><input type="checkbox" id="input-auto-range" checked /><label
+                  for="input-auto-range">Auto range</label></div>
+            </div>
+            <button class="run-btn" id="btn-generate">GENERATE BODE PLOT</button>
+            <p class="field-err" id="err-bode"></p>
+          </div>
+
+          <p class="plot-label">amplitude ratio |G(j&omega;)| [dB]</p>
+          <div class="plot-host" id="plot-bode-mag">
+            <div class="placeholder"></div>
+          </div>
+          <p class="plot-label">phase difference [degrees]</p>
+          <div class="plot-host" id="plot-bode-phase"></div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const PLOT_OPTS = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+
+      // ---------------------------------------------------------------
+      // Log-axis tick labels. Plotly's default labels the in-between ticks
+      // with bare digits ("2", "5"), which read like whole numbers. Instead:
+      // zoomed out, label only the powers of 10 (like MATLAB); zoomed in,
+      // label the in-between ticks with their full value (0.2, 20, ...).
+      // Re-applied on every zoom/pan and on double-click reset.
+      // ---------------------------------------------------------------
+      function logTickSpec(range, power) {
+        const lo = Math.min(range[0], range[1]), hi = Math.max(range[0], range[1]);
+        const span = hi - lo;
+        const mults = span > 1.3 ? [1] : span > 0.5 ? [1, 2, 5] : [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        const vals = [], text = [];
+        for (let d = Math.floor(lo); d <= Math.ceil(hi); d++) {
+          mults.forEach((m) => {
+            const lv = d + Math.log10(m);
+            if (lv < lo - 1e-9 || lv > hi + 1e-9) return;
+            const v = m * Math.pow(10, d);
+            vals.push(v);
+            const label = v > 100 || v < 0.01 ? `${Number(m.toPrecision(2))}e${d}` : String(Number(v.toPrecision(3)));
+            text.push(power && m === 1 ? `10<sup>${d}</sup>` : label);
+          });
+        }
+        if (vals.length < 2) return { tickmode: "auto", tickvals: null, ticktext: null };
+        return { tickmode: "array", tickvals: vals, ticktext: text };
+      }
+      function applyLogTicks(gd, power) {
+        const update = {};
+        ["xaxis", "yaxis"].forEach((ax) => {
+          const fa = gd._fullLayout && gd._fullLayout[ax];
+          if (!fa || fa.type !== "log") return;
+          Object.entries(logTickSpec(fa.range, power)).forEach(([k, v]) => { update[`${ax}.${k}`] = v; });
+        });
+        if (Object.keys(update).length) Plotly.relayout(gd, update);
+      }
+      function newLogPlot(divId, data, layout, config, baseRange, traceFactory) {
+        return Plotly.newPlot(divId, data, layout, config).then((gd) => {
+          if (gd._logTickHandler) gd.removeListener("plotly_relayout", gd._logTickHandler);
+          gd._logTickHandler = (ev) => {
+            if (Object.keys(ev).every((k) => /tick/.test(k))) return; // our own relayout
+            applyLogTicks(gd, false);
+          };
+          gd.on("plotly_relayout", gd._logTickHandler);
+          if (gd._extendPlotHandler) gd.removeListener("plotly_relayout", gd._extendPlotHandler);
+          gd._extendPlotHandler = createPlotExtensionHandler(gd, baseRange, traceFactory);
+          gd.on("plotly_relayout", gd._extendPlotHandler);
+          applyLogTicks(gd, false);
+          return gd;
+        });
+      }
+
+      function paddedAxisRange(range) {
+        const padding = Math.max(0.04, (range[1] - range[0]) * 0.035);
+        return [range[0] - padding, range[1] + padding];
+      }
+
+      function sampleLogRange(logMin, logMax) {
+        const count = Math.max(241, Math.ceil((logMax - logMin) * 80) + 1);
+        return Array.from({ length: count }, (_, index) => Math.pow(10, logMin + ((logMax - logMin) * index) / (count - 1)));
+      }
+
+      function updatePlotTraces(gd, logRange, traceFactory) {
+        const frequencies = sampleLogRange(logRange[0], logRange[1]);
+        const traces = traceFactory(frequencies);
+        return Plotly.restyle(gd, {
+          x: traces.map((trace) => trace.x),
+          y: traces.map((trace) => trace.y),
+        }, traces.map((_, index) => index));
+      }
+
+      function createPlotExtensionHandler(gd, baseRange, traceFactory) {
+        if (!baseRange || !traceFactory) return () => { };
+        let dataRange = [baseRange[0] - 0.5, baseRange[1] + 0.5];
+        return (event) => {
+          if (event["xaxis.autorange"]) {
+            dataRange = [baseRange[0] - 0.5, baseRange[1] + 0.5];
+            updatePlotTraces(gd, dataRange, traceFactory).then(() => {
+              Plotly.relayout(gd, { "xaxis.range": paddedAxisRange(baseRange) });
+            });
+            return;
+          }
+          const range = gd._fullLayout && gd._fullLayout.xaxis && gd._fullLayout.xaxis.range;
+          const lo = Number(event["xaxis.range[0]"] ?? range?.[0]);
+          const hi = Number(event["xaxis.range[1]"] ?? range?.[1]);
+          if (!isFinite(lo) || !isFinite(hi)) return;
+          if (lo >= dataRange[0] + 0.1 && hi <= dataRange[1] - 0.1) return;
+          dataRange = [Math.min(dataRange[0], lo - 0.5), Math.max(dataRange[1], hi + 0.5)];
+          updatePlotTraces(gd, dataRange, traceFactory);
+        };
+      }
+
+      function plotWithExtension(divId, traceFactory, layout, config, baseRange) {
+        layout.xaxis.range = paddedAxisRange(baseRange);
+        layout.xaxis.autorange = false;
+        const traces = traceFactory(sampleLogRange(baseRange[0] - 0.5, baseRange[1] + 0.5));
+        return newLogPlot(divId, traces, layout, config, baseRange, traceFactory);
+      }
+
+      function syncPlotXAxes(firstId, secondId) {
+        const first = document.getElementById(firstId);
+        const second = document.getElementById(secondId);
+        if (!first || !second || !first._fullLayout || !second._fullLayout) return;
+        if (first._syncXHandler) first.removeListener("plotly_relayout", first._syncXHandler);
+        if (second._syncXHandler) second.removeListener("plotly_relayout", second._syncXHandler);
+        let syncing = false;
+        const bind = (source, target) => (event) => {
+          if (syncing || event["xaxis.autorange"]) return;
+          const changedRange = event["xaxis.range"];
+          const lo = Number(event["xaxis.range[0]"] ?? changedRange?.[0]);
+          const hi = Number(event["xaxis.range[1]"] ?? changedRange?.[1]);
+          if (!isFinite(lo) || !isFinite(hi)) return;
+          const targetRange = target._fullLayout && target._fullLayout.xaxis.range;
+          if (targetRange && Math.abs(targetRange[0] - lo) < 1e-6 && Math.abs(targetRange[1] - hi) < 1e-6) return;
+          syncing = true;
+          Plotly.relayout(target, { "xaxis.range": [lo, hi] }).finally(() => { syncing = false; });
+        };
+        first._syncXHandler = bind(first, second);
+        second._syncXHandler = bind(second, first);
+        first.on("plotly_relayout", first._syncXHandler);
+        second.on("plotly_relayout", second._syncXHandler);
+      }
+
+      function plotLayout(yTitle, showXTitle) {
+        return {
+          paper_bgcolor: "#171A21",
+          plot_bgcolor: "#171A21",
+          font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
+          margin: { l: 68, r: 24, t: 18, b: showXTitle ? 50 : 38 },
+          xaxis: { title: showXTitle ? "ω [rad/s]" : "", type: "log", gridcolor: "#282D3A", zerolinecolor: "#282D3A" },
+          yaxis: { title: yTitle, gridcolor: "#282D3A", zerolinecolor: "#282D3A", autorangeoptions: { padded: 0.08 }, ...(yTitle.includes("phase") ? { tick0: 0, dtick: 30 } : {}) },
+          showlegend: false,
+        };
+      }
+
+      const lessonDefinitions = {
+        "zero-origin": {
+          title: "Zero at the origin",
+          instruction: "No corner frequency: draw the slope and phase across the full range. The magnitude is 0 dB at 1 rad/s.",
+          equation: () => `G(s)=s`,
+          controls: [],
+          defaults: { order: 1 },
+        },
+        "pole-origin": {
+          title: "Pole at the origin",
+          instruction: "No corner frequency: draw the slope and phase across the full range. The magnitude is 0 dB at 1 rad/s.",
+          equation: () => `G(s)=\\dfrac{1}{s}`,
+          controls: [],
+          defaults: { order: 1 },
+        },
+        "real-zero": {
+          title: "Real zero away from the origin",
+          instruction: "Move ωc to shift the corner. The dashed line marks ωc.",
+          equation: (v) => `G(s)=1+\\dfrac{s}{${fmt(v.wc)}}`,
+          controls: [{ key: "wc", label: "Corner frequency ωc [rad/s]", min: -2, max: 2, step: 0.01, scale: "log" }],
+          defaults: { wc: 1 },
+        },
+        "real-pole": {
+          title: "Real pole away from the origin",
+          instruction: "Move ωc to shift the corner. The dashed line marks ωc.",
+          equation: (v) => `G(s)=\\dfrac{1}{1+s/${fmt(v.wc)}}`,
+          controls: [{ key: "wc", label: "Corner frequency ωc [rad/s]", min: -2, max: 2, step: 0.01, scale: "log" }],
+          defaults: { wc: 1 },
+        },
+        "complex-zero": {
+          title: "Complex-conjugate zero pair",
+          instruction: "Move ωn to shift the pair. Change ζ to shape the bend; small ζ can create a peak.",
+          equation: (v) => `G(s)=1+2(${fmt(v.zeta)})\\dfrac{s}{${fmt(v.wn)}}+\\left(\\dfrac{s}{${fmt(v.wn)}}\\right)^2`,
+          controls: [
+            { key: "wn", label: "Natural frequency ωn [rad/s]", min: -2, max: 2, step: 0.01, scale: "log" },
+            { key: "zeta", label: "Damping ratio ζ", min: 0.01, max: 1, step: 0.01 },
+          ],
+          defaults: { wn: 1, zeta: 0.5 },
+        },
+        "complex-pole": {
+          title: "Complex-conjugate pole pair",
+          instruction: "Move ωn to shift the pair. Change ζ to shape the bend; small ζ can create a resonance peak.",
+          equation: (v) => `G(s)=\\dfrac{1}{1+2(${fmt(v.zeta)})\\dfrac{s}{${fmt(v.wn)}}+\\left(\\dfrac{s}{${fmt(v.wn)}}\\right)^2}`,
+          controls: [
+            { key: "wn", label: "Natural frequency ωn [rad/s]", min: -2, max: 2, step: 0.01, scale: "log" },
+            { key: "zeta", label: "Damping ratio ζ", min: 0.01, max: 1, step: 0.01 },
+          ],
+          defaults: { wn: 1, zeta: 0.5 },
+        },
+      };
+      const lessonGroups = {
+        origin: { title: "At the origin", zeroType: "zero-origin", poleType: "pole-origin" },
+        real: { title: "Real factors", zeroType: "real-zero", poleType: "real-pole" },
+        complex: { title: "Complex-conjugate pairs", zeroType: "complex-zero", poleType: "complex-pole" },
+      };
+      const lessonValues = Object.fromEntries(Object.entries(lessonDefinitions).map(([key, def]) => [key, { ...def.defaults }]));
+      const lessonFrequencies = Array.from({ length: 241 }, (_, i) => Math.pow(10, -2 + (4 * i) / 240));
+      let activeLesson = "zero-origin";
+      let activeGroup = "origin";
+      let activeKind = "zero";
+      const builderComponents = [];
+      let builderGain = 1;
+      let nextComponentId = 1;
+
+      function showPart(part) {
+        document.querySelectorAll("main .content section[id^='part-']").forEach((section) => {
+          section.style.display = section.id === `part-${part}` ? "" : "none";
+        });
+        document.querySelectorAll(".nav-btn[data-part]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.part === part);
+        });
+        if (part === "learn") drawLesson();
+        if (part === "build") drawBuilder();
+        if (part === "checker") {
+          Plotly.Plots.resize("plot-bode-mag");
+          Plotly.Plots.resize("plot-bode-phase");
+        }
+      }
+      document.querySelectorAll(".nav-btn[data-part]").forEach((button) => {
+        button.addEventListener("click", () => showPart(button.dataset.part));
+      });
+
+      function rangeControl(parent, labelText, value, options, onChange) {
+        const wrap = document.createElement("div");
+        wrap.className = "slider-control";
+        const label = document.createElement("label");
+        const name = document.createElement("span");
+        name.textContent = labelText;
+        const output = document.createElement("output");
+        const input = document.createElement("input");
+        input.type = "range";
+        input.min = options.min;
+        input.max = options.max;
+        input.step = options.step;
+        input.value = options.scale === "log" ? Math.log10(value) : value;
+        const readValue = () => options.scale === "log" ? Math.pow(10, Number(input.value)) : Number(input.value);
+        const showValue = (number) => options.scale === "log" ? Number(number.toPrecision(3)).toString() : Number(number.toPrecision(3)).toString();
+        output.textContent = showValue(value);
+        label.append(name, output);
+        input.addEventListener("input", () => {
+          const nextValue = readValue();
+          output.textContent = showValue(nextValue);
+          onChange(nextValue);
+        });
+        wrap.append(label, input);
+        parent.appendChild(wrap);
+      }
+
+      function drawLesson() {
+        const definition = lessonDefinitions[activeLesson];
+        const values = lessonValues[activeLesson];
+        document.getElementById("lesson-title").textContent = definition.title;
+        document.getElementById("lesson-instructions").innerHTML = `<p>${definition.instruction}</p>`;
+        const controls = document.getElementById("lesson-controls");
+        controls.replaceChildren();
+        const toggle = document.createElement("div");
+        toggle.className = "factor-kind-toggle";
+        ["zero", "pole"].forEach((kind) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = kind === "zero" ? "Zero (numerator)" : "Pole (denominator)";
+          button.classList.toggle("active", kind === activeKind);
+          button.addEventListener("click", () => {
+            activeKind = kind;
+            activeLesson = lessonGroups[activeGroup][`${kind}Type`];
+            drawLesson();
+          });
+          toggle.appendChild(button);
+        });
+        controls.appendChild(toggle);
+        definition.controls.forEach((control) => {
+          rangeControl(controls, control.label, values[control.key], control, (value) => {
+            values[control.key] = value;
+            drawLessonPlots();
+            katex.render(definition.equation(values), document.getElementById("lesson-equation"), { throwOnError: false, displayMode: true });
+          });
+        });
+        katex.render(definition.equation(values), document.getElementById("lesson-equation"), { throwOnError: false, displayMode: true });
+        drawLessonPlots();
+      }
+
+      function factorResponse(type, values, w) {
+        let magnitude, phase;
+        if (type === "zero-origin" || type === "pole-origin") {
+          const sign = type === "zero-origin" ? 1 : -1;
+          magnitude = sign * 20 * values.order * Math.log10(w);
+          phase = sign * 90 * values.order;
+          return { magnitude, phase };
+        }
+        let response;
+        if (type === "real-zero" || type === "real-pole") {
+          const ratio = w / values.wc;
+          response = { re: 1, im: ratio };
+        } else {
+          const ratio = w / values.wn;
+          response = { re: 1 - ratio * ratio, im: 2 * values.zeta * ratio };
+        }
+        const sign = type === "real-pole" || type === "complex-pole" ? -1 : 1;
+        magnitude = sign * 20 * Math.log10(Math.hypot(response.re, response.im));
+        phase = sign * Math.atan2(response.im, response.re) * 180 / Math.PI;
+        if (phase < -180) phase += 360;
+        if (phase > 180) phase -= 360;
+        return { magnitude, phase };
+      }
+
+      function responseLayout(title, showXTitle, traces) {
+        return {
+          paper_bgcolor: "#171A21", plot_bgcolor: "#171A21",
+          font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
+          margin: { l: 68, r: 24, t: 18, b: showXTitle ? 50 : 38 },
+          xaxis: { title: showXTitle ? "ω [rad/s]" : "", type: "log", gridcolor: "#282D3A" },
+          yaxis: { title, gridcolor: "#282D3A", zerolinecolor: "#50596b", autorangeoptions: { padded: 0.08 }, ...(title.includes("phase") ? { tick0: 0, dtick: 30 } : {}) },
+          showlegend: false,
+        };
+      }
+
+      function drawLessonPlots() {
+        const values = lessonValues[activeLesson];
+        const color = activeLesson.includes("zero") ? "#5EEAD4" : "#FFB454";
+        const corner = values.wc || values.wn;
+        const isOrigin = activeLesson.endsWith("origin");
+        const isComplex = activeLesson.startsWith("complex");
+        const direction = activeLesson.includes("zero") ? 1 : -1;
+        const phaseLimit = isComplex ? 180 : 90;
+        const asymptoticPhase = (w) => {
+          if (isOrigin) return direction * 90;
+          const progress = Math.max(0, Math.min(1, (Math.log10(w / corner) + 1) / 2));
+          return direction * phaseLimit * progress;
+        };
+        const traceFactory = (frequencies) => {
+          const exactMagnitude = [], referenceMagnitude = [], phase = [], referencePhase = [];
+          frequencies.forEach((w) => {
+            const result = factorResponse(activeLesson, values, w);
+            exactMagnitude.push(result.magnitude);
+            phase.push(result.phase);
+            referencePhase.push(asymptoticPhase(w));
+            if (isOrigin) {
+              referenceMagnitude.push((activeLesson === "zero-origin" ? 1 : -1) * 20 * Math.log10(w));
+            } else {
+              const order = isComplex ? 40 : 20;
+              referenceMagnitude.push(direction * order * Math.max(0, Math.log10(w / corner)));
+            }
+          });
+          const triangleStart = isOrigin ? 1 : corner;
+          const triangleEnd = triangleStart * 10;
+          const slopeSize = isOrigin ? 20 : isComplex ? 40 : 20;
+          const triangleEndY = direction * slopeSize;
+          return {
+            magnitude: [
+              { x: frequencies, y: exactMagnitude, mode: "lines", name: "Exact response", line: { color, width: 3 } },
+              { x: frequencies, y: referenceMagnitude, mode: "lines", name: "Asymptote", line: { color: "#A3AAB8", width: 1.5, dash: "dash" } },
+              { x: [triangleStart, triangleEnd, triangleEnd, triangleStart], y: [0, 0, triangleEndY, 0], mode: "lines", name: "Slope guide", fill: "toself", fillcolor: "rgba(255,212,0,0.10)", line: { color: "#FACC15", width: 2 } },
+            ],
+            phase: [
+              { x: frequencies, y: phase, mode: "lines", name: "Exact response", line: { color, width: 3 } },
+              { x: frequencies, y: referencePhase, mode: "lines", name: "Phase asymptote", line: { color: "#A3AAB8", width: 1.5, dash: "dash" } },
+            ],
+          };
+        };
+        const layoutMag = responseLayout("magnitude [dB]", true);
+        const layoutPhase = responseLayout("phase [deg]", true);
+        const baseFrequencies = sampleLogRange(-3, 3);
+        const baseResponses = baseFrequencies.map((w) => factorResponse(activeLesson, values, w));
+        const phaseMin = Math.min(...baseResponses.map((r) => r.phase));
+        const phaseMax = Math.max(...baseResponses.map((r) => r.phase));
+        const phasePadding = Math.max(8, (phaseMax - phaseMin) * 0.08);
+        layoutPhase.yaxis.range = [Math.min(0, phaseMin - phasePadding), Math.max(0, phaseMax + phasePadding)];
+        if (corner) {
+          layoutMag.shapes = [{ type: "line", x0: corner, x1: corner, y0: 0, y1: 1, yref: "paper", line: { color: "#8B92A5", dash: "dot" } }];
+          layoutPhase.shapes = layoutMag.shapes;
+        }
+        const slope = isOrigin ? (direction > 0 ? "+20" : "-20") : `${direction > 0 ? "+" : "-"}${isComplex ? "40" : "20"}`;
+        const triangleStart = isOrigin ? 1 : corner;
+        const triangleEnd = triangleStart * 10;
+        const triangleDelta = isOrigin ? 20 : isComplex ? 40 : 20;
+        const triangleMidLog = (Math.log10(triangleStart) + Math.log10(triangleEnd)) / 2;
+        const triangleEndLog = Math.log10(triangleEnd);
+        const initialXRange = paddedAxisRange([-3, 3]);
+        const trianglePosition = (triangleMidLog - initialXRange[0]) / (initialXRange[1] - initialXRange[0]);
+        const slopeText = `${slope} dB/dec`;
+        const plotWidth = document.getElementById("plot-lesson-mag").clientWidth - layoutMag.margin.l - layoutMag.margin.r;
+        const spaceToRight = ((initialXRange[1] - triangleEndLog) / (initialXRange[1] - initialXRange[0])) * plotWidth;
+        const canPlaceRight = spaceToRight >= slopeText.length * 6.5 + 4;
+        const slopeX = canPlaceRight ? triangleEndLog : triangleMidLog;
+        const slopeAnchor = canPlaceRight ? "left" : trianglePosition > 0.82 ? "right" : trianglePosition < 0.18 ? "left" : "center";
+        const slopeShift = canPlaceRight ? 2 : trianglePosition > 0.82 ? -8 : trianglePosition < 0.18 ? 8 : 0;
+        layoutMag.annotations = [{ xref: "x", yref: "y", x: slopeX, y: direction * triangleDelta / 2, xanchor: slopeAnchor, xshift: slopeShift, yshift: direction > 0 ? -5 : 5, text: slopeText, showarrow: false, font: { color: "#FACC15", size: 10 } }];
+        layoutPhase.annotations = [];
+        Promise.all([
+          plotWithExtension("plot-lesson-mag", (frequencies) => traceFactory(frequencies).magnitude, layoutMag, PLOT_OPTS, [-3, 3]),
+          plotWithExtension("plot-lesson-phase", (frequencies) => traceFactory(frequencies).phase, layoutPhase, PLOT_OPTS, [-3, 3]),
+        ]).then(() => syncPlotXAxes("plot-lesson-mag", "plot-lesson-phase"));
+      }
+
+      function componentName(type) {
+        return lessonDefinitions[type].title;
+      }
+      function componentFormula(component) {
+        const value = component;
+        if (value.type === "zero-origin") return `s${value.order > 1 ? `^${value.order}` : ""}`;
+        if (value.type === "pole-origin") return `1/s${value.order > 1 ? `^${value.order}` : ""}`;
+        if (value.type === "real-zero") return `(1 + s/${fmt(value.wc)})`;
+        if (value.type === "real-pole") return `1/(1 + s/${fmt(value.wc)})`;
+        const q = `(1 + 2·${fmt(value.zeta)}·s/${fmt(value.wn)} + (s/${fmt(value.wn)})²)`;
+        return value.type === "complex-zero" ? q : `1/${q}`;
+      }
+      function componentLatex(component) {
+        if (component.type === "zero-origin") return `s${component.order > 1 ? `^{${component.order}}` : ""}`;
+        if (component.type === "pole-origin") return `\\dfrac{1}{s${component.order > 1 ? `^{${component.order}}` : ""}}`;
+        if (component.type === "real-zero") return `(1+s/${fmt(component.wc)})`;
+        if (component.type === "real-pole") return `\\dfrac{1}{1+s/${fmt(component.wc)}}`;
+        const q = `1+2(${fmt(component.zeta)})\\dfrac{s}{${fmt(component.wn)}}+\\left(\\dfrac{s}{${fmt(component.wn)}}\\right)^2`;
+        return component.type === "complex-zero" ? `(${q})` : `\\dfrac{1}{${q}}`;
+      }
+
+      function renderBuilderEquation() {
+        const numerator = builderComponents.filter((item) => item.type.includes("zero")).map(componentLatex);
+        const denominator = builderComponents.filter((item) => item.type.includes("pole")).map(componentLatex);
+        numerator.unshift(fmt(builderGain));
+        katex.render(`G(s)=\\dfrac{${numerator.join("\\,\\cdot\\,")}}{${denominator.length ? denominator.join("\\,\\cdot\\,") : "1"}}`, document.getElementById("builder-equation"), { throwOnError: false, displayMode: true });
+      }
+
+      function renderBuilderComponents() {
+        const host = document.getElementById("builder-components");
+        host.replaceChildren();
+        builderComponents.forEach((component, index) => {
+          const row = document.createElement("div");
+          row.className = "component-row";
+          const head = document.createElement("div");
+          head.className = "component-head";
+          const title = document.createElement("span");
+          title.textContent = componentName(component.type);
+          const remove = document.createElement("button");
+          remove.className = "row-remove";
+          remove.title = "Remove factor";
+          remove.setAttribute("aria-label", `Remove component ${index + 1}`);
+          remove.textContent = "×";
+          remove.addEventListener("click", () => {
+            builderComponents.splice(index, 1);
+            renderBuilderComponents();
+            renderBuilderEquation();
+            drawBuilder();
+          });
+          head.append(title, remove);
+          const formula = document.createElement("div");
+          formula.className = "component-equation";
+          formula.textContent = componentFormula(component);
+          row.append(head, formula);
+          const updateComponent = (key, value) => {
+            component[key] = value;
+            formula.textContent = componentFormula(component);
+            renderBuilderEquation();
+            drawBuilder();
+          };
+          if (component.type.includes("origin")) {
+            const orderControl = document.createElement("div");
+            orderControl.className = "factor-order";
+            const label = document.createElement("label");
+            label.textContent = "Power m";
+            const input = document.createElement("input");
+            input.type = "number";
+            input.min = "1";
+            input.step = "1";
+            input.value = component.order;
+            input.setAttribute("aria-label", "Power of origin factor");
+            input.addEventListener("input", () => {
+              const order = input.valueAsNumber;
+              if (!Number.isInteger(order) || order < 1) return;
+              updateComponent("order", order);
+            });
+            label.appendChild(input);
+            orderControl.appendChild(label);
+            row.appendChild(orderControl);
+          } else if (component.type.includes("complex")) {
+            rangeControl(row, "ωn [rad/s]", component.wn, { min: -2, max: 2, step: 0.01, scale: "log" }, (value) => updateComponent("wn", value));
+            rangeControl(row, "ζ", component.zeta, { min: 0.01, max: 1, step: 0.01 }, (value) => updateComponent("zeta", value));
+          } else {
+            rangeControl(row, "ωc [rad/s]", component.wc, { min: -2, max: 2, step: 0.01, scale: "log" }, (value) => updateComponent("wc", value));
+          }
+          host.appendChild(row);
+        });
+      }
+
+      function drawBuilder() {
+        const gainDb = 20 * Math.log10(builderGain);
+        const colors = ["#5EEAD4", "#FB7185", "#60A5FA", "#F472B6", "#A3E635", "#C084FC", "#FFB454"];
+        const magLegend = [{ label: `Gain K = ${fmt(builderGain)}`, color: "#8B92A5" }];
+        const phaseLegend = [];
+        const makeTraces = (frequencies) => {
+          const magnitudes = builderComponents.map(() => []);
+          const phases = builderComponents.map(() => []);
+          const totalMagnitude = [], totalPhase = [];
+          frequencies.forEach((w) => {
+            let sumMagnitude = gainDb;
+            let sumPhase = 0;
+            builderComponents.forEach((component, index) => {
+              const response = factorResponse(component.type, component, w);
+              magnitudes[index].push(response.magnitude);
+              phases[index].push(response.phase);
+              sumMagnitude += response.magnitude;
+              sumPhase += response.phase;
+            });
+            totalMagnitude.push(sumMagnitude);
+            totalPhase.push(sumPhase);
+          });
+          const magTraces = [{ x: frequencies, y: totalMagnitude.map(() => gainDb), mode: "lines", name: `Gain K = ${fmt(builderGain)}`, line: { color: "#8B92A5", width: 1.5, dash: "dot" } }];
+          const phaseTraces = [];
+          builderComponents.forEach((component, index) => {
+            const factorLabel = componentFormula(component);
+            magTraces.push({ x: frequencies, y: magnitudes[index], mode: "lines", name: factorLabel, line: { color: colors[index % colors.length], width: 1.6 } });
+            phaseTraces.push({ x: frequencies, y: phases[index], mode: "lines", name: factorLabel, line: { color: colors[index % colors.length], width: 1.6 } });
+            magLegend.push({ label: factorLabel, color: colors[index % colors.length] });
+            phaseLegend.push({ label: factorLabel, color: colors[index % colors.length] });
+          });
+          magTraces.push({ x: frequencies, y: totalMagnitude, mode: "lines", name: "TOTAL G(s)", line: { color: "#FFB454", width: 4 } });
+          phaseTraces.push({ x: frequencies, y: totalPhase, mode: "lines", name: "TOTAL G(s)", line: { color: "#FFB454", width: 4 } });
+          return { magnitude: magTraces, phase: phaseTraces };
+        };
+        magLegend.push({ label: "Total", color: "#FFB454" });
+        phaseLegend.push({ label: "Total", color: "#FFB454" });
+        renderBuilderLegend("builder-mag-legend", magLegend);
+        renderBuilderLegend("builder-phase-legend", phaseLegend);
+        Promise.all([
+          plotWithExtension("plot-builder-mag", (frequencies) => makeTraces(frequencies).magnitude, responseLayout("magnitude [dB]", true), PLOT_OPTS, [-2, 2]),
+          plotWithExtension("plot-builder-phase", (frequencies) => makeTraces(frequencies).phase, responseLayout("phase [deg]", true), PLOT_OPTS, [-2, 2]),
+        ]).then(() => syncPlotXAxes("plot-builder-mag", "plot-builder-phase"));
+      }
+
+      function renderBuilderLegend(containerId, entries) {
+        const host = document.getElementById(containerId);
+        host.replaceChildren();
+        entries.forEach((entry) => {
+          const label = document.createElement("span");
+          label.className = "builder-legend-item";
+          const swatch = document.createElement("span");
+          swatch.className = "builder-legend-swatch";
+          swatch.style.color = entry.color;
+          const text = document.createElement("span");
+          text.textContent = entry.label;
+          label.append(swatch, text);
+          host.appendChild(label);
+        });
+      }
+
+      document.querySelectorAll(".lesson-tab").forEach((button) => {
+        button.addEventListener("click", () => {
+          activeGroup = button.dataset.lesson;
+          activeKind = "zero";
+          activeLesson = lessonGroups[activeGroup].zeroType;
+          document.querySelectorAll(".lesson-tab").forEach((tab) => tab.classList.toggle("active", tab === button));
+          drawLesson();
+        });
+      });
+      rangeControl(document.getElementById("builder-gain-control"), "Gain K", builderGain, { min: -1, max: 1, step: 0.01, scale: "log" }, (value) => {
+        builderGain = value;
+        renderBuilderEquation();
+        drawBuilder();
+      });
+      document.getElementById("builder-add").addEventListener("click", () => {
+        const type = document.getElementById("builder-factor-type").value;
+        const component = { id: nextComponentId++, type, order: 1, wc: 1, wn: 1, zeta: 0.5 };
+        builderComponents.push(component);
+        renderBuilderComponents();
+        renderBuilderEquation();
+        drawBuilder();
+      });
+
+      drawLesson();
+      renderBuilderEquation();
+
+      // ---------------------------------------------------------------
+      // State: the transfer function is built from real zeros/poles
+      // (factor s + a) and complex conjugate zero/pole pairs given by
+      // (zeta, wn) (factor s^2 + 2*zeta*wn*s + wn^2), plus a scalar gain K.
+      // ---------------------------------------------------------------
+      const state = {
+        K: 1,
+        realZeros: [],
+        pairZeros: [],
+        realPoles: [],
+        pairPoles: [],
+      };
+      let mode = "direct"; // "zpk" (build from zeros/poles/gain) or "direct" (typed num/den coefficients)
+
+      function setMode(newMode) {
+        mode = newMode;
+        const zpkBtn = document.getElementById("btn-mode-zpk");
+        const directBtn = document.getElementById("btn-mode-direct");
+        document.getElementById("panel-zpk").style.display = mode === "zpk" ? "block" : "none";
+        document.getElementById("panel-direct").style.display = mode === "direct" ? "block" : "none";
+        zpkBtn.className = mode === "zpk" ? "run-btn" : "run-btn secondary";
+        directBtn.className = mode === "direct" ? "run-btn" : "run-btn secondary";
+        document.getElementById("err-bode").textContent = "";
+        renderEquation();
+      }
+      document.getElementById("btn-mode-zpk").addEventListener("click", () => setMode("zpk"));
+      document.getElementById("btn-mode-direct").addEventListener("click", () => setMode("direct"));
+      document.getElementById("input-num-coeffs").addEventListener("input", renderEquation);
+      document.getElementById("input-den-coeffs").addEventListener("input", renderEquation);
+
+      function renderRealList(containerId, hintId, arr, addLabel) {
+        const host = document.getElementById(containerId);
+        const hint = document.getElementById(hintId);
+        hint.style.display = arr.length === 0 ? "block" : "none";
+        host.innerHTML = "";
+        arr.forEach((val, i) => {
+          const row = document.createElement("div");
+          row.className = "factor-row";
+          row.innerHTML = `
+        <span class="factor-label">${addLabel} ${i + 1}</span>
+        <input type="number" step="any" value="${val}" />
+        <button class="row-remove" title="Remove">&times;</button>
+      `;
+          const input = row.querySelector("input");
+          input.addEventListener("input", () => { arr[i] = Number(input.value); renderEquation(); });
+          row.querySelector(".row-remove").addEventListener("click", () => {
+            arr.splice(i, 1);
+            renderRealList(containerId, hintId, arr, addLabel);
+            renderEquation();
+          });
+          host.appendChild(row);
+        });
+      }
+
+      function renderPairList(containerId, hintId, arr, addLabel) {
+        const host = document.getElementById(containerId);
+        const hint = document.getElementById(hintId);
+        hint.style.display = arr.length === 0 ? "block" : "none";
+        host.innerHTML = "";
+        arr.forEach((pair, i) => {
+          const row = document.createElement("div");
+          row.className = "factor-row";
+          row.innerHTML = `
+        <span class="factor-label">${addLabel} ${i + 1}</span>
+        <input type="number" step="any" value="${pair.zeta}" placeholder="ζ" />
+        <input type="number" step="any" value="${pair.wn}" placeholder="ωn" />
+        <button class="row-remove" title="Remove">&times;</button>
+      `;
+          const [zetaInput, wnInput] = row.querySelectorAll("input");
+          zetaInput.addEventListener("input", () => { pair.zeta = Number(zetaInput.value); renderEquation(); });
+          wnInput.addEventListener("input", () => { pair.wn = Number(wnInput.value); renderEquation(); });
+          row.querySelector(".row-remove").addEventListener("click", () => {
+            arr.splice(i, 1);
+            renderPairList(containerId, hintId, arr, addLabel);
+            renderEquation();
+          });
+          host.appendChild(row);
+        });
+      }
+
+      function renderAllLists() {
+        renderRealList("list-real-zeros", "hint-real-zeros", state.realZeros, "zero");
+        renderPairList("list-pair-zeros", "hint-pair-zeros", state.pairZeros, "pair");
+        renderRealList("list-real-poles", "hint-real-poles", state.realPoles, "pole");
+        renderPairList("list-pair-poles", "hint-pair-poles", state.pairPoles, "pair");
+      }
+
+      document.getElementById("btn-add-real-zero").addEventListener("click", () => {
+        state.realZeros.push(1);
+        renderRealList("list-real-zeros", "hint-real-zeros", state.realZeros, "zero");
+        renderEquation();
+      });
+      document.getElementById("btn-add-pair-zero").addEventListener("click", () => {
+        state.pairZeros.push({ zeta: 0.5, wn: 1 });
+        renderPairList("list-pair-zeros", "hint-pair-zeros", state.pairZeros, "pair");
+        renderEquation();
+      });
+      document.getElementById("btn-add-real-pole").addEventListener("click", () => {
+        state.realPoles.push(1);
+        renderRealList("list-real-poles", "hint-real-poles", state.realPoles, "pole");
+        renderEquation();
+      });
+      document.getElementById("btn-add-pair-pole").addEventListener("click", () => {
+        state.pairPoles.push({ zeta: 0.5, wn: 1 });
+        renderPairList("list-pair-poles", "hint-pair-poles", state.pairPoles, "pair");
+        renderEquation();
+      });
+
+      document.getElementById("input-K").addEventListener("input", () => {
+        state.K = Number(document.getElementById("input-K").value);
+        renderEquation();
+      });
+
+      // ---------------------------------------------------------------
+      // Live G(s) equation, built as LaTeX from the current state.
+      // ---------------------------------------------------------------
+      function fmt(n) {
+        if (!isFinite(n)) return "0";
+        const r = Math.round(n * 1000) / 1000;
+        return r.toString();
+      }
+      function linearFactor(val) {
+        if (val >= 0) return `(s + ${fmt(val)})`;
+        return `(s - ${fmt(Math.abs(val))})`;
+      }
+      function quadFactor(pair) {
+        const b = fmt(2 * pair.zeta * pair.wn);
+        const c = fmt(pair.wn * pair.wn);
+        return `(s^{2} + ${b}s + ${c})`;
+      }
+      // Parses a whitespace/comma-separated coefficient string (highest power
+      // of s first, MATLAB tf(num,den) convention) into an array of numbers.
+      function parseCoeffs(str) {
+        const parts = str.trim().split(/[\s,]+/).filter((s) => s.length > 0);
+        return parts.map(Number);
+      }
+      function polyLatex(coeffs) {
+        if (coeffs.length === 0) return "0";
+        const n = coeffs.length - 1;
+        const terms = [];
+        coeffs.forEach((c, idx) => {
+          if (!isFinite(c) || c === 0) return;
+          const power = n - idx;
+          const absC = Math.abs(c);
+          const coefStr = (absC === 1 && power !== 0) ? "" : fmt(absC);
+          let term;
+          if (power === 0) term = fmt(absC);
+          else if (power === 1) term = `${coefStr}s`;
+          else term = `${coefStr}s^{${power}}`;
+          terms.push({ sign: c < 0 ? "-" : "+", term });
+        });
+        if (terms.length === 0) return "0";
+        let out = (terms[0].sign === "-" ? "-" : "") + terms[0].term;
+        for (let i = 1; i < terms.length; i++) out += ` ${terms[i].sign} ${terms[i].term}`;
+        return out;
+      }
+      function renderEquation() {
+        let latex;
+        if (mode === "zpk") {
+          const numParts = [];
+          if (state.K !== 1 || (state.realZeros.length === 0 && state.pairZeros.length === 0)) numParts.push(fmt(state.K));
+          state.realZeros.forEach((z) => numParts.push(linearFactor(z)));
+          state.pairZeros.forEach((p) => numParts.push(quadFactor(p)));
+          const denParts = [];
+          state.realPoles.forEach((p) => denParts.push(linearFactor(p)));
+          state.pairPoles.forEach((p) => denParts.push(quadFactor(p)));
+
+          const numLatex = numParts.length > 0 ? numParts.join(" ") : "0";
+          const denLatex = denParts.length > 0 ? denParts.join(" ") : "1";
+          latex = `G(s) = \\dfrac{${numLatex}}{${denLatex}}`;
+        } else {
+          const numCoeffs = parseCoeffs(document.getElementById("input-num-coeffs").value);
+          const denCoeffs = parseCoeffs(document.getElementById("input-den-coeffs").value);
+          latex = `G(s) = \\dfrac{${polyLatex(numCoeffs)}}{${polyLatex(denCoeffs)}}`;
+        }
+        katex.render(latex, document.getElementById("eq-tf"), { throwOnError: false, displayMode: true });
+      }
+
+      // ---------------------------------------------------------------
+      // Complex arithmetic + frequency response evaluation.
+      // ---------------------------------------------------------------
+      function cMul(a, b) { return { re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re }; }
+      function cDiv(a, b) {
+        const d = b.re * b.re + b.im * b.im;
+        return { re: (a.re * b.re + a.im * b.im) / d, im: (a.im * b.re - a.re * b.im) / d };
+      }
+      function evalGZpk(w) {
+        let num = { re: state.K, im: 0 };
+        state.realZeros.forEach((z) => { num = cMul(num, { re: z, im: w }); });
+        state.pairZeros.forEach((p) => { num = cMul(num, { re: p.wn * p.wn - w * w, im: 2 * p.zeta * p.wn * w }); });
+        let den = { re: 1, im: 0 };
+        state.realPoles.forEach((pl) => { den = cMul(den, { re: pl, im: w }); });
+        state.pairPoles.forEach((p) => { den = cMul(den, { re: p.wn * p.wn - w * w, im: 2 * p.zeta * p.wn * w }); });
+        return cDiv(num, den);
+      }
+
+      // Evaluates a polynomial (coeffs highest-degree first) at s=jw via
+      // complex Horner's method.
+      function evalPolyComplex(coeffs, w) {
+        let result = { re: 0, im: 0 };
+        const s = { re: 0, im: w };
+        coeffs.forEach((c) => {
+          result = cMul(result, s);
+          result = { re: result.re + c, im: result.im };
+        });
+        return result;
+      }
+      function evalGDirect(numCoeffs, denCoeffs, w) {
+        return cDiv(evalPolyComplex(numCoeffs, w), evalPolyComplex(denCoeffs, w));
+      }
+
+      // Durand-Kerner method: finds all roots of a polynomial (real
+      // coefficients, highest degree first), used only to auto-range the
+      // frequency sweep in "type transfer function directly" mode (the
+      // pole/zero magnitudes set a sensible omega window, same as the
+      // zeros/poles-builder mode's autoRange()).
+      function polyRoots(coeffs) {
+        const c = coeffs.slice();
+        while (c.length > 1 && c[0] === 0) c.shift();
+        const n = c.length - 1;
+        if (n < 1) return [];
+        const lead = c[0];
+        const norm = c.map((v) => v / lead);
+        let roots = [];
+        const seed = { re: 0.4, im: 0.9 };
+        let p = { re: 1, im: 0 };
+        for (let i = 0; i < n; i++) { roots.push(p); p = cMul(p, seed); }
+        for (let iter = 0; iter < 300; iter++) {
+          let maxDelta = 0;
+          const next = roots.slice();
+          for (let i = 0; i < n; i++) {
+            let denom = { re: 1, im: 0 };
+            for (let j = 0; j < n; j++) { if (j !== i) denom = cMul(denom, { re: roots[i].re - roots[j].re, im: roots[i].im - roots[j].im }); }
+            const numVal = evalPolyAt(norm, roots[i]);
+            const delta = cDiv(numVal, denom);
+            next[i] = { re: roots[i].re - delta.re, im: roots[i].im - delta.im };
+            maxDelta = Math.max(maxDelta, Math.sqrt(delta.re * delta.re + delta.im * delta.im));
+          }
+          roots = next;
+          if (maxDelta < 1e-9) break;
+        }
+        return roots;
+      }
+      function evalPolyAt(coeffs, z) {
+        let result = { re: 0, im: 0 };
+        coeffs.forEach((c) => { result = cMul(result, z); result = { re: result.re + c, im: result.im }; });
+        return result;
+      }
+
+      function unwrapRad(arr) {
+        const out = arr.slice();
+        for (let i = 1; i < out.length; i++) {
+          let d = out[i] - out[i - 1];
+          while (d > Math.PI) { out[i] -= 2 * Math.PI; d = out[i] - out[i - 1]; }
+          while (d < -Math.PI) { out[i] += 2 * Math.PI; d = out[i] - out[i - 1]; }
+        }
+        return out;
+      }
+
+      function rangeFromFeatures(features) {
+        if (features.length === 0) return { wmin: 0.01, wmax: 100 };
+        const wMinFeature = Math.min(...features);
+        const wMaxFeature = Math.max(...features);
+        return { wmin: wMinFeature / 100, wmax: wMaxFeature * 100 };
+      }
+      function autoRangeZpk() {
+        const features = [];
+        state.realZeros.forEach((z) => { if (Math.abs(z) > 0) features.push(Math.abs(z)); });
+        state.pairZeros.forEach((p) => { if (p.wn > 0) features.push(p.wn); });
+        state.realPoles.forEach((p) => { if (Math.abs(p) > 0) features.push(Math.abs(p)); });
+        state.pairPoles.forEach((p) => { if (p.wn > 0) features.push(p.wn); });
+        return rangeFromFeatures(features);
+      }
+      function autoRangeDirect(numCoeffs, denCoeffs) {
+        const features = [];
+        polyRoots(numCoeffs).concat(polyRoots(denCoeffs)).forEach((r) => {
+          const mag = Math.sqrt(r.re * r.re + r.im * r.im);
+          if (mag > 1e-6) features.push(mag);
+        });
+        return rangeFromFeatures(features);
+      }
+
+      document.getElementById("input-auto-range").addEventListener("change", (e) => {
+        document.getElementById("input-wmin").disabled = e.target.checked;
+        document.getElementById("input-wmax").disabled = e.target.checked;
+      });
+
+      document.getElementById("btn-generate").addEventListener("click", () => {
+        const errEl = document.getElementById("err-bode");
+        errEl.textContent = "";
+
+        let gAt; // function(w) -> {re, im}, set below per mode
+        let numCoeffs, denCoeffs;
+
+        if (mode === "zpk") {
+          if (!isFinite(state.K) || state.K === 0) { errEl.textContent = "Gain K must be a nonzero number."; return; }
+          for (const p of state.pairZeros.concat(state.pairPoles)) {
+            if (!isFinite(p.zeta) || !isFinite(p.wn) || p.wn <= 0) { errEl.textContent = "Each complex pair needs a numeric ζ and a positive ωn."; return; }
+          }
+          for (const v of state.realZeros.concat(state.realPoles)) {
+            if (!isFinite(v)) { errEl.textContent = "All real zero/pole values must be numbers."; return; }
+          }
+          if (state.realPoles.length === 0 && state.pairPoles.length === 0) { errEl.textContent = "Add at least one pole."; return; }
+          gAt = evalGZpk;
+        } else {
+          numCoeffs = parseCoeffs(document.getElementById("input-num-coeffs").value);
+          denCoeffs = parseCoeffs(document.getElementById("input-den-coeffs").value);
+          if (numCoeffs.length === 0 || denCoeffs.length === 0 || numCoeffs.some((c) => !isFinite(c)) || denCoeffs.some((c) => !isFinite(c))) {
+            errEl.textContent = "Enter numeric coefficients for both numerator and denominator.";
+            return;
+          }
+          gAt = (w) => evalGDirect(numCoeffs, denCoeffs, w);
+        }
+
+        let wmin, wmax;
+        if (document.getElementById("input-auto-range").checked) {
+          const r = mode === "zpk" ? autoRangeZpk() : autoRangeDirect(numCoeffs, denCoeffs);
+          wmin = r.wmin; wmax = r.wmax;
+          document.getElementById("input-wmin").value = wmin;
+          document.getElementById("input-wmax").value = wmax;
+        } else {
+          wmin = Number(document.getElementById("input-wmin").value);
+          wmax = Number(document.getElementById("input-wmax").value);
+        }
+        if (!isFinite(wmin) || !isFinite(wmax) || wmin <= 0 || wmax <= wmin) {
+          errEl.textContent = "ω min must be positive and less than ω max.";
+          return;
+        }
+
+        const logMin = Math.log10(wmin), logMax = Math.log10(wmax);
+        const traceFactory = (frequencies) => {
+          const magDb = [], phaseRadRaw = [];
+          frequencies.forEach((w) => {
+            const g = gAt(w);
+            magDb.push(20 * Math.log10(Math.hypot(g.re, g.im)));
+            phaseRadRaw.push(Math.atan2(g.im, g.re));
+          });
+          const phaseDeg = unwrapRad(phaseRadRaw).map((r) => (r * 180) / Math.PI);
+          return { magnitude: [{ x: frequencies, y: magDb, mode: "lines", line: { color: "#5EEAD4", width: 2.5 } }], phase: [{ x: frequencies, y: phaseDeg, mode: "lines", line: { color: "#FFB454", width: 2.5 } }] };
+        };
+        const logRange = [logMin, logMax];
+        Promise.all([
+          plotWithExtension("plot-bode-mag", (frequencies) => traceFactory(frequencies).magnitude, plotLayout("magnitude [dB]", true), PLOT_OPTS, logRange),
+          plotWithExtension("plot-bode-phase", (frequencies) => traceFactory(frequencies).phase, plotLayout("phase [deg]", true), PLOT_OPTS, logRange),
+        ]).then(() => syncPlotXAxes("plot-bode-mag", "plot-bode-phase"));
+      });
+
+      renderAllLists();
+      setMode("direct");
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GroupWork 3F &mdash; Second-Order Free Response</title>
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0F1115;
+    --panel: #171A21;
+    --panel2: #1D212B;
+    --line: #282D3A;
+    --amber: #FFB454;
+    --cyan: #5EEAD4;
+    --rose: #FB7185;
+    --pink: #F472B6;
+    --fg: #E7E9EE;
+    --muted: #8B92A5;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--ink); color: var(--fg);
+    font-family: 'Inter', sans-serif;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  header h1 {
+    font-size: 14px; margin: 0; font-weight: 600;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em;
+  }
+  header h1 span { color: var(--muted); font-weight: 400; }
+
+  main { flex: 1; display: flex; overflow: hidden; }
+
+  nav {
+    width: 220px; flex-shrink: 0;
+    background: var(--panel);
+    border-left: 1px solid var(--line);
+    order: 2;
+    padding: 16px 14px;
+    overflow-y: auto;
+  }
+  nav p.label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted);
+    letter-spacing: 0.1em; margin: 14px 0 8px 0;
+  }
+  nav p.label:first-child { margin-top: 0; }
+  .nav-btn {
+    display: block; width: 100%; text-align: left;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    padding: 9px 12px; margin-bottom: 6px;
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 6px;
+    color: var(--fg); cursor: pointer;
+  }
+  .nav-btn.active { border-color: var(--amber); color: var(--amber); }
+  .nav-btn small { display: block; font-family: 'Inter', sans-serif; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .content { flex: 1; order: 1; overflow-y: auto; padding: 28px 40px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  h2.section-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--amber);
+    margin: 0 0 14px 0;
+  }
+  h3.problem-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--cyan);
+    margin: 0 0 10px 0;
+  }
+  p.instructions {
+    font-size: 14.5px; line-height: 1.65; color: var(--fg); margin: 0 0 16px 0;
+  }
+  ul.goals { padding-left: 20px; margin: 0 0 16px 0; }
+  ul.goals li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .eq-block {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    text-align: center;
+    font-size: 16px;
+  }
+  .given-line {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted);
+    margin: 0 0 18px 0;
+  }
+  .given-line b { color: var(--fg); font-weight: 600; }
+
+  .upload-block {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px;
+    margin: 0 0 18px 0;
+  }
+  .upload-block input[type="file"] {
+    font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--fg);
+  }
+  .upload-thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .upload-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+  .upload-status { font-size: 11px; color: var(--cyan); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; }
+  .thumb-wrap { position: relative; width: 90px; height: 120px; }
+  .thumb-img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid var(--line);
+    display: block;
+  }
+  .thumb-remove {
+    position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px;
+    line-height: 1; display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .panel-box {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 18px 20px; margin-bottom: 18px;
+  }
+
+  .numfield-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .numfield-row:last-child { margin-bottom: 0; }
+  .numfield-row label { font-size: 13px; color: var(--muted); width: 40px; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+  .numfield-row input[type="number"] {
+    width: 160px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px;
+    color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 8px 10px;
+  }
+  .numfield-row input[type="number"]:focus { outline: none; border-color: var(--amber); }
+
+  .reflection-box {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px;
+  }
+  .reflection-box textarea {
+    width: 100%; min-height: 90px; resize: vertical;
+    background: var(--ink); border: 1px solid var(--line); border-radius: 5px;
+    color: var(--fg); font-family: 'Inter', sans-serif; font-size: 14px;
+    padding: 10px 12px; line-height: 1.5;
+  }
+  .reflection-box textarea:focus { outline: none; border-color: var(--amber); }
+
+  .run-btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+    padding: 10px 22px; border-radius: 6px; border: none;
+    background: var(--amber); color: var(--ink); cursor: pointer;
+  }
+  .run-btn:hover { filter: brightness(1.08); }
+  .run-btn:active { transform: scale(0.98); }
+  .run-btn.secondary { background: none; color: var(--muted); border: 1px solid var(--line); }
+  .run-btn.secondary:hover { color: var(--rose); border-color: var(--rose); }
+
+  .stats-line {
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--muted);
+    margin: 14px 0 0 0; padding: 10px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  }
+  .stats-line b { color: var(--fg); }
+  .field-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; min-height: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .plot-host { margin-top: 18px; height: 400px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+  .placeholder {
+    display: flex; align-items: center; justify-content: center; height: 100%;
+    color: var(--muted); font-size: 13px; text-align: center; max-width: 420px; margin: 0 auto; padding: 0 20px;
+  }
+
+  .steps-list { padding-left: 20px; margin: 0 0 16px 0; }
+  .steps-list li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .katex { color: var(--fg); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>GROUPWORK 3F <span>&mdash; Second-Order Free Response (M&amp;AE 3260)</span></h1>
+</header>
+
+<main>
+  <nav>
+    <p class="label">BACKGROUND</p>
+    <button class="nav-btn active" data-part="intro">Intro<small>System &amp; learning goals</small></button>
+
+    <p class="label">PROBLEM 1</p>
+    <button class="nav-btn" data-part="1a">1a) Varying k<small>Add to plot</small></button>
+    <button class="nav-btn" data-part="1b">1b) Varying m<small>Add to plot</small></button>
+    <button class="nav-btn" data-part="1c">1c) Varying b<small>Add to plot</small></button>
+
+    <p class="label">PROBLEM 2</p>
+    <button class="nav-btn" data-part="2a">2a) Varying &omega;n<small>Add to plot</small></button>
+    <button class="nav-btn" data-part="2b">2b) Reflection<small>Compare to Problem 1</small></button>
+
+    <p class="label">PROBLEM 3</p>
+    <button class="nav-btn" data-part="3a">3a) Underdamped<small>0 &lt; &zeta; &lt; 1</small></button>
+    <button class="nav-btn" data-part="3b">3b) Critical &amp; overdamped<small>&zeta; &ge; 1</small></button>
+    <button class="nav-btn" data-part="3c">3c) Reflection<small>Compare to Problem 1</small></button>
+
+    <p class="label">PROBLEM 4</p>
+    <button class="nav-btn" data-part="4a">4a) Instability<small>Find &zeta;, &omega;n</small></button>
+    <button class="nav-btn" data-part="4b">4b) Initial conditions<small>Fixed &zeta;, &omega;n</small></button>
+    <button class="nav-btn" data-part="4c">4c) Challenge (optional)<small>Shared characteristics</small></button>
+
+    <p class="label">SUBMIT</p>
+    <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+  </nav>
+
+  <div class="content">
+    <div class="wrap">
+
+      <!-- ============== INTRO ============== -->
+      <section id="part-intro">
+        <h2 class="section-title">Second-Order Free Response: Mass-Spring-Damper</h2>
+
+        <p class="instructions"><b>Learning Goals:</b></p>
+        <ul class="goals">
+          <li>Explore the free response behavior of 2nd order systems (e.g. mass-spring-damper)</li>
+          <li>Identify the effects of system parameters (mass, damping coefficient, spring constant) on the free response of a mass-spring-damper</li>
+          <li>Identify the effects of normalized system parameters (natural frequency, damping ratio) on the free response of a mass-spring-damper</li>
+        </ul>
+
+        <p class="instructions">
+          Consider a mass-spring-damper system with mass m, spring constant k, and damping
+          coefficient b. The differential equation for the motion of the mass is:
+        </p>
+        <div class="eq-block" id="eq-eom"></div>
+        <p class="instructions">
+          Normalizing by m gives the general 2nd order form:
+        </p>
+        <div class="eq-block" id="eq-normalized"></div>
+        <p class="instructions">
+          where &zeta; = b / (2&radic;(mk)) is the <b>damping ratio</b> and
+          &omega;n = &radic;(k/m) is the <b>natural frequency</b>. Every plot below lets you add
+          multiple parameter sets to the same figure and compare them, then describe what you
+          observe &mdash; the same workflow as the MATLAB GUI (PLOT + Hold figure), just always
+          "holding."
+        </p>
+      </section>
+
+      <!-- ============== PROBLEM 1a ============== -->
+      <section id="part-1a" style="display:none;">
+        <h3 class="problem-title">Problem 1a: Varying k</h3>
+        <p class="instructions">
+          Plot the response of the system with at least 3 different spring constants (k).
+          Describe how the response of the system changes as (k) increases.
+        </p>
+
+        <div class="panel-box">
+          <div class="numfield-row"><label>m</label><input type="number" id="input-1a-m" value="1" step="any" /></div>
+          <div class="numfield-row"><label>b</label><input type="number" id="input-1a-b" value="2" step="any" /></div>
+          <div class="numfield-row"><label>k</label><input type="number" id="input-1a-k" value="100" step="any" /></div>
+          <div class="numfield-row"><label>x0</label><input type="number" id="input-1a-x0" value="1" step="any" /></div>
+          <div class="numfield-row"><label>v0</label><input type="number" id="input-1a-v0" value="0" step="any" /></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="run-btn" id="btn-add-1a">ADD TO PLOT</button>
+          <button class="run-btn secondary" id="btn-clear-1a">CLEAR</button>
+        </div>
+        <p class="field-err" id="err-1a"></p>
+
+        <div class="plot-host" id="plot-1a"><div class="placeholder">Set your parameters and click Add to Plot.</div></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection</h3>
+        <p class="instructions">Describe how the response of the system changes as (k) increases.</p>
+        <div class="reflection-box">
+          <textarea id="input-1a-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 1b ============== -->
+      <section id="part-1b" style="display:none;">
+        <h3 class="problem-title">Problem 1b: Varying m</h3>
+        <p class="instructions">
+          On a new plot, plot the response of the system with at least 3 different mass values
+          (m). Describe how the response of the system changes as (m) increases.
+        </p>
+
+        <div class="panel-box">
+          <div class="numfield-row"><label>m</label><input type="number" id="input-1b-m" value="1" step="any" /></div>
+          <div class="numfield-row"><label>b</label><input type="number" id="input-1b-b" value="2" step="any" /></div>
+          <div class="numfield-row"><label>k</label><input type="number" id="input-1b-k" value="100" step="any" /></div>
+          <div class="numfield-row"><label>x0</label><input type="number" id="input-1b-x0" value="1" step="any" /></div>
+          <div class="numfield-row"><label>v0</label><input type="number" id="input-1b-v0" value="0" step="any" /></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="run-btn" id="btn-add-1b">ADD TO PLOT</button>
+          <button class="run-btn secondary" id="btn-clear-1b">CLEAR</button>
+        </div>
+        <p class="field-err" id="err-1b"></p>
+
+        <div class="plot-host" id="plot-1b"><div class="placeholder">Set your parameters and click Add to Plot.</div></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection</h3>
+        <p class="instructions">Describe how the response of the system changes as (m) increases.</p>
+        <div class="reflection-box">
+          <textarea id="input-1b-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 1c ============== -->
+      <section id="part-1c" style="display:none;">
+        <h3 class="problem-title">Problem 1c: Varying b</h3>
+        <p class="instructions">
+          On a new plot, plot the response of the system with at least 3 different damping
+          constants (b). Describe how the response of the system changes as (b) increases.
+        </p>
+
+        <div class="panel-box">
+          <div class="numfield-row"><label>m</label><input type="number" id="input-1c-m" value="1" step="any" /></div>
+          <div class="numfield-row"><label>b</label><input type="number" id="input-1c-b" value="2" step="any" /></div>
+          <div class="numfield-row"><label>k</label><input type="number" id="input-1c-k" value="100" step="any" /></div>
+          <div class="numfield-row"><label>x0</label><input type="number" id="input-1c-x0" value="1" step="any" /></div>
+          <div class="numfield-row"><label>v0</label><input type="number" id="input-1c-v0" value="0" step="any" /></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="run-btn" id="btn-add-1c">ADD TO PLOT</button>
+          <button class="run-btn secondary" id="btn-clear-1c">CLEAR</button>
+        </div>
+        <p class="field-err" id="err-1c"></p>
+
+        <div class="plot-host" id="plot-1c"><div class="placeholder">Set your parameters and click Add to Plot.</div></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection</h3>
+        <p class="instructions">Describe how the response of the system changes as (b) increases.</p>
+        <div class="reflection-box">
+          <textarea id="input-1c-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 2a ============== -->
+      <section id="part-2a" style="display:none;">
+        <h3 class="problem-title">Problem 2a: Exploring Natural Frequency</h3>
+        <p class="instructions">
+          Plot the system response for 3 different natural frequencies (&omega;n). Describe how
+          the response of the system changed as (&omega;n) was increased.
+        </p>
+        <p class="given-line">GIVEN &middot; m = <b>1</b></p>
+
+        <div class="panel-box">
+          <div class="numfield-row"><label>&zeta;</label><input type="number" id="input-2a-zeta" value="0.1" step="any" /></div>
+          <div class="numfield-row"><label>&omega;n</label><input type="number" id="input-2a-wn" value="10" step="any" /></div>
+          <div class="numfield-row"><label>x0</label><input type="number" id="input-2a-x0" value="1" step="any" /></div>
+          <div class="numfield-row"><label>v0</label><input type="number" id="input-2a-v0" value="0" step="any" /></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="run-btn" id="btn-add-2a">ADD TO PLOT</button>
+          <button class="run-btn secondary" id="btn-clear-2a">CLEAR</button>
+        </div>
+        <p class="field-err" id="err-2a"></p>
+
+        <div class="plot-host" id="plot-2a"><div class="placeholder">Set your parameters and click Add to Plot.</div></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection</h3>
+        <p class="instructions">Describe how the response of the system changed as (&omega;n) was increased.</p>
+        <div class="reflection-box">
+          <textarea id="input-2a-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 2b (Reflection) ============== -->
+      <section id="part-2b" style="display:none;">
+        <h3 class="problem-title">Problem 2b</h3>
+        <p class="instructions">Discuss how these trends from (a) are similar and/or different than those from Problem #1, i.e. how do the &omega;n trends relate to m, b, k?</p>
+        <div class="reflection-box">
+          <textarea id="input-2b-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 3a ============== -->
+      <section id="part-3a" style="display:none;">
+        <h3 class="problem-title">Problem 3a: Underdamped Response</h3>
+        <p class="instructions">
+          Plot the response of an under-damped system with at least 3 different &zeta; values
+          between 0 and 1. Discuss how the response changes as the damping ratio increases.
+        </p>
+        <p class="given-line">GIVEN &middot; m = <b>1</b></p>
+
+        <div class="panel-box">
+          <div class="numfield-row"><label>&zeta;</label><input type="number" id="input-3a-zeta" value="0.1" step="any" /></div>
+          <div class="numfield-row"><label>&omega;n</label><input type="number" id="input-3a-wn" value="10" step="any" /></div>
+          <div class="numfield-row"><label>x0</label><input type="number" id="input-3a-x0" value="1" step="any" /></div>
+          <div class="numfield-row"><label>v0</label><input type="number" id="input-3a-v0" value="0" step="any" /></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="run-btn" id="btn-add-3a">ADD TO PLOT</button>
+          <button class="run-btn secondary" id="btn-clear-3a">CLEAR</button>
+        </div>
+        <p class="field-err" id="err-3a"></p>
+
+        <div class="plot-host" id="plot-3a"><div class="placeholder">Set your parameters and click Add to Plot.</div></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection</h3>
+        <p class="instructions">Discuss how the response changes as the damping ratio increases (0 &lt; &zeta; &lt; 1).</p>
+        <div class="reflection-box">
+          <textarea id="input-3a-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 3b ============== -->
+      <section id="part-3b" style="display:none;">
+        <h3 class="problem-title">Problem 3b: Critical &amp; Overdamped Response</h3>
+        <p class="instructions">
+          Plot the response of a critically damped system, i.e. &zeta; = 1. On the same plot add
+          at least 2 more responses that are over-damped where &zeta; &gt; 1. Discuss how the
+          response changes as the damping ratio increases.
+        </p>
+        <p class="given-line">GIVEN &middot; m = <b>1</b></p>
+
+        <div class="panel-box">
+          <div class="numfield-row"><label>&zeta;</label><input type="number" id="input-3b-zeta" value="1" step="any" /></div>
+          <div class="numfield-row"><label>&omega;n</label><input type="number" id="input-3b-wn" value="10" step="any" /></div>
+          <div class="numfield-row"><label>x0</label><input type="number" id="input-3b-x0" value="1" step="any" /></div>
+          <div class="numfield-row"><label>v0</label><input type="number" id="input-3b-v0" value="0" step="any" /></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="run-btn" id="btn-add-3b">ADD TO PLOT</button>
+          <button class="run-btn secondary" id="btn-clear-3b">CLEAR</button>
+        </div>
+        <p class="field-err" id="err-3b"></p>
+
+        <div class="plot-host" id="plot-3b"><div class="placeholder">Set your parameters and click Add to Plot.</div></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection</h3>
+        <p class="instructions">Discuss how the response changes as the damping ratio increases (&zeta; &ge; 1).</p>
+        <div class="reflection-box">
+          <textarea id="input-3b-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 3c (Reflection) ============== -->
+      <section id="part-3c" style="display:none;">
+        <h3 class="problem-title">Problem 3c</h3>
+        <p class="instructions">Discuss how the trends from (a) are similar and/or different than those from Problem #1, i.e. how do the &zeta; trends relate to m, b, k?</p>
+        <div class="reflection-box">
+          <textarea id="input-3c-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 4a ============== -->
+      <section id="part-4a" style="display:none;">
+        <h3 class="problem-title">Problem 4a: Instability</h3>
+        <p class="instructions">
+          Find values of &zeta; and &omega;n such that the system becomes unstable and plot your
+          result. Given your values for &zeta;, &omega;n, what are the corresponding values for
+          m, b, k? Why do you think the system became unstable?
+        </p>
+        <p class="given-line">GIVEN &middot; m = <b>1</b></p>
+
+        <div class="panel-box">
+          <div class="numfield-row"><label>&zeta;</label><input type="number" id="input-4a-zeta" value="0.1" step="any" /></div>
+          <div class="numfield-row"><label>&omega;n</label><input type="number" id="input-4a-wn" value="10" step="any" /></div>
+          <div class="numfield-row"><label>x0</label><input type="number" id="input-4a-x0" value="1" step="any" /></div>
+          <div class="numfield-row"><label>v0</label><input type="number" id="input-4a-v0" value="0" step="any" /></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="run-btn" id="btn-add-4a">ADD TO PLOT</button>
+          <button class="run-btn secondary" id="btn-clear-4a">CLEAR</button>
+        </div>
+        <p class="field-err" id="err-4a"></p>
+
+        <div class="plot-host" id="plot-4a"><div class="placeholder">Set your parameters and click Add to Plot.</div></div>
+
+        <p class="instructions" style="margin-top:20px;">Upload your derivation for the corresponding m, b, k:</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-4a" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-4a"></div>
+          <p class="upload-status" id="upload-status-4a"></p>
+          <p class="upload-err" id="upload-err-4a"></p>
+        </div>
+
+        <h3 class="problem-title">Reflection</h3>
+        <p class="instructions">Given your values for &zeta;, &omega;n, what are the corresponding values for m, b, k? Why do you think the system became unstable?</p>
+        <div class="reflection-box">
+          <textarea id="input-4a-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 4b ============== -->
+      <section id="part-4b" style="display:none;">
+        <h3 class="problem-title">Problem 4b: Initial Conditions</h3>
+        <p class="instructions">
+          Overlay two cases of initial conditions (IC): (x0 = 1, v0 = 0) and (x0 = 0, v0 = 10).
+          Discuss how these responses are similar and how they are different.
+        </p>
+        <p class="given-line">GIVEN &middot; m = <b>1</b> &middot; &zeta; = <b>0.1</b> &middot; &omega;n = <b>10</b></p>
+
+        <div class="panel-box">
+          <div class="numfield-row"><label>x0</label><input type="number" id="input-4b-x0" value="1" step="any" /></div>
+          <div class="numfield-row"><label>v0</label><input type="number" id="input-4b-v0" value="0" step="any" /></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="run-btn" id="btn-add-4b">ADD TO PLOT</button>
+          <button class="run-btn secondary" id="btn-clear-4b">CLEAR</button>
+        </div>
+        <p class="field-err" id="err-4b"></p>
+
+        <div class="plot-host" id="plot-4b"><div class="placeholder">Set your parameters and click Add to Plot.</div></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection</h3>
+        <p class="instructions">Discuss how these responses are similar and how they are different.</p>
+        <div class="reflection-box">
+          <textarea id="input-4b-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 4c (Optional) ============== -->
+      <section id="part-4c" style="display:none;">
+        <h3 class="problem-title">Problem 4c: Challenge (Optional)</h3>
+        <p class="instructions">
+          In part (b) you may have noticed the two responses sharing some characteristics. See if
+          you can find one or two more responses that also share those same characteristics. This
+          part is optional and not required for submission.
+        </p>
+        <p class="given-line">GIVEN &middot; m = <b>1</b></p>
+
+        <div class="panel-box">
+          <div class="numfield-row"><label>&zeta;</label><input type="number" id="input-4c-zeta" value="0.1" step="any" /></div>
+          <div class="numfield-row"><label>&omega;n</label><input type="number" id="input-4c-wn" value="10" step="any" /></div>
+          <div class="numfield-row"><label>x0</label><input type="number" id="input-4c-x0" value="1" step="any" /></div>
+          <div class="numfield-row"><label>v0</label><input type="number" id="input-4c-v0" value="0" step="any" /></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="run-btn" id="btn-add-4c">ADD TO PLOT</button>
+          <button class="run-btn secondary" id="btn-clear-4c">CLEAR</button>
+        </div>
+        <p class="field-err" id="err-4c"></p>
+
+        <div class="plot-host" id="plot-4c"><div class="placeholder">Set your parameters and click Add to Plot.</div></div>
+
+        <h3 class="problem-title" style="margin-top:26px;">Reflection (optional)</h3>
+        <p class="instructions">Describe the responses you found and what characteristics they share.</p>
+        <div class="reflection-box">
+          <textarea id="input-4c-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== SUBMISSION ============== -->
+      <section id="part-submission" style="display:none;">
+        <h2 class="section-title">Submission</h2>
+
+        <div class="numfield-row" style="width:100%;">
+          <label style="width:70px;">NetID</label>
+          <input type="text" id="input-netid" placeholder="netid" spellcheck="false" style="width:100%;" />
+        </div>
+        <div class="numfield-row" style="width:100%;">
+          <label style="width:70px;">Group</label>
+          <input type="text" id="input-group-netids" placeholder="person1, person2, person3, ..." spellcheck="false" style="width:100%;" />
+        </div>
+
+        <ul class="steps-list" style="margin-top: 22px;">
+          <li>Enter your NetID and group member NetIDs above and export PDF.</li>
+          <li>Submit: Plots AND discussions for each part (except 4c, which is optional).</li>
+          <li>Submit the combined PDF to the Gradescope submission link by Monday 11:59PM.</li>
+        </ul>
+
+        <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+        <p class="stats-line" id="exportStatus"></p>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  const PLOT_OPTS = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+  const D_PALETTE = ["#FFB454", "#5EEAD4", "#FB7185", "#A78BFA", "#F472B6", "#34D399", "#60A5FA", "#FDE047"];
+
+  function plotLayoutAuto(yTitle) {
+    return {
+      paper_bgcolor: "#171A21",
+      plot_bgcolor: "#171A21",
+      font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 11 },
+      margin: { l: 55, r: 20, t: 20, b: 45 },
+      xaxis: { title: "time t [s]", gridcolor: "#282D3A", zerolinecolor: "#282D3A" },
+      yaxis: { title: yTitle, gridcolor: "#282D3A", zerolinecolor: "#282D3A" },
+      legend: { orientation: "h", y: -0.22, font: { size: 10 } },
+    };
+  }
+
+  // ---------------------------------------------------------------
+  // KaTeX
+  // ---------------------------------------------------------------
+  katex.render("m\\ddot{x} + b\\dot{x} + kx = 0", document.getElementById("eq-eom"), { throwOnError: false, displayMode: true });
+  katex.render("\\ddot{x} + 2\\zeta\\omega_n\\dot{x} + \\omega_n^2 x = 0", document.getElementById("eq-normalized"), { throwOnError: false, displayMode: true });
+
+  // ---------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------
+  const SECTION_IDS = {
+    "intro": "part-intro",
+    "1a": "part-1a", "1b": "part-1b", "1c": "part-1c",
+    "2a": "part-2a", "2b": "part-2b",
+    "3a": "part-3a", "3b": "part-3b", "3c": "part-3c",
+    "4a": "part-4a", "4b": "part-4b", "4c": "part-4c",
+    "submission": "part-submission",
+  };
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+      document.getElementById(SECTION_IDS[btn.dataset.part]).style.display = "block";
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Core physics: unified closed-form solution of
+  //   x'' + 2*zeta*wn*x' + wn^2*x = 0,  x(0)=x0, x'(0)=v0
+  // for ALL regimes (under/critically/over-damped, and unstable),
+  // via the characteristic roots s = -zeta*wn +/- wn*sqrt(zeta^2-1).
+  // Verified against numerical ODE integration (scipy odeint) across
+  // all regimes before shipping.
+  //
+  // The plotted duration is chosen adaptively from the dominant root's
+  // real part: for stable systems, the time to decay to ~1%; for
+  // unstable systems, the time to grow by ~50x; for marginal/undamped
+  // systems, a few natural periods. This keeps every plot informative
+  // regardless of how fast/slow/unstable the chosen parameters are,
+  // without needing frozen axis ranges.
+  // ---------------------------------------------------------------
+  function naturalDuration(zeta, wn) {
+    const sReal = -zeta * wn;
+    const disc = zeta * zeta - 1;
+    const sqrtTerm = Math.sqrt(Math.max(0, disc)) * wn;
+    const dominant = sReal + sqrtTerm;
+
+    let duration;
+    if (Math.abs(dominant) < 1e-6) {
+      const wd = wn * Math.sqrt(Math.max(0, 1 - zeta * zeta));
+      duration = wd > 1e-9 ? (3 * 2 * Math.PI / wd) : (10 / wn);
+    } else if (dominant < 0) {
+      duration = Math.log(100) / Math.abs(dominant);
+    } else {
+      duration = Math.log(50) / dominant;
+    }
+    return Math.max(duration, 0.1);
+  }
+
+  function computeResponseOverDuration(zeta, wn, x0, v0, duration, N) {
+    const npts = N || 400;
+    const t = Array.from({ length: npts }, (_, i) => (i / (npts - 1)) * duration);
+    const sReal = -zeta * wn;
+    const disc = zeta * zeta - 1;
+
+    let x;
+    if (Math.abs(disc) < 1e-9) {
+      const s = sReal;
+      const A = x0, B = v0 - s * x0;
+      x = t.map((tt) => (A + B * tt) * Math.exp(s * tt));
+    } else if (disc < 0) {
+      const wd = wn * Math.sqrt(1 - zeta * zeta);
+      x = t.map((tt) => Math.exp(sReal * tt) * (x0 * Math.cos(wd * tt) + ((v0 - sReal * x0) / wd) * Math.sin(wd * tt)));
+    } else {
+      const sq = wn * Math.sqrt(disc);
+      const s1 = sReal + sq, s2 = sReal - sq;
+      const C1 = (v0 - s2 * x0) / (s1 - s2);
+      const C2 = x0 - C1;
+      x = t.map((tt) => C1 * Math.exp(s1 * tt) + C2 * Math.exp(s2 * tt));
+    }
+    return { t, x };
+  }
+
+  function computeResponse(zeta, wn, x0, v0) {
+    if (!isFinite(zeta) || !isFinite(wn) || !isFinite(x0) || !isFinite(v0) || wn <= 0) {
+      return null;
+    }
+    const duration = naturalDuration(zeta, wn);
+    const { t, x } = computeResponseOverDuration(zeta, wn, x0, v0, duration);
+    return { t, x, zeta, wn, duration };
+  }
+
+  // ---------------------------------------------------------------
+  // Generic "Add to Plot" widget, reused across every problem tab.
+  // config.mode: "mbk" (m,b,k fields) or "zw" (zeta,wn fields).
+  // config.fixed: values NOT shown as fields, used as-is (e.g. m=1).
+  //
+  // Each curve's own physical duration can be very different (e.g.
+  // a heavily-damped curve decays much faster than a lightly-damped
+  // one), so msdTraces stores raw parameters (not baked x/y arrays)
+  // and redrawMSD() recomputes EVERY curve on a plot over a shared
+  // duration (the longest of all of them) each time the set changes
+  // -- otherwise a fast-decaying curve would visibly stop partway
+  // across the plot instead of continuing flat to match the others.
+  // ---------------------------------------------------------------
+  const msdTraces = {};
+  const runFlags = {};
+
+  function readMSDParams(prefix, config) {
+    function getNum(id) {
+      const el = document.getElementById(`input-${prefix}-${id}`);
+      return el ? Number(el.value) : NaN;
+    }
+    const fixed = config.fixed || {};
+    const p = {};
+    if (config.mode === "mbk") {
+      p.m = fixed.m !== undefined ? fixed.m : getNum("m");
+      p.b = fixed.b !== undefined ? fixed.b : getNum("b");
+      p.k = fixed.k !== undefined ? fixed.k : getNum("k");
+    } else {
+      p.m = fixed.m !== undefined ? fixed.m : getNum("m");
+      p.zeta = fixed.zeta !== undefined ? fixed.zeta : getNum("zeta");
+      p.wn = fixed.wn !== undefined ? fixed.wn : getNum("wn");
+    }
+    p.x0 = fixed.x0 !== undefined ? fixed.x0 : getNum("x0");
+    p.v0 = fixed.v0 !== undefined ? fixed.v0 : getNum("v0");
+    return p;
+  }
+
+  function makeMSDProblem(prefix, config) {
+    msdTraces[prefix] = [];
+
+    function addToPlot() {
+      const errEl = document.getElementById(`err-${prefix}`);
+      errEl.textContent = "";
+      const p = readMSDParams(prefix, config);
+
+      let zeta, wn;
+      if (config.mode === "mbk") {
+        if (!(p.m > 0) || !(p.k > 0) || !isFinite(p.b)) {
+          errEl.textContent = "m and k must be positive numbers, and b must be a number.";
+          return;
+        }
+        wn = Math.sqrt(p.k / p.m);
+        zeta = p.b / (2 * Math.sqrt(p.m * p.k));
+      } else {
+        if (!(p.wn > 0) || !isFinite(p.zeta)) {
+          errEl.textContent = "\u03c9n must be a positive number, and \u03b6 must be a number.";
+          return;
+        }
+        zeta = p.zeta;
+        wn = p.wn;
+      }
+      if (!isFinite(p.x0) || !isFinite(p.v0)) {
+        errEl.textContent = "x0 and v0 must be numbers.";
+        return;
+      }
+
+      const resp = computeResponse(zeta, wn, p.x0, p.v0);
+      if (!resp) {
+        errEl.textContent = "Couldn't compute a response for these parameters.";
+        return;
+      }
+
+      const label = config.mode === "mbk"
+        ? `m=${p.m}, b=${p.b}, k=${p.k}`
+        : `\u03b6=${p.zeta}, \u03c9n=${p.wn}`;
+      const labelAscii = config.mode === "mbk"
+        ? `m=${p.m}, b=${p.b}, k=${p.k}`
+        : `zeta=${p.zeta}, wn=${p.wn}`;
+      const color = D_PALETTE[msdTraces[prefix].length % D_PALETTE.length];
+      msdTraces[prefix].push({ zeta, wn, x0: p.x0, v0: p.v0, label, labelAscii, color });
+      redrawMSD(prefix);
+      runFlags[prefix] = true;
+    }
+
+    function clear() {
+      msdTraces[prefix] = [];
+      redrawMSD(prefix);
+    }
+
+    document.getElementById(`btn-add-${prefix}`).addEventListener("click", addToPlot);
+    document.getElementById(`btn-clear-${prefix}`).addEventListener("click", clear);
+  }
+
+  function redrawMSD(prefix) {
+    const entries = msdTraces[prefix];
+    if (!entries || entries.length === 0) {
+      document.getElementById(`plot-${prefix}`).innerHTML =
+        '<div class="placeholder">Set your parameters and click Add to Plot.</div>';
+      return;
+    }
+    const sharedDuration = Math.max(...entries.map((e) => naturalDuration(e.zeta, e.wn)));
+    const traces = entries.map((e) => {
+      const { t, x } = computeResponseOverDuration(e.zeta, e.wn, e.x0, e.v0, sharedDuration);
+      return { x: t, y: x, mode: "lines", name: e.label, line: { color: e.color, width: 2.2 } };
+    });
+    Plotly.newPlot(`plot-${prefix}`, traces, plotLayoutAuto("displacement x(t)"), PLOT_OPTS);
+  }
+
+  makeMSDProblem("1a", { mode: "mbk" });
+  makeMSDProblem("1b", { mode: "mbk" });
+  makeMSDProblem("1c", { mode: "mbk" });
+  makeMSDProblem("2a", { mode: "zw", fixed: { m: 1 } });
+  makeMSDProblem("3a", { mode: "zw", fixed: { m: 1 } });
+  makeMSDProblem("3b", { mode: "zw", fixed: { m: 1 } });
+  makeMSDProblem("4a", { mode: "zw", fixed: { m: 1 } });
+  makeMSDProblem("4b", { mode: "zw", fixed: { m: 1, zeta: 0.1, wn: 10 } });
+  makeMSDProblem("4c", { mode: "zw", fixed: { m: 1 } });
+
+  // ---------------------------------------------------------------
+  // Multi-image "upload your work" widget (Problem 4a's derivation).
+  // Resizes to a fixed max dimension and re-compresses as JPEG so the
+  // exported PDF stays a predictable size regardless of upload size.
+  // ---------------------------------------------------------------
+  const MAX_IMAGE_DIM = 1200;
+  const IMAGE_QUALITY = 0.7;
+  const uploadedImages = { "4a": [] };
+
+  function resizeAndCompressImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Could not read file."));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("Could not load image."));
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > height && width > MAX_IMAGE_DIM) {
+            height = Math.round((height * MAX_IMAGE_DIM) / width);
+            width = MAX_IMAGE_DIM;
+          } else if (height >= width && height > MAX_IMAGE_DIM) {
+            width = Math.round((width * MAX_IMAGE_DIM) / height);
+            height = MAX_IMAGE_DIM;
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve({ dataUrl: canvas.toDataURL("image/jpeg", IMAGE_QUALITY), width, height });
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderThumbnails(key) {
+    const host = document.getElementById(`upload-thumbs-${key}`);
+    host.innerHTML = "";
+    uploadedImages[key].forEach((entry, i) => {
+      const wrap = document.createElement("div");
+      wrap.className = "thumb-wrap";
+      const img = document.createElement("img");
+      img.src = entry.dataUrl;
+      img.className = "thumb-img";
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "thumb-remove";
+      removeBtn.textContent = "\u00d7";
+      removeBtn.title = "Remove";
+      removeBtn.addEventListener("click", () => {
+        uploadedImages[key].splice(i, 1);
+        renderThumbnails(key);
+      });
+      wrap.appendChild(img);
+      wrap.appendChild(removeBtn);
+      host.appendChild(wrap);
+    });
+    const statusEl = document.getElementById(`upload-status-${key}`);
+    if (statusEl) {
+      const n = uploadedImages[key].length;
+      statusEl.textContent = n > 0 ? `\u2713 ${n} image${n > 1 ? "s" : ""} uploaded` : "";
+    }
+  }
+
+  function wireImageUpload(key) {
+    const input = document.getElementById(`upload-input-${key}`);
+    const errEl = document.getElementById(`upload-err-${key}`);
+    input.addEventListener("change", async () => {
+      const files = Array.from(input.files || []);
+      if (errEl) errEl.textContent = "";
+      const failed = [];
+      for (const file of files) {
+        try {
+          const entry = await resizeAndCompressImage(file);
+          uploadedImages[key].push(entry);
+        } catch (err) {
+          console.error("Image upload failed:", err);
+          failed.push(file.name);
+        }
+      }
+      if (failed.length > 0 && errEl) {
+        errEl.textContent = `Could not load: ${failed.join(", ")}. The file may be an unsupported format (e.g. HEIC) or corrupted \u2014 try re-saving as JPEG/PNG, or take a screenshot instead.`;
+      }
+      renderThumbnails(key);
+      input.value = "";
+      scheduleSave();
+    });
+  }
+  wireImageUpload("4a");
+
+  // ---------------------------------------------------------------
+  // Submission: bundle everything into a PDF
+  // ---------------------------------------------------------------
+  function setExportStatus(text, isError) {
+    const el = document.getElementById("exportStatus");
+    el.textContent = text;
+    el.style.color = isError ? "#FB7185" : "#8B92A5";
+  }
+  function reflectionText(id) {
+    const v = document.getElementById(id).value.trim();
+    return v || "(No response entered.)";
+  }
+  function fieldLabelFor(id) {
+    if (id === "input-netid") return "Your NetID";
+    if (id === "input-group-netids") return "Group member NetIDs";
+    const m = id.match(/^input-(\d[a-z]?)-(.+)$/);
+    if (m) {
+      const [, part, field] = m;
+      return `Problem ${part} (${field.replace(/-/g, " ")})`;
+    }
+    return id;
+  }
+  function findBlankItems() {
+    const blanks = [];
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((el) => {
+      if (el.id.includes("-4c-")) return; // 4c is optional, excluded from the check
+      if (el.value.trim() === "") blanks.push(fieldLabelFor(el.id));
+    });
+    Object.keys(uploadedImages).forEach((key) => {
+      if (key === "4c") return;
+      if (!uploadedImages[key] || uploadedImages[key].length === 0) {
+        blanks.push(`Problem ${key} (uploaded image)`);
+      }
+    });
+    ["1a", "1b", "1c", "2a", "3a", "3b", "4a", "4b"].forEach((prefix) => {
+      if (!msdTraces[prefix] || msdTraces[prefix].length === 0) {
+        blanks.push(`Problem ${prefix} (no traces plotted)`);
+      }
+    });
+    return blanks;
+  }
+
+  async function exportPdf() {
+    const blanks = findBlankItems();
+    if (blanks.length > 0) {
+      const proceed = confirm(
+        `The following are still blank:\n\n${blanks.map((b) => "\u2022 " + b).join("\n")}\n\nDo you want to export the PDF anyway?`
+      );
+      if (!proceed) return;
+    }
+
+    const btn = document.getElementById("exportPdfBtn");
+    const originalLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "EXPORTING\u2026";
+    setExportStatus("");
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "pt", format: "letter" });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 48;
+      const maxWidth = pageWidth - margin * 2;
+      let y = margin;
+
+      function ensureSpace(h) { if (y + h > pageHeight - margin) { doc.addPage(); y = margin; } }
+      function addHeading(text) {
+        ensureSpace(30);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(15);
+        doc.text(text, margin, y); y += 22;
+      }
+      function addText(text, opts) {
+        const size = (opts && opts.size) || 10.5;
+        const bold = !!(opts && opts.bold);
+        doc.setFont("helvetica", bold ? "bold" : "normal"); doc.setFontSize(size);
+        const lines = doc.splitTextToSize(text, maxWidth);
+        const lineHeight = size * 1.35;
+        lines.forEach((line) => { ensureSpace(lineHeight); doc.text(line, margin, y); y += lineHeight; });
+        y += 4;
+      }
+      async function addPlotImage(divId, fallbackLabel) {
+        let dataUrl;
+        try { dataUrl = await Plotly.toImage(divId, { format: "png", width: 900, height: 460 }); }
+        catch (err) { addText(`(${fallbackLabel}: plot image could not be captured.)`); return; }
+        const imgWidth = maxWidth;
+        const imgHeight = imgWidth * (460 / 900);
+        ensureSpace(imgHeight + 10);
+        doc.addImage(dataUrl, "PNG", margin, y, imgWidth, imgHeight);
+        y += imgHeight + 16;
+      }
+      function addUploadedImages(key) {
+        const entries = uploadedImages[key] || [];
+        if (entries.length === 0) return;
+        addText(`Uploaded work (${entries.length} image${entries.length > 1 ? "s" : ""}):`);
+        const maxW = maxWidth / 2;
+        const maxH = (pageHeight - margin * 2) / 2;
+        entries.forEach((entry) => {
+          const aspect = entry.height / entry.width;
+          let w = maxW;
+          let h = w * aspect;
+          if (h > maxH) { h = maxH; w = h / aspect; }
+          ensureSpace(h + 10);
+          const xPos = margin + (maxWidth - w) / 2;
+          doc.addImage(entry.dataUrl, "JPEG", xPos, y, w, h);
+          y += h + 16;
+        });
+      }
+      function addPlottedParams(prefix) {
+        const traces = msdTraces[prefix] || [];
+        if (traces.length === 0) { addText("(No traces plotted yet.)"); return; }
+        addText(`Traces plotted: ${traces.map((tr) => tr.labelAscii).join("; ")}`);
+      }
+
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+      doc.splitTextToSize("GroupWork 3F \u2014 Second-Order Free Response", maxWidth).forEach((line) => { doc.text(line, margin, y); y += 20; });
+      y += 6;
+
+      const netId = document.getElementById("input-netid").value.trim() || "(not entered)";
+      const groupIds = document.getElementById("input-group-netids").value.trim() || "(not entered)";
+      addText(`Your NetID: ${netId}`, { bold: true, size: 11.5 });
+      addText(`Group member NetIDs: ${groupIds}`, { bold: true, size: 11.5 });
+      y += 8;
+
+      addHeading("Problem 1a: Varying k");
+      addPlottedParams("1a");
+      if (runFlags["1a"]) await addPlotImage("plot-1a", "Problem 1a plot");
+      addText("Describe how the response of the system changes as (k) increases.", { size: 9.5 });
+      addText(reflectionText("input-1a-reflection"));
+
+      addHeading("Problem 1b: Varying m");
+      addPlottedParams("1b");
+      if (runFlags["1b"]) await addPlotImage("plot-1b", "Problem 1b plot");
+      addText("Describe how the response of the system changes as (m) increases.", { size: 9.5 });
+      addText(reflectionText("input-1b-reflection"));
+
+      addHeading("Problem 1c: Varying b");
+      addPlottedParams("1c");
+      if (runFlags["1c"]) await addPlotImage("plot-1c", "Problem 1c plot");
+      addText("Describe how the response of the system changes as (b) increases.", { size: 9.5 });
+      addText(reflectionText("input-1c-reflection"));
+
+      addHeading("Problem 2a: Exploring Natural Frequency");
+      addPlottedParams("2a");
+      if (runFlags["2a"]) await addPlotImage("plot-2a", "Problem 2a plot");
+      addText("Describe how the response of the system changed as (wn) was increased.", { size: 9.5 });
+      addText(reflectionText("input-2a-reflection"));
+
+      addHeading("Problem 2b");
+      addText("Discuss how these trends from (a) are similar and/or different than those from Problem #1.", { size: 9.5 });
+      addText(reflectionText("input-2b-reflection"));
+
+      addHeading("Problem 3a: Underdamped Response");
+      addPlottedParams("3a");
+      if (runFlags["3a"]) await addPlotImage("plot-3a", "Problem 3a plot");
+      addText("Discuss how the response changes as the damping ratio increases.", { size: 9.5 });
+      addText(reflectionText("input-3a-reflection"));
+
+      addHeading("Problem 3b: Critical & Overdamped Response");
+      addPlottedParams("3b");
+      if (runFlags["3b"]) await addPlotImage("plot-3b", "Problem 3b plot");
+      addText("Discuss how the response changes as the damping ratio increases.", { size: 9.5 });
+      addText(reflectionText("input-3b-reflection"));
+
+      addHeading("Problem 3c");
+      addText("Discuss how the trends from (a) are similar and/or different than those from Problem #1.", { size: 9.5 });
+      addText(reflectionText("input-3c-reflection"));
+
+      addHeading("Problem 4a: Instability");
+      addPlottedParams("4a");
+      if (runFlags["4a"]) await addPlotImage("plot-4a", "Problem 4a plot");
+      addUploadedImages("4a");
+      addText("Given your values for zeta, wn, what are the corresponding values for m, b, k? Why do you think the system became unstable?", { size: 9.5 });
+      addText(reflectionText("input-4a-reflection"));
+
+      addHeading("Problem 4b: Initial Conditions");
+      addPlottedParams("4b");
+      if (runFlags["4b"]) await addPlotImage("plot-4b", "Problem 4b plot");
+      addText("Discuss how these responses are similar and how they are different.", { size: 9.5 });
+      addText(reflectionText("input-4b-reflection"));
+
+      addHeading("Problem 4c: Challenge (Optional)");
+      addPlottedParams("4c");
+      if (runFlags["4c"]) await addPlotImage("plot-4c", "Problem 4c plot");
+      addText(reflectionText("input-4c-reflection"));
+
+      const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+      doc.save(`GroupWork3F_${safeNetId}.pdf`);
+      setExportStatus("PDF downloaded.");
+    } catch (err) {
+      console.error("PDF export failed:", err);
+      setExportStatus(`Could not export PDF: ${err.message}`, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  }
+  document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+  // ---------------------------------------------------------------
+  // Progress autosave (localStorage) -- silently persists every field,
+  // the active tab, and every problem's plotted traces + uploaded
+  // images, and restores them on page load.
+  // ---------------------------------------------------------------
+  const STORAGE_KEY = "gw3f_progress_v3"; // v3: trace entries now also carry labelAscii for PDF export
+
+  function collectFieldValues() {
+    const values = {};
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((el) => {
+      values[el.id] = el.value;
+    });
+    return values;
+  }
+  function currentActiveTab() {
+    const active = document.querySelector(".nav-btn.active");
+    return active ? active.dataset.part : "intro";
+  }
+  function saveProgress() {
+    try {
+      const state = {
+        activeTab: currentActiveTab(),
+        fields: collectFieldValues(),
+        msdTraces: msdTraces,
+        uploadedImages: uploadedImages,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (err) {
+      // storage unavailable (e.g. private browsing, or quota exceeded by
+      // large images) -- fail silently
+    }
+  }
+  let saveTimer = null;
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveProgress, 250);
+  }
+  document.addEventListener("input", scheduleSave);
+  document.addEventListener("click", scheduleSave);
+
+  const ZW_PREFIXES = new Set(["2a", "3a", "3b", "4a", "4b", "4c"]);
+  const OLD_STORAGE_KEY = "gw3f_progress_v2";
+
+  function loadProgress() {
+    let raw;
+    let migratingFromOld = false;
+    try {
+      raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        // Fall back to the previous save format and upgrade it in place,
+        // rather than starting the student over. The only shape change
+        // between v2 and v3 is that trace entries now also carry
+        // labelAscii (for the PDF export); everything else is identical,
+        // so this is a lossless repair, not a reset.
+        const oldRaw = localStorage.getItem(OLD_STORAGE_KEY);
+        if (oldRaw) { raw = oldRaw; migratingFromOld = true; }
+      }
+    } catch (err) { return; }
+    if (!raw) return;
+    let state;
+    try { state = JSON.parse(raw); } catch (err) { return; }
+
+    if (state.fields) {
+      Object.keys(state.fields).forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = state.fields[id];
+      });
+    }
+
+    if (state.msdTraces) {
+      Object.keys(state.msdTraces).forEach((prefix) => {
+        if (msdTraces[prefix] !== undefined) {
+          msdTraces[prefix] = (state.msdTraces[prefix] || []).map((e) => {
+            if (e.labelAscii !== undefined) return e;
+            // Old entry missing labelAscii: mbk-mode entries' existing
+            // label was always plain ASCII already (e.g. "m=1, b=2, k=100"),
+            // so reuse it as-is; zw-mode entries need it regenerated from
+            // zeta/wn since their old label used raw Greek characters.
+            const labelAscii = ZW_PREFIXES.has(prefix) ? `zeta=${e.zeta}, wn=${e.wn}` : e.label;
+            return Object.assign({}, e, { labelAscii });
+          });
+          if (msdTraces[prefix].length > 0) runFlags[prefix] = true;
+          redrawMSD(prefix);
+        }
+      });
+    }
+
+    if (state.uploadedImages) {
+      Object.keys(state.uploadedImages).forEach((key) => {
+        if (uploadedImages[key] !== undefined) {
+          uploadedImages[key] = state.uploadedImages[key] || [];
+          renderThumbnails(key);
+        }
+      });
+    }
+
+    if (state.activeTab) {
+      const btn = document.querySelector(`.nav-btn[data-part="${state.activeTab}"]`);
+      if (btn) btn.click();
+    }
+
+    if (migratingFromOld) saveProgress(); // persist the upgraded shape under the new key
+  }
+
+  loadProgress();
+})();
+</script>
+</body>
+</html>

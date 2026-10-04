@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GroupWork 4W &mdash; Laplace Transform</title>
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0F1115;
+    --panel: #171A21;
+    --panel2: #1D212B;
+    --line: #282D3A;
+    --amber: #FFB454;
+    --cyan: #5EEAD4;
+    --rose: #FB7185;
+    --pink: #F472B6;
+    --fg: #E7E9EE;
+    --muted: #8B92A5;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--ink); color: var(--fg);
+    font-family: 'Inter', sans-serif;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  header h1 {
+    font-size: 14px; margin: 0; font-weight: 600;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em;
+  }
+  header h1 span { color: var(--muted); font-weight: 400; }
+
+  main { flex: 1; display: flex; overflow: hidden; }
+
+  nav {
+    width: 220px; flex-shrink: 0;
+    background: var(--panel);
+    border-left: 1px solid var(--line);
+    order: 2;
+    padding: 16px 14px;
+    overflow-y: auto;
+  }
+  nav p.label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted);
+    letter-spacing: 0.1em; margin: 14px 0 8px 0;
+  }
+  nav p.label:first-child { margin-top: 0; }
+  .nav-btn {
+    display: block; width: 100%; text-align: left;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    padding: 9px 12px; margin-bottom: 6px;
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 6px;
+    color: var(--fg); cursor: pointer;
+  }
+  .nav-btn.active { border-color: var(--amber); color: var(--amber); }
+  .nav-btn small { display: block; font-family: 'Inter', sans-serif; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .content { flex: 1; order: 1; overflow-y: auto; padding: 28px 40px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  h2.section-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--amber);
+    margin: 0 0 14px 0;
+  }
+  h3.problem-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--cyan);
+    margin: 0 0 10px 0;
+  }
+  h4.part-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--fg);
+    margin: 22px 0 8px 0;
+  }
+  p.instructions {
+    font-size: 14.5px; line-height: 1.65; color: var(--fg); margin: 0 0 16px 0;
+  }
+  ul.goals { padding-left: 20px; margin: 0 0 16px 0; }
+  ul.goals li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .eq-block {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    text-align: center;
+    font-size: 16px;
+  }
+  .given-line {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted);
+    margin: 0 0 18px 0; line-height: 1.8;
+  }
+  .given-line b { color: var(--fg); font-weight: 600; }
+
+  .note-box {
+    background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 4px;
+    padding: 12px 16px; margin: 0 0 18px 0; font-size: 13px; line-height: 1.6; color: var(--fg);
+  }
+  .note-box code {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan);
+    background: var(--ink); padding: 1px 5px; border-radius: 3px;
+  }
+
+  .panel-box {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 18px 20px; margin-bottom: 18px;
+  }
+
+  .form-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+    margin-bottom: 16px;
+  }
+  .form-grid.one { grid-template-columns: 1fr; }
+  .field {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px;
+  }
+  .field.invalid { border-color: var(--rose); }
+  .field label {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 8px;
+  }
+  .field input[type="text"], .field input[type="number"] {
+    width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px;
+    color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    padding: 8px 10px;
+  }
+  .field input:focus { outline: none; border-color: var(--amber); }
+  .field .err-msg { font-size: 11px; color: var(--rose); margin-top: 6px; min-height: 14px; }
+  .field-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; min-height: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .layout-with-sidebar { display: flex; gap: 20px; align-items: flex-start; }
+  .layout-main { flex: 1; min-width: 0; }
+  .syntax-ref {
+    width: 200px; flex-shrink: 0;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px;
+  }
+  .syntax-ref h4 {
+    margin: 0 0 10px 0; font-size: 11px; color: var(--muted); letter-spacing: 0.08em;
+    font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+  }
+  .syntax-ref .syn-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px; font-size: 12px; gap: 8px;
+  }
+  .syntax-ref .syn-row span { color: var(--muted); }
+  .syntax-ref .syn-row code {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan);
+    background: var(--ink); padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+  }
+
+  .reflection-box {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px;
+  }
+  .reflection-box textarea {
+    width: 100%; min-height: 90px; resize: vertical;
+    background: var(--ink); border: 1px solid var(--line); border-radius: 5px;
+    color: var(--fg); font-family: 'Inter', sans-serif; font-size: 14px;
+    padding: 10px 12px; line-height: 1.5;
+  }
+  .reflection-box textarea:focus { outline: none; border-color: var(--amber); }
+
+  .upload-block {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px;
+    margin: 0 0 18px 0;
+  }
+  .upload-block input[type="file"] {
+    font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--fg);
+  }
+  .upload-thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .thumb-wrap { position: relative; width: 90px; height: 120px; }
+  .thumb-img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid var(--line);
+    display: block;
+  }
+  .thumb-remove {
+    position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px;
+    line-height: 1; display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .upload-status { font-size: 11px; color: var(--cyan); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; }
+  .upload-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+
+  .run-btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+    padding: 10px 22px; border-radius: 6px; border: none;
+    background: var(--amber); color: var(--ink); cursor: pointer;
+  }
+  .run-btn:hover { filter: brightness(1.08); }
+  .run-btn:active { transform: scale(0.98); }
+  .run-btn.secondary { background: none; color: var(--muted); border: 1px solid var(--line); }
+  .run-btn.secondary:hover { color: var(--rose); border-color: var(--rose); }
+
+  .match-banner {
+    display: none;
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+    padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line);
+  }
+  .match-banner.match { display: block; border-color: var(--cyan); color: var(--cyan); }
+  .match-banner.no-match { display: block; border-color: var(--rose); color: var(--rose); }
+
+  .stats-line {
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--muted);
+    margin: 14px 0 0 0; padding: 10px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  }
+  .stats-line b { color: var(--fg); }
+
+  .plot-host { margin-top: 18px; height: 380px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+  .placeholder {
+    display: flex; align-items: center; justify-content: center; height: 100%;
+    color: var(--muted); font-size: 13px; text-align: center; max-width: 420px; margin: 0 auto; padding: 0 20px;
+  }
+
+  .steps-list { padding-left: 20px; margin: 0 0 16px 0; }
+  .steps-list li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .katex { color: var(--fg); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>GROUPWORK 4W <span>&mdash; Laplace Transform (M&amp;AE 3260)</span></h1>
+</header>
+
+<main>
+  <nav>
+    <p class="label">BACKGROUND</p>
+    <button class="nav-btn active" data-part="intro">Intro<small>Learning goals &amp; form</small></button>
+
+    <p class="label">PROBLEM 1</p>
+    <button class="nav-btn" data-part="p1">Mass Spring Damper<small>Free response</small></button>
+
+    <p class="label">PROBLEM 2</p>
+    <button class="nav-btn" data-part="p2">MSD Forced Response<small>Step input</small></button>
+
+    <p class="label">PROBLEM 3</p>
+    <button class="nav-btn" data-part="p3">Hanging Rod<small>Free response</small></button>
+
+    <p class="label">PROBLEM 4</p>
+    <button class="nav-btn" data-part="p4">Rod Forced Response<small>Step input</small></button>
+
+    <p class="label">SUBMIT</p>
+    <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+  </nav>
+
+  <div class="content">
+    <div class="wrap">
+
+      <!-- ============== INTRO ============== -->
+      <section id="part-intro">
+        <h2 class="section-title">Laplace Transform</h2>
+
+        <p class="instructions"><b>Learning Goals:</b></p>
+        <ul class="goals">
+          <li>Solve ordinary differential equations (ODEs) using Laplace Transforms</li>
+          <li>Understand the properties of Laplace Transforms</li>
+          <li>Demonstrate the use of Laplace tables to calculate the inverse Laplace Transform</li>
+        </ul>
+
+        <p class="instructions">
+          Each problem below gives a 2nd order ODE of the general form
+        </p>
+        <div class="eq-block" id="eq-general-ode"></div>
+        <p class="instructions">
+          where u(t) = U&middot;1(t) is a step input of size U (U = 0 for a free response). For
+          each problem:
+        </p>
+        <ul class="goals">
+          <li><b>Part a)</b> find X(s), the Laplace transform of the response (a bonus check is provided &mdash; the official MATLAB script doesn't check this part, but this tool can).</li>
+          <li><b>Part b)</b> find the time-domain response x(t) by inverse Laplace transform, and enter it in the same form the MATLAB checker script uses:</li>
+        </ul>
+        <div class="eq-block" id="eq-general-response"></div>
+        <p class="instructions">
+          Enter your own <b>A, B, C, D, E</b> below each problem to check your answer &mdash;
+          same idea as the "Input your solution coefficients" + "Plot Solution" step in
+          <code class="mono">lapace_transform_check_2nd_order.mlx</code>: if your answer is
+          correct, "Your Answer" and "Correct" should overlay on the plot.
+        </p>
+        <ul class="goals">
+          <li><b>Part c)</b> discuss which components (constant, exponential, sinusoid) appear in your answer and what they mean physically.</li>
+        </ul>
+      </section>
+
+      <!-- ============== PROBLEM 1 ============== -->
+      <section id="part-p1" style="display:none;">
+        <h3 class="problem-title">Problem 1: Mass Spring Damper (Free Response)</h3>
+        <p class="instructions">
+          The dynamics of a spring-mass-damper system are governed by
+          m&#7817; + b&#7819; + kx = f(t), with m&nbsp;=&nbsp;2&nbsp;kg, b&nbsp;=&nbsp;4&nbsp;Ns/m,
+          k&nbsp;=&nbsp;200&nbsp;N/m. Substituting gives &#7817; + 2&#7819; + 100x = 0.5f(t).
+          Here f(t)&nbsp;=&nbsp;0 (no external input).
+        </p>
+        <p class="given-line">
+          a=<b>1</b>, b=<b>2</b>, c=<b>100</b>, d=<b>0.5</b>, U=<b>0</b> &middot;
+          x(0)=<b>0.1</b> m, &#7819;(0)=<b>&minus;0.1</b> m/s
+        </p>
+        <div class="note-box">
+          Hint: Table entry (11) &mdash; <code>(s+a)/((s+a)&sup2;+b&sup2;)</code> &harr;
+          <code>e<sup>-at</sup>cos(bt)</code>.
+        </div>
+
+        <h4 class="part-title">a) Find X(s)</h4>
+        <div class="layout-with-sidebar">
+          <div class="syntax-ref">
+            <h4>Syntax</h4>
+            <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+            <div class="syn-row"><span>divide</span><code>a/b</code></div>
+            <div class="syn-row"><span>add</span><code>a+b</code></div>
+            <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+            <div class="syn-row"><span>power</span><code>a^b</code></div>
+            <div class="syn-row"><span>square root</span><code>sqrt(a)</code></div>
+            <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+          </div>
+          <div class="layout-main">
+            <div class="form-grid one">
+              <div class="field" id="field-p1-Xs">
+                <label>X(s) =</label>
+                <input type="text" id="input-p1-Xs" value="" placeholder="in terms of s" spellcheck="false" />
+                <div class="err-msg" id="err-p1-Xs"></div>
+              </div>
+            </div>
+            <button class="run-btn" id="btn-p1-Xs">CHECK</button>
+            <div class="match-banner" id="banner-p1-Xs"></div>
+
+            <p class="instructions" style="margin-top:16px;">Upload your calculations for part a):</p>
+            <div class="upload-block">
+              <input type="file" id="upload-input-p1a" accept="image/*" multiple />
+              <div class="upload-thumbs" id="upload-thumbs-p1a"></div>
+              <p class="upload-status" id="upload-status-p1a"></p>
+              <p class="upload-err" id="upload-err-p1a"></p>
+            </div>
+          </div>
+        </div>
+
+        <h4 class="part-title">b) Find x(t)</h4>
+        <div class="eq-block" id="eq-p1-form" style="margin-top:0;"></div>
+        <div class="layout-with-sidebar">
+          <div class="syntax-ref">
+            <h4>Syntax</h4>
+            <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+            <div class="syn-row"><span>divide</span><code>a/b</code></div>
+            <div class="syn-row"><span>add</span><code>a+b</code></div>
+            <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+            <div class="syn-row"><span>power</span><code>a^b</code></div>
+            <div class="syn-row"><span>square root</span><code>sqrt(a)</code></div>
+            <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+          </div>
+          <div class="layout-main">
+            <div class="panel-box">
+              <div class="form-grid">
+                <div class="field"><label>A</label><input type="text" id="input-p1-A" value="0" spellcheck="false" /></div>
+                <div class="field"><label>B</label><input type="text" id="input-p1-B" value="0" spellcheck="false" /></div>
+                <div class="field"><label>C</label><input type="text" id="input-p1-C" value="0" spellcheck="false" /></div>
+                <div class="field"><label>D</label><input type="text" id="input-p1-D" value="0" spellcheck="false" /></div>
+                <div class="field"><label>E</label><input type="text" id="input-p1-E" value="0" spellcheck="false" /></div>
+              </div>
+              <p class="field-err" id="err-p1-coef"></p>
+            </div>
+            <button class="run-btn" id="btn-p1-xt">CHECK</button>
+            <div class="match-banner" id="banner-p1-xt"></div>
+            <div class="plot-host" id="plot-p1"></div>
+          </div>
+        </div>
+
+        <p class="instructions" style="margin-top:16px;">Upload your calculations for part b):</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-p1b" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-p1b"></div>
+          <p class="upload-status" id="upload-status-p1b"></p>
+          <p class="upload-err" id="upload-err-p1b"></p>
+        </div>
+
+        <h4 class="part-title">c) Discussion</h4>
+        <p class="instructions">Discuss which solution components (constant, exponential, sinusoid, etc) are in the final solution and how these relate to the physical response.</p>
+        <div class="reflection-box">
+          <textarea id="input-p1-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 2 ============== -->
+      <section id="part-p2" style="display:none;">
+        <h3 class="problem-title">Problem 2: Mass Spring Damper Forced Response</h3>
+        <p class="instructions">
+          Same system as Problem 1 (&#7817; + 2&#7819; + 100x = 0.5f(t)), now with a step input
+          f(t) = [2&nbsp;N]&middot;1(t) and zero initial conditions.
+        </p>
+        <p class="given-line">
+          a=<b>1</b>, b=<b>2</b>, c=<b>100</b>, d=<b>0.5</b>, U=<b>2</b> &middot;
+          x(0)=<b>0</b> m, &#7819;(0)=<b>0</b> m/s
+        </p>
+        <div class="note-box">
+          Hint: Table entry (24) &mdash; <code>1/(s[(s+a)&sup2;+b&sup2;])</code> &harr;
+          <code>(1/(a&sup2;+b&sup2;))[1&minus;(a/b&nbsp;sin&nbsp;bt+cos&nbsp;bt)e<sup>-at</sup>]</code>.
+        </div>
+
+        <h4 class="part-title">a) Find X(s)</h4>
+        <div class="layout-with-sidebar">
+          <div class="syntax-ref">
+            <h4>Syntax</h4>
+            <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+            <div class="syn-row"><span>divide</span><code>a/b</code></div>
+            <div class="syn-row"><span>add</span><code>a+b</code></div>
+            <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+            <div class="syn-row"><span>power</span><code>a^b</code></div>
+            <div class="syn-row"><span>square root</span><code>sqrt(a)</code></div>
+            <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+          </div>
+          <div class="layout-main">
+            <div class="form-grid one">
+              <div class="field" id="field-p2-Xs">
+                <label>X(s) =</label>
+                <input type="text" id="input-p2-Xs" value="" placeholder="in terms of s" spellcheck="false" />
+                <div class="err-msg" id="err-p2-Xs"></div>
+              </div>
+            </div>
+            <button class="run-btn" id="btn-p2-Xs">CHECK</button>
+            <div class="match-banner" id="banner-p2-Xs"></div>
+
+            <p class="instructions" style="margin-top:16px;">Upload your calculations for part a):</p>
+            <div class="upload-block">
+              <input type="file" id="upload-input-p2a" accept="image/*" multiple />
+              <div class="upload-thumbs" id="upload-thumbs-p2a"></div>
+              <p class="upload-status" id="upload-status-p2a"></p>
+              <p class="upload-err" id="upload-err-p2a"></p>
+            </div>
+          </div>
+        </div>
+
+        <h4 class="part-title">b) Find x(t)</h4>
+        <div class="eq-block" id="eq-p2-form" style="margin-top:0;"></div>
+        <div class="layout-with-sidebar">
+          <div class="syntax-ref">
+            <h4>Syntax</h4>
+            <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+            <div class="syn-row"><span>divide</span><code>a/b</code></div>
+            <div class="syn-row"><span>add</span><code>a+b</code></div>
+            <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+            <div class="syn-row"><span>power</span><code>a^b</code></div>
+            <div class="syn-row"><span>square root</span><code>sqrt(a)</code></div>
+            <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+          </div>
+          <div class="layout-main">
+            <div class="panel-box">
+              <div class="form-grid">
+                <div class="field"><label>A</label><input type="text" id="input-p2-A" value="0" spellcheck="false" /></div>
+                <div class="field"><label>B</label><input type="text" id="input-p2-B" value="0" spellcheck="false" /></div>
+                <div class="field"><label>C</label><input type="text" id="input-p2-C" value="0" spellcheck="false" /></div>
+                <div class="field"><label>D</label><input type="text" id="input-p2-D" value="0" spellcheck="false" /></div>
+                <div class="field"><label>E</label><input type="text" id="input-p2-E" value="0" spellcheck="false" /></div>
+              </div>
+              <p class="field-err" id="err-p2-coef"></p>
+            </div>
+            <button class="run-btn" id="btn-p2-xt">CHECK</button>
+            <div class="match-banner" id="banner-p2-xt"></div>
+            <div class="plot-host" id="plot-p2"></div>
+          </div>
+        </div>
+
+        <p class="instructions" style="margin-top:16px;">Upload your calculations for part b):</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-p2b" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-p2b"></div>
+          <p class="upload-status" id="upload-status-p2b"></p>
+          <p class="upload-err" id="upload-err-p2b"></p>
+        </div>
+
+        <h4 class="part-title">c) Discussion</h4>
+        <p class="instructions">Discuss which solution components (constant, exponential, sinusoid, etc) are in the final solution and how these relate to the physical response.</p>
+        <div class="reflection-box">
+          <textarea id="input-p2-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 3 ============== -->
+      <section id="part-p3" style="display:none;">
+        <h3 class="problem-title">Problem 3: Hanging Rod (Free Response)</h3>
+        <p class="instructions">
+          A hinged rod, linearized about the vertical hanging orientation, is governed by
+          (ml&sup2;/3)&#952;&#776; + (mgl/2)&#952; = f(t), with m&nbsp;=&nbsp;3.333&nbsp;kg,
+          l&nbsp;=&nbsp;0.6&nbsp;m, g&nbsp;=&nbsp;10&nbsp;m/s&sup2;. Substituting gives
+          &#952;&#776; + 25&#952; = 2.5f(t). Here f(t)&nbsp;=&nbsp;0 (no external torque).
+        </p>
+        <p class="given-line">
+          a=<b>1</b>, b=<b>0</b>, c=<b>25</b>, d=<b>2.5</b>, U=<b>0</b> &middot;
+          &#952;(0)=<b>0.1</b> rad, &#952;&#775;(0)=<b>0</b> rad/s
+        </p>
+        <div class="note-box">
+          Hint: Table entry (9) &mdash; <code>s/(s&sup2;+b&sup2;)</code> &harr; <code>cos(bt)</code>.
+        </div>
+
+        <h4 class="part-title">a) Find &Theta;(s)</h4>
+        <div class="layout-with-sidebar">
+          <div class="syntax-ref">
+            <h4>Syntax</h4>
+            <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+            <div class="syn-row"><span>divide</span><code>a/b</code></div>
+            <div class="syn-row"><span>add</span><code>a+b</code></div>
+            <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+            <div class="syn-row"><span>power</span><code>a^b</code></div>
+            <div class="syn-row"><span>square root</span><code>sqrt(a)</code></div>
+            <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+          </div>
+          <div class="layout-main">
+            <div class="form-grid one">
+              <div class="field" id="field-p3-Xs">
+                <label>&Theta;(s) =</label>
+                <input type="text" id="input-p3-Xs" value="" placeholder="in terms of s" spellcheck="false" />
+                <div class="err-msg" id="err-p3-Xs"></div>
+              </div>
+            </div>
+            <button class="run-btn" id="btn-p3-Xs">CHECK</button>
+            <div class="match-banner" id="banner-p3-Xs"></div>
+
+            <p class="instructions" style="margin-top:16px;">Upload your calculations for part a):</p>
+            <div class="upload-block">
+              <input type="file" id="upload-input-p3a" accept="image/*" multiple />
+              <div class="upload-thumbs" id="upload-thumbs-p3a"></div>
+              <p class="upload-status" id="upload-status-p3a"></p>
+              <p class="upload-err" id="upload-err-p3a"></p>
+            </div>
+          </div>
+        </div>
+
+        <h4 class="part-title">b) Find &theta;(t)</h4>
+        <div class="eq-block" id="eq-p3-form" style="margin-top:0;"></div>
+        <div class="layout-with-sidebar">
+          <div class="syntax-ref">
+            <h4>Syntax</h4>
+            <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+            <div class="syn-row"><span>divide</span><code>a/b</code></div>
+            <div class="syn-row"><span>add</span><code>a+b</code></div>
+            <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+            <div class="syn-row"><span>power</span><code>a^b</code></div>
+            <div class="syn-row"><span>square root</span><code>sqrt(a)</code></div>
+            <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+          </div>
+          <div class="layout-main">
+            <div class="panel-box">
+              <div class="form-grid">
+                <div class="field"><label>A</label><input type="text" id="input-p3-A" value="0" spellcheck="false" /></div>
+                <div class="field"><label>B</label><input type="text" id="input-p3-B" value="0" spellcheck="false" /></div>
+                <div class="field"><label>C</label><input type="text" id="input-p3-C" value="0" spellcheck="false" /></div>
+                <div class="field"><label>D</label><input type="text" id="input-p3-D" value="0" spellcheck="false" /></div>
+                <div class="field"><label>E</label><input type="text" id="input-p3-E" value="0" spellcheck="false" /></div>
+              </div>
+              <p class="field-err" id="err-p3-coef"></p>
+            </div>
+            <button class="run-btn" id="btn-p3-xt">CHECK</button>
+            <div class="match-banner" id="banner-p3-xt"></div>
+            <div class="plot-host" id="plot-p3"></div>
+          </div>
+        </div>
+
+        <p class="instructions" style="margin-top:16px;">Upload your calculations for part b):</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-p3b" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-p3b"></div>
+          <p class="upload-status" id="upload-status-p3b"></p>
+          <p class="upload-err" id="upload-err-p3b"></p>
+        </div>
+
+        <h4 class="part-title">c) Discussion</h4>
+        <p class="instructions">Discuss which solution components (constant, exponential, sinusoid, etc) are in the final solution and how these relate to the physical response.</p>
+        <div class="reflection-box">
+          <textarea id="input-p3-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 4 ============== -->
+      <section id="part-p4" style="display:none;">
+        <h3 class="problem-title">Problem 4: Hanging Rod Forced Response</h3>
+        <p class="instructions">
+          Same rod system as Problem 3 (&#952;&#776; + 25&#952; = 2.5f(t)), now with a step input
+          f(t) = [0.4&nbsp;Nm]&middot;1(t) and zero initial conditions.
+        </p>
+        <p class="given-line">
+          a=<b>1</b>, b=<b>0</b>, c=<b>25</b>, d=<b>2.5</b>, U=<b>0.4</b> &middot;
+          &#952;(0)=<b>0</b> rad, &#952;&#775;(0)=<b>0</b> rad/s
+        </p>
+        <div class="note-box">
+          Hint: Table entry (25) &mdash; <code>b&sup2;/(s(s&sup2;+b&sup2;))</code> &harr;
+          <code>1&minus;cos(bt)</code>.
+        </div>
+
+        <h4 class="part-title">a) Find &Theta;(s)</h4>
+        <div class="layout-with-sidebar">
+          <div class="syntax-ref">
+            <h4>Syntax</h4>
+            <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+            <div class="syn-row"><span>divide</span><code>a/b</code></div>
+            <div class="syn-row"><span>add</span><code>a+b</code></div>
+            <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+            <div class="syn-row"><span>power</span><code>a^b</code></div>
+            <div class="syn-row"><span>square root</span><code>sqrt(a)</code></div>
+            <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+          </div>
+          <div class="layout-main">
+            <div class="form-grid one">
+              <div class="field" id="field-p4-Xs">
+                <label>&Theta;(s) =</label>
+                <input type="text" id="input-p4-Xs" value="" placeholder="in terms of s" spellcheck="false" />
+                <div class="err-msg" id="err-p4-Xs"></div>
+              </div>
+            </div>
+            <button class="run-btn" id="btn-p4-Xs">CHECK</button>
+            <div class="match-banner" id="banner-p4-Xs"></div>
+
+            <p class="instructions" style="margin-top:16px;">Upload your calculations for part a):</p>
+            <div class="upload-block">
+              <input type="file" id="upload-input-p4a" accept="image/*" multiple />
+              <div class="upload-thumbs" id="upload-thumbs-p4a"></div>
+              <p class="upload-status" id="upload-status-p4a"></p>
+              <p class="upload-err" id="upload-err-p4a"></p>
+            </div>
+          </div>
+        </div>
+
+        <h4 class="part-title">b) Find &theta;(t)</h4>
+        <div class="eq-block" id="eq-p4-form" style="margin-top:0;"></div>
+        <div class="layout-with-sidebar">
+          <div class="syntax-ref">
+            <h4>Syntax</h4>
+            <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+            <div class="syn-row"><span>divide</span><code>a/b</code></div>
+            <div class="syn-row"><span>add</span><code>a+b</code></div>
+            <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+            <div class="syn-row"><span>power</span><code>a^b</code></div>
+            <div class="syn-row"><span>square root</span><code>sqrt(a)</code></div>
+            <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+          </div>
+          <div class="layout-main">
+            <div class="panel-box">
+              <div class="form-grid">
+                <div class="field"><label>A</label><input type="text" id="input-p4-A" value="0" spellcheck="false" /></div>
+                <div class="field"><label>B</label><input type="text" id="input-p4-B" value="0" spellcheck="false" /></div>
+                <div class="field"><label>C</label><input type="text" id="input-p4-C" value="0" spellcheck="false" /></div>
+                <div class="field"><label>D</label><input type="text" id="input-p4-D" value="0" spellcheck="false" /></div>
+                <div class="field"><label>E</label><input type="text" id="input-p4-E" value="0" spellcheck="false" /></div>
+              </div>
+              <p class="field-err" id="err-p4-coef"></p>
+            </div>
+            <button class="run-btn" id="btn-p4-xt">CHECK</button>
+            <div class="match-banner" id="banner-p4-xt"></div>
+            <div class="plot-host" id="plot-p4"></div>
+          </div>
+        </div>
+
+        <p class="instructions" style="margin-top:16px;">Upload your calculations for part b):</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-p4b" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-p4b"></div>
+          <p class="upload-status" id="upload-status-p4b"></p>
+          <p class="upload-err" id="upload-err-p4b"></p>
+        </div>
+
+        <h4 class="part-title">c) Discussion</h4>
+        <p class="instructions">Discuss what components (e.g. constant, exponent, sinusoid, etc.) show up in the solution you obtained in (b) and how these components relate to the physical response of the hanging rod system.</p>
+        <div class="reflection-box">
+          <textarea id="input-p4-reflection" placeholder="Type your answer here..."></textarea>
+        </div>
+      </section>
+
+      <!-- ============== SUBMISSION ============== -->
+      <section id="part-submission" style="display:none;">
+        <h2 class="section-title">Submission</h2>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="field">
+            <label class="mono">Your NetID</label>
+            <input type="text" id="input-netid" placeholder="netid" spellcheck="false" />
+          </div>
+          <div class="field">
+            <label class="mono">Group member NetIDs</label>
+            <input type="text" id="input-group-netids" placeholder="person1, person2, person3, ..." spellcheck="false" />
+          </div>
+        </div>
+
+        <ul class="steps-list" style="margin-top: 22px;">
+          <li>Enter your NetID and group member NetIDs above and export PDF.</li>
+          <li>For each problem, supply answers to (a) and (b), and a summary of the discussion (c).</li>
+          <li>Optionally, attach an existing PDF below and it will be appended to the end of the exported file.</li>
+          <li>Submit the combined PDF to the Gradescope submission link by Monday 11:59PM.</li>
+        </ul>
+
+        <p class="instructions">Append an existing PDF to the end of your export (optional):</p>
+        <div class="panel-box">
+          <input type="file" id="upload-input-appendix" accept="application/pdf" multiple />
+          <div id="upload-thumbs-appendix" style="display:flex; flex-wrap:wrap; margin-top:10px;"></div>
+          <p class="stats-line" id="upload-status-appendix" style="display:none;"></p>
+          <p class="err-msg" id="upload-err-appendix"></p>
+        </div>
+
+        <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+        <p class="stats-line" id="exportStatus"></p>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  const PLOT_OPTS = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+
+  function plotLayoutAuto(yTitle) {
+    return {
+      paper_bgcolor: "#171A21",
+      plot_bgcolor: "#171A21",
+      font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 11 },
+      margin: { l: 55, r: 20, t: 20, b: 45 },
+      xaxis: { title: "time t [s]", gridcolor: "#282D3A", zerolinecolor: "#282D3A" },
+      yaxis: { title: yTitle, gridcolor: "#282D3A", zerolinecolor: "#282D3A" },
+      legend: { orientation: "h", y: -0.22, font: { size: 10 } },
+    };
+  }
+
+  // ---------------------------------------------------------------
+  // KaTeX
+  // ---------------------------------------------------------------
+  katex.render(
+    "a\\ddot{x}+b\\dot{x}+cx=d\\,u(t),\\quad u(t)=U\\cdot 1(t)",
+    document.getElementById("eq-general-ode"),
+    { throwOnError: false, displayMode: true }
+  );
+  katex.render(
+    "x(t) = A + B e^{Ct}\\sin(Dt) + E e^{Ct}\\cos(Dt)",
+    document.getElementById("eq-general-response"),
+    { throwOnError: false, displayMode: true }
+  );
+  katex.render("x(t) = A + B e^{Ct}\\sin(Dt) + E e^{Ct}\\cos(Dt)", document.getElementById("eq-p1-form"), { throwOnError: false, displayMode: true });
+  katex.render("x(t) = A + B e^{Ct}\\sin(Dt) + E e^{Ct}\\cos(Dt)", document.getElementById("eq-p2-form"), { throwOnError: false, displayMode: true });
+  katex.render("\\theta(t) = A + B e^{Ct}\\sin(Dt) + E e^{Ct}\\cos(Dt)", document.getElementById("eq-p3-form"), { throwOnError: false, displayMode: true });
+  katex.render("\\theta(t) = A + B e^{Ct}\\sin(Dt) + E e^{Ct}\\cos(Dt)", document.getElementById("eq-p4-form"), { throwOnError: false, displayMode: true });
+
+  // ---------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------
+  const SECTION_IDS = {
+    "intro": "part-intro",
+    "p1": "part-p1", "p2": "part-p2", "p3": "part-p3", "p4": "part-p4",
+    "submission": "part-submission",
+  };
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+      document.getElementById(SECTION_IDS[btn.dataset.part]).style.display = "block";
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Core physics. For a*x''+b*x'+c*x = d*U*1(t), x(0)=x0, x'(0)=xdot0:
+  //
+  //   X(s) = (a*x0*s + a*xdot0 + b*x0 + d*U/s) / (a*s^2 + b*s + c)
+  //          (the d*U/s term is omitted entirely when U = 0)
+  //
+  //   x(t) = A + B*e^(C t)*sin(D t) + E*e^(C t)*cos(D t), where
+  //     wn = sqrt(c/a), zeta = b/(2*a*wn), xss = d*U/c
+  //     A = xss, C = -b/(2a), D = wn*sqrt(1-zeta^2), E = x0-xss
+  //     B = (xdot0 - C*E) / D   (B = 0 when D = 0, e.g. a=... never here)
+  //
+  // Verified against numerical ODE integration (scipy) AND symbolic
+  // Laplace/inverse-Laplace transforms (sympy) for all 4 problems
+  // before shipping -- matched to floating-point precision.
+  // ---------------------------------------------------------------
+  function trueXsAtFull(s, a, b, c, d, U, x0, xdot0) {
+    const Uterm = U !== 0 ? (d * U) / s : 0;
+    const num = a * x0 * s + a * xdot0 + b * x0 + Uterm;
+    const den = a * s * s + b * s + c;
+    return num / den;
+  }
+  function trueABCDE(a, b, c, d, U, x0, xdot0) {
+    const wn = Math.sqrt(c / a);
+    const zeta = wn !== 0 ? b / (2 * a * wn) : 0;
+    const xss = (d * U) / c;
+    const x0adj = x0 - xss;
+    const sReal = -b / (2 * a);
+    const wd = wn * Math.sqrt(Math.max(0, 1 - zeta * zeta));
+    const A = xss, C = sReal, D = wd, E = x0adj;
+    const B = wd > 1e-9 ? (xdot0 - sReal * x0adj) / wd : 0;
+    return { A, B, C, D, E };
+  }
+  function closedForm(t, A, B, C, D, E) {
+    return A + B * Math.exp(C * t) * Math.sin(D * t) + E * Math.exp(C * t) * Math.cos(D * t);
+  }
+  function plotDuration(C, D) {
+    if (Math.abs(C) < 1e-6) {
+      return D > 1e-9 ? (4 * 2 * Math.PI / D) : 10;
+    } else if (C < 0) {
+      return Math.log(100) / Math.abs(C);
+    } else {
+      return Math.log(50) / C;
+    }
+  }
+
+  const runFlags = {};
+
+  // ---------------------------------------------------------------
+  // Part a) checker: student enters X(s) as a free-text expression in
+  // "s"; we sample several real, non-zero values of s (avoiding the
+  // pole at s=0 that the step-forced problems have) and compare
+  // against the true X(s).
+  // ---------------------------------------------------------------
+  function makeXsChecker(prefix, params) {
+    const { a, b, c, d, U, x0, xdot0 } = params;
+    function run() {
+      const errEl = document.getElementById(`err-${prefix}-Xs`);
+      const bannerEl = document.getElementById(`banner-${prefix}-Xs`);
+      errEl.textContent = "";
+      bannerEl.className = "match-banner";
+      bannerEl.textContent = "";
+
+      const raw = document.getElementById(`input-${prefix}-Xs`).value.trim();
+      if (!raw) { errEl.textContent = "Enter an expression."; return; }
+      if (!/\bs\b/.test(raw)) {
+        errEl.textContent = "Enter an expression in terms of s \u2014 a plain number isn't a function of s.";
+        return;
+      }
+
+      const samplePoints = [0.3, 0.7, 1.3, 2.1, 3.7, -0.4, -1.1];
+      let sumSq = 0, maxAbs = 0, ok = true;
+      for (const s of samplePoints) {
+        let userVal;
+        try {
+          userVal = math.evaluate(raw, { s });
+          if (typeof userVal !== "number" || !isFinite(userVal)) throw new Error("not a number");
+        } catch (err) {
+          errEl.textContent = "Couldn't evaluate this expression.";
+          ok = false;
+          break;
+        }
+        const trueVal = trueXsAtFull(s, a, b, c, d, U, x0, xdot0);
+        const diff = userVal - trueVal;
+        sumSq += diff * diff;
+        maxAbs = Math.max(maxAbs, Math.abs(trueVal));
+      }
+      if (!ok) return;
+
+      const relErr = Math.sqrt(sumSq / samplePoints.length) / (maxAbs || 1);
+      if (relErr < 0.01) {
+        bannerEl.className = "match-banner match";
+        bannerEl.textContent = "\u2713 Correct.";
+      } else {
+        bannerEl.className = "match-banner no-match";
+        bannerEl.textContent = "\u2717 Not quite \u2014 try again.";
+      }
+    }
+    document.getElementById(`btn-${prefix}-Xs`).addEventListener("click", run);
+  }
+
+  // ---------------------------------------------------------------
+  // Part b) checker: student enters A, B, C, D, E for the general
+  // form x(t) = A + B*e^(Ct)sin(Dt) + E*e^(Ct)cos(Dt), same as the
+  // official MATLAB checker script. Plots "Your Answer" vs "Correct".
+  // ---------------------------------------------------------------
+  function makeXtChecker(prefix, params) {
+    const { a, b, c, d, U, x0, xdot0 } = params;
+    const trueVals = trueABCDE(a, b, c, d, U, x0, xdot0);
+
+    function evalCoef(id) {
+      const raw = document.getElementById(id).value.trim();
+      if (!raw) return NaN;
+      try {
+        const v = math.evaluate(raw);
+        return typeof v === "number" && isFinite(v) ? v : NaN;
+      } catch (err) {
+        return NaN;
+      }
+    }
+
+    function run() {
+      const errEl = document.getElementById(`err-${prefix}-coef`);
+      errEl.textContent = "";
+      const A = evalCoef(`input-${prefix}-A`);
+      const B = evalCoef(`input-${prefix}-B`);
+      const C = evalCoef(`input-${prefix}-C`);
+      const D = evalCoef(`input-${prefix}-D`);
+      const E = evalCoef(`input-${prefix}-E`);
+
+      const bannerEl = document.getElementById(`banner-${prefix}-xt`);
+      bannerEl.className = "match-banner";
+      bannerEl.textContent = "";
+
+      if (![A, B, C, D, E].every(isFinite)) {
+        errEl.textContent = "A, B, C, D, and E must all evaluate to numbers (e.g. sqrt(99) or 99^(1/2)).";
+        return;
+      }
+
+      const duration = Math.max(plotDuration(trueVals.C, trueVals.D), 0.1);
+      const N = 400;
+      const t = Array.from({ length: N }, (_, i) => (i / (N - 1)) * duration);
+      const yUser = t.map((tt) => closedForm(tt, A, B, C, D, E));
+      const yTrue = t.map((tt) => closedForm(tt, trueVals.A, trueVals.B, trueVals.C, trueVals.D, trueVals.E));
+
+      let sumSq = 0, maxAbs = 0;
+      for (let i = 0; i < t.length; i++) {
+        const diff = yUser[i] - yTrue[i];
+        sumSq += diff * diff;
+        maxAbs = Math.max(maxAbs, Math.abs(yTrue[i]));
+      }
+      const relErr = Math.sqrt(sumSq / t.length) / (maxAbs || 1);
+
+      if (relErr < 0.01) {
+        bannerEl.className = "match-banner match";
+        bannerEl.textContent = "\u2713 Correct.";
+      } else {
+        bannerEl.className = "match-banner no-match";
+        bannerEl.textContent = "\u2717 Not quite \u2014 try again.";
+      }
+
+      Plotly.newPlot(
+        `plot-${prefix}`,
+        [
+          { x: t, y: yUser, mode: "lines", name: "Your Answer", line: { color: "#FFB454", width: 2.5 } },
+          { x: t, y: yTrue, mode: "lines", name: "Correct", line: { color: "#5EEAD4", width: 2.5, dash: "dash" } },
+        ],
+        plotLayoutAuto("response"),
+        PLOT_OPTS
+      );
+      runFlags[prefix] = true;
+    }
+    document.getElementById(`btn-${prefix}-xt`).addEventListener("click", run);
+  }
+
+  const PROBLEM_PARAMS = {
+    p1: { a: 1, b: 2, c: 100, d: 0.5, U: 0, x0: 0.1, xdot0: -0.1 },
+    p2: { a: 1, b: 2, c: 100, d: 0.5, U: 2, x0: 0, xdot0: 0 },
+    p3: { a: 1, b: 0, c: 25, d: 2.5, U: 0, x0: 0.1, xdot0: 0 },
+    p4: { a: 1, b: 0, c: 25, d: 2.5, U: 0.4, x0: 0, xdot0: 0 },
+  };
+  Object.keys(PROBLEM_PARAMS).forEach((prefix) => {
+    makeXsChecker(prefix, PROBLEM_PARAMS[prefix]);
+    makeXtChecker(prefix, PROBLEM_PARAMS[prefix]);
+  });
+
+  // ---------------------------------------------------------------
+  // Multi-image "upload your calculations" widgets -- two per problem
+  // (part a and part b). Resizes to a fixed max dimension and
+  // re-compresses as JPEG so the exported PDF stays a predictable
+  // size regardless of upload size.
+  // ---------------------------------------------------------------
+  const MAX_IMAGE_DIM = 1200;
+  const IMAGE_QUALITY = 0.7;
+  const UPLOAD_KEYS = ["p1a", "p1b", "p2a", "p2b", "p3a", "p3b", "p4a", "p4b"];
+  const uploadedImages = {};
+  UPLOAD_KEYS.forEach((k) => { uploadedImages[k] = []; });
+
+  function resizeAndCompressImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Could not read file."));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("Could not load image."));
+        img.onload = () => {
+          let width = img.width, height = img.height;
+          if (width > height && width > MAX_IMAGE_DIM) {
+            height = Math.round((height * MAX_IMAGE_DIM) / width);
+            width = MAX_IMAGE_DIM;
+          } else if (height >= width && height > MAX_IMAGE_DIM) {
+            width = Math.round((width * MAX_IMAGE_DIM) / height);
+            height = MAX_IMAGE_DIM;
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve({ dataUrl: canvas.toDataURL("image/jpeg", IMAGE_QUALITY), width, height });
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  function renderThumbnails(key) {
+    const host = document.getElementById(`upload-thumbs-${key}`);
+    host.innerHTML = "";
+    uploadedImages[key].forEach((entry, i) => {
+      const wrap = document.createElement("div");
+      wrap.className = "thumb-wrap";
+      const img = document.createElement("img");
+      img.src = entry.dataUrl;
+      img.className = "thumb-img";
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "thumb-remove";
+      removeBtn.textContent = "\u00d7";
+      removeBtn.title = "Remove";
+      removeBtn.addEventListener("click", () => {
+        uploadedImages[key].splice(i, 1);
+        renderThumbnails(key);
+      });
+      wrap.appendChild(img);
+      wrap.appendChild(removeBtn);
+      host.appendChild(wrap);
+    });
+    const statusEl = document.getElementById(`upload-status-${key}`);
+    if (statusEl) {
+      const n = uploadedImages[key].length;
+      statusEl.textContent = n > 0 ? `\u2713 ${n} image${n > 1 ? "s" : ""} uploaded` : "";
+    }
+  }
+  function wireImageUpload(key) {
+    const input = document.getElementById(`upload-input-${key}`);
+    const errEl = document.getElementById(`upload-err-${key}`);
+    input.addEventListener("change", async () => {
+      const files = Array.from(input.files || []);
+      const failed = [];
+      for (const file of files) {
+        try {
+          const entry = await resizeAndCompressImage(file);
+          uploadedImages[key].push(entry);
+        } catch (err) {
+          console.error("Image upload failed:", err);
+          failed.push(file.name);
+        }
+      }
+      if (failed.length > 0 && errEl) {
+        errEl.textContent = `Could not load: ${failed.join(", ")}. The file may be an unsupported format (e.g. HEIC) or corrupted \u2014 try re-saving as JPEG/PNG, or take a screenshot instead.`;
+      } else if (errEl) {
+        errEl.textContent = "";
+      }
+      renderThumbnails(key);
+      input.value = "";
+      scheduleSave();
+    });
+  }
+  UPLOAD_KEYS.forEach(wireImageUpload);
+
+  // ---------------------------------------------------------------
+  // Appendix PDF(s) to append to the end of the export (Submission
+  // tab). Kept in memory as File objects (not persisted by autosave).
+  // ---------------------------------------------------------------
+  let appendixFiles = [];
+
+  function renderFileChips() {
+    const host = document.getElementById("upload-thumbs-appendix");
+    host.innerHTML = "";
+    appendixFiles.forEach((file, i) => {
+      const chip = document.createElement("div");
+      chip.style.cssText = "display:inline-flex; align-items:center; gap:8px; background:var(--ink); border:1px solid var(--line); border-radius:6px; padding:6px 10px; margin:4px 6px 4px 0; font-family:'JetBrains Mono',monospace; font-size:12px;";
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = file.name;
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "\u00d7";
+      removeBtn.style.cssText = "background:none; border:none; color:#FB7185; cursor:pointer; font-size:13px; line-height:1; font-family:'JetBrains Mono',monospace; padding:0;";
+      removeBtn.addEventListener("click", () => {
+        appendixFiles.splice(i, 1);
+        renderFileChips();
+      });
+      chip.appendChild(nameSpan);
+      chip.appendChild(removeBtn);
+      host.appendChild(chip);
+    });
+    const statusEl = document.getElementById("upload-status-appendix");
+    if (statusEl) {
+      const n = appendixFiles.length;
+      statusEl.style.display = n > 0 ? "block" : "none";
+      statusEl.textContent = n > 0 ? `\u2713 ${n} file${n > 1 ? "s" : ""} selected` : "";
+    }
+  }
+
+  const appendixInput = document.getElementById("upload-input-appendix");
+  appendixInput.addEventListener("change", () => {
+    const errEl = document.getElementById("upload-err-appendix");
+    const chosen = Array.from(appendixInput.files || []);
+    const nonPdf = chosen.filter((f) => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+    const pdfs = chosen.filter((f) => !nonPdf.includes(f));
+    appendixFiles = appendixFiles.concat(pdfs);
+    if (errEl) {
+      errEl.textContent = nonPdf.length > 0
+        ? `Skipped (not a PDF): ${nonPdf.map((f) => f.name).join(", ")}`
+        : "";
+    }
+    renderFileChips();
+    appendixInput.value = "";
+    scheduleSave();
+  });
+
+  // ---------------------------------------------------------------
+  // Submission: bundle everything into a PDF
+  // ---------------------------------------------------------------
+  function setExportStatus(text, isError) {
+    const el = document.getElementById("exportStatus");
+    el.textContent = text;
+    el.style.color = isError ? "#FB7185" : "#8B92A5";
+  }
+  function reflectionText(id) {
+    const v = document.getElementById(id).value.trim();
+    return v || "(No response entered.)";
+  }
+  function fieldLabelFor(id) {
+    if (id === "input-netid") return "Your NetID";
+    if (id === "input-group-netids") return "Group member NetIDs";
+    const m = id.match(/^input-(p\d)-(.+)$/);
+    if (m) {
+      const [, part, field] = m;
+      return `Problem ${part.slice(1)} (${field.replace(/-/g, " ")})`;
+    }
+    return id;
+  }
+  function findBlankItems() {
+    const blanks = [];
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((el) => {
+      if (el.value.trim() === "") blanks.push(fieldLabelFor(el.id));
+    });
+    UPLOAD_KEYS.forEach((key) => {
+      if (!uploadedImages[key] || uploadedImages[key].length === 0) {
+        const part = key.slice(-1);
+        const prob = key.slice(0, -1);
+        blanks.push(`Problem ${prob.slice(1)} (uploaded calculations for part ${part})`);
+      }
+    });
+    return blanks;
+  }
+
+  async function exportPdf() {
+    const blanks = findBlankItems();
+    if (blanks.length > 0) {
+      const proceed = confirm(
+        `The following are still blank:\n\n${blanks.map((b) => "\u2022 " + b).join("\n")}\n\nDo you want to export the PDF anyway?`
+      );
+      if (!proceed) return;
+    }
+
+    const btn = document.getElementById("exportPdfBtn");
+    const originalLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "EXPORTING\u2026";
+    setExportStatus("");
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "pt", format: "letter" });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 48;
+      const maxWidth = pageWidth - margin * 2;
+      let y = margin;
+
+      function ensureSpace(h) { if (y + h > pageHeight - margin) { doc.addPage(); y = margin; } }
+      function addHeading(text) {
+        ensureSpace(30);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(15);
+        doc.text(text, margin, y); y += 22;
+      }
+      function addText(text, opts) {
+        const size = (opts && opts.size) || 10.5;
+        const bold = !!(opts && opts.bold);
+        doc.setFont("helvetica", bold ? "bold" : "normal"); doc.setFontSize(size);
+        const lines = doc.splitTextToSize(text, maxWidth);
+        const lineHeight = size * 1.35;
+        lines.forEach((line) => { ensureSpace(lineHeight); doc.text(line, margin, y); y += lineHeight; });
+        y += 4;
+      }
+      async function addPlotImage(divId, fallbackLabel) {
+        let dataUrl;
+        try { dataUrl = await Plotly.toImage(divId, { format: "png", width: 900, height: 460 }); }
+        catch (err) { addText(`(${fallbackLabel}: plot image could not be captured.)`); return; }
+        const imgWidth = maxWidth;
+        const imgHeight = imgWidth * (460 / 900);
+        ensureSpace(imgHeight + 10);
+        doc.addImage(dataUrl, "PNG", margin, y, imgWidth, imgHeight);
+        y += imgHeight + 16;
+      }
+      function addUploadedImages(key) {
+        const entries = uploadedImages[key] || [];
+        if (entries.length === 0) return;
+        addText(`Uploaded work (${entries.length} image${entries.length > 1 ? "s" : ""}):`);
+        const maxW = maxWidth / 2;
+        const maxH = (pageHeight - margin * 2) / 2;
+        entries.forEach((entry) => {
+          const aspect = entry.height / entry.width;
+          let w = maxW, h = w * aspect;
+          if (h > maxH) { h = maxH; w = h / aspect; }
+          ensureSpace(h + 10);
+          const xPos = margin + (maxWidth - w) / 2;
+          doc.addImage(entry.dataUrl, "JPEG", xPos, y, w, h);
+          y += h + 16;
+        });
+      }
+
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+      doc.splitTextToSize("GroupWork 4W \u2014 Laplace Transform", maxWidth).forEach((line) => { doc.text(line, margin, y); y += 20; });
+      y += 6;
+
+      const netId = document.getElementById("input-netid").value.trim() || "(not entered)";
+      const groupIds = document.getElementById("input-group-netids").value.trim() || "(not entered)";
+      addText(`Your NetID: ${netId}`, { bold: true, size: 11.5 });
+      addText(`Group member NetIDs: ${groupIds}`, { bold: true, size: 11.5 });
+      y += 8;
+
+      const PROBLEM_TITLES = {
+        p1: "Problem 1: Mass Spring Damper (Free Response)",
+        p2: "Problem 2: Mass Spring Damper Forced Response",
+        p3: "Problem 3: Hanging Rod (Free Response)",
+        p4: "Problem 4: Hanging Rod Forced Response",
+      };
+      for (const prefix of ["p1", "p2", "p3", "p4"]) {
+        addHeading(PROBLEM_TITLES[prefix]);
+        addText(`X(s) = ${document.getElementById(`input-${prefix}-Xs`).value}`);
+        addUploadedImages(`${prefix}a`);
+        const A = document.getElementById(`input-${prefix}-A`).value;
+        const B = document.getElementById(`input-${prefix}-B`).value;
+        const C = document.getElementById(`input-${prefix}-C`).value;
+        const D = document.getElementById(`input-${prefix}-D`).value;
+        const E = document.getElementById(`input-${prefix}-E`).value;
+        addText(`A=${A}, B=${B}, C=${C}, D=${D}, E=${E}`);
+        if (runFlags[prefix]) await addPlotImage(`plot-${prefix}`, `${prefix} plot`); else addText("(Not yet checked.)");
+        addUploadedImages(`${prefix}b`);
+        addText("Discussion:", { bold: true, size: 10.5 });
+        addText(reflectionText(`input-${prefix}-reflection`));
+      }
+
+      const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+
+      if (appendixFiles.length > 0) {
+        const { PDFDocument } = window.PDFLib;
+        const mergedDoc = await PDFDocument.load(doc.output("arraybuffer"));
+        const failedAppendix = [];
+        for (const file of appendixFiles) {
+          try {
+            const fileBytes = await file.arrayBuffer();
+            const appendixDoc = await PDFDocument.load(fileBytes);
+            const copiedPages = await mergedDoc.copyPages(appendixDoc, appendixDoc.getPageIndices());
+            copiedPages.forEach((p) => mergedDoc.addPage(p));
+          } catch (err) {
+            console.error("Could not append PDF:", file.name, err);
+            failedAppendix.push(file.name);
+          }
+        }
+        const mergedBytes = await mergedDoc.save();
+        const blob = new Blob([mergedBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `GroupWork4W_${safeNetId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setExportStatus(
+          failedAppendix.length > 0
+            ? `PDF downloaded, but could not append: ${failedAppendix.join(", ")} (make sure these are valid PDF files).`
+            : "PDF downloaded (with appendix attached)."
+        );
+      } else {
+        doc.save(`GroupWork4W_${safeNetId}.pdf`);
+        setExportStatus("PDF downloaded.");
+      }
+    } catch (err) {
+      console.error("PDF export failed:", err);
+      setExportStatus(`Could not export PDF: ${err.message}`, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  }
+  document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+  // ---------------------------------------------------------------
+  // Progress autosave (localStorage)
+  // ---------------------------------------------------------------
+  const STORAGE_KEY = "gw4w_progress_v1";
+
+  function collectFieldValues() {
+    const values = {};
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((el) => {
+      values[el.id] = el.value;
+    });
+    return values;
+  }
+  function currentActiveTab() {
+    const active = document.querySelector(".nav-btn.active");
+    return active ? active.dataset.part : "intro";
+  }
+  function saveProgress() {
+    try {
+      const state = { activeTab: currentActiveTab(), fields: collectFieldValues(), uploadedImages: uploadedImages };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (err) {
+      // storage unavailable -- fail silently
+    }
+  }
+  let saveTimer = null;
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveProgress, 250);
+  }
+  document.addEventListener("input", scheduleSave);
+  document.addEventListener("click", scheduleSave);
+
+  function loadProgress() {
+    let raw;
+    try { raw = localStorage.getItem(STORAGE_KEY); } catch (err) { return; }
+    if (!raw) return;
+    let state;
+    try { state = JSON.parse(raw); } catch (err) { return; }
+
+    if (state.fields) {
+      Object.keys(state.fields).forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = state.fields[id];
+      });
+    }
+    if (state.uploadedImages) {
+      Object.keys(state.uploadedImages).forEach((key) => {
+        if (uploadedImages[key] !== undefined) {
+          uploadedImages[key] = state.uploadedImages[key] || [];
+          renderThumbnails(key);
+        }
+      });
+    }
+    ["p1", "p2", "p3", "p4"].forEach((prefix) => {
+      document.getElementById(`btn-${prefix}-Xs`).click();
+      document.getElementById(`btn-${prefix}-xt`).click();
+    });
+    if (state.activeTab) {
+      const btn = document.querySelector(`.nav-btn[data-part="${state.activeTab}"]`);
+      if (btn) btn.click();
+    }
+  }
+  loadProgress();
+})();
+</script>
+</body>
+</html>
