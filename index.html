@@ -186,7 +186,7 @@
     function renderCards(list, hostId) {
       const host = document.getElementById(hostId);
       host.innerHTML = list.map(item => `
-      <a class="card" href="/${item.id}/" target="_blank" rel="noopener">
+      <a class="card" href="${item.id}/index.html" target="_blank" rel="noopener">
         <p class="card-id">${item.label}</p>
         <p class="card-name">${item.name}</p>
       </a>
