@@ -926,8 +926,8 @@
         for (const t of tArr) {
           const c1 = Ct[0] * Math.cos(wn[0] * t);
           const c2 = Ct[1] * Math.cos(wn[1] * t);
-          x1.push(Phi[0][0] * c1 + Phi[1][0] * c2);
-          x2.push(Phi[0][1] * c1 + Phi[1][1] * c2);
+          x1.push(Phi[0][0] * c1 + Phi[0][1] * c2);
+          x2.push(Phi[1][0] * c1 + Phi[1][1] * c2);
         }
         return { x1, x2, lams, phis, wn, Ct };
       }

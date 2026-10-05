@@ -104,6 +104,8 @@
 
   .audio-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 14px 0; }
   .checkbox-row { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--fg); }
+  .signal-select { background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 6px 8px; }
+  .signal-select:focus { outline: none; border-color: var(--amber); }
   .checkbox-row input { width: 16px; height: 16px; }
   .audio-status { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin: 6px 0 0 0; }
 
@@ -178,9 +180,9 @@
         <div class="note-box">
           These are the (fixed) parameters of a real driver, the Dayton Audio RS180-8. The only parameter
           you'll adjust interactively is the filter time constant &tau;<sub>f</sub>, in Problems 2 and 4.
-          <b>Headphone note:</b> this tool synthesizes its own demo audio (a frequency sweep) and noise (pink
-          noise) directly in your browser &mdash; nothing is uploaded or embedded from any external track.
-          Keep your volume low the first time you press play.
+          <b>Headphone note:</b> the demo signals and the pink noise are .wav files loaded from the
+          <code class="mono">audio_wav_files</code> folder next to this page (open it through a local server,
+          not straight from disk). Keep your volume low the first time you press play.
         </div>
       </section>
 
@@ -295,12 +297,23 @@
       <section id="part-p3" style="display:none;">
         <h3 class="problem-title">Problem 3: Listen to the System</h3>
         <p class="instructions">
-          Turn your volume down low. The demo "signal" is a synthesized sweep from 20 Hz to 20 kHz &mdash;
-          the same range as human hearing &mdash; so you can hear exactly which frequencies the speaker
-          reproduces well. Compare the raw signal to the signal after it passes through your state-space
-          speaker model (using the filtered acoustic output, a(t)).
+          Turn your volume down low. Choose a signal from the dropdown and compare the raw signal to the
+          signal after it passes through your state-space speaker model (using the filtered acoustic
+          output, a(t)).
         </p>
         <p class="given-line">Using &tau;<sub>f</sub> = <b id="p3-tauf-echo">10<sup>&minus;10</sup></b> (set in Problem 2).</p>
+
+        <div class="checkbox-row" style="margin-bottom:14px;">
+          <label for="input-signal-p3">signal</label>
+          <select id="input-signal-p3" class="signal-select">
+            <option value="Systems_Dynamics_Rocks" selected>Systems_Dynamics_Rocks</option>
+            <option value="space_oddity">space_oddity</option>
+            <option value="taylor_22">taylor_22</option>
+            <option value="vienna">vienna</option>
+            <option value="jazz_crimes">jazz_crimes</option>
+            <option value="record_player">record_player</option>
+          </select>
+        </div>
 
         <div class="audio-controls">
           <button class="run-btn" id="btn-p3-play-raw">&#9654; PLAY RAW SIGNAL</button>
@@ -320,7 +333,7 @@
       <section id="part-p4" style="display:none;">
         <h3 class="problem-title">Problem 4: Noise and Filter</h3>
         <p class="instructions">
-          Check "noise" to add synthesized pink noise to the input and listen again &mdash; there should now
+          Check "noise" to add pink noise to the input and listen again &mdash; there should now
           be unwanted noise. Speech and music mostly concentrate their energy below a few kHz, while broadband
           (pink/white) noise spans the whole audible range; a low-pass filter can only attenuate noise by also
           attenuating the signal wherever their spectra overlap. Choose a &tau;<sub>f</sub> and click Update to
@@ -328,8 +341,19 @@
         </p>
 
         <div class="checkbox-row" style="margin-bottom:14px;">
+          <label for="input-signal-p4">signal</label>
+          <select id="input-signal-p4" class="signal-select">
+            <option value="Systems_Dynamics_Rocks" selected>Systems_Dynamics_Rocks</option>
+            <option value="space_oddity">space_oddity</option>
+            <option value="taylor_22">taylor_22</option>
+            <option value="vienna">vienna</option>
+            <option value="jazz_crimes">jazz_crimes</option>
+            <option value="record_player">record_player</option>
+          </select>
+        </div>
+        <div class="checkbox-row" style="margin-bottom:14px;">
           <input type="checkbox" id="input-noise" />
-          <label for="input-noise">add noise (pink noise, synthesized)</label>
+          <label for="input-noise">add noise (pink noise)</label>
         </div>
 
         <div class="panel-box">
@@ -722,51 +746,45 @@
   document.getElementById("btn-p4-update").addEventListener("click", () => { renderBodeGrid("p4-", currentTaufP4); runFlags.p4bode = true; scheduleSave(); });
 
   // =================================================================
-  // Audio: signal synthesis, pink noise, ZOH simulation, playback
+  // Audio: .wav loading, pink noise, ZOH simulation, playback
   // =================================================================
-  const FS = 44100, DUR = 3.0, NSAMP = Math.round(FS * DUR);
-  function generateSweep() {
-    const f0 = 20, f1 = 20000;
-    const kk = Math.pow(f1 / f0, 1 / DUR);
-    const out = new Float32Array(NSAMP);
-    for (let n = 0; n < NSAMP; n++) {
-      const t = n / FS;
-      const phase = (2 * Math.PI * f0 * (Math.pow(kk, t) - 1)) / Math.log(kk);
-      let env = 1;
-      const fadeN = Math.round(0.02 * FS);
-      if (n < fadeN) env = n / fadeN; else if (n > NSAMP - fadeN) env = (NSAMP - n) / fadeN;
-      out[n] = 0.3 * Math.sin(phase) * env;
+  const FS = 44100;
+  const AUDIO_DIR = "audio_wav_files/";
+  const NOISE_FILE = "pink_noise";
+
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      // sampleRate 44100 so decodeAudioData doesn't resample (ZOH uses Fs = 44100)
+      try { audioCtx = new Ctx({ sampleRate: FS }); } catch (e) { audioCtx = new Ctx(); }
     }
+    return audioCtx;
+  }
+
+  // name -> Promise<AudioBuffer>; a failed load is dropped so it can be retried
+  const wavCache = {};
+  function loadWav(name) {
+    if (!wavCache[name]) {
+      const url = AUDIO_DIR + name + ".wav";
+      wavCache[name] = fetch(url)
+        .then((res) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.arrayBuffer(); })
+        .then((data) => new Promise((resolve, reject) => getAudioCtx().decodeAudioData(data, resolve, reject)))
+        .catch((err) => {
+          delete wavCache[name];
+          throw new Error(`Could not load ${url} (${(err && err.message) || err}).`);
+        });
+    }
+    return wavCache[name];
+  }
+
+  // Vn = first N samples of pink_noise.wav (first channel), looped if shorter
+  function noiseOfLength(noiseBuf, N) {
+    const src = noiseBuf.getChannelData(0);
+    const out = new Float32Array(N);
+    for (let i = 0; i < N; i++) out[i] = src[i % src.length];
     return out;
   }
-  function generatePinkNoise() {
-    // Voss-McCartney algorithm
-    const out = new Float32Array(NSAMP);
-    const nRows = 16;
-    const rows = new Float32Array(nRows);
-    let runningSum = 0;
-    for (let n = 0; n < NSAMP; n++) {
-      let idx = n === 0 ? 0 : (n & -n); // lowest set bit trick -> which row to update
-      let rowIdx = 0;
-      let m = n + 1;
-      while ((m & 1) === 0 && rowIdx < nRows - 1) { m >>= 1; rowIdx++; }
-      runningSum -= rows[rowIdx];
-      const newVal = Math.random() * 2 - 1;
-      rows[rowIdx] = newVal;
-      runningSum += newVal;
-      const white = Math.random() * 2 - 1;
-      out[n] = (runningSum + white) / (nRows + 1);
-    }
-    // normalize to a modest fixed RMS
-    let sumSq = 0; for (let i = 0; i < NSAMP; i++) sumSq += out[i] * out[i];
-    const rms = Math.sqrt(sumSq / NSAMP);
-    const target = 0.05;
-    for (let i = 0; i < NSAMP; i++) out[i] = (out[i] / (rms || 1)) * target;
-    return out;
-  }
-  let cachedSweep = null, cachedPink = null;
-  function getSweep() { if (!cachedSweep) cachedSweep = generateSweep(); return cachedSweep; }
-  function getPink() { if (!cachedPink) cachedPink = generatePinkNoise(); return cachedPink; }
 
   // Simulate the full 4-state MIMO system via exact ZOH discretization
   // (Ad, Bd recomputed only when Tauf changes).
@@ -797,15 +815,17 @@
     return { x: xOut, a: aOut };
   }
 
-  let audioCtx = null;
-  function getAudioCtx() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
   let activeSources = [];
   function stopAll() { activeSources.forEach((s) => { try { s.stop(); } catch (e) {} }); activeSources = []; }
-  function playBuffer(float32, gain) {
+  // channels: array of Float32Array (1 = mono, 2 = stereo)
+  function playBuffer(channels, gain) {
     const ctx = getAudioCtx();
-    const buf = ctx.createBuffer(1, float32.length, FS);
-    const chan = buf.getChannelData(0);
-    for (let i = 0; i < float32.length; i++) chan[i] = float32[i] * gain;
+    if (ctx.state === "suspended") ctx.resume();
+    const buf = ctx.createBuffer(channels.length, channels[0].length, FS);
+    channels.forEach((arr, c) => {
+      const chan = buf.getChannelData(c);
+      for (let i = 0; i < arr.length; i++) chan[i] = arr[i] * gain;
+    });
     const src = ctx.createBufferSource();
     src.buffer = buf; src.connect(ctx.destination); src.start();
     activeSources.push(src);
@@ -817,9 +837,9 @@
     for (let i = 0; i < filtArr.length; i++) peak = Math.max(peak, Math.abs(filtArr[i]));
     return 0.85 / peak;
   }
-  function soloGain(arr) {
+  function soloGain(channels) {
     let peak = 1e-9;
-    for (let i = 0; i < arr.length; i++) peak = Math.max(peak, Math.abs(arr[i]));
+    channels.forEach((arr) => { for (let i = 0; i < arr.length; i++) peak = Math.max(peak, Math.abs(arr[i])); });
     return 0.85 / peak;
   }
   function plotWaveforms(divId, rawArr, filtArr) {
@@ -833,41 +853,63 @@
     ], Object.assign(plotLayout("amplitude", { xTitle: "time [s]", xaxis: { type: "linear" } }), { showlegend: true, legend: { orientation: "h", y: -0.3 } }), PLOT_OPTS);
   }
 
-  function buildProblemAudio(prefix, taufGetter, noiseGetter, statusId, waveId) {
-    let lastRaw = null, lastFilt = null, lastGain = 1;
-    function ensureSimulated() {
-      const Tauf = taufGetter();
-      const vsArr = getSweep();
-      const vnArr = noiseGetter() ? getPink() : new Float32Array(NSAMP);
-      const raw = new Float32Array(NSAMP);
-      for (let i = 0; i < NSAMP; i++) raw[i] = vsArr[i] + vnArr[i];
-      const { a } = simulate(vsArr, vnArr, Tauf);
-      lastRaw = raw; lastFilt = a;
-      lastGain = sharedGain(raw, a);
-      plotWaveforms(waveId, raw.map((v) => v * lastGain), a.map((v) => v * lastGain));
-      return { raw, a, gain: lastGain };
+  function buildProblemAudio(prefix, taufGetter, noiseGetter, signalGetter, statusId, waveId) {
+    const statusEl = document.getElementById(statusId);
+    let last = null; // { key, raw: [ch...], a: [ch...] }
+    let reqId = 0;   // bumped on every play/stop so stale async work is dropped
+    async function ensureSimulated(myReq) {
+      const Tauf = taufGetter(), noise = noiseGetter(), name = signalGetter();
+      const key = `${name}|${noise}|${Tauf}`;
+      if (last && last.key === key) return last;
+      statusEl.textContent = `Loading ${name}.wav...`;
+      const [sigBuf, noiseBuf] = await Promise.all([loadWav(name), noise ? loadWav(NOISE_FILE) : null]);
+      if (myReq !== reqId) return null;
+      const N = sigBuf.length;
+      const vn = noise ? noiseOfLength(noiseBuf, N) : new Float32Array(N);
+      statusEl.textContent = `Processing ${name} (${(N / FS).toFixed(1)} s, ${sigBuf.numberOfChannels === 2 ? "stereo" : "mono"})...`;
+      await new Promise((r) => setTimeout(r, 30)); // let the status paint before the long loop
+      if (myReq !== reqId) return null;
+      // u = [Vs, Vn]; each channel of a stereo file runs through the system with the same Vn
+      const raw = [], a = [];
+      for (let c = 0; c < sigBuf.numberOfChannels; c++) {
+        const vs = sigBuf.getChannelData(c);
+        const r = new Float32Array(N);
+        for (let i = 0; i < N; i++) r[i] = vs[i] + vn[i];
+        raw.push(r);
+        a.push(simulate(vs, vn, Tauf).a);
+      }
+      const gain = sharedGain(raw[0], a[0]);
+      plotWaveforms(waveId, raw[0].map((v) => v * gain), a[0].map((v) => v * gain));
+      last = { key, raw, a };
+      return last;
     }
-    document.getElementById(`btn-${prefix}-play-raw`).addEventListener("click", () => {
+    async function play(which) {
       stopAll();
-      const { raw } = ensureSimulated();
-      playBuffer(raw, soloGain(raw));
-      document.getElementById(statusId).textContent = "Playing raw signal" + (noiseGetter() ? " + noise" : "") + "...";
+      const myReq = ++reqId;
+      let sim;
+      try { sim = await ensureSimulated(myReq); }
+      catch (err) {
+        if (myReq === reqId) statusEl.textContent = `${err.message} If you opened index.html directly from disk (file://), serve the folder with a local server such as VS Code Live Server.`;
+        return;
+      }
+      if (!sim || myReq !== reqId) return;
+      const chans = which === "raw" ? sim.raw : sim.a;
+      playBuffer(chans, soloGain(chans));
+      statusEl.textContent = which === "raw"
+        ? "Playing raw signal" + (noiseGetter() ? " + noise" : "") + "..."
+        : "Playing through speaker model...";
       runFlags[prefix + "audio"] = true; scheduleSave();
-    });
-    document.getElementById(`btn-${prefix}-play-filtered`).addEventListener("click", () => {
-      stopAll();
-      const { a } = ensureSimulated();
-      playBuffer(a, soloGain(a));
-      document.getElementById(statusId).textContent = "Playing through speaker model...";
-      runFlags[prefix + "audio"] = true; scheduleSave();
-    });
+    }
+    document.getElementById(`btn-${prefix}-play-raw`).addEventListener("click", () => play("raw"));
+    document.getElementById(`btn-${prefix}-play-filtered`).addEventListener("click", () => play("filtered"));
     document.getElementById(`btn-${prefix}-stop`).addEventListener("click", () => {
+      reqId++;
       stopAll();
-      document.getElementById(statusId).textContent = "Stopped.";
+      statusEl.textContent = "Stopped.";
     });
   }
-  buildProblemAudio("p3", () => currentTaufP2, () => false, "p3-audio-status", "plot-p3-wave");
-  buildProblemAudio("p4", () => currentTaufP4, () => document.getElementById("input-noise").checked, "p4-audio-status", "plot-p4-wave");
+  buildProblemAudio("p3", () => currentTaufP2, () => false, () => document.getElementById("input-signal-p3").value, "p3-audio-status", "plot-p3-wave");
+  buildProblemAudio("p4", () => currentTaufP4, () => document.getElementById("input-noise").checked, () => document.getElementById("input-signal-p4").value, "p4-audio-status", "plot-p4-wave");
 
   // =================================================================
   // PDF export
@@ -976,7 +1018,7 @@
   const STORAGE_KEY = "gw7f_progress_v1";
   function collectFieldValues() {
     const values = {};
-    document.querySelectorAll('input[id^="input-"], input[id^="grid-"], textarea[id^="input-"]').forEach((el) => {
+    document.querySelectorAll('input[id^="input-"], input[id^="grid-"], textarea[id^="input-"], select[id^="input-"]').forEach((el) => {
       values[el.id] = el.type === "checkbox" ? el.checked : el.value;
     });
     return values;
