@@ -100,6 +100,8 @@
   .bode-panel h5 { margin: 0 0 8px 0; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--pink); text-transform: uppercase; letter-spacing: 0.03em; }
   .plot-host { height: 210px; background: var(--panel); border-radius: 6px; }
   .plot-host.tall { height: 260px; }
+  .wave-note { font-size: 12.5px; color: var(--amber); margin: 0 0 10px 0; }
+  .wave-label { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin: 10px 0 4px 0; letter-spacing: 0.03em; }
   .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 13px; text-align: center; max-width: 320px; margin: 0 auto; padding: 0 20px; }
 
   .audio-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 14px 0; }
@@ -322,7 +324,11 @@
         </div>
         <p class="audio-status" id="p3-audio-status">Ready.</p>
         <p class="plot-label" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin: 18px 0 6px 0;">TIME-DOMAIN WAVEFORMS (RAW vs. FILTERED)</p>
-        <div class="plot-host tall" id="plot-p3-wave"></div>
+        <p class="wave-note">Each plot has its own y-axis scale so you can see both shapes &mdash; look at the amplitude scales on the axes when comparing the two.</p>
+        <p class="wave-label">RAW INPUT</p>
+        <div class="plot-host" id="plot-p3-wave-raw"></div>
+        <p class="wave-label">FILTERED (SPEAKER OUTPUT a)</p>
+        <div class="plot-host" id="plot-p3-wave-filt"></div>
 
         <h4 class="part-title">Discussion</h4>
         <p class="instructions">How does the speaker change the sound? The range of human hearing is 20 Hz&ndash;20 kHz &mdash; what shortcomings does this speaker have in reproducing audible sound? (Look at the Bode plots from Problem 2.)</p>
@@ -382,7 +388,12 @@
           <button class="run-btn secondary" id="btn-p4-stop">&#9632; STOP</button>
         </div>
         <p class="audio-status" id="p4-audio-status">Ready.</p>
-        <div class="plot-host tall" id="plot-p4-wave"></div>
+        <p class="plot-label" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin: 18px 0 6px 0;">TIME-DOMAIN WAVEFORMS (RAW vs. FILTERED)</p>
+        <p class="wave-note">Each plot has its own y-axis scale so you can see both shapes &mdash; look at the amplitude scales on the axes when comparing the two.</p>
+        <p class="wave-label">RAW INPUT</p>
+        <div class="plot-host" id="plot-p4-wave-raw"></div>
+        <p class="wave-label">FILTERED (SPEAKER OUTPUT a)</p>
+        <div class="plot-host" id="plot-p4-wave-filt"></div>
 
         <h4 class="part-title">Discussion</h4>
         <p class="instructions">How are the bode plots different? How are the sound of the signal and the noise different? Try choosing different values of &tau;<sub>f</sub> and see how that changes things.</p>
@@ -831,26 +842,24 @@
     activeSources.push(src);
     return src;
   }
-  function sharedGain(rawArr, filtArr) {
-    let peak = 1e-9;
-    for (let i = 0; i < rawArr.length; i++) peak = Math.max(peak, Math.abs(rawArr[i]));
-    for (let i = 0; i < filtArr.length; i++) peak = Math.max(peak, Math.abs(filtArr[i]));
-    return 0.85 / peak;
-  }
   function soloGain(channels) {
     let peak = 1e-9;
     channels.forEach((arr) => { for (let i = 0; i < arr.length; i++) peak = Math.max(peak, Math.abs(arr[i])); });
     return 0.85 / peak;
   }
-  function plotWaveforms(divId, rawArr, filtArr) {
+  // Raw and filtered on separate stacked plots, each autoscaled in its own units
+  function plotWaveforms(waveId, rawArr, filtArr) {
     const N = rawArr.length;
     const stride = Math.max(1, Math.floor(N / 4000));
     const tArr = [], rawDs = [], filtDs = [];
     for (let i = 0; i < N; i += stride) { tArr.push(i / FS); rawDs.push(rawArr[i]); filtDs.push(filtArr[i]); }
-    Plotly.newPlot(divId, [
+    const layout = (yTitle) => plotLayout(yTitle, { xTitle: "time [s]", xaxis: { type: "linear" } });
+    Plotly.newPlot(waveId + "-raw", [
       { x: tArr, y: rawDs, mode: "lines", line: { color: "#8B92A5", width: 1 }, name: "raw" },
-      { x: tArr, y: filtDs, mode: "lines", line: { color: "#FFB454", width: 1 }, name: "filtered (a, normalized)" },
-    ], Object.assign(plotLayout("amplitude", { xTitle: "time [s]", xaxis: { type: "linear" } }), { showlegend: true, legend: { orientation: "h", y: -0.3 } }), PLOT_OPTS);
+    ], layout("raw input [V]"), PLOT_OPTS);
+    Plotly.newPlot(waveId + "-filt", [
+      { x: tArr, y: filtDs, mode: "lines", line: { color: "#FFB454", width: 1 }, name: "filtered a" },
+    ], layout("filtered output a"), PLOT_OPTS);
   }
 
   function buildProblemAudio(prefix, taufGetter, noiseGetter, signalGetter, statusId, waveId) {
@@ -878,8 +887,7 @@
         raw.push(r);
         a.push(simulate(vs, vn, Tauf).a);
       }
-      const gain = sharedGain(raw[0], a[0]);
-      plotWaveforms(waveId, raw[0].map((v) => v * gain), a[0].map((v) => v * gain));
+      plotWaveforms(waveId, raw[0], a[0]);
       last = { key, raw, a };
       return last;
     }
@@ -989,7 +997,7 @@
       addHeading("Problem 3: Listening Test");
       addText("Discussion:", { bold: true, size: 10.5 });
       addText(reflectionText("input-p3-reflection"));
-      if (runFlags.p3audio) await addPlotImage("plot-p3-wave", "waveform"); else addText("(Audio not yet played.)");
+      if (runFlags.p3audio) { await addPlotImage("plot-p3-wave-raw", "raw waveform"); await addPlotImage("plot-p3-wave-filt", "filtered waveform"); } else addText("(Audio not yet played.)");
 
       addHeading("Problem 4: Noise and Filter");
       addText(`Noise enabled: ${document.getElementById("input-noise").checked ? "yes" : "no"}`);
@@ -997,7 +1005,7 @@
       addText("Discussion:", { bold: true, size: 10.5 });
       addText(reflectionText("input-p4-reflection"));
       if (runFlags.p4bode) { await addPlotImage("plot-p4-mag-x-vs", "vs->x mag (final)"); await addPlotImage("plot-p4-mag-a-vs", "vs->a mag (final)"); }
-      if (runFlags.p4audio) await addPlotImage("plot-p4-wave", "waveform (final)");
+      if (runFlags.p4audio) { await addPlotImage("plot-p4-wave-raw", "raw waveform (final)"); await addPlotImage("plot-p4-wave-filt", "filtered waveform (final)"); }
 
       const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
       doc.save(`GroupWork7F_${safeNetId}.pdf`);
