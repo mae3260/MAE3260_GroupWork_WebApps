@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GroupWork 6W &mdash; Bode Plot Generator</title>
+  <title>GroupWork Tools &mdash; Bode Plots &amp; State Space</title>
 
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
@@ -577,6 +577,10 @@
       height: 260px;
     }
 
+    #part-build .plot-pair .plot-host {
+      height: 330px;
+    }
+
     .plot-pair .plot-label {
       margin-top: 8px;
     }
@@ -623,30 +627,6 @@
       color: var(--muted);
       font: 11px 'JetBrains Mono', monospace;
       overflow-wrap: anywhere;
-    }
-
-    .builder-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 14px;
-      margin: 8px 0 2px;
-      min-height: 20px;
-    }
-
-    .builder-legend-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--muted);
-      font: 11px 'JetBrains Mono', monospace;
-      overflow-wrap: anywhere;
-    }
-
-    .builder-legend-swatch {
-      width: 14px;
-      height: 3px;
-      flex: 0 0 14px;
-      background: currentColor;
     }
 
     .factor-order {
@@ -747,6 +727,533 @@
       .plot-pair .plot-host {
         height: 230px;
       }
+
+      #part-build .plot-pair .plot-host {
+        height: 300px;
+      }
+    }
+
+    /* ---------- Main tool switch + sub-tabs ---------- */
+    .sub-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 22px 0;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .sub-tab {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--fg);
+      cursor: pointer;
+      font: 12px 'JetBrains Mono', monospace;
+      padding: 9px 14px;
+      text-align: left;
+    }
+
+    .sub-tab small {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .sub-tab.active {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .nav-btn:focus-visible,
+    .sub-tab:focus-visible,
+    .ss-rowbtn:focus-visible,
+    .ss-seg button:focus-visible,
+    .ss-select:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }
+
+    /* ---------- State space ---------- */
+    .ss-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 18px;
+    }
+
+    .ss-tl {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font: 12px 'JetBrains Mono', monospace;
+      color: var(--muted);
+    }
+
+    .ss-select {
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font: 12px 'JetBrains Mono', monospace;
+      padding: 8px;
+    }
+
+    .ss-seg {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .ss-seg button {
+      background: var(--ink);
+      color: var(--muted);
+      border: 0;
+      padding: 8px 12px;
+      font: 12px 'JetBrains Mono', monospace;
+      cursor: pointer;
+    }
+
+    .ss-seg button[aria-pressed="true"] {
+      background: var(--panel2);
+      color: var(--cyan);
+    }
+
+    .ss-dims {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ss-chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font: 12px 'JetBrains Mono', monospace;
+      color: var(--fg);
+    }
+
+    .ss-chip b {
+      color: var(--amber);
+      font-weight: 600;
+    }
+
+    .ss-params {
+      width: 100%;
+      font: 12px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .ss-params .katex {
+      color: var(--muted);
+    }
+
+    .ss-two {
+      display: grid;
+      grid-template-columns: minmax(250px, 1fr) minmax(300px, 1fr);
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
+    .ss-phys {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .ss-phys svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .ss-phys text {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .ss-phys .ss-hot {
+      cursor: pointer;
+      outline: none;
+      transition: opacity 0.15s ease, filter 0.15s ease;
+    }
+
+    .ss-phys.has-hl .ss-hot:not(.hl) {
+      opacity: 0.3;
+    }
+
+    .ss-phys .ss-hot.hl,
+    .ss-phys .ss-hot:focus-visible {
+      filter: drop-shadow(0 0 4px currentColor);
+    }
+
+    .ss-eqs {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ss-eqrow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 2px 4px;
+      padding: 6px 8px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    .ss-eqrow.hl,
+    .ss-eqrow.hl-soft {
+      background: rgba(255, 255, 255, 0.035);
+      border-color: var(--line);
+    }
+
+    .ss-term,
+    .ss-lhs,
+    .ss-cell,
+    .ss-pick {
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 2px 4px;
+      outline: none;
+      transition: background 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .ss-term:focus-visible,
+    .ss-lhs:focus-visible,
+    .ss-cell:focus-visible,
+    .ss-pick:focus-visible {
+      box-shadow: 0 0 0 2px var(--fg);
+    }
+
+    .ss-term.hl,
+    .ss-lhs.hl,
+    .ss-cell.hl,
+    .ss-pick.hl {
+      background: color-mix(in srgb, var(--c) 24%, transparent);
+      box-shadow: 0 0 0 2px var(--c);
+    }
+
+    .ss-term.hl-soft,
+    .ss-lhs.hl-soft,
+    .ss-cell.hl-soft,
+    .ss-pick.hl-soft {
+      background: color-mix(in srgb, var(--c) 9%, transparent);
+    }
+
+    .ss-cell.ss-zero.hl-soft {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .ss-term.locked,
+    .ss-lhs.locked,
+    .ss-cell.locked,
+    .ss-pick.locked {
+      box-shadow: 0 0 0 2px var(--c), 0 0 0 5px rgba(231, 233, 238, 0.2);
+    }
+
+    .ss-term .katex,
+    .ss-lhs .katex,
+    .ss-cell.ss-nz .katex,
+    .ss-vec .katex,
+    .ss-pick .katex {
+      color: var(--c);
+    }
+
+    .ss-cell.ss-zero .katex {
+      color: #5B6275;
+    }
+
+    .ss-alias .katex,
+    .ss-note,
+    .ss-note .katex,
+    .ss-plus .katex,
+    .ss-eqsign .katex {
+      color: var(--muted);
+    }
+
+    .ss-note {
+      font-size: 12px;
+      margin-left: 8px;
+      font-style: italic;
+    }
+
+    .ss-block {
+      overflow-x: auto;
+      padding: 12px 4px 2px;
+      margin: 8px 0 4px;
+    }
+
+    /* Two-row grid: matrices/vectors centered on row 1, every caption
+       lined up on row 2 regardless of how tall its matrix is. */
+    .ss-line {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-rows: auto auto;
+      align-items: center;
+      justify-items: center;
+      column-gap: 8px;
+      width: max-content;
+      margin: 0 auto 16px;
+    }
+
+    .ss-blk,
+    .ss-op {
+      display: contents;
+    }
+
+    .ss-op-sym {
+      font-size: 16px;
+      padding: 0 2px;
+    }
+
+    .ss-cap {
+      align-self: start;
+      height: 34px;
+      margin-top: 6px;
+      font: 11px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      text-align: center;
+      white-space: nowrap;
+      line-height: 1.35;
+    }
+
+    .ss-cap-name .katex {
+      font-size: 1.15em;
+    }
+
+    .ss-shape {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .ss-details > summary {
+      cursor: pointer;
+      margin: 22px 0 10px;
+      font: 600 13px 'JetBrains Mono', monospace;
+      color: var(--fg);
+    }
+
+    .ss-details > summary:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }
+
+    .ss-opt {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .ss-mat {
+      position: relative;
+      display: grid;
+      gap: 2px 4px;
+      padding: 4px 10px;
+    }
+
+    .ss-mat::before,
+    .ss-mat::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      border: 1.5px solid var(--muted);
+    }
+
+    .ss-mat::before {
+      left: 0;
+      border-right: 0;
+    }
+
+    .ss-mat::after {
+      right: 0;
+      border-left: 0;
+    }
+
+
+    .ss-cell {
+      min-width: 36px;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+
+
+
+    /* Pinned to the top of the scroll area so the explanation stays in
+       view while hovering anywhere on the (long) state-space page. */
+    .ss-readout {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      /* first shadow paints the page background over the scroll area's top
+         padding, so content scrolling underneath doesn't peek out above */
+      box-shadow: 0 -28px 0 var(--ink), 0 6px 24px rgba(0, 0, 0, 0.45);
+      background: var(--panel2);
+      border-left: 3px solid var(--cyan);
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 28px 0 18px;
+      font-size: 13.5px;
+      line-height: 1.8;
+      min-height: 50px;
+      overflow-x: auto;
+    }
+
+    .ss-picks {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .ss-picks .panel-box {
+      margin: 0;
+      padding: 14px 16px;
+    }
+
+    .ss-picks ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .ss-rule {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 8px 0 0;
+    }
+
+    .ss-rowpicker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 4px 0 6px;
+    }
+
+    .ss-rowpicker .lbl {
+      font: 12px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      margin-right: 4px;
+    }
+
+    .ss-rowbtn {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 5px 12px;
+      cursor: pointer;
+      color: var(--fg);
+    }
+
+    .ss-rowbtn .katex {
+      color: var(--c);
+    }
+
+    .ss-rowbtn[aria-pressed="true"] {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+    }
+
+    .ss-mult-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .ss-mult-controls .run-btn {
+      padding: 8px 14px;
+      font-size: 12px;
+    }
+
+    .ss-mstep {
+      font: 12px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .ss-mline {
+      border-top: 1px solid var(--line);
+      padding: 12px 0 8px;
+    }
+
+    .ss-mcap {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .ss-mcap .katex {
+      color: var(--muted);
+    }
+
+    .ss-mexpr {
+      overflow-x: auto;
+      font-size: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 6px;
+    }
+
+    .ss-mzero {
+      opacity: 0.45;
+    }
+
+    .ss-mmore .katex {
+      color: var(--muted);
+    }
+
+    .ss-match {
+      color: var(--cyan);
+    }
+
+    .fresh {
+      animation: ssIn 0.45s ease;
+    }
+
+    @keyframes ssIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fresh {
+        animation: none;
+      }
+    }
+
+    @media (max-width: 850px) {
+
+      .ss-two,
+      .ss-picks {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -755,22 +1262,28 @@
 
   <header>
     <div class="dot"></div>
-    <h1>GROUPWORK 6W <span>&mdash; Bode Plot Generator (M&amp;AE 3260)</span></h1>
+    <h1>GROUPWORK TOOLS <span>&mdash; Bode Plots &amp; State Space (M&amp;AE 3260)</span></h1>
   </header>
 
   <main>
     <nav>
-      <p class="label">BODE PLOTS</p>
-      <button class="nav-btn active" data-part="learn">Learn the Factors<small>One building block at a
-          time</small></button>
-      <button class="nav-btn" data-part="build">Build a Transfer Function<small>Combine and compare
-          contributions</small></button>
-      <button class="nav-btn" data-part="checker">Plot Accuracy Checker<small>Compare your sketch with the exact
-          response</small></button>
+      <p class="label">TOOLS</p>
+      <button class="nav-btn active" data-main="bode">Bode Plots<small>Frequency response, factor by
+          factor</small></button>
+      <button class="nav-btn" data-main="ss">State Space<small>From equations to A, B, C, D</small></button>
     </nav>
 
     <div class="content">
       <div class="wrap">
+
+        <div class="sub-tabs" data-main="bode" role="tablist" aria-label="Bode plot tools">
+          <button class="sub-tab active" role="tab" aria-selected="true" data-part="learn">1 &middot; Learn the
+            Factors<small>One building block at a time</small></button>
+          <button class="sub-tab" role="tab" aria-selected="false" data-part="build">2 &middot; Build a Transfer
+            Function<small>Combine and compare contributions</small></button>
+          <button class="sub-tab" role="tab" aria-selected="false" data-part="checker">3 &middot; Plot Accuracy
+            Checker<small>Compare your sketch with the exact response</small></button>
+        </div>
 
         <section id="part-learn">
           <h2 class="section-title">Learn to Sketch Bode Plots</h2>
@@ -821,6 +1334,7 @@
               <div class="panel-box">
                 <h4>Gain</h4>
                 <div id="builder-gain-control"></div>
+                <div class="lesson-equation" id="builder-gain-db"></div>
                 <div class="lesson-equation builder-equation" id="builder-equation"></div>
               </div>
               <div class="panel-box">
@@ -841,10 +1355,8 @@
             </div>
             <div class="plot-pair">
               <p class="plot-label">Individual magnitude components and total [dB]</p>
-              <div class="builder-legend" id="builder-mag-legend" aria-label="Magnitude plot labels"></div>
               <div class="plot-host" id="plot-builder-mag"></div>
               <p class="plot-label">Individual phase components and total [degrees]</p>
-              <div class="builder-legend" id="builder-phase-legend" aria-label="Phase plot labels"></div>
               <div class="plot-host" id="plot-builder-phase"></div>
             </div>
           </div>
@@ -944,6 +1456,47 @@
           <p class="plot-label">phase difference [degrees]</p>
           <div class="plot-host" id="plot-bode-phase"></div>
         </section>
+
+        <!-- ============== STATE SPACE ============== -->
+        <div id="ss-root" style="display:none;">
+          <div class="panel-box ss-toolbar">
+            <label class="ss-tl" for="ss-example">System
+              <select id="ss-example" class="ss-select"></select>
+            </label>
+            <div class="ss-seg" role="group" aria-label="Show coefficients as">
+              <button type="button" id="ss-btn-sym" aria-pressed="true">Symbols</button>
+              <button type="button" id="ss-btn-num" aria-pressed="false">Numbers</button>
+            </div>
+            <div class="ss-dims" id="ss-dims"></div>
+            <div class="ss-params" id="ss-params"></div>
+          </div>
+
+          <section id="part-ss" style="display:none;">
+            <h2 class="section-title">State Space</h2>
+            <p class="instructions" style="margin-bottom:0;">Go from the physics to the state-space model one step at
+              a time.</p>
+            <div class="ss-readout" aria-live="polite"></div>
+            <div id="ss-main"></div>
+
+            <details class="ss-details">
+            <summary class="part-title">6. Multiply it out <span class="ss-opt">(from state space back to the equations)</span></summary>
+            <p class="ss-rule" style="margin:0 0 10px;">Pick a row of &#7818; or Y (or click one in the matrices
+              above) and step through the row-times-column product. It rebuilds that row's rearranged equation, term
+              by term.</p>
+            <div class="ss-rowpicker" id="ss-rowpicker"></div>
+            <div class="panel-box">
+              <div class="ss-mult-controls">
+                <button type="button" class="run-btn secondary" id="ss-m-back">&larr; BACK</button>
+                <button type="button" class="run-btn" id="ss-m-next">NEXT STEP &rarr;</button>
+                <button type="button" class="run-btn secondary" id="ss-m-play">PLAY</button>
+                <button type="button" class="run-btn secondary" id="ss-m-all">SHOW ALL</button>
+                <span class="ss-mstep" id="ss-m-step"></span>
+              </div>
+              <div id="ss-mult-lines" aria-live="polite"></div>
+            </div>
+            </details>
+          </section>
+        </div>
 
       </div>
     </div>
@@ -1152,12 +1705,27 @@
       let builderGain = 1;
       let nextComponentId = 1;
 
+      // Two main tools (side nav). Bode Plots has three sub-tabs; switching
+      // back to it returns to whichever sub-tab was open last.
+      const PART_MAIN = { learn: "bode", build: "bode", checker: "bode", ss: "ss" };
+      const lastPart = { bode: "learn", ss: "ss" };
       function showPart(part) {
+        const mainTool = PART_MAIN[part];
+        lastPart[mainTool] = part;
         document.querySelectorAll("main .content section[id^='part-']").forEach((section) => {
           section.style.display = section.id === `part-${part}` ? "" : "none";
         });
-        document.querySelectorAll(".nav-btn[data-part]").forEach((button) => {
-          button.classList.toggle("active", button.dataset.part === part);
+        document.getElementById("ss-root").style.display = mainTool === "ss" ? "" : "none";
+        document.querySelectorAll(".sub-tabs").forEach((bar) => {
+          bar.style.display = bar.dataset.main === mainTool ? "" : "none";
+        });
+        document.querySelectorAll(".sub-tab").forEach((button) => {
+          const on = button.dataset.part === part;
+          button.classList.toggle("active", on);
+          button.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        document.querySelectorAll(".nav-btn[data-main]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.main === mainTool);
         });
         if (part === "learn") drawLesson();
         if (part === "build") drawBuilder();
@@ -1166,7 +1734,10 @@
           Plotly.Plots.resize("plot-bode-phase");
         }
       }
-      document.querySelectorAll(".nav-btn[data-part]").forEach((button) => {
+      document.querySelectorAll(".nav-btn[data-main]").forEach((button) => {
+        button.addEventListener("click", () => showPart(lastPart[button.dataset.main]));
+      });
+      document.querySelectorAll(".sub-tab").forEach((button) => {
         button.addEventListener("click", () => showPart(button.dataset.part));
       });
 
@@ -1367,6 +1938,7 @@
         const numerator = builderComponents.filter((item) => item.type.includes("zero")).map(componentLatex);
         const denominator = builderComponents.filter((item) => item.type.includes("pole")).map(componentLatex);
         numerator.unshift(fmt(builderGain));
+        katex.render(`|K|_{\\text{dB}}=20\\log_{10}(${fmt(builderGain)})=${fmt(20 * Math.log10(builderGain))}\\ \\text{dB}`, document.getElementById("builder-gain-db"), { throwOnError: false, displayMode: true });
         katex.render(`G(s)=\\dfrac{${numerator.join("\\,\\cdot\\,")}}{${denominator.length ? denominator.join("\\,\\cdot\\,") : "1"}}`, document.getElementById("builder-equation"), { throwOnError: false, displayMode: true });
       }
 
@@ -1434,8 +2006,7 @@
       function drawBuilder() {
         const gainDb = 20 * Math.log10(builderGain);
         const colors = ["#5EEAD4", "#FB7185", "#60A5FA", "#F472B6", "#A3E635", "#C084FC", "#FFB454"];
-        const magLegend = [{ label: `Gain K = ${fmt(builderGain)}`, color: "#8B92A5" }];
-        const phaseLegend = [];
+        const gainColor = "#FDE047";
         const makeTraces = (frequencies) => {
           const magnitudes = builderComponents.map(() => []);
           const phases = builderComponents.map(() => []);
@@ -1453,43 +2024,26 @@
             totalMagnitude.push(sumMagnitude);
             totalPhase.push(sumPhase);
           });
-          const magTraces = [{ x: frequencies, y: totalMagnitude.map(() => gainDb), mode: "lines", name: `Gain K = ${fmt(builderGain)}`, line: { color: "#8B92A5", width: 1.5, dash: "dot" } }];
+          const magTraces = [{ x: frequencies, y: totalMagnitude.map(() => gainDb), mode: "lines", name: `Gain K = ${fmt(builderGain)} (${fmt(gainDb)} dB)`, line: { color: gainColor, width: 2, dash: "dot" } }];
           const phaseTraces = [];
           builderComponents.forEach((component, index) => {
             const factorLabel = componentFormula(component);
             magTraces.push({ x: frequencies, y: magnitudes[index], mode: "lines", name: factorLabel, line: { color: colors[index % colors.length], width: 1.6 } });
             phaseTraces.push({ x: frequencies, y: phases[index], mode: "lines", name: factorLabel, line: { color: colors[index % colors.length], width: 1.6 } });
-            magLegend.push({ label: factorLabel, color: colors[index % colors.length] });
-            phaseLegend.push({ label: factorLabel, color: colors[index % colors.length] });
           });
           magTraces.push({ x: frequencies, y: totalMagnitude, mode: "lines", name: "TOTAL G(s)", line: { color: "#FFB454", width: 4 } });
           phaseTraces.push({ x: frequencies, y: totalPhase, mode: "lines", name: "TOTAL G(s)", line: { color: "#FFB454", width: 4 } });
           return { magnitude: magTraces, phase: phaseTraces };
         };
-        magLegend.push({ label: "Total", color: "#FFB454" });
-        phaseLegend.push({ label: "Total", color: "#FFB454" });
-        renderBuilderLegend("builder-mag-legend", magLegend);
-        renderBuilderLegend("builder-phase-legend", phaseLegend);
-        Promise.all([
-          plotWithExtension("plot-builder-mag", (frequencies) => makeTraces(frequencies).magnitude, responseLayout("magnitude [dB]", true), PLOT_OPTS, [-2, 2]),
-          plotWithExtension("plot-builder-phase", (frequencies) => makeTraces(frequencies).phase, responseLayout("phase [deg]", true), PLOT_OPTS, [-2, 2]),
-        ]).then(() => syncPlotXAxes("plot-builder-mag", "plot-builder-phase"));
-      }
-
-      function renderBuilderLegend(containerId, entries) {
-        const host = document.getElementById(containerId);
-        host.replaceChildren();
-        entries.forEach((entry) => {
-          const label = document.createElement("span");
-          label.className = "builder-legend-item";
-          const swatch = document.createElement("span");
-          swatch.className = "builder-legend-swatch";
-          swatch.style.color = entry.color;
-          const text = document.createElement("span");
-          text.textContent = entry.label;
-          label.append(swatch, text);
-          host.appendChild(label);
+        const withLegend = (layout) => ({
+          ...layout,
+          showlegend: true,
+          legend: { orientation: "h", x: 0, xanchor: "left", y: 1.02, yanchor: "bottom", bgcolor: "rgba(0,0,0,0)", font: { size: 10 } },
         });
+        Promise.all([
+          plotWithExtension("plot-builder-mag", (frequencies) => makeTraces(frequencies).magnitude, withLegend(responseLayout("magnitude [dB]", true)), PLOT_OPTS, [-2, 2]),
+          plotWithExtension("plot-builder-phase", (frequencies) => makeTraces(frequencies).phase, withLegend(responseLayout("phase [deg]", true)), PLOT_OPTS, [-2, 2]),
+        ]).then(() => syncPlotXAxes("plot-builder-mag", "plot-builder-phase"));
       }
 
       document.querySelectorAll(".lesson-tab").forEach((button) => {
@@ -1867,6 +2421,910 @@
 
       renderAllLists();
       setMode("direct");
+    })();
+  </script>
+
+  <script>
+    // =================================================================
+    // State Space tool.
+    //
+    // Each example is plain data: its states, inputs, outputs, and one
+    // list of terms per row of [A B] (rows) and [C D] (outputs). A term
+    // is { kind: "s" | "u", j, coef } -- "coefficient coef multiplies
+    // state j (or input j)". The rearranged equations, the matrices,
+    // every highlight, and the multiply-out are all generated from these
+    // term lists, so they cannot drift apart.
+    //
+    // Each example also carries an independent physics() function written
+    // straight from the original ODEs. It is used only to sanity-check
+    // that A, B, C, D reproduce the original equations exactly.
+    //
+    // Highlight keys (an element can carry several, space-separated, in
+    // data-k; the first one is what hovering/locking that element targets):
+    //   cell:L:i:K:j  coefficient of variable K_j in row i (L = x | y);
+    //                 used by both the matrix cell and the equation term
+    //   lhs:L:i       row i's left side (an entry of Xdot or of Y)
+    //   var:K:j       state (K = s) or input (K = u) number j
+    //   row:L:i       a whole rearranged-equation row (soft highlight)
+    // =================================================================
+    (function () {
+      "use strict";
+
+      // One color per state, per input, per output -- used identically in
+      // the equations, matrices, vectors, and physical picture.
+      const COL = {
+        s: ["#5EEAD4", "#60A5FA", "#A78BFA", "#34D399"],
+        u: ["#FFB454", "#F472B6"],
+        y: ["#FB7185", "#FDE047", "#FB923C"],
+      };
+      const STRUCT = "#8B92A5";
+      const MASS_FILL = "#1D212B";
+
+      const c = (tex, val) => ({ tex, val });
+      const S = (j, coef) => ({ kind: "s", j, coef });
+      const U = (j, coef) => ({ kind: "u", j, coef });
+      const ONE = c("1", () => 1);
+      const NEG_ONE = c("-1", () => -1);
+
+      // ---------------------------------------------------------------
+      // Example library
+      // ---------------------------------------------------------------
+      const twoMassAccel = [
+        S(0, c("-\\frac{k_1+k_2}{m_1}", (p) => -(p.k1 + p.k2) / p.m1)),
+        S(1, c("-\\frac{b_1}{m_1}", (p) => -p.b1 / p.m1)),
+        S(2, c("\\frac{k_2}{m_1}", (p) => p.k2 / p.m1)),
+        U(0, c("\\frac{1}{m_1}", (p) => 1 / p.m1)),
+      ];
+
+      const EXAMPLES = [
+        {
+          id: "rc",
+          name: "1st order: RC circuit (n=1, m=1, p=2)",
+          blurb: "A voltage source Vₛ charges a capacitor C through a resistor R. The outputs are the capacitor voltage and the current through the resistor.",
+          params: [
+            { k: "R", tex: "R", val: 2, unit: "Ω" },
+            { k: "C", tex: "C", val: 0.5, unit: "F" },
+          ],
+          original: ["RC\\frac{dv_C}{dt} + v_C = V_s"],
+          rule: "One first-order equation, so one state: the capacitor voltage. The order of the ODE tells you how many states you need.",
+          states: [
+            { tex: "v_C", dot: "\\dot{v}_C", phys: "v_C", desc: "capacitor voltage" },
+          ],
+          inputs: [{ tex: "V_s", desc: "source voltage" }],
+          rows: [
+            {
+              lhsPhys: "\\frac{dv_C}{dt}", terms: [
+                S(0, c("-\\frac{1}{RC}", (p) => -1 / (p.R * p.C))),
+                U(0, c("\\frac{1}{RC}", (p) => 1 / (p.R * p.C))),
+              ]
+            },
+          ],
+          outputs: [
+            { tex: "y_1", def: "v_C", desc: "capacitor voltage", terms: [S(0, ONE)] },
+            {
+              tex: "y_2", def: "i = \\frac{V_s - v_C}{R}", desc: "current through the resistor", terms: [
+                S(0, c("-\\frac{1}{R}", (p) => -1 / p.R)), U(0, c("\\frac{1}{R}", (p) => 1 / p.R)),
+              ]
+            },
+          ],
+          physics(x, u, p) {
+            const i = (u[0] - x[0]) / p.R;
+            return { xdot: [i / p.C], y: [x[0], i] };
+          },
+          draw: drawRC,
+        },
+        {
+          id: "msd",
+          name: "2nd order: mass-spring-damper (n=2, m=1, p=1)",
+          blurb: "One cart on a spring k and damper b, pushed by a force F. The output is the cart's position.",
+          params: [
+            { k: "m", tex: "m", val: 1, unit: "kg" },
+            { k: "b", tex: "b", val: 0.5, unit: "N·s/m" },
+            { k: "k", tex: "k", val: 4, unit: "N/m" },
+          ],
+          original: ["m\\ddot{x} + b\\dot{x} + kx = F"],
+          rule: "One second-order equation, so two states: the position and the velocity.",
+          states: [
+            { tex: "x", dot: "\\dot{x}", phys: "x", desc: "position of the mass" },
+            { tex: "v", dot: "\\dot{v}", phys: "\\dot{x}", desc: "velocity of the mass" },
+          ],
+          inputs: [{ tex: "F", desc: "applied force" }],
+          rows: [
+            { def: true, lhsPhys: "\\dot{x}", terms: [S(1, ONE)] },
+            {
+              lhsPhys: "\\ddot{x}", terms: [
+                S(0, c("-\\frac{k}{m}", (p) => -p.k / p.m)),
+                S(1, c("-\\frac{b}{m}", (p) => -p.b / p.m)),
+                U(0, c("\\frac{1}{m}", (p) => 1 / p.m)),
+              ]
+            },
+          ],
+          outputs: [{ tex: "y", def: "x", desc: "position of the mass", terms: [S(0, ONE)] }],
+          physics(x, u, p) {
+            const a = (u[0] - p.b * x[1] - p.k * x[0]) / p.m;
+            return { xdot: [x[1], a], y: [x[0]] };
+          },
+          draw: drawMSD,
+        },
+        {
+          id: "rlc",
+          name: "2nd order: series RLC circuit (n=2, m=1, p=2)",
+          blurb: "A voltage source Vₛ drives a resistor R, inductor L, and capacitor C in series. The outputs are the capacitor voltage and the inductor voltage.",
+          params: [
+            { k: "R", tex: "R", val: 2, unit: "Ω" },
+            { k: "L", tex: "L", val: 0.5, unit: "H" },
+            { k: "C", tex: "C", val: 0.1, unit: "F" },
+          ],
+          original: ["L\\frac{di}{dt} + Ri + v_C = V_s", "C\\frac{dv_C}{dt} = i"],
+          rule: "Each energy-storing element gives one state: the inductor current and the capacitor voltage. Both equations are already first order.",
+          states: [
+            { tex: "i", dot: "\\dot{\\imath}", phys: "i", desc: "loop current (inductor current)" },
+            { tex: "v_C", dot: "\\dot{v}_C", phys: "v_C", desc: "capacitor voltage" },
+          ],
+          inputs: [{ tex: "V_s", desc: "source voltage" }],
+          rows: [
+            {
+              lhsPhys: "\\frac{di}{dt}", terms: [
+                S(0, c("-\\frac{R}{L}", (p) => -p.R / p.L)),
+                S(1, c("-\\frac{1}{L}", (p) => -1 / p.L)),
+                U(0, c("\\frac{1}{L}", (p) => 1 / p.L)),
+              ]
+            },
+            { lhsPhys: "\\frac{dv_C}{dt}", terms: [S(0, c("\\frac{1}{C}", (p) => 1 / p.C))] },
+          ],
+          outputs: [
+            { tex: "y_1", def: "v_C", desc: "capacitor voltage", terms: [S(1, ONE)] },
+            {
+              tex: "y_2", def: "v_L = V_s - Ri - v_C", desc: "inductor voltage", terms: [
+                S(0, c("-R", (p) => -p.R)), S(1, NEG_ONE), U(0, ONE),
+              ]
+            },
+          ],
+          physics(x, u, p) {
+            const [i, vC] = x;
+            const vL = u[0] - p.R * i - vC;
+            return { xdot: [vL / p.L, i / p.C], y: [vC, vL] };
+          },
+          draw: drawRLC,
+        },
+        {
+          id: "two-mass",
+          name: "Advanced: two masses, two forces (n=4, m=2, p=3)",
+          blurb: "Two carts in a line. Spring k₁ and damper b₁ tie m₁ to the wall, spring k₂ couples the carts, and damper b₂ ties m₂ to the ground. A force acts on each cart.",
+          params: [
+            { k: "m1", tex: "m_1", val: 1, unit: "kg" },
+            { k: "m2", tex: "m_2", val: 0.5, unit: "kg" },
+            { k: "k1", tex: "k_1", val: 20, unit: "N/m" },
+            { k: "k2", tex: "k_2", val: 10, unit: "N/m" },
+            { k: "b1", tex: "b_1", val: 2, unit: "N·s/m" },
+            { k: "b2", tex: "b_2", val: 1, unit: "N·s/m" },
+          ],
+          original: [
+            "m_1\\ddot{x}_1 = -k_1x_1 - b_1\\dot{x}_1 + k_2(x_2 - x_1) + u_1",
+            "m_2\\ddot{x}_2 = -k_2(x_2 - x_1) - b_2\\dot{x}_2 + u_2",
+          ],
+          rule: "Each equation is second order, so each mass needs two states: its position and its velocity.",
+          states: [
+            { tex: "x_1", dot: "\\dot{x}_1", phys: "x_1", desc: "position of m₁" },
+            { tex: "v_1", dot: "\\dot{v}_1", phys: "\\dot{x}_1", desc: "velocity of m₁" },
+            { tex: "x_2", dot: "\\dot{x}_2", phys: "x_2", desc: "position of m₂" },
+            { tex: "v_2", dot: "\\dot{v}_2", phys: "\\dot{x}_2", desc: "velocity of m₂" },
+          ],
+          inputs: [
+            { tex: "u_1", desc: "force on m₁" },
+            { tex: "u_2", desc: "force on m₂" },
+          ],
+          rows: [
+            { def: true, lhsPhys: "\\dot{x}_1", terms: [S(1, ONE)] },
+            { lhsPhys: "\\ddot{x}_1", terms: twoMassAccel },
+            { def: true, lhsPhys: "\\dot{x}_2", terms: [S(3, ONE)] },
+            {
+              lhsPhys: "\\ddot{x}_2", terms: [
+                S(0, c("\\frac{k_2}{m_2}", (p) => p.k2 / p.m2)),
+                S(2, c("-\\frac{k_2}{m_2}", (p) => -p.k2 / p.m2)),
+                S(3, c("-\\frac{b_2}{m_2}", (p) => -p.b2 / p.m2)),
+                U(1, c("\\frac{1}{m_2}", (p) => 1 / p.m2)),
+              ]
+            },
+          ],
+          outputs: [
+            { tex: "y_1", def: "x_1", desc: "position of m₁", terms: [S(0, ONE)] },
+            { tex: "y_2", def: "x_2 - x_1", desc: "stretch of spring k₂", terms: [S(0, NEG_ONE), S(2, ONE)] },
+            { tex: "y_3", def: "\\ddot{x}_1", desc: "acceleration of m₁", terms: twoMassAccel },
+          ],
+          physics(x, u, p) {
+            const [x1, v1, x2, v2] = x;
+            const a1 = (-p.k1 * x1 - p.b1 * v1 + p.k2 * (x2 - x1) + u[0]) / p.m1;
+            const a2 = (-p.k2 * (x2 - x1) - p.b2 * v2 + u[1]) / p.m2;
+            return { xdot: [v1, a1, v2, a2], y: [x1, x2 - x1, a1] };
+          },
+          draw: drawTwoMass,
+        },
+      ];
+
+      // ---------------------------------------------------------------
+      // State
+      // ---------------------------------------------------------------
+      let ex = EXAMPLES[0];
+      let numeric = false;
+      let MATS = null;   // MATS[L][kind][i][j] = term or null
+      let DIMS = null;   // DIMS[line][block] = [rows, cols], for arrow-key navigation
+      let locked = null; // locked highlight key
+      let preview = null; // hover/focus highlight key
+      const mult = { L: "x", i: 1, step: 0, timer: null };
+
+      const root = document.getElementById("ss-root");
+      const ctx = () => ({ numeric, p: paramVals(ex) });
+
+      function paramVals(e) {
+        const p = {};
+        e.params.forEach((q) => { p[q.k] = q.val; });
+        return p;
+      }
+
+      // ---------------------------------------------------------------
+      // Small helpers
+      // ---------------------------------------------------------------
+      const K = (tex) => katex.renderToString(tex, { throwOnError: false, output: "html" });
+      const dims = () => ({ n: ex.states.length, m: ex.inputs.length, p: ex.outputs.length });
+
+      function fmtNum(v) {
+        if (Math.abs(v) < 1e-12) return "0";
+        const s = String(Number(v.toPrecision(3)));
+        if (!s.includes("e")) return s;
+        const [a, b] = s.split("e");
+        return `${a}\\times10^{${Number(b)}}`;
+      }
+      // Plain-text version of a TeX snippet, for aria-labels.
+      function plain(tex) {
+        return tex
+          .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, "($1)/($2)")
+          .replace(/\\ddot\{([^{}]*)\}/g, "$1 double-dot")
+          .replace(/\\dot\{([^{}]*)\}/g, "$1 dot")
+          .replace(/\\imath/g, "i")
+          .replace(/\\(theta|omega|tau)/g, "$1")
+          .replace(/\\[a-zA-Z]+/g, " ")
+          .replace(/[{}_^\\]/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      const rowOf = (L, i) => (L === "x" ? ex.rows[i] : ex.outputs[i]);
+      const colorOf = (kind, j) => COL[kind][j];
+      const lhsColor = (L, i) => (L === "x" ? COL.s[i] : COL.y[i]);
+      const matName = (L, kind) => (L === "x" ? (kind === "s" ? "A" : "B") : (kind === "s" ? "C" : "D"));
+      function varTex(kind, j, phys) {
+        if (kind === "u") return ex.inputs[j].tex;
+        return phys ? ex.states[j].phys : ex.states[j].tex;
+      }
+      function lhsTex(L, i, phys) {
+        if (L === "y") return ex.outputs[i].tex;
+        return phys ? ex.rows[i].lhsPhys : ex.states[i].dot;
+      }
+      function coefTex(t, cx) {
+        return cx.numeric ? fmtNum(t.coef.val(cx.p)) : t.coef.tex;
+      }
+      // Split a coefficient into its sign and the rest; a bare 1 is dropped.
+      function signSplit(t, cx) {
+        const tex = coefTex(t, cx);
+        const neg = tex.startsWith("-");
+        let body = neg ? tex.slice(1) : tex;
+        if (body === "1") body = "";
+        return { neg, body };
+      }
+      // TeX for "term + term - term ...", optionally color-coded.
+      function sumTex(terms, cx, phys, color) {
+        if (!terms.length) return "0";
+        return terms.map((t, k) => {
+          const { neg, body } = signSplit(t, cx);
+          const col = colorOf(t.kind, t.j);
+          const paint = (s) => (color ? `\\textcolor{${col}}{${s}}` : s);
+          const sign = k === 0 ? (neg ? "-" : "") : (neg ? " - " : " + ");
+          return sign + (body ? paint(body) + "\\," : "") + paint(varTex(t.kind, t.j, phys));
+        }).join("");
+      }
+
+      function buildMats() {
+        const { n, m } = dims();
+        const mk = (rows) => ({
+          s: rows.map((r) => { const a = Array(n).fill(null); r.terms.forEach((t) => { if (t.kind === "s") a[t.j] = t; }); return a; }),
+          u: rows.map((r) => { const a = Array(m).fill(null); r.terms.forEach((t) => { if (t.kind === "u") a[t.j] = t; }); return a; }),
+        });
+        MATS = { x: mk(ex.rows), y: mk(ex.outputs) };
+      }
+
+      // ---------------------------------------------------------------
+      // Sanity check: A x + B u and C x + D u must equal the physics
+      // written straight from the original ODEs, at random test points.
+      // ---------------------------------------------------------------
+      function sanityCheck() {
+        const p = paramVals(ex), { n, m } = dims();
+        let worst = 0;
+        for (let trial = 0; trial < 5; trial++) {
+          const x = Array.from({ length: n }, () => Math.random() * 4 - 2);
+          const u = Array.from({ length: m }, () => Math.random() * 4 - 2);
+          const ref = ex.physics(x, u, p);
+          const evalRow = (r) => r.terms.reduce((acc, t) => acc + t.coef.val(p) * (t.kind === "s" ? x[t.j] : u[t.j]), 0);
+          ex.rows.forEach((r, i) => { worst = Math.max(worst, Math.abs(evalRow(r) - ref.xdot[i]) / (1 + Math.abs(ref.xdot[i]))); });
+          ex.outputs.forEach((r, i) => { worst = Math.max(worst, Math.abs(evalRow(r) - ref.y[i]) / (1 + Math.abs(ref.y[i]))); });
+        }
+        return worst < 1e-9;
+      }
+
+      // ---------------------------------------------------------------
+      // Rearranged equations
+      // ---------------------------------------------------------------
+      function termHTML(L, i, t, k, cx, phys) {
+        const key = `cell:${L}:${i}:${t.kind}:${t.j}`;
+        const { neg, body } = signSplit(t, cx);
+        const v = varTex(t.kind, t.j, phys);
+        const plus = k > 0 && !neg ? `<span class="ss-plus">${K("+")}</span>` : "";
+        const aria = `${matName(L, t.kind)} row ${i + 1}, column ${t.j + 1}: ${plain(coefTex(t, cx))} times ${plain(v)}`;
+        return `${plus}<span class="ss-term ss-hot" tabindex="0" role="button" data-k="${key}" style="--c:${colorOf(t.kind, t.j)}" aria-label="${aria}">`
+          + (neg ? K("-") : "") + (body ? K(body) : "") + K(v) + `</span>`;
+      }
+
+      function eqRowHTML(L, i, cx, phys) {
+        const row = rowOf(L, i);
+        let alias = "";
+        if (L === "x" && !phys && !row.def) alias = K(`= ${row.lhsPhys}`);
+        if (L === "y") alias = K(`= ${row.def}`);
+        let note = "";
+        if (L === "x" && row.def && !phys) {
+          const sj = ex.states[row.terms[0].j];
+          note = `<span class="ss-note">defines ${K(sj.tex)} as ${K(sj.phys)}</span>`;
+        }
+        const lt = lhsTex(L, i, phys);
+        const label = L === "x" ? `Row ${i + 1} of A and B: ${plain(lt)}` : `Row ${i + 1} of C and D: ${plain(lt)}`;
+        return `<div class="ss-eqrow" data-k="row:${L}:${i}">`
+          + `<span class="ss-lhs ss-hot" tabindex="0" role="button" data-k="lhs:${L}:${i}" style="--c:${lhsColor(L, i)}" aria-label="${label}">${K(lt)}</span>`
+          + (alias ? `<span class="ss-alias">${alias}</span>` : "")
+          + `<span class="ss-eqsign">${K("=")}</span>`
+          + row.terms.map((t, k) => termHTML(L, i, t, k, cx, phys)).join("")
+          + note + `</div>`;
+      }
+
+      function rearrangedHTML(cx) {
+        const { n, p } = dims();
+        let h = `<div class="ss-eqs">`;
+        for (let i = 0; i < n; i++) h += eqRowHTML("x", i, cx, false);
+        h += `</div><p class="ss-rule" style="margin:10px 0 6px;">Outputs:</p><div class="ss-eqs">`;
+        for (let i = 0; i < p; i++) h += eqRowHTML("y", i, cx, false);
+        return h + `</div>`;
+      }
+
+      // ---------------------------------------------------------------
+      // Full state-space equations with real matrices and vectors
+      // ---------------------------------------------------------------
+      function ssBlockHTML(cx) {
+        const { n, m, p } = dims();
+        DIMS = [
+          [[n, 1], [n, n], [n, 1], [n, m], [m, 1]],
+          [[p, 1], [p, n], [n, 1], [p, m], [m, 1]],
+        ];
+        const cap = (name, shape, extra) =>
+          `<div class="ss-cap"><div class="ss-cap-name">${K(name)}${extra || ""}</div><div class="ss-shape">${shape}</div></div>`;
+        const op = (sym) => `<div class="ss-op"><div class="ss-op-sym">${sym}</div><div class="ss-cap"></div></div>`;
+        const cell = (li, b, r, cc, key, color, inner, cls, aria) =>
+          `<div class="ss-cell ss-hot ${cls}" role="button" tabindex="-1" data-nav="${li}:${b}:${r}:${cc}" data-k="${key}" style="--c:${color}" aria-label="${aria}">${inner}</div>`;
+        const vec = (li, b, len, f, caption) => {
+          let h = "";
+          for (let r = 0; r < len; r++) { const e = f(r); h += cell(li, b, r, 0, e.key, e.color, K(e.tex), "ss-vec", e.aria); }
+          return `<div class="ss-blk"><div class="ss-mat">${h}</div>${caption}</div>`;
+        };
+        const mat = (li, b, L, kind, rows, cols, caption) => {
+          let h = "";
+          const name = matName(L, kind);
+          for (let r = 0; r < rows; r++) {
+            for (let cc = 0; cc < cols; cc++) {
+              const t = MATS[L][kind][r][cc];
+              const val = t ? coefTex(t, cx) : "0";
+              h += cell(li, b, r, cc, `cell:${L}:${r}:${kind}:${cc}`, colorOf(kind, cc), K(val), t ? "ss-nz" : "ss-zero",
+                `${name} row ${r + 1}, column ${cc + 1}: ${t ? plain(val) : "0"}`);
+            }
+          }
+          return `<div class="ss-blk"><div class="ss-mat" style="grid-template-columns:repeat(${cols}, auto)">${h}</div>${caption}</div>`;
+        };
+        const stateEntry = (j) => ({ key: `var:s:${j}`, tex: ex.states[j].tex, color: COL.s[j], aria: `State ${j + 1}: ${plain(ex.states[j].tex)}, ${ex.states[j].desc}` });
+        const inputEntry = (j) => ({ key: `var:u:${j}`, tex: ex.inputs[j].tex, color: COL.u[j], aria: `Input ${j + 1}: ${plain(ex.inputs[j].tex)}, ${ex.inputs[j].desc}` });
+
+        const line0 = `<div class="ss-line">${op(K("\\dot{X}"))}${op(K("="))}`
+          + vec(0, 0, n, (i) => ({ key: `lhs:x:${i}`, tex: ex.states[i].dot, color: COL.s[i], aria: `Xdot entry ${i + 1}: ${plain(ex.states[i].dot)}` }), cap("\\dot{X}", `n×1 = ${n}×1`))
+          + op(K("="))
+          + mat(0, 1, "x", "s", n, n, cap("A", `n×n = ${n}×${n}`))
+          + vec(0, 2, n, stateEntry, cap("X", `n×1 = ${n}×1`))
+          + op(K("+"))
+          + mat(0, 3, "x", "u", n, m, cap("B", `n×m = ${n}×${m}`))
+          + vec(0, 4, m, inputEntry, cap("u", `m×1 = ${m}×1`))
+          + `</div>`;
+        const line1 = `<div class="ss-line">${op(K("Y"))}${op(K("="))}`
+          + vec(1, 0, p, (i) => ({ key: `lhs:y:${i}`, tex: ex.outputs[i].tex, color: COL.y[i], aria: `Output ${i + 1}: ${plain(ex.outputs[i].tex)}, ${ex.outputs[i].desc}` }), cap("Y", `p×1 = ${p}×1`))
+          + op(K("="))
+          + mat(1, 1, "y", "s", p, n, cap("C", `p×n = ${p}×${n}`))
+          + vec(1, 2, n, stateEntry, cap("X", `n×1 = ${n}×1`))
+          + op(K("+"))
+          + mat(1, 3, "y", "u", p, m, cap("D", `p×m = ${p}×${m}`))
+          + vec(1, 4, m, inputEntry, cap("u", `m×1 = ${m}×1`))
+          + `</div>`;
+
+        return `<div class="ss-block" role="group" aria-label="State-space equations. Use arrow keys to move between entries.">${line0}${line1}</div>`;
+      }
+
+      // Roving tabindex: each state-space block has exactly one Tab stop.
+      function initRoving() {
+        root.querySelectorAll(".ss-block").forEach((blk) => {
+          blk.querySelectorAll("[data-nav]").forEach((el) => { el.tabIndex = -1; });
+          const first = blk.querySelector('[data-nav="0:1:0:0"]');
+          if (first) first.tabIndex = 0;
+        });
+      }
+      function navMove(el, key) {
+        let [L, B, R, C] = el.dataset.nav.split(":").map(Number);
+        const d = (l, b) => DIMS[l][b];
+        if (key === "ArrowRight") {
+          if (C + 1 < d(L, B)[1]) C++;
+          else if (B < 4) { B++; C = 0; R = Math.min(R, d(L, B)[0] - 1); }
+        } else if (key === "ArrowLeft") {
+          if (C > 0) C--;
+          else if (B > 0) { B--; C = d(L, B)[1] - 1; R = Math.min(R, d(L, B)[0] - 1); }
+        } else if (key === "ArrowDown") {
+          if (R + 1 < d(L, B)[0]) R++;
+          else if (L === 0) { L = 1; R = 0; C = Math.min(C, d(L, B)[1] - 1); }
+        } else if (key === "ArrowUp") {
+          if (R > 0) R--;
+          else if (L === 1) { L = 0; R = d(L, B)[0] - 1; C = Math.min(C, d(L, B)[1] - 1); }
+        }
+        const target = el.closest(".ss-block").querySelector(`[data-nav="${L}:${B}:${R}:${C}"]`);
+        if (target && target !== el) { el.tabIndex = -1; target.tabIndex = 0; target.focus(); }
+      }
+
+      // ---------------------------------------------------------------
+      // Highlighting
+      // ---------------------------------------------------------------
+      function highlightSets(key) {
+        const prim = new Set(), soft = new Set();
+        if (!key) return { prim, soft };
+        const parts = key.split(":");
+        const { n, m, p } = dims();
+        if (parts[0] === "cell") {
+          const [, L, i, kind, j] = parts;
+          prim.add(key); prim.add(`lhs:${L}:${i}`); prim.add(`var:${kind}:${j}`);
+          soft.add(`row:${L}:${i}`);
+        } else if (parts[0] === "lhs") {
+          const [, L, iS] = parts, i = Number(iS);
+          prim.add(key); soft.add(`row:${L}:${i}`);
+          [["s", n], ["u", m]].forEach(([kind, cnt]) => {
+            for (let j = 0; j < cnt; j++) {
+              const ck = `cell:${L}:${i}:${kind}:${j}`;
+              if (MATS[L][kind][i][j]) { prim.add(ck); prim.add(`var:${kind}:${j}`); } else soft.add(ck);
+            }
+          });
+        } else if (parts[0] === "var") {
+          const [, kind, jS] = parts, j = Number(jS);
+          prim.add(key);
+          [["x", n], ["y", p]].forEach(([L, rows]) => {
+            for (let i = 0; i < rows; i++) if (MATS[L][kind][i][j]) soft.add(`cell:${L}:${i}:${kind}:${j}`);
+          });
+        }
+        return { prim, soft };
+      }
+
+      const DEFAULT_READOUT = "Hover, tap, or Tab to any entry, coefficient, or variable to see how it connects. Tap it or press Enter to lock the highlight; tap again or press Esc to clear.";
+
+      function describe(key) {
+        if (!key) return DEFAULT_READOUT;
+        const cx = ctx(), parts = key.split(":"), { n, m } = dims();
+        if (parts[0] === "cell") {
+          const [, L, iS, kind, jS] = parts, i = Number(iS), j = Number(jS);
+          const t = MATS[L][kind][i][j], name = matName(L, kind);
+          const lt = K(lhsTex(L, i, false)), vt = K(varTex(kind, j, false));
+          const head = K(`${name}_{${i + 1}${j + 1}} = ${t ? coefTex(t, cx) : "0"}`);
+          const where = `row ${i + 1} (${lt}), column ${j + 1} (${vt})`;
+          if (!t) return `${head} &nbsp;&middot;&nbsp; ${where}. ${vt} does not appear in the ${lt} equation, so this entry is 0.`;
+          let s = `${head} &nbsp;&middot;&nbsp; ${where}. In the ${lt} equation, ${vt} is multiplied by ${K(coefTex(t, cx))}.`;
+          if (name === "D") s += " Because this entry of D is not zero, the input reaches this output directly (feedthrough).";
+          return s;
+        }
+        if (parts[0] === "lhs") {
+          const [, L, iS] = parts, i = Number(iS);
+          const eq = K(`${lhsTex(L, i, false)} = ${sumTex(rowOf(L, i).terms, cx, false, true)}`);
+          if (L === "x") return `Row ${i + 1} of ${K("A")} and ${K("B")}: the rate of change of ${K(ex.states[i].tex)} (${ex.states[i].desc}). &nbsp; ${eq}`;
+          const o = ex.outputs[i];
+          return `Row ${i + 1} of ${K("C")} and ${K("D")}: ${K(`${o.tex} = ${o.def}`)}, the ${o.desc}. &nbsp; ${eq}`;
+        }
+        if (parts[0] === "var") {
+          const [, kind, jS] = parts, j = Number(jS);
+          if (kind === "s") {
+            const s = ex.states[j];
+            const alias = s.phys !== s.tex ? ` ${K(`= ${s.phys}`)}` : "";
+            return `${K(s.tex)}${alias}: state ${j + 1} of ${n}, the ${s.desc}. Its coefficients fill column ${j + 1} of ${K("A")} and ${K("C")}.`;
+          }
+          const u = ex.inputs[j];
+          return `${K(u.tex)}: input ${j + 1} of ${m}, the ${u.desc}. Its coefficients fill column ${j + 1} of ${K("B")} and ${K("D")}.`;
+        }
+        return DEFAULT_READOUT;
+      }
+
+      function refresh() {
+        const key = locked || preview;
+        const { prim, soft } = highlightSets(key);
+        root.querySelectorAll("[data-k]").forEach((el) => {
+          const ks = el.dataset.k.split(" ");
+          const isP = ks.some((k) => prim.has(k));
+          el.classList.toggle("hl", isP);
+          el.classList.toggle("hl-soft", !isP && ks.some((k) => soft.has(k)));
+          el.classList.toggle("locked", locked !== null && ks[0] === locked);
+        });
+        root.querySelectorAll(".ss-phys").forEach((ph) => ph.classList.toggle("has-hl", !!key));
+        const html = describe(key);
+        root.querySelectorAll(".ss-readout").forEach((r) => { r.innerHTML = html; });
+      }
+
+      const firstKey = (el) => el.dataset.k.split(" ")[0];
+      function toggleLock(el) {
+        const k = firstKey(el);
+        locked = locked === k ? null : k;
+        if (locked && k.startsWith("lhs:")) {
+          const [, L, i] = k.split(":");
+          selectMultRow(L, Number(i), true);
+        }
+        refresh();
+      }
+
+      root.addEventListener("pointerover", (e) => {
+        if (e.pointerType === "touch") return;
+        const el = e.target.closest(".ss-hot");
+        if (!el) return;
+        preview = firstKey(el);
+        refresh();
+      });
+      root.addEventListener("pointerout", (e) => {
+        const el = e.target.closest(".ss-hot");
+        if (!el) return;
+        const to = e.relatedTarget && e.relatedTarget.closest ? e.relatedTarget.closest(".ss-hot") : null;
+        if (to === el) return;
+        preview = null;
+        refresh();
+      });
+      root.addEventListener("focusin", (e) => {
+        const el = e.target.closest(".ss-hot");
+        if (!el) return;
+        if (el.dataset.nav) {
+          el.closest(".ss-block").querySelectorAll("[data-nav]").forEach((o) => { o.tabIndex = -1; });
+          el.tabIndex = 0;
+        }
+        preview = firstKey(el);
+        refresh();
+      });
+      root.addEventListener("focusout", (e) => {
+        if (e.relatedTarget && root.contains(e.relatedTarget)) return;
+        preview = null;
+        refresh();
+      });
+      root.addEventListener("click", (e) => {
+        const el = e.target.closest(".ss-hot");
+        if (el) { toggleLock(el); return; }
+        if (e.target.closest("button, select, input, label")) return;
+        if (locked) { locked = null; refresh(); }
+      });
+      root.addEventListener("keydown", (e) => {
+        const el = e.target.closest ? e.target.closest(".ss-hot") : null;
+        if (e.key === "Escape") { locked = null; refresh(); return; }
+        if (!el) return;
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleLock(el); return; }
+        if (el.dataset.nav && e.key.startsWith("Arrow")) { e.preventDefault(); navMove(el, e.key); }
+      });
+      document.addEventListener("click", (e) => {
+        if (!root.contains(e.target) && locked) { locked = null; refresh(); }
+      });
+
+      // ---------------------------------------------------------------
+      // Steps 1-5: equations, states, rearranged equations, matrices
+      // ---------------------------------------------------------------
+      function mainHTML(cx) {
+        const { n, m, p } = dims();
+        const physRows = ex.rows.map((r, i) => (r.def ? "" : eqRowHTML("x", i, cx, true))).join("");
+        const pick = (key, color, tex, aria) =>
+          `<span class="ss-pick ss-hot" tabindex="0" role="button" data-k="${key}" style="--c:${color}" aria-label="${aria}">${K(tex)}</span>`;
+        const stateList = ex.states.map((s, j) =>
+          `<li>${pick(`var:s:${j}`, COL.s[j], s.tex, `State ${j + 1}: ${plain(s.tex)}, ${s.desc}`)}${s.phys !== s.tex ? ` <span class="ss-alias">${K(`= ${s.phys}`)}</span>` : ""} &mdash; ${s.desc}</li>`).join("");
+        const inputList = ex.inputs.map((u, j) =>
+          `<li>${pick(`var:u:${j}`, COL.u[j], u.tex, `Input ${j + 1}: ${plain(u.tex)}, ${u.desc}`)} &mdash; ${u.desc}</li>`).join("");
+        const outputList = ex.outputs.map((o, i) =>
+          `<li>${pick(`lhs:y:${i}`, COL.y[i], o.tex, `Output ${i + 1}: ${plain(o.tex)}, ${o.desc}`)} <span class="ss-alias">${K(`= ${o.def}`)}</span> &mdash; ${o.desc}</li>`).join("");
+        return `
+          <h4 class="part-title" style="margin-top:0;">1. Original equations</h4>
+          <div class="eq-block">${ex.original.map((t) => `<div style="margin:6px 0;">${K(t)}</div>`).join("")}</div>
+          <p class="ss-rule">${ex.blurb}</p>
+          <h4 class="part-title">2. Pick the states, inputs, and outputs</h4>
+          <div class="ss-picks">
+            <div class="panel-box"><h4>States &middot; n = ${n}</h4><ul>${stateList}</ul></div>
+            <div class="panel-box"><h4>Inputs &middot; m = ${m}</h4><ul>${inputList}</ul></div>
+            <div class="panel-box"><h4>Outputs &middot; p = ${p}</h4><ul>${outputList}</ul></div>
+          </div>
+          <p class="ss-rule">${ex.rule}</p>
+          <h4 class="part-title">3. Solve each equation for its highest derivative</h4>
+          <div class="panel-box"><div class="ss-eqs">${physRows}</div></div>
+          <h4 class="part-title">4. Write everything in terms of the states: the rearranged equations</h4>
+          <p class="ss-rule" style="margin:0 0 10px;">One equation per state derivative and one per output. These ${n + p} equations become the ${n + p} rows of the state-space model below.</p>
+          <div class="ss-two">
+            <div class="ss-phys">${ex.draw()}</div>
+            <div class="panel-box" style="margin:0;">${rearrangedHTML(cx)}</div>
+          </div>
+          <h4 class="part-title">5. Stack them into matrices: A, B, C, D</h4>
+          <p class="ss-rule" style="margin:0;">Each row is one rearranged equation and each entry is one coefficient. Inside the matrices, the arrow keys move between entries.</p>
+          ${ssBlockHTML(cx)}`;
+      }
+
+      // ---------------------------------------------------------------
+      // Step 6: multiply it out
+      // ---------------------------------------------------------------
+      function multTotal() { const { n, m } = dims(); return n + m + 3; }
+
+      function renderRowPicker() {
+        const { n, p } = dims();
+        const btn = (L, i) => {
+          const on = mult.L === L && mult.i === i;
+          return `<button type="button" class="ss-rowbtn" data-row="${L}:${i}" aria-pressed="${on}" style="--c:${lhsColor(L, i)}" aria-label="Multiply out the ${plain(lhsTex(L, i, false))} row">${K(lhsTex(L, i, false))}</button>`;
+        };
+        let h = `<span class="lbl">Row of Ẋ:</span>`;
+        for (let i = 0; i < n; i++) h += btn("x", i);
+        h += `<span class="lbl" style="margin-left:10px;">Row of Y:</span>`;
+        for (let i = 0; i < p; i++) h += btn("y", i);
+        document.getElementById("ss-rowpicker").innerHTML = h;
+      }
+
+      function renderMult() {
+        const cx = ctx(), { L, i, step } = mult;
+        const row = rowOf(L, i);
+        const cols = [...ex.states.map((_, j) => ({ kind: "s", j })), ...ex.inputs.map((_, j) => ({ kind: "u", j }))];
+        const sCols = cols.filter((q) => q.kind === "s"), uCols = cols.filter((q) => q.kind === "u");
+        const termAt = (q) => MATS[L][q.kind][i][q.j];
+        const coefStr = (q) => { const t = termAt(q); return t ? `\\textcolor{${colorOf(q.kind, q.j)}}{${coefTex(t, cx)}}` : `\\textcolor{#8B92A5}{0}`; };
+        const vStr = (q) => `\\textcolor{${colorOf(q.kind, q.j)}}{${varTex(q.kind, q.j, false)}}`;
+        const lt = `\\textcolor{${lhsColor(L, i)}}{${lhsTex(L, i, false)}}`;
+        const rowVec = (arr) => `\\begin{bmatrix}${arr.map(coefStr).join(" & ")}\\end{bmatrix}`;
+        const colVec = (arr) => `\\begin{bmatrix}${arr.map(vStr).join(" \\\\ ")}\\end{bmatrix}`;
+        const M1 = matName(L, "s"), M2 = matName(L, "u");
+        const line = (cap, body, fresh) => `<div class="ss-mline${fresh ? " fresh" : ""}"><div class="ss-mcap">${cap}</div><div class="ss-mexpr">${body}</div></div>`;
+
+        const out = [];
+        out.push(line(`Row ${i + 1} of ${K(M1)} times ${K("X")}, plus row ${i + 1} of ${K(M2)} times ${K("u")}:`,
+          K(`${lt} = ${rowVec(sCols)}${colVec(sCols)} + ${rowVec(uCols)}${colVec(uCols)}`), step === 0));
+        if (step >= 1) {
+          const shown = Math.min(step, cols.length);
+          let body = K(`${lt} =`);
+          cols.slice(0, shown).forEach((q, k) => {
+            if (k > 0) body += `<span class="ss-plus">${K("+")}</span>`;
+            body += `<span class="${termAt(q) ? "" : "ss-mzero"}${k === step - 1 ? " fresh" : ""}">${K(`\\left(${coefStr(q)}\\right)${vStr(q)}`)}</span>`;
+          });
+          if (shown < cols.length) body += `<span class="ss-mmore">${K("+\\;\\cdots")}</span>`;
+          out.push(line("Multiply each entry by the variable it lines up with, then add:", body, false));
+        }
+        if (step >= cols.length + 1) {
+          out.push(line("Drop the zero terms:", K(`${lt} = ${sumTex(row.terms, cx, false, true)}`), step === cols.length + 1));
+        }
+        if (step >= cols.length + 2) {
+          let finalTex, cap;
+          if (L === "x" && row.def) {
+            const sj = ex.states[row.terms[0].j];
+            finalTex = `${row.lhsPhys} = ${sj.phys}`;
+            cap = `That is the definition of ${K(sj.tex)} from step 4 <span class="ss-match">&#10003; same equation</span>`;
+          } else if (L === "x") {
+            finalTex = `${row.lhsPhys} = ${sumTex(row.terms, cx, true, true)}`;
+            cap = `Swap the states back for the physical variables: that is the equation from step 3 <span class="ss-match">&#10003; same equation</span>`;
+          } else {
+            finalTex = `${ex.outputs[i].tex} = ${ex.outputs[i].def} = ${sumTex(row.terms, cx, true, true)}`;
+            cap = `That is the output equation from step 4 <span class="ss-match">&#10003; same equation</span>`;
+          }
+          out.push(line(cap, K(finalTex), true));
+        }
+        document.getElementById("ss-mult-lines").innerHTML = out.join("");
+        document.getElementById("ss-m-step").textContent = `Step ${step + 1} of ${multTotal()}`;
+        document.getElementById("ss-m-play").textContent = mult.timer ? "PAUSE" : "PLAY";
+      }
+
+      function stopPlay() { if (mult.timer) { clearInterval(mult.timer); mult.timer = null; } }
+      function selectMultRow(L, i, fromLock) {
+        stopPlay();
+        mult.L = L; mult.i = i; mult.step = 0;
+        if (!fromLock) { locked = `lhs:${L}:${i}`; refresh(); }
+        renderRowPicker();
+        renderMult();
+      }
+      document.getElementById("ss-rowpicker").addEventListener("click", (e) => {
+        const b = e.target.closest(".ss-rowbtn");
+        if (!b) return;
+        const [L, i] = b.dataset.row.split(":");
+        selectMultRow(L, Number(i), false);
+      });
+      document.getElementById("ss-m-next").addEventListener("click", () => {
+        stopPlay(); mult.step = Math.min(mult.step + 1, multTotal() - 1); renderMult();
+      });
+      document.getElementById("ss-m-back").addEventListener("click", () => {
+        stopPlay(); mult.step = Math.max(mult.step - 1, 0); renderMult();
+      });
+      document.getElementById("ss-m-all").addEventListener("click", () => {
+        stopPlay(); mult.step = multTotal() - 1; renderMult();
+      });
+      document.getElementById("ss-m-play").addEventListener("click", () => {
+        if (mult.timer) { stopPlay(); renderMult(); return; }
+        if (mult.step >= multTotal() - 1) mult.step = 0;
+        mult.timer = setInterval(() => {
+          if (mult.step >= multTotal() - 1) { stopPlay(); renderMult(); return; }
+          mult.step++;
+          renderMult();
+        }, 1000);
+        renderMult();
+      });
+
+      // ---------------------------------------------------------------
+      // Render everything for the current example
+      // ---------------------------------------------------------------
+      function renderAll() {
+        stopPlay();
+        locked = null; preview = null;
+        buildMats();
+        const cx = ctx(), { n, m, p } = dims();
+        document.getElementById("ss-dims").innerHTML =
+          `<span class="ss-chip"><b>n = ${n}</b> states</span><span class="ss-chip"><b>m = ${m}</b> inputs</span><span class="ss-chip"><b>p = ${p}</b> outputs</span>`;
+        document.getElementById("ss-params").innerHTML = numeric
+          ? "Values: " + ex.params.map((q) => `${K(`${q.tex} = ${q.val}`)} ${q.unit}`).join(" &nbsp;·&nbsp; ")
+          : "";
+        if (!sanityCheck()) console.warn(`State space: A, B, C, D do not reproduce the original equations for "${ex.name}".`);
+        document.getElementById("ss-main").innerHTML = mainHTML(cx);
+        initRoving();
+        const firstDyn = ex.rows.findIndex((r) => !r.def);
+        mult.L = "x"; mult.i = firstDyn >= 0 ? firstDyn : 0; mult.step = 0;
+        renderRowPicker();
+        renderMult();
+        refresh();
+      }
+
+      const sel = document.getElementById("ss-example");
+      sel.innerHTML = EXAMPLES.map((e, k) => `<option value="${k}">${e.name}</option>`).join("");
+      sel.addEventListener("change", () => { ex = EXAMPLES[Number(sel.value)]; renderAll(); });
+      function setNumeric(on) {
+        numeric = on;
+        document.getElementById("ss-btn-sym").setAttribute("aria-pressed", String(!on));
+        document.getElementById("ss-btn-num").setAttribute("aria-pressed", String(on));
+        renderAll();
+      }
+      document.getElementById("ss-btn-sym").addEventListener("click", () => setNumeric(false));
+      document.getElementById("ss-btn-num").addEventListener("click", () => setNumeric(true));
+
+      // ---------------------------------------------------------------
+      // Physical pictures. Every colored element is a .ss-hot group whose
+      // data-k ties it to a state, input, or output.
+      // ---------------------------------------------------------------
+      const ST = `stroke="${STRUCT}" stroke-width="2" fill="none"`;
+      function hot(keys, color, label, inner) {
+        return `<g class="ss-hot" tabindex="0" role="button" data-k="${keys}" aria-label="${label}" style="color:${color}">${inner}</g>`;
+      }
+      function head(x1, y1, x2, y2, s) {
+        s = s || 8;
+        const a = Math.atan2(y2 - y1, x2 - x1);
+        const pt = (d) => `${(x2 - s * Math.cos(a + d)).toFixed(1)},${(y2 - s * Math.sin(a + d)).toFixed(1)}`;
+        return `<polygon points="${x2},${y2} ${pt(0.42)} ${pt(-0.42)}" fill="currentColor"/>`;
+      }
+      function arrow(x1, y1, x2, y2, o) {
+        o = o || {};
+        let s = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" stroke-width="16"/>`
+          + `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="currentColor" stroke-width="${o.w || 2.2}"/>`
+          + head(x1, y1, x2, y2);
+        if (o.dbl) { const a = Math.atan2(y2 - y1, x2 - x1); s += head(x1, y1, x2 - 7 * Math.cos(a), y2 - 7 * Math.sin(a)); }
+        if (o.both) s += head(x2, y2, x1, y1);
+        return s;
+      }
+      function curve(d, endFrom, endTo) {
+        return `<path d="${d}" stroke="transparent" stroke-width="14" fill="none"/><path d="${d}" stroke="currentColor" stroke-width="2.2" fill="none"/>`
+          + head(endFrom[0], endFrom[1], endTo[0], endTo[1]);
+      }
+      const label = (x, y, s, anchor, size) =>
+        `<text x="${x}" y="${y}" fill="currentColor" font-size="${size || 14}" text-anchor="${anchor || "start"}">${s}</text>`;
+      const mlabel = (x, y, s, anchor) =>
+        `<text x="${x}" y="${y}" fill="${STRUCT}" font-size="14" text-anchor="${anchor || "middle"}">${s}</text>`;
+      const sub = (s) => `<tspan baseline-shift="sub" font-size="10">${s}</tspan>`;
+      function springPath(x1, x2, y, amp, coils) {
+        amp = amp || 8; coils = coils || 6;
+        const lead = 10, len = x2 - x1 - 2 * lead;
+        let d = `M${x1},${y} L${x1 + lead},${y}`;
+        for (let k = 0; k < coils * 2; k++) d += ` L${(x1 + lead + (len * (k + 0.5)) / (coils * 2)).toFixed(1)},${y + (k % 2 ? amp : -amp)}`;
+        return d + ` L${x2 - lead},${y} L${x2},${y}`;
+      }
+      function damper(x1, x2, y) {
+        const mid = (x1 + x2) / 2;
+        return `<path d="M${x1},${y} L${mid + 2},${y} M${mid + 2},${y - 8} L${mid + 2},${y + 8} M${mid - 10},${y - 11} L${mid + 14},${y - 11} L${mid + 14},${y + 11} L${mid - 10},${y + 11} M${mid + 14},${y} L${x2},${y}" ${ST}/>`;
+      }
+      function hatchH(x1, x2, y, dir) {
+        let s = "";
+        for (let x = x1; x <= x2; x += 12) s += `<line x1="${x}" y1="${y}" x2="${x - 7}" y2="${y + 8 * dir}" stroke="${STRUCT}" stroke-width="1.2"/>`;
+        return s;
+      }
+      function hatchV(x, y1, y2, dir) {
+        let s = "";
+        for (let y = y1; y <= y2; y += 12) s += `<line x1="${x}" y1="${y}" x2="${x + 8 * dir}" y2="${y + 7}" stroke="${STRUCT}" stroke-width="1.2"/>`;
+        return s;
+      }
+      const massBox = (x, y, w, h, name) =>
+        `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${MASS_FILL}" stroke="${STRUCT}" stroke-width="2"/>`
+        + `<text x="${x + w / 2}" y="${y + h / 2 + 5}" fill="#E7E9EE" font-size="14" text-anchor="middle">${name}</text>`;
+      const svg = (h, body) =>
+        `<svg viewBox="0 0 560 ${h}" role="group" aria-label="Physical diagram of the system">${body}</svg>`;
+
+      function drawTwoMass() {
+        const s = COL.s, u = COL.u, y = COL.y;
+        let g = `<line x1="20" y1="170" x2="540" y2="170" ${ST}/>${hatchH(26, 540, 170, 1)}`;
+        g += `<line x1="40" y1="56" x2="40" y2="170" ${ST}/>${hatchV(40, 60, 160, -1)}`;
+        g += `<path d="${springPath(40, 170, 108)}" ${ST}/>${mlabel(105, 92, "k₁")}`;
+        g += damper(40, 170, 148) + mlabel(70, 134, "b₁");
+        g += massBox(170, 92, 70, 76, "m₁");
+        g += hot("lhs:y:1", y[1], "Output y2: stretch of spring k2",
+          `<path d="${springPath(240, 360, 118)}" stroke="transparent" stroke-width="14" fill="none"/><path d="${springPath(240, 360, 118)}" stroke="currentColor" stroke-width="2" fill="none"/>`
+          + arrow(246, 146, 354, 146, { both: true, w: 1.6 }) + label(300, 162, `y₂ = x₂ − x₁`, "middle", 13));
+        g += mlabel(300, 100, "k₂");
+        g += massBox(360, 92, 70, 76, "m₂");
+        g += damper(430, 515, 130) + mlabel(472, 112, "b₂");
+        g += `<line x1="515" y1="96" x2="515" y2="170" ${ST}/>${hatchV(515, 100, 160, 1)}`;
+        g += `<line x1="170" y1="170" x2="170" y2="206" stroke="${STRUCT}" stroke-dasharray="3 3"/><line x1="360" y1="170" x2="360" y2="206" stroke="${STRUCT}" stroke-dasharray="3 3"/>`;
+        g += hot("var:s:0 lhs:y:0", s[0], "State x1: position of m1 (also output y1)", arrow(170, 196, 218, 196) + label(224, 200, "x₁ = y₁"));
+        g += hot("var:s:2", s[2], "State x2: position of m2", arrow(360, 196, 408, 196) + label(414, 200, "x₂"));
+        g += hot("var:u:0", u[0], "Input u1: force on m1", arrow(180, 80, 228, 80, { w: 3 }) + label(234, 84, "u₁"));
+        g += hot("var:s:1", s[1], "State v1: velocity of m1", arrow(180, 58, 228, 58) + label(234, 62, "v₁ = ẋ₁"));
+        g += hot("lhs:y:2 lhs:x:1", y[2], "Output y3: acceleration of m1 (also v1 dot)", arrow(180, 36, 228, 36, { dbl: true }) + label(234, 40, "a₁ = y₃"));
+        g += hot("var:u:1", u[1], "Input u2: force on m2", arrow(370, 80, 418, 80, { w: 3 }) + label(424, 84, "u₂"));
+        g += hot("var:s:3", s[3], "State v2: velocity of m2", arrow(370, 58, 418, 58) + label(424, 62, "v₂ = ẋ₂"));
+        return svg(215, g);
+      }
+
+      function drawMSD() {
+        const s = COL.s, u = COL.u;
+        let g = `<line x1="20" y1="170" x2="540" y2="170" ${ST}/>${hatchH(26, 540, 170, 1)}`;
+        g += `<line x1="50" y1="56" x2="50" y2="170" ${ST}/>${hatchV(50, 60, 160, -1)}`;
+        g += `<path d="${springPath(50, 240, 108)}" ${ST}/>${mlabel(145, 92, "k")}`;
+        g += damper(50, 240, 148) + mlabel(82, 134, "b");
+        g += massBox(240, 92, 90, 76, "m");
+        g += `<line x1="240" y1="170" x2="240" y2="206" stroke="${STRUCT}" stroke-dasharray="3 3"/>`;
+        g += hot("var:s:0 lhs:y:0", s[0], "State x: position of the mass (also output y)", arrow(240, 196, 290, 196) + label(296, 200, "x = y"));
+        g += hot("var:s:1", s[1], "State v: velocity of the mass", arrow(255, 70, 315, 70) + label(321, 74, "v = ẋ"));
+        g += hot("var:u:0", u[0], "Input F: applied force", arrow(330, 130, 400, 130, { w: 3 }) + label(406, 134, "F"));
+        return svg(215, g);
+      }
+
+      function drawRLC() {
+        const s = COL.s, u = COL.u, y = COL.y;
+        let g = `<path d="M80,50 L140,50 M210,50 L260,50 M350,50 L430,50 L430,112 M430,128 L430,190 L80,190 L80,142 M80,98 L80,50" ${ST}/>`;
+        g += `<path d="${springPath(140, 210, 50, 7, 4)}" ${ST}/>${mlabel(175, 76, "R")}`;
+        let coil = "M260,50";
+        for (let k = 0; k < 4; k++) coil += " a11.25,11.25 0 0 1 22.5,0";
+        g += `<path d="${coil}" ${ST}/>${mlabel(305, 72, "L")}`;
+        g += `<line x1="414" y1="112" x2="446" y2="112" stroke="${STRUCT}" stroke-width="3"/><line x1="414" y1="128" x2="446" y2="128" stroke="${STRUCT}" stroke-width="3"/>${mlabel(404, 124, "C", "end")}`;
+        g += hot("var:u:0", u[0], "Input Vs: source voltage",
+          `<circle cx="80" cy="120" r="22" fill="${MASS_FILL}" stroke="currentColor" stroke-width="2.2"/>` + label(80, 114, "+", "middle", 14) + label(80, 136, "−", "middle", 14)
+          + label(50, 124, `V${sub("s")}`, "end", 15));
+        g += hot("var:s:0", s[0], "State i: loop current", arrow(100, 36, 135, 36) + label(117, 26, "i", "middle", 15));
+        g += hot("lhs:y:1", y[1], "Output y2: inductor voltage vL",
+          arrow(264, 22, 346, 22, { both: true, w: 1.6 }) + label(254, 27, "+", "end") + label(356, 27, "−") + label(305, 12, `v${sub("L")} = y₂`, "middle"));
+        g += hot("var:s:1 lhs:y:0", s[1], "State vC: capacitor voltage (also output y1)",
+          arrow(470, 100, 470, 140, { both: true, w: 1.6 }) + label(462, 100, "+", "end") + label(462, 146, "−", "end") + label(480, 124, `v${sub("C")} = y₁`));
+        return svg(205, g);
+      }
+
+      function drawRC() {
+        const s = COL.s, u = COL.u, y = COL.y;
+        let g = `<path d="M80,50 L200,50 M280,50 L430,50 L430,112 M430,128 L430,190 L80,190 L80,142 M80,98 L80,50" ${ST}/>`;
+        g += `<path d="${springPath(200, 280, 50, 7, 4)}" ${ST}/>${mlabel(240, 76, "R")}`;
+        g += `<line x1="414" y1="112" x2="446" y2="112" stroke="${STRUCT}" stroke-width="3"/><line x1="414" y1="128" x2="446" y2="128" stroke="${STRUCT}" stroke-width="3"/>${mlabel(404, 124, "C", "end")}`;
+        g += hot("var:u:0", u[0], "Input Vs: source voltage",
+          `<circle cx="80" cy="120" r="22" fill="${MASS_FILL}" stroke="currentColor" stroke-width="2.2"/>` + label(80, 114, "+", "middle", 14) + label(80, 136, "−", "middle", 14)
+          + label(50, 124, `V${sub("s")}`, "end", 15));
+        g += hot("lhs:y:1", y[1], "Output y2: current through the resistor", arrow(110, 34, 165, 34) + label(137, 22, "i = y₂", "middle"));
+        g += hot("var:s:0 lhs:y:0", s[0], "State vC: capacitor voltage (also output y1)",
+          arrow(470, 100, 470, 140, { both: true, w: 1.6 }) + label(462, 100, "+", "end") + label(462, 146, "−", "end") + label(480, 124, `v${sub("C")} = y₁`));
+        return svg(205, g);
+      }
+
+      renderAll();
     })();
   </script>
 </body>
