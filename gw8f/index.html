@@ -756,7 +756,8 @@
           <h4 class="part-title">b) Discuss</h4>
           <p class="instructions">What are the system's new eigenvalues (&lambda;<sub>1</sub><sup>2</sup>,
             &lambda;<sub>2</sub><sup>2</sup>) and eigenvectors (&phi;<sub>1</sub>, &phi;<sub>2</sub>)? How has the
-            response changed relative to Problems 1&ndash;2? (Enter eigenvectors as two numbers, e.g. "1, 1" or "1, -1".)</p>
+            response changed relative to Problems 1&ndash;2? (Enter eigenvectors as two numbers, e.g. "1, 1" or "1,
+            -1".)</p>
           <div class="form-grid two">
             <div class="field"><label>&lambda;&sup2; (mode A)</label><input type="number" id="input-p3-lam1" value=""
                 step="any" /></div>
@@ -955,11 +956,14 @@
       // plot -- one independent instance per problem so each keeps its
       // own plot for the PDF export ("submit a plot for each problem").
       // ---------------------------------------------------------------
-      const X_PX_PER_M = 25;    // pixels per meter of displacement (fixed, un-normalized)
+      // Geometry matches the MATLAB ModeShapesGUI: walls' inner faces at
+      // +/-8.8 m, rest centers at +/-3.5 m, blocks 2 m wide (fixed scale).
       const PLAYBACK_SPEED = 1; // 1x = real time
-      const REST1_X = 150, REST2_X = 250; // rest-position pixel centers
-      const MASS_W = 50, MASS_H = 50, MASS_Y = 50;
       const WALL_L_X = 22, WALL_R_X = 378;
+      const X_PX_PER_M = (WALL_R_X - WALL_L_X) / 17.6; // ~20.2 px per meter (fixed, un-normalized)
+      const CENTER_X = (WALL_L_X + WALL_R_X) / 2;
+      const REST1_X = CENTER_X - 3.5 * X_PX_PER_M, REST2_X = CENTER_X + 3.5 * X_PX_PER_M; // rest-position pixel centers
+      const MASS_W = 2 * X_PX_PER_M, MASS_H = MASS_W, MASS_Y = 75 - MASS_H / 2;
 
       const runFlags = {};
       const runParams = {}; // last successfully RUN params, per prefix

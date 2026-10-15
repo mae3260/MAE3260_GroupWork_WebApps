@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GroupWork 9F &mdash; Forced Vibrations</title>
+
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink: #0F1115;
+      --panel: #171A21;
+      --panel2: #1D212B;
+      --line: #282D3A;
+      --amber: #FFB454;
+      --cyan: #5EEAD4;
+      --rose: #FB7185;
+      --pink: #F472B6;
+      --fg: #E7E9EE;
+      --muted: #8B92A5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--ink);
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+
+    header h1 {
+      font-size: 14px;
+      margin: 0;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    header h1 span {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    nav {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      order: 2;
+      padding: 16px 14px;
+      overflow-y: auto;
+    }
+
+    nav p.label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin: 14px 0 8px 0;
+    }
+
+    nav p.label:first-child {
+      margin-top: 0;
+    }
+
+    .nav-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 9px 12px;
+      margin-bottom: 6px;
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--fg);
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .nav-btn small {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .content {
+      flex: 1;
+      order: 1;
+      overflow-y: auto;
+      padding: 28px 40px;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    h2.section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      color: var(--amber);
+      margin: 0 0 14px 0;
+    }
+
+    h3.problem-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: var(--cyan);
+      margin: 0 0 10px 0;
+    }
+
+    h4.part-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--fg);
+      margin: 22px 0 8px 0;
+    }
+
+    p.instructions {
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: var(--fg);
+      margin: 0 0 16px 0;
+    }
+
+    ul.goals {
+      padding-left: 20px;
+      margin: 0 0 16px 0;
+    }
+
+    ul.goals li {
+      margin-bottom: 6px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--fg);
+    }
+
+    .eq-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .given-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 18px 0;
+      line-height: 1.8;
+    }
+
+    .given-line b {
+      color: var(--fg);
+      font-weight: 600;
+    }
+
+    .note-box {
+      background: var(--panel2);
+      border-left: 3px solid var(--amber);
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 0 0 18px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--fg);
+    }
+
+    .note-box code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--cyan);
+      background: var(--ink);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .panel-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .form-grid.one {
+      grid-template-columns: 1fr;
+    }
+
+    .form-grid.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .form-grid.five {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .field {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .field label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"] {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .field select {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 8px 10px;
+    }
+
+    .field select:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .reflection-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .reflection-box textarea {
+      width: 100%;
+      min-height: 90px;
+      resize: vertical;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 10px 12px;
+      line-height: 1.5;
+    }
+
+    .reflection-box textarea:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .run-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 6px;
+      border: none;
+      background: var(--amber);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .run-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .run-btn:active {
+      transform: scale(0.98);
+    }
+
+    .run-btn.secondary {
+      background: none;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .run-btn.secondary:hover {
+      color: var(--rose);
+      border-color: var(--rose);
+    }
+
+    .run-btn.small {
+      font-size: 11.5px;
+      padding: 8px 14px;
+    }
+
+    .match-banner {
+      display: none;
+      margin-top: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+    }
+
+    .match-banner.match {
+      display: block;
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .match-banner.no-match {
+      display: block;
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+
+    .field-err {
+      font-size: 11px;
+      color: var(--rose);
+      margin: 8px 0 0 0;
+      min-height: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .plot-host {
+      height: 300px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 14px;
+    }
+
+    .placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      max-width: 320px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .steps-list {
+      padding-left: 20px;
+      margin: 0 0 16px 0;
+    }
+
+    .steps-list li {
+      margin-bottom: 6px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--fg);
+    }
+
+    .upload-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 0 0 18px 0;
+    }
+
+    .upload-block input[type="file"] {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      color: var(--fg);
+    }
+
+    .upload-thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .thumb-wrap {
+      position: relative;
+      width: 90px;
+      height: 120px;
+    }
+
+    .thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    .thumb-remove {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: var(--ink);
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .upload-status {
+      font-size: 11px;
+      color: var(--cyan);
+      margin: 8px 0 0 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .upload-err {
+      font-size: 11px;
+      color: var(--rose);
+      margin: 8px 0 0 0;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.5;
+    }
+
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin: 4px 6px 4px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .file-chip .chip-remove {
+      background: none;
+      border: none;
+      color: var(--rose);
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0;
+    }
+
+    .vib-top-row {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      margin-top: 14px;
+    }
+
+    .vib-svg-host {
+      flex: 1.3;
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .vib-output {
+      flex: 1;
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .vib-output h5 {
+      margin: 0 0 10px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .vib-output .out-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      margin-bottom: 7px;
+      color: var(--fg);
+      gap: 8px;
+    }
+
+    .vib-output .out-row span.k {
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .vib-output .out-row span.v {
+      color: var(--cyan);
+      text-align: right;
+    }
+
+    .vib-presets {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .katex {
+      color: var(--fg);
+    }
+  </style>
+  <style>
+    .sensor-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .sensor-card {
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 10px 12px;
+    }
+
+    .sensor-card .sh {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .sensor-card .sh .sw {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .sensor-card .sh input {
+      margin: 0 0 0 auto;
+      accent-color: var(--amber);
+    }
+
+    .sensor-card input[type="number"] {
+      width: 100%;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 6px 8px;
+    }
+
+    .sensor-card input[type="number"]:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .sensor-card.off {
+      opacity: 0.45;
+    }
+
+    .ctl-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .ctl-row .field {
+      min-width: 190px;
+    }
+
+    .chk {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      padding-bottom: 10px;
+    }
+
+    .chk input {
+      accent-color: var(--amber);
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 14px;
+      margin-top: 14px;
+      align-items: start;
+    }
+
+    .sim-grid .plot-host {
+      margin-top: 0;
+      height: 100%;
+      min-height: 380px;
+    }
+
+    .beam-host {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    .beam-tools {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .beam-tools .meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .plot-host.tall {
+      height: 320px;
+    }
+
+    .cap-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 10px 0 18px;
+    }
+
+    .cap-item {
+      width: 230px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      position: relative;
+    }
+
+    .cap-item img {
+      width: 100%;
+      border-radius: 4px;
+      display: block;
+    }
+
+    .cap-item .cap-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+
+    .cap-item .cap-x {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: var(--ink);
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    @media (max-width: 900px) {
+      .sim-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sensor-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="dot"></div>
+    <h1>GROUPWORK 9F <span>&mdash; Forced Vibrations with a Cantilever Beam (M&amp;AE 3260)</span></h1>
+  </header>
+
+  <main>
+    <nav>
+      <p class="label">BACKGROUND</p>
+      <button class="nav-btn active" data-part="intro">Intro<small>Beam model &amp; simulator</small></button>
+
+      <p class="label">PROBLEM 1</p>
+      <button class="nav-btn" data-part="p1">Mode Shapes<small>Activate &amp; sketch</small></button>
+
+      <p class="label">PROBLEM 2</p>
+      <button class="nav-btn" data-part="p2">General Response<small>Sweep &omega;n1 &rarr; &omega;n2</small></button>
+
+      <p class="label">PROBLEM 3</p>
+      <button class="nav-btn" data-part="p3">Sensor Locations<small>[1, 0.78, 0.33]</small></button>
+
+      <p class="label">PROBLEM 4</p>
+      <button class="nav-btn" data-part="p4">Resonant Zeroes<small>[1, 0.7, 0.33]</small></button>
+
+      <p class="label">SUBMIT</p>
+      <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+    </nav>
+
+    <div class="content">
+      <div class="wrap">
+
+        <!-- ============== INTRO ============== -->
+        <section id="part-intro">
+          <h2 class="section-title">Forced Vibrations with a Cantilever Beam</h2>
+
+          <p class="instructions"><b>Learning Goals:</b></p>
+          <ul class="goals">
+            <li>Activate and estimate mode shapes of a beam via sinusoidal inputs to a system</li>
+            <li>Understand how the input-output transfer function of a beam changes (and stays the same) as the sensor
+              moves along the beam</li>
+            <li>Explain a physical meaning/experiment of frequencies of the resonant zeroes of a transfer function</li>
+          </ul>
+
+          <p class="instructions">
+            Today's group work uses a cantilever beam simulation/animation. The beam is modeled after an aluminum
+            beam clamped at the bottom (x = 0). A linear force input acts about 1/3 of the way up the beam, and
+            horizontal position sensors along the beam create &ldquo;point&rdquo; measurements at specific locations
+            (up to five sensors, A&ndash;E). Each sensor gives a transfer function from the force to its measurement:
+          </p>
+          <div class="eq-block" id="eq-tf"></div>
+          <p class="instructions">
+            A finite element model with 2D beam elements (displacement and rotation at each end) is used: 37
+            elements, 76 degrees of freedom, of the form
+          </p>
+          <div class="eq-block" id="eq-fem"></div>
+          <p class="instructions">
+            For a sinusoidal force <i>f(t)</i> = F sin(&omega;t), the steady-state response is a sum over the
+            vibrating modes, where &phi;<sub>i</sub>(x) is the mode shape and &omega;<sub>ni</sub> the natural
+            frequency of mode <i>i</i>:
+          </p>
+          <div class="eq-block" id="eq-modal"></div>
+
+          <div class="note-box">
+            The simulator in each problem reproduces the <code>vibrating_beam.mlx</code> livescript in the browser.
+            Enter up to five sensor locations as a fraction 0&ndash;1 of the beam length (toggle a sensor off to
+            disable it) and the input frequency &omega; (rad/s), then click RUN. You get the Bode magnitude plot
+            (log&ndash;log), the sensor displacement time responses, and the beam animation. The force amplitude is
+            scaled so the largest displacement anywhere on the beam is 1&nbsp;cm. Use <b>CAPTURE FIGURE</b> to save
+            the current view for your submission PDF (screenshots via the tool are accepted; phone photos are not).
+          </div>
+        </section>
+
+        <!-- ============== PROBLEM 1 ============== -->
+        <section id="part-p1" style="display:none;">
+          <h3 class="problem-title">Problem 1: Activate and Sketch Mode Shapes</h3>
+          <p class="given-line">GIVEN &middot; one sensor (A) at <b>1.0 L</b> &middot; force at node 12 (&asymp; 0.32 L)
+          </p>
+          <p class="instructions">
+            Define one sensor at location 1 (already set) and run the simulation. Using the Bode magnitude plot,
+            estimate the first three resonant poles, which are the same as the first three vibrating-mode natural
+            frequencies &omega;<sub>n1</sub>, &omega;<sub>n2</sub>, &omega;<sub>n3</sub>.
+          </p>
+          <div class="panel-box" id="sim-p1"></div>
+
+          <h4 class="part-title">a) Estimate the resonant poles</h4>
+          <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="field"><label>&omega;<sub>n1</sub> [rad/s]</label><input type="number" id="input-p1-wn1"
+                step="any" /></div>
+            <div class="field"><label>&omega;<sub>n2</sub> [rad/s]</label><input type="number" id="input-p1-wn2"
+                step="any" /></div>
+            <div class="field"><label>&omega;<sub>n3</sub> [rad/s]</label><input type="number" id="input-p1-wn3"
+                step="any" /></div>
+          </div>
+
+          <h4 class="part-title">b) Activate and sketch each mode shape</h4>
+          <p class="instructions">
+            Run again with &omega; = &omega;<sub>n1</sub>, then &omega;<sub>n2</sub>, then &omega;<sub>n3</sub>. For
+            each,
+            click <b>CAPTURE FIGURE</b> while the beam is at a representative point in its motion (captures are added to
+            your
+            submission). Describe each shape: where are the nearly stationary points, and which segments move together?
+          </p>
+          <div class="reflection-box"><textarea id="input-p1-reflect-shapes"
+              placeholder="Describe the shape at each of the three frequencies..."></textarea></div>
+
+          <h4 class="part-title">c) Discuss</h4>
+          <p class="instructions">How do the shapes change with the input frequency?</p>
+          <div class="reflection-box"><textarea id="input-p1-reflect-change"
+              placeholder="Type your discussion here..."></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 2 ============== -->
+        <section id="part-p2" style="display:none;">
+          <h3 class="problem-title">Problem 2: General Forced Response</h3>
+          <p class="given-line">GIVEN &middot; one sensor (A) at <b>1.0 L</b> &middot; sweep &omega; from
+            &omega;<sub>n1</sub> to &omega;<sub>n2</sub></p>
+          <p class="instructions">
+            Start with &omega; = &omega;<sub>n1</sub> and note the shape of the vibrating beam. Increase &omega; and
+            repeat,
+            continuing until you reach &omega;<sub>n2</sub>.
+          </p>
+          <div class="panel-box" id="sim-p2"></div>
+
+          <h4 class="part-title">a) Observe</h4>
+          <p class="instructions">How does the response change as &omega; increases from &omega;<sub>n1</sub> to
+            &omega;<sub>n2</sub>?</p>
+          <div class="reflection-box"><textarea id="input-p2-reflect-observe"
+              placeholder="Type your answer here..."></textarea></div>
+
+          <h4 class="part-title">b) Discuss</h4>
+          <p class="instructions">Can you guess what the general response is for any input frequency &omega;?</p>
+          <div class="reflection-box"><textarea id="input-p2-reflect-general"
+              placeholder="Type your answer here..."></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 3 ============== -->
+        <section id="part-p3" style="display:none;">
+          <h3 class="problem-title">Problem 3: Vary Sensor Locations along the Beam</h3>
+          <p class="given-line">GIVEN &middot; sensors A, B, C at <b>[1, 0.78, 0.33]</b> &middot; simulate at &omega; =
+            &omega;<sub>n2</sub></p>
+          <p class="instructions">
+            Use the preset to load the three sensors, then simulate at the second resonant mode.
+          </p>
+          <div class="panel-box" id="sim-p3"></div>
+
+          <h4 class="part-title">a) Discuss</h4>
+          <p class="instructions">
+            Why do the three Bode magnitude plots look as they do near &omega; = &omega;<sub>n2</sub>, and how does this
+            relate to the animation/response? Discuss physically what is occurring.
+          </p>
+          <div class="reflection-box"><textarea id="input-p3-reflect-bode"
+              placeholder="Type your discussion here..."></textarea></div>
+
+          <h4 class="part-title">b) A sensor that doesn't measure mode 3</h4>
+          <p class="instructions">
+            Can you add a sensor at a location that does not measure the third mode (&omega; = &omega;<sub>n3</sub>)?
+            Try
+            candidate locations in sensors D/E and run at &omega;<sub>n3</sub>.
+          </p>
+          <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="field"><label>sensor location 1 [x/L]</label><input type="number" id="input-p3-loc1"
+                step="any" /></div>
+            <div class="field"><label>sensor location 2 [x/L] (optional)</label><input type="number" id="input-p3-loc2"
+                step="any" /></div>
+          </div>
+          <div class="reflection-box"><textarea id="input-p3-reflect-mode3"
+              placeholder="Explain your reasoning here..."></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 4 ============== -->
+        <section id="part-p4" style="display:none;">
+          <h3 class="problem-title">Problem 4: Sinusoidal Inputs at Zero Frequencies</h3>
+          <p class="given-line">GIVEN &middot; sensors A, B, C at <b>[1, 0.7, 0.33]</b></p>
+          <p class="instructions">
+            Resonant zeroes are complex-conjugate pairs with damping between 0 and 1. A transfer function with
+            resonant poles and zeroes can be written as
+          </p>
+          <div class="eq-block" id="eq-zeros"></div>
+          <p class="instructions">
+            Simulate the system at one of the resonant zero frequencies (the dips in a sensor's Bode magnitude),
+            &omega; = &omega;<sub>nz</sub>. Observe the animation, then repeat at a second zero frequency.
+          </p>
+          <div class="panel-box" id="sim-p4"></div>
+
+          <h4 class="part-title">a) Zero frequencies used</h4>
+          <div class="form-grid two">
+            <div class="field"><label>&omega;<sub>nz</sub> #1 [rad/s]</label><input type="number" id="input-p4-wz1"
+                step="any" /></div>
+            <div class="field"><label>&omega;<sub>nz</sub> #2 [rad/s]</label><input type="number" id="input-p4-wz2"
+                step="any" /></div>
+          </div>
+
+          <h4 class="part-title">b) Discuss</h4>
+          <p class="instructions">What is physically happening at each resonant zero frequency?</p>
+          <div class="reflection-box"><textarea id="input-p4-reflect-zeros"
+              placeholder="Type your discussion here..."></textarea></div>
+        </section>
+
+        <!-- ============== SUBMISSION ============== -->
+        <section id="part-submission" style="display:none;">
+          <h2 class="section-title">Submission</h2>
+
+          <div class="form-grid two">
+            <div class="field">
+              <label class="mono">Your NetID</label>
+              <input type="text" id="input-netid" placeholder="netid" spellcheck="false" />
+            </div>
+            <div class="field">
+              <label class="mono">Group member NetIDs</label>
+              <input type="text" id="input-group-netids" placeholder="person1, person2, person3, ..."
+                spellcheck="false" />
+            </div>
+          </div>
+
+          <ul class="steps-list" style="margin-top: 22px;">
+            <li>Enter your NetID and group member NetIDs above and export PDF.</li>
+            <li>Submit: sketches/figures (#1) and a summary of the discussion (all). Figures for #2&ndash;4 are optional
+              but included if you capture them.</li>
+            <li>Optionally, attach an existing PDF below and it will be appended to the end of the exported file.</li>
+          </ul>
+
+          <p class="instructions"><b>Captured figures</b> (taken from the simulators with CAPTURE FIGURE):</p>
+          <div class="cap-list" id="cap-list"></div>
+
+          <p class="instructions">Append an existing PDF to the end of your export (optional):</p>
+          <div class="upload-block">
+            <input type="file" id="upload-input-appendix" accept="application/pdf" multiple />
+            <div id="upload-thumbs-appendix" style="display:flex; flex-wrap:wrap; margin-top:10px;"></div>
+            <p class="upload-status" id="upload-status-appendix" style="display:none;"></p>
+            <p class="upload-err" id="upload-err-appendix"></p>
+          </div>
+
+          <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+          <p class="field-err" id="exportStatus" style="color:var(--muted);"></p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      // ---------------------------------------------------------------
+      // Finite element beam model -- replicates vibrating_beam.mlx
+      // (rho = 2700, A = 4*0.5 cm^2, L = 0.2 m, 37 elements, E = 2e11,
+      //  I = 1.9e-9, modal damping zeta = 0.01). The livescript's element
+      //  stiffness uses E*I/l^2 (not l^3); it is reproduced exactly so the
+      //  resonances match the assignment/solutions (~171, 1074, 3008 rad/s).
+      // ---------------------------------------------------------------
+      const RHO = 2700, AREA = 4 * 0.5 / 100 / 100, LEN = 0.2, NEL = 37, E_MOD = 2e11, I_MOM = 1.9e-9, ZETA = 0.01;
+      const NN = NEL + 1, ND = 2 * NN, NF = ND - 2;     // 38 nodes, 76 DOF, 74 free
+      const FORCE_NODE = 12;                              // force node (x = 12/37 L)
+      const YMAX = 0.01;                                  // max displacement anywhere = 1 cm
+
+      function buildBeam() {
+        const l = LEN / NEL;
+        const mc = (RHO * AREA * l) / 420;
+        const mi = [
+          [156, 22 * l, 54, -13 * l],
+          [22 * l, 4 * l * l, 13 * l, -3 * l * l],
+          [54, 13 * l, 156, -22 * l],
+          [-13 * l, -3 * l * l, -22 * l, 4 * l * l],
+        ].map((r) => r.map((v) => v * mc));
+        const kc = (E_MOD * I_MOM) / (l * l);
+        const ki = [
+          [12, 6 * l, -12, 6 * l],
+          [6 * l, 4 * l * l, -6 * l, 2 * l * l],
+          [-12, -6 * l, 12, -6 * l],
+          [6 * l, 2 * l * l, -6 * l, 4 * l * l],
+        ].map((r) => r.map((v) => v * kc));
+        const M = new Float64Array(ND * ND), K = new Float64Array(ND * ND);
+        for (let e = 0; e < NEL; e++) {
+          const s = 2 * e;
+          for (let a = 0; a < 4; a++) for (let b = 0; b < 4; b++) {
+            M[(s + a) * ND + s + b] += mi[a][b];
+            K[(s + a) * ND + s + b] += ki[a][b];
+          }
+        }
+        // clamped end: DOFs 0,1 removed -> free block is rows/cols 2..75
+        const Mf = new Float64Array(NF * NF), Kf = new Float64Array(NF * NF);
+        for (let i = 0; i < NF; i++) for (let j = 0; j < NF; j++) {
+          Mf[i * NF + j] = M[(i + 2) * ND + j + 2];
+          Kf[i * NF + j] = K[(i + 2) * ND + j + 2];
+        }
+        return { Mf, Kf };
+      }
+
+      // Generalized symmetric eigenproblem K phi = lam M phi (Cholesky + cyclic Jacobi)
+      function generalizedEig(Mf, Kf, n) {
+        const L = new Float64Array(n * n);
+        for (let i = 0; i < n; i++) {
+          for (let j = 0; j <= i; j++) {
+            let s = Mf[i * n + j];
+            for (let k = 0; k < j; k++) s -= L[i * n + k] * L[j * n + k];
+            if (i === j) L[i * n + i] = Math.sqrt(s); else L[i * n + j] = s / L[j * n + j];
+          }
+        }
+        // B = L^-1 K  (forward substitution, column by column)
+        const B = new Float64Array(n * n);
+        for (let c = 0; c < n; c++) {
+          for (let i = 0; i < n; i++) {
+            let s = Kf[i * n + c];
+            for (let k = 0; k < i; k++) s -= L[i * n + k] * B[k * n + c];
+            B[i * n + c] = s / L[i * n + i];
+          }
+        }
+        // A = B L^-T  <=>  A^T = L^-1 B^T ; solve rows of A: for each row r of B, a_r = L^-1 b_r
+        const A = new Float64Array(n * n);
+        for (let r = 0; r < n; r++) {
+          for (let i = 0; i < n; i++) {
+            let s = B[r * n + i];
+            for (let k = 0; k < i; k++) s -= L[i * n + k] * A[r * n + k];
+            A[r * n + i] = s / L[i * n + i];
+          }
+        }
+        for (let i = 0; i < n; i++) for (let j = 0; j < i; j++) { const v = 0.5 * (A[i * n + j] + A[j * n + i]); A[i * n + j] = v; A[j * n + i] = v; }
+        const V = new Float64Array(n * n);
+        for (let i = 0; i < n; i++) V[i * n + i] = 1;
+        let fro = 0; for (let i = 0; i < n * n; i++) fro += A[i] * A[i];
+        fro = Math.sqrt(fro);
+        for (let sweep = 0; sweep < 60; sweep++) {
+          let off = 0;
+          for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += A[p * n + q] * A[p * n + q];
+          if (Math.sqrt(2 * off) < 1e-15 * fro) break;
+          for (let p = 0; p < n - 1; p++) for (let q = p + 1; q < n; q++) {
+            const apq = A[p * n + q];
+            if (Math.abs(apq) < 1e-300) continue;
+            const theta = (A[q * n + q] - A[p * n + p]) / (2 * apq);
+            const t = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1));
+            const c = 1 / Math.sqrt(t * t + 1), s = t * c;
+            for (let k = 0; k < n; k++) {
+              const akp = A[k * n + p], akq = A[k * n + q];
+              A[k * n + p] = c * akp - s * akq; A[k * n + q] = s * akp + c * akq;
+            }
+            for (let k = 0; k < n; k++) {
+              const apk = A[p * n + k], aqk = A[q * n + k];
+              A[p * n + k] = c * apk - s * aqk; A[q * n + k] = s * apk + c * aqk;
+            }
+            for (let k = 0; k < n; k++) {
+              const vkp = V[k * n + p], vkq = V[k * n + q];
+              V[k * n + p] = c * vkp - s * vkq; V[k * n + q] = s * vkp + c * vkq;
+            }
+          }
+        }
+        const idx = Array.from({ length: n }, (_, i) => i).sort((a, b) => A[a * n + a] - A[b * n + b]);
+        const lam = idx.map((i) => A[i * n + i]);
+        // phi = L^-T V  (back substitution), mass-normalized
+        const phi = new Float64Array(n * n); // phi[row*n + mode]
+        idx.forEach((src, m) => {
+          for (let i = n - 1; i >= 0; i--) {
+            let s = V[i * n + src];
+            for (let k = i + 1; k < n; k++) s -= L[k * n + i] * phi[k * n + m];
+            phi[i * n + m] = s / L[i * n + i];
+          }
+        });
+        return { lam, phi };
+      }
+
+      const beam = buildBeam();
+      const eig = generalizedEig(beam.Mf, beam.Kf, NF);
+      const WN = eig.lam.map((v) => Math.sqrt(Math.max(v, 0)));   // all 74 natural frequencies (rad/s)
+      const WN2 = WN.map((w) => w * w);
+      // per-node modal products phi_k,i * phi_force,i (translation DOF of node k is free index 2k-2)
+      const FORCE_IDX = 2 * FORCE_NODE - 2;
+      const PROD = [];
+      for (let k = 0; k < NN; k++) {
+        const arr = new Float64Array(NF);
+        if (k > 0) for (let i = 0; i < NF; i++) arr[i] = eig.phi[(2 * k - 2) * NF + i] * eig.phi[FORCE_IDX * NF + i];
+        PROD.push(arr);
+      }
+      // G_k(jw) = sum_i prod_k,i / (wn_i^2 - w^2 + 2 j zeta wn_i w)
+      function Gnode(k, w) {
+        const p = PROD[k]; let re = 0, im = 0; const w2 = w * w;
+        for (let i = 0; i < NF; i++) {
+          const a = WN2[i] - w2, b = 2 * ZETA * WN[i] * w, d = a * a + b * b;
+          re += p[i] * a / d; im -= p[i] * b / d;
+        }
+        return [re, im];
+      }
+      function sensorNode(x) { return Math.floor(x * NEL + 0.5); }
+
+      // ---------------------------------------------------------------
+      // UI helpers
+      // ---------------------------------------------------------------
+      const PLOT_OPTS = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+      const SENS = [
+        { id: "A", color: "#5EEAD4" },
+        { id: "B", color: "#FFB454" },
+        { id: "C", color: "#FB7185" },
+        { id: "D", color: "#A78BFA" },
+        { id: "E", color: "#7DD3FC" },
+      ];
+      const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p4: "Problem 4" };
+
+      function plotLayout(yTitle, xTitle, opts) {
+        opts = opts || {};
+        return {
+          paper_bgcolor: "#171A21", plot_bgcolor: "#171A21",
+          font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
+          margin: { l: 62, r: 15, t: 15, b: 42 },
+          xaxis: Object.assign({ title: xTitle, gridcolor: "#282D3A", zerolinecolor: "#282D3A" }, opts.xaxis || {}),
+          yaxis: Object.assign({ title: yTitle, gridcolor: "#282D3A", zerolinecolor: "#282D3A" }, opts.yaxis || {}),
+          legend: { orientation: "h", y: -0.28, font: { size: 9 } },
+          showlegend: true,
+          shapes: opts.shapes || [],
+        };
+      }
+      function fmt(v, d) { return Number(v).toPrecision(d || 4); }
+
+      const runFlags = {};
+      const lastRun = {};     // per-panel info for captures
+      const panelApi = {};    // per-panel functions
+
+      const SVG_W = 520, SVG_H = 450, CX = 285, HALF = 205, YTOP = 40, YBOT = 400;
+      function svgX(y, axisMax) { return CX + (y / axisMax) * HALF; }
+      function svgY(pos) { return YBOT - pos * (YBOT - YTOP); }
+
+      function buildSimPanel(prefix, opts) {
+        const host = document.getElementById(`sim-${prefix}`);
+        const sensorCards = SENS.map((s, i) => {
+          const x = opts.sensors[i];
+          const on = x !== null && x !== undefined;
+          return `<div class="sensor-card ${on ? "" : "off"}" id="card-${prefix}-${s.id}">
+        <div class="sh"><span class="sw" style="background:${s.color}"></span>Sensor ${s.id}
+          <input type="checkbox" id="sim-${prefix}-sen${s.id}-on" ${on ? "checked" : ""} title="enable sensor ${s.id}" /></div>
+        <input type="number" id="sim-${prefix}-sen${s.id}-x" value="${on ? x : (opts.spare && opts.spare[i] !== undefined ? opts.spare[i] : 0.5)}" min="0" max="1" step="any" />
+      </div>`;
+        }).join("");
+        const presetsHtml = opts.presets ? `<div class="vib-presets">${opts.presets.map((p, i) => `<button class="run-btn secondary small" id="btn-${prefix}-preset${i}">${p.label}</button>`).join("")}</div>` : "";
+        host.innerHTML = `
+      <p class="mono" style="font-size:11px;color:var(--muted);margin:0 0 8px 0;">SENSOR LOCATIONS (fraction 0&ndash;1 of beam length L; tick the box to enable)</p>
+      <div class="sensor-row">${sensorCards}</div>
+      ${presetsHtml}
+      <div class="ctl-row">
+        <div class="field"><label>input frequency &omega; [rad/s]</label><input type="number" id="sim-${prefix}-omega" value="${opts.omega}" step="any" /></div>
+        <label class="chk"><input type="checkbox" id="sim-${prefix}-phase" /> show phase plot</label>
+        <div style="padding-bottom:6px; display:flex; gap:10px;">
+          <button class="run-btn" id="btn-${prefix}-run">RUN</button>
+          <button class="run-btn secondary" id="btn-${prefix}-reset">RESET</button>
+        </div>
+      </div>
+      <p class="field-err" id="err-${prefix}"></p>
+      <div class="sim-grid">
+        <div>
+          <div class="beam-host"><svg id="beam-svg-${prefix}" viewBox="0 0 ${SVG_W} ${SVG_H}" width="100%" xmlns="http://www.w3.org/2000/svg"></svg></div>
+          <div class="beam-tools">
+            <button class="run-btn secondary small" id="btn-${prefix}-play">PAUSE</button>
+            <button class="run-btn small" id="btn-${prefix}-capture">CAPTURE FIGURE</button>
+            <span class="meta" id="meta-${prefix}"></span>
+          </div>
+          <p class="upload-status" id="capstat-${prefix}" style="margin-top:6px;"></p>
+        </div>
+        <div class="plot-host" id="plot-${prefix}-bode"><div class="placeholder">Set sensors and &omega;, then click RUN to see the Bode magnitude plot.</div></div>
+      </div>
+      <div class="plot-host tall" id="plot-${prefix}-time"><div class="placeholder">Sensor displacement vs. time appears here after RUN.</div></div>
+      <div class="plot-host tall" id="plot-${prefix}-phaseplot" style="display:none;"></div>
+    `;
+
+        const svg = document.getElementById(`beam-svg-${prefix}`);
+        const NS = "http://www.w3.org/2000/svg";
+        let playing = true, phase = 0, lastTs = null, rafId = null;
+        let dyn = null; // current animation data
+
+        function el(name, attrs) {
+          const e = document.createElementNS(NS, name);
+          Object.keys(attrs || {}).forEach((k) => e.setAttribute(k, attrs[k]));
+          return e;
+        }
+        function txt(x, y, s, attrs) {
+          const t = el("text", Object.assign({ x, y, fill: "#E7E9EE", "font-size": 10, "font-family": "JetBrains Mono, monospace" }, attrs || {}));
+          t.textContent = s; return t;
+        }
+
+        function buildSvg(sensors, axisMax, w) {
+          svg.innerHTML = "";
+          svg.appendChild(el("rect", { x: 0, y: 0, width: SVG_W, height: SVG_H, fill: "#171A21" }));
+          svg.appendChild(txt(SVG_W / 2, 18, w ? `Sinusoidal Force Input, ω=${Number(w.toPrecision(5))} rad/s` : "Sinusoidal Force Input", { "text-anchor": "middle", "font-size": 12 }));
+          // grid + ticks
+          for (let j = 0; j <= 10; j++) {
+            const yy = svgY(j / 10);
+            svg.appendChild(el("line", { x1: CX - HALF, x2: CX + HALF, y1: yy, y2: yy, stroke: "#282D3A", "stroke-width": 1 }));
+            svg.appendChild(txt(CX - HALF - 6, yy + 3, (j / 10).toFixed(1) + "L", { "text-anchor": "end", "font-size": 9, fill: "#8B92A5" }));
+          }
+          for (let v = -0.05; v <= 0.05 + 1e-9; v += 0.01) {
+            if (Math.abs(v) > axisMax + 1e-9) continue;
+            const xx = svgX(v, axisMax);
+            svg.appendChild(el("line", { x1: xx, x2: xx, y1: YTOP, y2: YBOT, stroke: "#282D3A", "stroke-width": 1 }));
+            svg.appendChild(txt(xx, YBOT + 25, (Math.abs(v) < 1e-9 ? 0 : v).toFixed(2), { "text-anchor": "middle", "font-size": 9, fill: "#8B92A5" }));
+          }
+          svg.appendChild(txt(CX, SVG_H - 8, "displacement y(x,t) in meters", { "text-anchor": "middle", fill: "#8B92A5" }));
+          const yl = txt(14, (YTOP + YBOT) / 2, "position x along the beam", { "text-anchor": "middle", fill: "#8B92A5" });
+          yl.setAttribute("transform", `rotate(-90 14 ${(YTOP + YBOT) / 2})`);
+          svg.appendChild(yl);
+          // clamp
+          svg.appendChild(el("line", { x1: CX - HALF, x2: CX + HALF, y1: YBOT, y2: YBOT, stroke: "#E7E9EE", "stroke-width": 8 }));
+          // beam
+          const beamEl = el("polyline", { id: `beam-line-${prefix}`, points: "", fill: "none", stroke: "#8B92A5", "stroke-width": 8, "stroke-linejoin": "round", "stroke-linecap": "round" });
+          svg.appendChild(beamEl);
+          // force
+          const fy = svgY(FORCE_NODE / NEL);
+          const fLine = el("line", { id: `force-line-${prefix}`, x1: CX - HALF, x2: CX, y1: fy, y2: fy, stroke: "#E7E9EE", "stroke-width": 3 });
+          const fDot = el("circle", { id: `force-dot-${prefix}`, cx: CX, cy: fy, r: 6, fill: "#E7E9EE" });
+          svg.appendChild(fLine); svg.appendChild(fDot);
+          svg.appendChild(txt(CX - HALF + 6, fy - 6, "Force", { fill: "#E7E9EE" }));
+          // sensors
+          sensors.forEach((s) => {
+            const sy = svgY(s.node / NEL);
+            const l = el("line", { id: `sen-line-${prefix}-${s.id}`, x1: CX, x2: CX + HALF, y1: sy, y2: sy, stroke: s.color, "stroke-width": 2.5, "stroke-dasharray": "2 4" });
+            const d = el("circle", { id: `sen-dot-${prefix}-${s.id}`, cx: CX, cy: sy, r: 6, fill: s.color });
+            svg.appendChild(l); svg.appendChild(d);
+            svg.appendChild(txt(CX + HALF * 0.7 - 8, sy - 6, `sensor ${s.id}`, { fill: s.color }));
+          });
+        }
+
+        function drawFrame() {
+          if (!dyn) return;
+          const sp = Math.sin(phase), cp = Math.cos(phase);
+          const pts = [];
+          const ys = new Float64Array(NN);
+          for (let k = 0; k < NN; k++) {
+            ys[k] = dyn.re[k] * sp + dyn.im[k] * cp;
+            pts.push(`${svgX(ys[k], dyn.axisMax).toFixed(2)},${svgY(k / NEL).toFixed(2)}`);
+          }
+          const b = document.getElementById(`beam-line-${prefix}`); if (b) b.setAttribute("points", pts.join(" "));
+          const fx = svgX(ys[FORCE_NODE], dyn.axisMax);
+          const fd = document.getElementById(`force-dot-${prefix}`); if (fd) fd.setAttribute("cx", fx);
+          const fl = document.getElementById(`force-line-${prefix}`); if (fl) fl.setAttribute("x2", fx);
+          dyn.sensors.forEach((s) => {
+            const x = svgX(ys[s.node], dyn.axisMax);
+            const d = document.getElementById(`sen-dot-${prefix}-${s.id}`); if (d) d.setAttribute("cx", x);
+            const l = document.getElementById(`sen-line-${prefix}-${s.id}`); if (l) l.setAttribute("x1", x);
+          });
+        }
+        function tick(ts) {
+          if (lastTs === null) lastTs = ts;
+          if (playing) { phase += 2 * Math.PI * 0.75 * (ts - lastTs) / 1000; }
+          lastTs = ts;
+          drawFrame();
+          rafId = requestAnimationFrame(tick);
+        }
+
+        function readSensors() {
+          const out = [];
+          SENS.forEach((s) => {
+            const on = document.getElementById(`sim-${prefix}-sen${s.id}-on`).checked;
+            const x = Number(document.getElementById(`sim-${prefix}-sen${s.id}-x`).value);
+            if (on && isFinite(x) && x >= 0 && x <= 1) out.push({ id: s.id, color: s.color, x, node: sensorNode(x) });
+          });
+          return out;
+        }
+
+        function refreshCards() {
+          SENS.forEach((s) => {
+            const on = document.getElementById(`sim-${prefix}-sen${s.id}-on`).checked;
+            document.getElementById(`card-${prefix}-${s.id}`).classList.toggle("off", !on);
+          });
+        }
+
+        function run() {
+          const errEl = document.getElementById(`err-${prefix}`);
+          const w = Number(document.getElementById(`sim-${prefix}-omega`).value);
+          if (!isFinite(w) || w <= 0) { errEl.textContent = "Enter a positive input frequency ω."; return; }
+          const sensors = readSensors();
+          const bad = SENS.filter((s) => document.getElementById(`sim-${prefix}-sen${s.id}-on`).checked)
+            .filter((s) => { const x = Number(document.getElementById(`sim-${prefix}-sen${s.id}-x`).value); return !(isFinite(x) && x >= 0 && x <= 1); });
+          errEl.textContent = bad.length ? `Sensor ${bad.map((s) => s.id).join(", ")}: location must be between 0 and 1 (ignored).` : "";
+          runFlags[prefix] = true;
+
+          // --- steady-state response of every node at w; scale force so max |y| = 1 cm ---
+          const Gall = [];
+          let gmax = 0;
+          for (let k = 0; k < NN; k++) { const g = Gnode(k, w); Gall.push(g); gmax = Math.max(gmax, Math.hypot(g[0], g[1])); }
+          const U0 = YMAX / gmax;
+          const re = new Float64Array(NN), im = new Float64Array(NN);
+          for (let k = 0; k < NN; k++) { re[k] = U0 * Gall[k][0]; im[k] = U0 * Gall[k][1]; }
+          // time samples exactly as the livescript: 10 cycles, 1000 samples
+          const tf = 10 * 2 * Math.PI / w, NT = 1000;
+          const t = Array.from({ length: NT }, (_, i) => tf * i / (NT - 1));
+          let maxy = 0;
+          const ysens = sensors.map(() => new Array(NT));
+          for (let i = 0; i < NT; i++) {
+            const sp = Math.sin(w * t[i]), cp = Math.cos(w * t[i]);
+            for (let k = 0; k < NN; k++) maxy = Math.max(maxy, Math.abs(re[k] * sp + im[k] * cp));
+            sensors.forEach((s, j) => { ysens[j][i] = re[s.node] * sp + im[s.node] * cp; });
+          }
+          const axisMax = 5 * maxy;
+          dyn = { re, im, axisMax, sensors };
+          buildSvg(sensors, axisMax, w);
+          drawFrame();
+          document.getElementById(`meta-${prefix}`).textContent = `F₀ = ${fmt(U0, 4)} N · max|y| = ${(maxy * 100).toFixed(3)} cm`;
+
+          // --- Bode ---
+          const bodeEl = document.getElementById(`plot-${prefix}-bode`);
+          const timeEl = document.getElementById(`plot-${prefix}-time`);
+          const phaseEl = document.getElementById(`plot-${prefix}-phaseplot`);
+          const showPhase = document.getElementById(`sim-${prefix}-phase`).checked;
+          phaseEl.style.display = showPhase ? "block" : "none";
+          let bodeInfo = null;
+          if (sensors.length > 0) {
+            const NB = 2000, lo = Math.log10(WN[0]) - 0.5, hi = Math.log10(WN[2]) + 0.5;
+            const om = Array.from({ length: NB }, (_, i) => Math.pow(10, lo + (hi - lo) * i / (NB - 1)));
+            const magTraces = [], phTraces = [];
+            let ymin = Infinity, ymax = 0;
+            sensors.forEach((s) => {
+              const mag = new Array(NB), ph = new Array(NB);
+              let prev = 0, acc = 0;
+              for (let i = 0; i < NB; i++) {
+                const g = s.node === 0 ? [0, 0] : Gnode(s.node, om[i]);
+                const m = Math.hypot(g[0], g[1]);
+                mag[i] = m > 0 ? m : null;
+                if (m > 0) { ymin = Math.min(ymin, m); ymax = Math.max(ymax, m); }
+                const a = Math.atan2(g[1], g[0]) * 180 / Math.PI;
+                if (i === 0) { acc = a; } else { let d = a - prev; while (d > 180) d -= 360; while (d < -180) d += 360; acc += d; }
+                prev = a; ph[i] = acc;
+              }
+              const ph0 = ph[0];
+              magTraces.push({ x: om, y: mag, mode: "lines", line: { color: s.color, width: 2 }, name: `Sensor ${s.id} (${s.x}L)`, connectgaps: false });
+              phTraces.push({ x: om, y: ph.map((v) => v - ph0), mode: "lines", line: { color: s.color, width: 2 }, name: `Sensor ${s.id} (${s.x}L)` });
+            });
+            const wLine = [{ type: "line", xref: "x", yref: "paper", x0: w, x1: w, y0: 0, y1: 1, line: { color: "#8B92A5", width: 1, dash: "dot" } }];
+            bodeEl.innerHTML = "";
+            Plotly.newPlot(bodeEl, magTraces, plotLayout("Amplitude Ratio (Y/F)", "Frequency (rad/sec)", { xaxis: { type: "log" }, yaxis: { type: "log", exponentformat: "power" }, shapes: wLine }), PLOT_OPTS);
+            if (showPhase) {
+              Plotly.newPlot(phaseEl, phTraces, plotLayout("Phase Difference (Y/F) [deg]", "Frequency (rad/sec)", { xaxis: { type: "log" }, yaxis: { dtick: 90 }, shapes: wLine }), PLOT_OPTS);
+            }
+            bodeInfo = true;
+            timeEl.innerHTML = "";
+            Plotly.newPlot(timeEl, sensors.map((s, j) => ({ x: t, y: ysens[j], mode: "lines", line: { color: s.color, width: 2 }, name: `Sensor ${s.id} (${s.x}L)` })),
+              plotLayout("Displacement Msmts y(x,t) [m]", "Time (sec)"), PLOT_OPTS);
+          } else {
+            bodeEl.innerHTML = '<div class="placeholder">Enable at least one sensor to see the Bode and time plots.</div>';
+            timeEl.innerHTML = '<div class="placeholder">Enable at least one sensor to see the Bode and time plots.</div>';
+            phaseEl.style.display = "none";
+          }
+          lastRun[prefix] = { w, sensors, hasPlots: sensors.length > 0 };
+          playing = true; document.getElementById(`btn-${prefix}-play`).textContent = "PAUSE";
+          if (!rafId) rafId = requestAnimationFrame(tick);
+          if (window.__scheduleSave) window.__scheduleSave();
+        }
+
+        function reset() {
+          dyn = null; runFlags[prefix] = false; lastRun[prefix] = null;
+          buildSvg([], 0.05, null);
+          document.getElementById(`beam-line-${prefix}`).setAttribute("points", `${svgX(0, 0.05)},${svgY(0)} ${svgX(0, 0.05)},${svgY(1)}`);
+          document.getElementById(`plot-${prefix}-bode`).innerHTML = '<div class="placeholder">Set sensors and ω, then click RUN to see the Bode magnitude plot.</div>';
+          document.getElementById(`plot-${prefix}-time`).innerHTML = '<div class="placeholder">Sensor displacement vs. time appears here after RUN.</div>';
+          document.getElementById(`plot-${prefix}-phaseplot`).style.display = "none";
+          document.getElementById(`meta-${prefix}`).textContent = "";
+          if (window.__scheduleSave) window.__scheduleSave();
+        }
+
+        async function svgToCanvasImage() {
+          const clone = svg.cloneNode(true);
+          clone.setAttribute("xmlns", NS); clone.setAttribute("width", SVG_W); clone.setAttribute("height", SVG_H);
+          const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          try {
+            return await new Promise((res, rej) => { const im2 = new Image(); im2.onload = () => res(im2); im2.onerror = rej; im2.src = url; });
+          } finally { URL.revokeObjectURL(url); }
+        }
+        function loadImg(src) { return new Promise((res, rej) => { const i2 = new Image(); i2.onload = () => res(i2); i2.onerror = rej; i2.src = src; }); }
+
+        async function capture() {
+          const st = document.getElementById(`capstat-${prefix}`);
+          const info = lastRun[prefix];
+          if (!info) { st.style.color = "#FB7185"; st.textContent = "Click RUN first."; return; }
+          st.style.color = "#5EEAD4"; st.textContent = "Capturing…";
+          try {
+            const W = 1500, H1 = 450, H2 = 340;
+            const cv = document.createElement("canvas"); cv.width = W; cv.height = H1 + (info.hasPlots ? H2 : 0);
+            const cx = cv.getContext("2d");
+            cx.fillStyle = "#171A21"; cx.fillRect(0, 0, cv.width, cv.height);
+            cx.drawImage(await svgToCanvasImage(), 0, 0, SVG_W, SVG_H);
+            if (info.hasPlots) {
+              const bodeUrl = await Plotly.toImage(document.getElementById(`plot-${prefix}-bode`), { format: "png", width: W - SVG_W, height: H1 });
+              cx.drawImage(await loadImg(bodeUrl), SVG_W, 0, W - SVG_W, H1);
+              const timeUrl = await Plotly.toImage(document.getElementById(`plot-${prefix}-time`), { format: "png", width: W, height: H2 });
+              cx.drawImage(await loadImg(timeUrl), 0, H1, W, H2);
+            }
+            const sensTxt = info.sensors.length ? info.sensors.map((s) => `${s.id}@${s.x}L`).join(", ") : "none";
+            window.__addCapture({ prefix, w: info.w, caption: `${TITLES[prefix]} — ω = ${Number(info.w.toPrecision(6))} rad/s — sensors: ${sensTxt}`, dataUrl: cv.toDataURL("image/png"), width: cv.width, height: cv.height });
+            st.textContent = "Figure captured — see Submission.";
+          } catch (err) {
+            console.error(err); st.style.color = "#FB7185"; st.textContent = "Could not capture figure.";
+          }
+        }
+
+        document.getElementById(`btn-${prefix}-run`).addEventListener("click", run);
+        document.getElementById(`btn-${prefix}-reset`).addEventListener("click", reset);
+        document.getElementById(`btn-${prefix}-capture`).addEventListener("click", capture);
+        document.getElementById(`btn-${prefix}-play`).addEventListener("click", () => {
+          playing = !playing; document.getElementById(`btn-${prefix}-play`).textContent = playing ? "PAUSE" : "PLAY";
+        });
+        SENS.forEach((s) => document.getElementById(`sim-${prefix}-sen${s.id}-on`).addEventListener("change", refreshCards));
+        if (opts.presets) {
+          opts.presets.forEach((pr, i) => document.getElementById(`btn-${prefix}-preset${i}`).addEventListener("click", () => {
+            SENS.forEach((s, j) => {
+              const on = pr.sensors[j] !== null && pr.sensors[j] !== undefined;
+              document.getElementById(`sim-${prefix}-sen${s.id}-on`).checked = on;
+              if (on) document.getElementById(`sim-${prefix}-sen${s.id}-x`).value = pr.sensors[j];
+            });
+            refreshCards(); if (window.__scheduleSave) window.__scheduleSave();
+          }));
+        }
+        panelApi[prefix] = { run, refreshCards };
+        buildSvg([], 0.05, null);
+        document.getElementById(`beam-line-${prefix}`).setAttribute("points", `${svgX(0, 0.05)},${svgY(0)} ${svgX(0, 0.05)},${svgY(1)}`);
+      }
+
+      buildSimPanel("p1", { sensors: [1, null, null, null, null], omega: 171, spare: [1, 0.78, 0.33, 0.7, 0.5] });
+      buildSimPanel("p2", { sensors: [1, null, null, null, null], omega: 171, spare: [1, 0.78, 0.33, 0.7, 0.5] });
+      buildSimPanel("p3", {
+        sensors: [1, 0.78, 0.33, null, null], omega: 1074, spare: [1, 0.78, 0.33, 0.865, 0.5],
+        presets: [{ label: "Sensors [1, 0.78, 0.33]", sensors: [1, 0.78, 0.33, null, null] }]
+      });
+      buildSimPanel("p4", {
+        sensors: [1, 0.7, 0.33, null, null], omega: 300, spare: [1, 0.7, 0.33, 0.865, 0.5],
+        presets: [{ label: "Sensors [1, 0.7, 0.33]", sensors: [1, 0.7, 0.33, null, null] }]
+      });
+
+      // ---------------------------------------------------------------
+      // KaTeX
+      // ---------------------------------------------------------------
+      const kr = (id, tex) => katex.render(tex, document.getElementById(id), { throwOnError: false, displayMode: true });
+      kr("eq-tf", "\\frac{Y_A(s)}{F(s)}=G_{f2yA}(s),\\qquad \\frac{Y_B(s)}{F(s)}=G_{f2yB}(s),\\qquad \\frac{Y_C(s)}{F(s)}=G_{f2yC}(s)");
+      kr("eq-fem", "M\\ddot x+Kx=Bf,\\qquad M,K\\in\\mathbb{R}^{76\\times 76}");
+      kr("eq-modal", "y(x,t)=\\sum_{i=1}^{n}\\phi_i(x)\\,\\big[Y_i\\sin(\\omega t+\\gamma_i)\\big]=|G(j\\omega)|\\,F\\sin(\\omega t+\\gamma)");
+      kr("eq-zeros", "G(s)=\\frac{\\cdots(s^2+2\\zeta_z\\omega_{nz}s+\\omega_{nz}^2)\\cdots}{\\cdots(s^2+2\\zeta_p\\omega_{np}s+\\omega_{np}^2)\\cdots}");
+
+      // ---------------------------------------------------------------
+      // Navigation
+      // ---------------------------------------------------------------
+      const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
+      function activate(part) {
+        document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
+        Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+        const sec = document.getElementById(SECTION_IDS[part]);
+        sec.style.display = "block";
+        sec.querySelectorAll(".js-plotly-plot").forEach((p) => { try { Plotly.Plots.resize(p); } catch (e) { /* ignore */ } });
+      }
+      document.querySelectorAll(".nav-btn").forEach((btn) => btn.addEventListener("click", () => activate(btn.dataset.part)));
+
+      // ---------------------------------------------------------------
+      // Captured figures
+      // ---------------------------------------------------------------
+      let captures = [];
+      const CAP_KEY = "gw9f_captures_v1";
+      function renderCaptures() {
+        const host = document.getElementById("cap-list");
+        if (!captures.length) { host.innerHTML = '<span class="mono" style="font-size:11.5px;color:var(--muted);">No figures captured yet.</span>'; return; }
+        host.innerHTML = captures.map((c, i) => `<div class="cap-item"><button class="cap-x" data-i="${i}" type="button">✕</button><img src="${c.dataUrl}" alt="" /><div class="cap-text">${c.caption}</div></div>`).join("");
+        host.querySelectorAll(".cap-x").forEach((b) => b.addEventListener("click", () => { captures.splice(Number(b.dataset.i), 1); renderCaptures(); saveCaptures(); }));
+      }
+      function saveCaptures() { try { localStorage.setItem(CAP_KEY, JSON.stringify(captures)); } catch (e) { /* too large / unavailable */ } }
+      window.__addCapture = function (c) { captures.push(c); renderCaptures(); saveCaptures(); };
+      try { const raw = localStorage.getItem(CAP_KEY); if (raw) captures = JSON.parse(raw) || []; } catch (e) { captures = []; }
+      renderCaptures();
+
+      // ---------------------------------------------------------------
+      // Submission: appendix upload + bundle everything into a PDF
+      // ---------------------------------------------------------------
+      let appendixFiles = [];
+      function renderFileChips() {
+        const host = document.getElementById("upload-thumbs-appendix");
+        host.innerHTML = "";
+        appendixFiles.forEach((file, i) => {
+          const chip = document.createElement("div");
+          chip.className = "file-chip";
+          chip.innerHTML = `<span>${file.name}</span><button class="chip-remove" data-i="${i}" type="button">✕</button>`;
+          host.appendChild(chip);
+        });
+        host.querySelectorAll(".chip-remove").forEach((btn) => btn.addEventListener("click", () => { appendixFiles.splice(Number(btn.dataset.i), 1); renderFileChips(); }));
+      }
+      const appendixInput = document.getElementById("upload-input-appendix");
+      appendixInput.addEventListener("change", () => {
+        const errEl = document.getElementById("upload-err-appendix");
+        const chosen = Array.from(appendixInput.files || []);
+        const nonPdf = chosen.filter((f) => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+        appendixFiles = appendixFiles.concat(chosen.filter((f) => !nonPdf.includes(f)));
+        if (errEl) errEl.textContent = nonPdf.length > 0 ? `Skipped (not a PDF): ${nonPdf.map((f) => f.name).join(", ")}` : "";
+        renderFileChips(); appendixInput.value = "";
+      });
+
+      function setExportStatus(text, isError) {
+        const el = document.getElementById("exportStatus");
+        el.textContent = text; el.style.color = isError ? "#FB7185" : "#8B92A5";
+      }
+      const val = (id) => document.getElementById(id).value.trim();
+      const reflect = (id) => val(id) || "(No response entered.)";
+      function fieldLabelFor(id) {
+        if (id === "input-netid") return "Your NetID";
+        if (id === "input-group-netids") return "Group member NetIDs";
+        const m = id.match(/^input-(p\d)-(.+)$/);
+        return m ? `${m[1]} (${m[2].replace(/-/g, " ")})` : id;
+      }
+      function findBlankItems() {
+        const blanks = [];
+        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => {
+          if (/^input-p3-loc2$/.test(e.id)) return; // optional second location
+          if (e.value.trim() === "") blanks.push(fieldLabelFor(e.id));
+        });
+        ["p1", "p2", "p3", "p4"].forEach((p) => { if (!runFlags[p]) blanks.push(`${p} (simulation not yet run)`); });
+        if (!captures.some((c) => c.prefix === "p1")) blanks.push("p1 (no captured mode-shape figures)");
+        return blanks;
+      }
+
+      async function exportPdf() {
+        const blanks = findBlankItems();
+        if (blanks.length > 0) {
+          if (!confirm(`The following are still blank:\n\n${blanks.map((b) => "• " + b).join("\n")}\n\nDo you want to export the PDF anyway?`)) return;
+        }
+        const btn = document.getElementById("exportPdfBtn");
+        const originalLabel = btn.textContent;
+        btn.disabled = true; btn.textContent = "EXPORTING…"; setExportStatus("");
+        try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ unit: "pt", format: "letter" });
+          const pageWidth = doc.internal.pageSize.getWidth(), pageHeight = doc.internal.pageSize.getHeight();
+          const margin = 48, maxWidth = pageWidth - margin * 2;
+          let y = margin;
+          const ensureSpace = (h) => { if (y + h > pageHeight - margin) { doc.addPage(); y = margin; } };
+          function addHeading(text) { ensureSpace(30); doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(text, margin, y); y += 22; }
+          const pdfSafe = (t) => String(t).replace(/ωn(\d)/g, "omega_n$1").replace(/ωnz/g, "omega_nz").replace(/ω/g, "omega");
+          function addText(text, o) {
+            text = pdfSafe(text);
+            const size = (o && o.size) || 10.5;
+            doc.setFont("helvetica", o && o.bold ? "bold" : "normal"); doc.setFontSize(size);
+            const lh = size * 1.35;
+            doc.splitTextToSize(text, maxWidth).forEach((line) => { ensureSpace(lh); doc.text(line, margin, y); y += lh; });
+            y += 4;
+          }
+          function addCaptures(prefix) {
+            const list = captures.filter((c) => c.prefix === prefix);
+            if (!list.length) { addText("(No figures captured.)"); return; }
+            list.forEach((c) => {
+              const h = maxWidth * (c.height / c.width);
+              addText(c.caption, { bold: true, size: 9.5 });
+              ensureSpace(h + 10);
+              doc.addImage(c.dataUrl, "PNG", margin, y, maxWidth, h);
+              y += h + 14;
+            });
+          }
+
+          doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+          doc.splitTextToSize("GroupWork 9F — Forced Vibrations with a Cantilever Beam", maxWidth).forEach((line) => { doc.text(line, margin, y); y += 20; });
+          y += 6;
+          const netId = val("input-netid") || "(not entered)";
+          addText(`Your NetID: ${netId}`, { bold: true, size: 11.5 });
+          addText(`Group member NetIDs: ${val("input-group-netids") || "(not entered)"}`, { bold: true, size: 11.5 });
+          y += 8;
+
+          addHeading("Problem 1: Activate and Sketch Mode Shapes");
+          addText(`a) Estimated resonant poles: ωn1 = ${val("input-p1-wn1") || "—"}, ωn2 = ${val("input-p1-wn2") || "—"}, ωn3 = ${val("input-p1-wn3") || "—"} rad/s`);
+          addText("b) Mode shapes:", { bold: true }); addText(reflect("input-p1-reflect-shapes"));
+          addCaptures("p1");
+          addText("c) How the shapes change with input frequency:", { bold: true }); addText(reflect("input-p1-reflect-change"));
+
+          addHeading("Problem 2: General Forced Response");
+          addText("a) Observe:", { bold: true }); addText(reflect("input-p2-reflect-observe"));
+          addText("b) General response for any ω:", { bold: true }); addText(reflect("input-p2-reflect-general"));
+          if (captures.some((c) => c.prefix === "p2")) addCaptures("p2");
+
+          addHeading("Problem 3: Vary Sensor Locations along the Beam");
+          addText("a) Discussion:", { bold: true }); addText(reflect("input-p3-reflect-bode"));
+          if (captures.some((c) => c.prefix === "p3")) addCaptures("p3");
+          addText(`b) Sensor location(s) not measuring mode 3: ${val("input-p3-loc1") || "—"}${val("input-p3-loc2") ? ", " + val("input-p3-loc2") : ""} (x/L)`);
+          addText(reflect("input-p3-reflect-mode3"));
+
+          addHeading("Problem 4: Sinusoidal Inputs at Zero Frequencies");
+          addText(`a) Zero frequencies used: ωnz = ${val("input-p4-wz1") || "—"} and ${val("input-p4-wz2") || "—"} rad/s`);
+          addText("b) Discussion:", { bold: true }); addText(reflect("input-p4-reflect-zeros"));
+          if (captures.some((c) => c.prefix === "p4")) addCaptures("p4");
+
+          const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+          if (appendixFiles.length > 0) {
+            const { PDFDocument } = window.PDFLib;
+            const merged = await PDFDocument.load(doc.output("arraybuffer"));
+            const failed = [];
+            for (const file of appendixFiles) {
+              try {
+                const ap = await PDFDocument.load(await file.arrayBuffer());
+                (await merged.copyPages(ap, ap.getPageIndices())).forEach((p) => merged.addPage(p));
+              } catch (err) { console.error("Could not append PDF:", file.name, err); failed.push(file.name); }
+            }
+            const blob = new Blob([await merged.save()], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a"); a.href = url; a.download = `GroupWork9F_${safeNetId}.pdf`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+            setExportStatus(failed.length ? `PDF downloaded, but could not append: ${failed.join(", ")} (make sure these are valid PDF files).` : "PDF downloaded (with appendix attached).");
+          } else {
+            doc.save(`GroupWork9F_${safeNetId}.pdf`);
+            setExportStatus("PDF downloaded.");
+          }
+        } catch (err) {
+          console.error("PDF export failed:", err);
+          setExportStatus(`Could not export PDF: ${err.message}`, true);
+        } finally {
+          btn.disabled = false; btn.textContent = originalLabel;
+        }
+      }
+      document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+      // ---------------------------------------------------------------
+      // Progress autosave (localStorage)
+      // ---------------------------------------------------------------
+      const STORAGE_KEY = "gw9f_progress_v1";
+      function collectFieldValues() {
+        const values = {};
+        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { values[e.id] = e.value; });
+        document.querySelectorAll('input[id^="sim-"]').forEach((e) => { values[e.id] = e.type === "checkbox" ? e.checked : e.value; });
+        return values;
+      }
+      function saveProgress() {
+        try {
+          const active = document.querySelector(".nav-btn.active");
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeTab: active ? active.dataset.part : "intro", fields: collectFieldValues(), runFlags }));
+        } catch (err) { /* storage unavailable */ }
+      }
+      let saveTimer = null;
+      function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveProgress, 250); }
+      window.__scheduleSave = scheduleSave;
+      document.addEventListener("input", scheduleSave);
+      document.addEventListener("click", scheduleSave);
+      document.addEventListener("change", scheduleSave);
+
+      function loadProgress() {
+        let state;
+        try { const raw = localStorage.getItem(STORAGE_KEY); if (!raw) return; state = JSON.parse(raw); } catch (err) { return; }
+        if (state.fields) Object.keys(state.fields).forEach((id) => {
+          const e = document.getElementById(id); if (!e) return;
+          if (e.type === "checkbox") e.checked = !!state.fields[id]; else e.value = state.fields[id];
+        });
+        ["p1", "p2", "p3", "p4"].forEach((p) => panelApi[p].refreshCards());
+        if (state.activeTab && SECTION_IDS[state.activeTab]) activate(state.activeTab);
+        if (state.runFlags) ["p1", "p2", "p3", "p4"].forEach((p) => { if (state.runFlags[p]) panelApi[p].run(); });
+      }
+      loadProgress();
+
+      // exposed for numerical verification only
+      window.GW9F = { WN, Gnode, sensorNode, runFlags };
+    })();
+  </script>
+
+</body>
+
+</html>
