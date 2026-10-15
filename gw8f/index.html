@@ -572,6 +572,36 @@
       flex-wrap: wrap;
     }
 
+    .field-warn {
+      font-size: 11px;
+      color: var(--amber);
+      margin: 4px 0 0 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .field-warn:empty {
+      display: none;
+    }
+
+    .speed-ctl {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .speed-ctl select {
+      background: var(--panel2);
+      color: var(--fg);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 11px;
+      padding: 2px 4px;
+    }
+
     .katex {
       color: var(--fg);
     }
@@ -958,12 +988,26 @@
       // ---------------------------------------------------------------
       // Geometry matches the MATLAB ModeShapesGUI: walls' inner faces at
       // +/-8.8 m, rest centers at +/-3.5 m, blocks 2 m wide (fixed scale).
-      const PLAYBACK_SPEED = 1; // 1x = real time
+      // If the motion would make the blocks touch, only the displacement
+      // scale shrinks (the drawing itself stays the same).
+      const SPEEDS = [1, 2, 4]; // playback speed options (1x = real time)
       const WALL_L_X = 22, WALL_R_X = 378;
-      const X_PX_PER_M = (WALL_R_X - WALL_L_X) / 17.6; // ~20.2 px per meter (fixed, un-normalized)
+      const X_PX_PER_M = (WALL_R_X - WALL_L_X) / 17.6; // ~20.2 px per meter (default, MATLAB scale)
       const CENTER_X = (WALL_L_X + WALL_R_X) / 2;
       const REST1_X = CENTER_X - 3.5 * X_PX_PER_M, REST2_X = CENTER_X + 3.5 * X_PX_PER_M; // rest-position pixel centers
       const MASS_W = 2 * X_PX_PER_M, MASS_H = MASS_W, MASS_Y = 75 - MASS_H / 2;
+      const GAP_REST_M = 5;     // m1-m2 face gap at rest [m]
+      const WALL_CLEAR_M = 4.3; // mass-to-wall face gap at rest [m]
+
+      // Worst-case travel over all time (upper bound of the modal sum, reached
+      // when the two modes line up): |x1|, |x2|, and the m1-m2 closing distance.
+      function travelBounds(p) {
+        const { phis, Ct } = closedFormXY([0], p.m1, p.m2, p.k, p.k, p.k, p.x10, p.x20);
+        const x1Max = Math.abs(phis[0][0] * Ct[0]) + Math.abs(phis[1][0] * Ct[1]);
+        const x2Max = Math.abs(phis[0][1] * Ct[0]) + Math.abs(phis[1][1] * Ct[1]);
+        const closeMax = Math.abs((phis[0][0] - phis[0][1]) * Ct[0]) + Math.abs((phis[1][0] - phis[1][1]) * Ct[1]);
+        return { x1Max, x2Max, closeMax };
+      }
 
       const runFlags = {};
       const runParams = {}; // last successfully RUN params, per prefix
@@ -999,8 +1043,12 @@
         <button class="run-btn" id="btn-${prefix}-run">RUN</button>
         <button class="run-btn secondary" id="btn-${prefix}-reset">RESET</button>
         <span class="mono" style="font-size:11px; color:var(--muted);">x&#775;<sub>1</sub>(0) = x&#775;<sub>2</sub>(0) = 0</span>
+        <label class="speed-ctl">speed
+          <select id="speed-${prefix}">${SPEEDS.map((s) => `<option value="${s}">${s}&times;</option>`).join("")}</select>
+        </label>
       </div>
       <p class="field-err" id="err-${prefix}"></p>
+      <p class="field-warn" id="warn-${prefix}"></p>
       <div class="vib-top-row">
         <div class="vib-svg-host">
           <svg id="vib-svg-${prefix}" viewBox="0 0 400 150" width="100%">
@@ -1009,6 +1057,8 @@
             <polyline id="vib-spr1-${prefix}" points="" stroke="#5EEAD4" stroke-width="2" fill="none" />
             <polyline id="vib-spr2-${prefix}" points="" stroke="#FFB454" stroke-width="2" fill="none" />
             <polyline id="vib-spr3-${prefix}" points="" stroke="#FB7185" stroke-width="2" fill="none" />
+            <line x1="${REST1_X}" y1="22" x2="${REST1_X}" y2="128" stroke="#8B92A5" stroke-width="1" stroke-dasharray="3 3" />
+            <line x1="${REST2_X}" y1="22" x2="${REST2_X}" y2="128" stroke="#8B92A5" stroke-width="1" stroke-dasharray="3 3" />
             <rect id="vib-m1-${prefix}" y="${MASS_Y}" width="${MASS_W}" height="${MASS_H}" rx="4" fill="#5EEAD4" />
             <rect id="vib-m2-${prefix}" y="${MASS_Y}" width="${MASS_W}" height="${MASS_H}" rx="4" fill="#FB7185" />
             <text id="vib-m1-label-${prefix}" fill="#0F1115" font-size="12" font-weight="700" text-anchor="middle" font-family="JetBrains Mono, monospace">m1</text>
@@ -1026,12 +1076,14 @@
       <div class="plot-host" id="plot-${prefix}-time"><div class="placeholder">Set parameters above and click RUN.</div></div>
     `;
 
-        let playing = false, animStart = null, rafId = null;
+        let playing = false, rafId = null;
+        let simTime = 0, lastTs = null, lastMarkerTs = 0, tf = 0;
+        let speed = 1, dispScale = X_PX_PER_M;
 
         function drawFrame(simTime, p) {
           const { x1, x2 } = evalXY(simTime, p);
-          const c1 = REST1_X + x1 * X_PX_PER_M;
-          const c2 = REST2_X + x2 * X_PX_PER_M;
+          const c1 = REST1_X + x1 * dispScale;
+          const c2 = REST2_X + x2 * dispScale;
           document.getElementById(`vib-m1-${prefix}`).setAttribute("x", c1 - MASS_W / 2);
           document.getElementById(`vib-m2-${prefix}`).setAttribute("x", c2 - MASS_W / 2);
           document.getElementById(`vib-m1-label-${prefix}`).setAttribute("x", c1);
@@ -1043,30 +1095,59 @@
           document.getElementById(`vib-spr3-${prefix}`).setAttribute("points", springPointsH(c2 + MASS_W / 2, WALL_R_X, 10));
         }
 
+        // Animation runs over the plotted window [0, tf] and stops at the end
+        // (like MATLAB); a vertical marker on the time plot follows it
+        // (throttled to ~20 Hz).
         function tick(ts) {
           if (!playing) return;
-          if (animStart === null) animStart = ts;
-          const simTime = ((ts - animStart) / 1000) * PLAYBACK_SPEED;
+          if (lastTs !== null) simTime += ((ts - lastTs) / 1000) * speed;
+          lastTs = ts;
+          const done = simTime >= tf;
+          if (done) simTime = tf;
           drawFrame(simTime, runParams[prefix]);
+          if (done || ts - lastMarkerTs > 50) {
+            lastMarkerTs = ts;
+            Plotly.relayout(`plot-${prefix}-time`, { "shapes[0].x0": simTime, "shapes[0].x1": simTime });
+          }
+          if (done) { playing = false; rafId = null; return; }
           rafId = requestAnimationFrame(tick);
         }
 
         function renderTimePlot(p) {
           const { wn } = eigenAnalytic(p.m1, p.m2, p.k, p.k, p.k);
           const wnMin = Math.max(Math.min(wn[0], wn[1]), 1e-6);
-          const tf = (8 * Math.PI) / wnMin;
+          tf = (8 * Math.PI) / wnMin;
           const N = 400;
           const tArr = Array.from({ length: N }, (_, i) => (tf * i) / (N - 1));
           const { x1, x2 } = closedFormXY(tArr, p.m1, p.m2, p.k, p.k, p.k, p.x10, p.x20);
+          const layout = plotLayout("displacement [m]");
+          layout.shapes = [{ type: "line", xref: "x", yref: "paper", x0: 0, x1: 0, y0: 0, y1: 1, line: { color: "#FFB454", width: 1.5 } }];
           Plotly.newPlot(
             `plot-${prefix}-time`,
             [
               { x: tArr, y: x1, mode: "lines", line: { color: "#5EEAD4", width: 2 }, name: "x1(t)" },
               { x: tArr, y: x2, mode: "lines", line: { color: "#FB7185", width: 2, dash: "dot" }, name: "x2(t)" },
             ],
-            plotLayout("displacement [m]"),
+            layout,
             PLOT_OPTS
           );
+        }
+
+        // Warn about contact (the linear model ignores it) and, if needed,
+        // shrink the displacement scale so the blocks never visually touch.
+        function updateContactWarning(p) {
+          const { x1Max, x2Max, closeMax } = travelBounds(p);
+          const hitEach = closeMax > GAP_REST_M, hitWall = Math.max(x1Max, x2Max) > WALL_CLEAR_M;
+          const need = Math.max(closeMax / GAP_REST_M, x1Max / WALL_CLEAR_M, x2Max / WALL_CLEAR_M);
+          dispScale = need > 1 ? (X_PX_PER_M * 0.95) / need : X_PX_PER_M;
+          const warnEl = document.getElementById(`warn-${prefix}`);
+          if (hitEach || hitWall) {
+            const what = [hitEach && "each other", hitWall && "a wall"].filter(Boolean).join(" and ");
+            warnEl.textContent = `Note: with these inputs the masses can travel far enough to hit ${what}; the linear model has no contact. ` +
+              `Animation displacement shown at ${Math.round((100 * dispScale) / X_PX_PER_M)}% scale so the blocks stay visible.`;
+          } else {
+            warnEl.textContent = "";
+          }
         }
 
         function run() {
@@ -1090,8 +1171,9 @@
           document.getElementById(`out-${prefix}-phi1`).textContent = `[${phis[0][0].toFixed(4)}, ${phis[0][1].toFixed(4)}]`;
           document.getElementById(`out-${prefix}-phi2`).textContent = `[${phis[1][0].toFixed(4)}, ${phis[1][1].toFixed(4)}]`;
 
+          updateContactWarning(p);
           renderTimePlot(p);
-          playing = true; animStart = null;
+          playing = true; simTime = 0; lastTs = null; lastMarkerTs = 0;
           if (rafId) cancelAnimationFrame(rafId);
           rafId = requestAnimationFrame(tick);
           scheduleSave();
@@ -1105,9 +1187,12 @@
           document.getElementById(`out-${prefix}-phi1`).textContent = "—";
           document.getElementById(`out-${prefix}-phi2`).textContent = "—";
           document.getElementById(`plot-${prefix}-time`).innerHTML = '<div class="placeholder">Set parameters above and click RUN.</div>';
+          document.getElementById(`warn-${prefix}`).textContent = "";
+          dispScale = X_PX_PER_M;
           drawFrame(0, { m1: opts.m1, m2: opts.m2, k: opts.k, x10: 0, x20: 0 });
         }
 
+        document.getElementById(`speed-${prefix}`).addEventListener("change", (e) => { speed = Number(e.target.value); });
         document.getElementById(`btn-${prefix}-run`).addEventListener("click", run);
         document.getElementById(`btn-${prefix}-reset`).addEventListener("click", reset);
         if (opts.presets) {
@@ -1253,7 +1338,13 @@
           }
           async function addPlotImage(divId, fallbackLabel) {
             let dataUrl;
-            try { dataUrl = await Plotly.toImage(divId, { format: "png", width: 900, height: 460 }); }
+            // Export without the live time marker (shapes).
+            const gd = document.getElementById(divId);
+            try {
+              if (!gd || !gd.data) throw new Error("no plot");
+              const fig = { data: gd.data, layout: Object.assign({}, gd.layout, { shapes: [] }) };
+              dataUrl = await Plotly.toImage(fig, { format: "png", width: 900, height: 460 });
+            }
             catch (err) { addText(`(${fallbackLabel}: plot image could not be captured.)`); return; }
             const imgWidth = maxWidth, imgHeight = imgWidth * (460 / 900);
             ensureSpace(imgHeight + 10);
