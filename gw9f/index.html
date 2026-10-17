@@ -762,6 +762,98 @@
       line-height: 1;
     }
 
+    .sensor-card.locked {
+      opacity: 0.5;
+    }
+
+    .sensor-card.locked input {
+      cursor: not-allowed;
+    }
+
+    .ctl-row .field.freq-field {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .freq-range {
+      margin-left: auto;
+      font-size: 10px;
+    }
+
+    .freq-slider-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .freq-slider-row input[type="range"] {
+      flex: 1;
+      min-width: 0;
+      accent-color: var(--amber);
+    }
+
+    .field .freq-slider-row input[type="number"] {
+      width: 110px;
+      flex-shrink: 0;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding-bottom: 6px;
+    }
+
+    .anim-note {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--amber);
+      margin: 6px 0 0 0;
+      min-height: 14px;
+    }
+
+    .drag-readout {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin: 2px 4px 6px;
+      line-height: 1.5;
+    }
+
+    .beam-flex {
+      display: flex;
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .beam-flex svg {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .vslider {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 30px 0 40px;
+    }
+
+    .vslider input[type="range"] {
+      writing-mode: vertical-lr;
+      direction: rtl;
+      flex: 1;
+      width: 18px;
+      margin: 0;
+      accent-color: var(--amber);
+    }
+
+    .vslider.off {
+      opacity: 0.35;
+    }
+
     @media (max-width: 900px) {
       .sim-grid {
         grid-template-columns: 1fr;
@@ -797,6 +889,9 @@
 
       <p class="label">PROBLEM 4</p>
       <button class="nav-btn" data-part="p4">Resonant Zeroes<small>[1, 0.7, 0.33]</small></button>
+
+      <p class="label">PROBLEM 5 (OPTIONAL)</p>
+      <button class="nav-btn" data-part="p5">Problem 5<small>Drag a sensor</small></button>
 
       <p class="label">SUBMIT</p>
       <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
@@ -835,6 +930,10 @@
             frequency of mode <i>i</i>:
           </p>
           <div class="eq-block" id="eq-modal"></div>
+          <p class="instructions">
+            Problem 5 is an optional exploration (not one of the handout's four problems): drag a sensor along the
+            beam and watch its Bode plot change.
+          </p>
         </section>
 
         <!-- ============== PROBLEM 1 ============== -->
@@ -906,7 +1005,7 @@
           <p class="given-line">GIVEN &middot; sensors A, B, C at <b>[1, 0.78, 0.33]</b> &middot; simulate at &omega; =
             &omega;<sub>n2</sub></p>
           <p class="instructions">
-            Use the preset to load the three sensors, then simulate at the second resonant mode.
+            Sensors A, B and C are fixed at these locations; simulate at the second resonant mode.
           </p>
           <div class="panel-box" id="sim-p3"></div>
 
@@ -922,7 +1021,8 @@
           <p class="instructions">
             Can you add a sensor at a location that does not measure the third mode (&omega; = &omega;<sub>n3</sub>)?
             Try
-            candidate locations in sensors D/E and run at &omega;<sub>n3</sub>.
+            candidate locations in sensors D/E and run at &omega;<sub>n3</sub>. You can also try Problem 5 (Move the
+            Sensor) to find candidate locations quickly.
           </p>
           <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
             <div class="field"><label>sensor location 1 [x/L]</label><input type="number" id="input-p3-loc1"
@@ -961,6 +1061,34 @@
           <p class="instructions">What is physically happening at each resonant zero frequency?</p>
           <div class="reflection-box"><textarea id="input-p4-reflect-zeros"
               placeholder="Type your discussion here..."></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 5 (OPTIONAL) ============== -->
+        <section id="part-p5" style="display:none;">
+          <h3 class="problem-title">Problem 5 (Optional): Move the Sensor</h3>
+          <p class="given-line">GIVEN &middot; sensor A fixed at <b>1.0 L</b> &middot; sensor B (and optional C) draggable
+            &middot; force at node 12 (&asymp; 0.32 L)</p>
+          <div class="note-box">
+            This is an <b>optional exploration extension</b>. It is not part of the handout's four problems.
+          </div>
+          <p class="instructions">
+            Drag sensor B up and down the beam (or use the small slider beside the beam). The sensor snaps to the
+            finite-element nodes, and its Bode magnitude plot and time response update as you drag. Tick
+            <b>show mode shapes</b> to overlay &phi;<sub>1</sub>, &phi;<sub>2</sub>, &phi;<sub>3</sub>: watch what
+            happens to a peak when the sensor sits where that mode shape crosses zero. Press <b>PLAY</b> to update
+            the animation with the current sensor positions and &omega;.
+          </p>
+          <div class="panel-box" id="sim-p5"></div>
+
+          <h4 class="part-title">a) Moving the sensor</h4>
+          <p class="instructions">What happens to the peaks as the sensor moves up the beam?</p>
+          <div class="reflection-box"><textarea id="input-p5-reflect-peaks"
+              placeholder="Type your answer here..."></textarea></div>
+
+          <h4 class="part-title">b) Hiding a mode</h4>
+          <p class="instructions">Where would you put a sensor to not see mode 2? mode 3?</p>
+          <div class="reflection-box"><textarea id="input-p5-reflect-null"
+              placeholder="Type your answer here..."></textarea></div>
         </section>
 
         <!-- ============== SUBMISSION ============== -->
@@ -1159,7 +1287,7 @@
         { id: "D", color: "#A78BFA" },
         { id: "E", color: "#7DD3FC" },
       ];
-      const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p4: "Problem 4" };
+      const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p4: "Problem 4", p5: "Problem 5" };
 
       function plotLayout(yTitle, xTitle, opts) {
         opts = opts || {};
@@ -1184,51 +1312,147 @@
       function svgX(y, axisMax) { return CX + (y / axisMax) * HALF; }
       function svgY(pos) { return YBOT - pos * (YBOT - YTOP); }
 
+      // Bode magnitude/phase of every node on one log-spaced grid. They do not depend on
+      // the input frequency, so they are computed once at load and shared by all panels.
+      const NB = 2000, BODE_LO = Math.log10(WN[0]) - 0.5, BODE_HI = Math.log10(WN[2]) + 0.5;
+      const BODE_OM = Array.from({ length: NB }, (_, i) => Math.pow(10, BODE_LO + (BODE_HI - BODE_LO) * i / (NB - 1)));
+      const BODE_CACHE = [];
+      for (let k = 0; k < NN; k++) {
+        const mag = new Array(NB), ph = new Array(NB);
+        let prev = 0, acc = 0;
+        for (let i = 0; i < NB; i++) {
+          const g = k === 0 ? [0, 0] : Gnode(k, BODE_OM[i]);
+          const m = Math.hypot(g[0], g[1]);
+          mag[i] = m > 0 ? m : null;
+          const a = Math.atan2(g[1], g[0]) * 180 / Math.PI;
+          if (i === 0) { acc = a; } else { let d = a - prev; while (d > 180) d -= 360; while (d < -180) d += 360; acc += d; }
+          prev = a; ph[i] = acc;
+        }
+        const ph0 = ph[0];
+        BODE_CACHE.push({ mag, ph: ph.map((v) => v - ph0) });
+      }
+
+      // log-scale frequency slider over the Bode range
+      const W_STEPS = 4000;
+      function sliderToW(v) { return Number(Math.pow(10, BODE_LO + (BODE_HI - BODE_LO) * v / W_STEPS).toPrecision(5)); }
+      function wToSlider(w) { return Math.min(W_STEPS, Math.max(0, Math.round((Math.log10(w) - BODE_LO) / (BODE_HI - BODE_LO) * W_STEPS))); }
+
+      // first three mode shapes (translation DOFs), normalized to unit max with a positive tip
+      const MODE_SHAPES = [0, 1, 2].map((i) => {
+        const v = Array.from({ length: NN }, (_, k) => (k === 0 ? 0 : eig.phi[(2 * k - 2) * NF + i]));
+        const m = Math.max(...v.map(Math.abs)) * (v[NEL] < 0 ? -1 : 1);
+        return v.map((p) => p / m);
+      });
+      const MODE_COLORS = ["#A3E635", "#F472B6", "#C4B5FD"];
+
+      // steady-state response of every node at w; force scaled so max |y| = 1 cm;
+      // time samples exactly as the livescript: 10 cycles, 1000 samples
+      function steadyState(w, sensors) {
+        const Gall = [];
+        let gmax = 0;
+        for (let k = 0; k < NN; k++) { const g = Gnode(k, w); Gall.push(g); gmax = Math.max(gmax, Math.hypot(g[0], g[1])); }
+        const U0 = YMAX / gmax;
+        const re = new Float64Array(NN), im = new Float64Array(NN);
+        for (let k = 0; k < NN; k++) { re[k] = U0 * Gall[k][0]; im[k] = U0 * Gall[k][1]; }
+        const tf = 10 * 2 * Math.PI / w, NT = 1000;
+        const t = Array.from({ length: NT }, (_, i) => tf * i / (NT - 1));
+        let maxy = 0;
+        const ysens = sensors.map(() => new Array(NT));
+        for (let i = 0; i < NT; i++) {
+          const sp = Math.sin(w * t[i]), cp = Math.cos(w * t[i]);
+          for (let k = 0; k < NN; k++) maxy = Math.max(maxy, Math.abs(re[k] * sp + im[k] * cp));
+          sensors.forEach((s, j) => { ysens[j][i] = re[s.node] * sp + im[s.node] * cp; });
+        }
+        return { re, im, U0, maxy, axisMax: 5 * maxy, t, ysens };
+      }
+      const skey = (list) => list.map((s) => `${s.id}:${s.node}`).join(",");
+      const traceName = (s) => `Sensor ${s.id} (${s.xs}L)`;
+      const markerShapes = (w) => (w ? [{ type: "line", xref: "x", yref: "paper", x0: w, x1: w, y0: 0, y1: 1, line: { color: "#8B92A5", width: 1, dash: "dot" } }] : []);
+      const FREQ_BLANK = "Enter a frequency first", FREQ_BAD = "Enter a positive input frequency ω.";
+      const NO_SENS = "Enable at least one sensor to see the Bode and time plots.";
+      const DRAG = [{ id: "B", def: 18 }, { id: "C", def: 9 }];   // default nodes of the draggable sensors
+
       function buildSimPanel(prefix, opts) {
         const host = document.getElementById(`sim-${prefix}`);
-        const sensorCards = SENS.map((s, i) => {
-          const x = opts.sensors[i];
-          const on = x !== null && x !== undefined;
-          return `<div class="sensor-card ${on ? "" : "off"}" id="card-${prefix}-${s.id}">
+        const slider = opts.freq === "slider", cards = opts.sensorMode === "cards", drag = opts.sensorMode === "drag";
+        const BODE_PH = "Set sensors and &omega;, then click RUN to see the Bode magnitude plot.";
+        const TIME_PH = slider ? "Move the slider or type &omega; to see sensor displacement vs. time." : "Sensor displacement vs. time appears here after RUN.";
+        let sensorHtml = "";
+        if (cards) {
+          const sensorCards = SENS.map((s, i) => {
+            const lx = opts.locked[i];
+            if (lx !== undefined) {
+              return `<div class="sensor-card locked" id="card-${prefix}-${s.id}" title="Sensor ${s.id} is fixed at ${lx} L for this problem">
         <div class="sh"><span class="sw" style="background:${s.color}"></span>Sensor ${s.id}
-          <input type="checkbox" id="sim-${prefix}-sen${s.id}-on" ${on ? "checked" : ""} title="enable sensor ${s.id}" /></div>
-        <input type="number" id="sim-${prefix}-sen${s.id}-x" value="${on ? x : (opts.spare && opts.spare[i] !== undefined ? opts.spare[i] : 0.5)}" min="0" max="1" step="any" />
+          <input type="checkbox" id="sim-${prefix}-sen${s.id}-on" checked disabled data-locked /></div>
+        <input type="number" id="sim-${prefix}-sen${s.id}-x" value="${lx}" disabled data-locked />
       </div>`;
-        }).join("");
-        const presetsHtml = opts.presets ? `<div class="vib-presets">${opts.presets.map((p, i) => `<button class="run-btn secondary small" id="btn-${prefix}-preset${i}">${p.label}</button>`).join("")}</div>` : "";
+            }
+            return `<div class="sensor-card off" id="card-${prefix}-${s.id}">
+        <div class="sh"><span class="sw" style="background:${s.color}"></span>Sensor ${s.id}
+          <input type="checkbox" id="sim-${prefix}-sen${s.id}-on" title="enable sensor ${s.id}" /></div>
+        <input type="number" id="sim-${prefix}-sen${s.id}-x" value="${opts.spare[i]}" min="0" max="1" step="any" />
+      </div>`;
+          }).join("");
+          sensorHtml = `<p class="mono" style="font-size:11px;color:var(--muted);margin:0 0 8px 0;">SENSOR LOCATIONS (fraction 0&ndash;1 of beam length L; A&ndash;C are fixed for this problem, tick D/E to enable)</p>
+      <div class="sensor-row">${sensorCards}</div>`;
+        }
+        const freqHtml = slider
+          ? `<div class="field freq-field"><label>input frequency &omega; [rad/s] <span class="freq-range">log scale, ${Math.round(Math.pow(10, BODE_LO))}&ndash;${Math.round(Math.pow(10, BODE_HI))}</span></label>
+          <div class="freq-slider-row">
+            <input type="range" id="sim-${prefix}-wslider" min="0" max="${W_STEPS}" step="1" value="0" aria-label="input frequency ω (log scale)" />
+            <input type="number" id="sim-${prefix}-omega" step="any" min="0" placeholder="ω" aria-label="input frequency ω [rad/s]" />
+          </div></div>`
+          : `<div class="field"><label>input frequency &omega; [rad/s]</label><input type="number" id="sim-${prefix}-omega" step="any" placeholder="enter ω" /></div>`;
+        const dragChk = drag ? `<label class="chk"><input type="checkbox" id="sim-${prefix}-senC-on" /> add sensor C</label>
+        <label class="chk"><input type="checkbox" id="sim-${prefix}-modes" /> show mode shapes</label>` : "";
+        const colorOf = (id) => SENS.find((s) => s.id === id).color;
+        const vSliders = drag ? DRAG.map((d) => `<div class="vslider" id="vs-${prefix}-${d.id}"><span style="color:${colorOf(d.id)}">${d.id}</span>
+          <input type="range" id="sim-${prefix}-sen${d.id}-node" min="1" max="${NEL}" step="1" value="${d.def}" aria-label="Sensor ${d.id} position (node 1 = bottom, ${NEL} = tip)" /></div>`).join("") : "";
         host.innerHTML = `
-      <p class="mono" style="font-size:11px;color:var(--muted);margin:0 0 8px 0;">SENSOR LOCATIONS (fraction 0&ndash;1 of beam length L; tick the box to enable)</p>
-      <div class="sensor-row">${sensorCards}</div>
-      ${presetsHtml}
+      ${sensorHtml}
       <div class="ctl-row">
-        <div class="field"><label>input frequency &omega; [rad/s]</label><input type="number" id="sim-${prefix}-omega" value="${opts.omega}" step="any" /></div>
+        ${freqHtml}
         <label class="chk"><input type="checkbox" id="sim-${prefix}-phase" /> show phase plot</label>
-        <div style="padding-bottom:6px; display:flex; gap:10px;">
+        ${dragChk}
+        <div class="btn-row">
           <button class="run-btn" id="btn-${prefix}-run">RUN</button>
           <button class="run-btn secondary" id="btn-${prefix}-reset">RESET</button>
+          <button class="run-btn secondary" id="btn-${prefix}-play">PLAY</button>
+          <button class="run-btn" id="btn-${prefix}-capture">CAPTURE FIGURE</button>
         </div>
       </div>
       <p class="field-err" id="err-${prefix}"></p>
       <div class="sim-grid">
         <div>
-          <div class="beam-host"><svg id="beam-svg-${prefix}" viewBox="0 0 ${SVG_W} ${SVG_H}" width="100%" xmlns="http://www.w3.org/2000/svg"></svg></div>
-          <div class="beam-tools">
-            <button class="run-btn secondary small" id="btn-${prefix}-play">PAUSE</button>
-            <button class="run-btn small" id="btn-${prefix}-capture">CAPTURE FIGURE</button>
-            <span class="meta" id="meta-${prefix}"></span>
+          <div class="beam-host">
+            ${drag ? `<div class="drag-readout" id="readout-${prefix}"></div><div class="beam-flex">` : ""}
+            <svg id="beam-svg-${prefix}" viewBox="0 0 ${SVG_W} ${SVG_H}" width="100%" xmlns="http://www.w3.org/2000/svg"${drag ? ' style="touch-action:none;"' : ""}></svg>
+            ${drag ? `${vSliders}</div>` : ""}
           </div>
+          <div class="beam-tools"><span class="meta" id="meta-${prefix}"></span></div>
+          <p class="anim-note" id="note-${prefix}"></p>
           <p class="upload-status" id="capstat-${prefix}" style="margin-top:6px;"></p>
         </div>
-        <div class="plot-host" id="plot-${prefix}-bode"><div class="placeholder">Set sensors and &omega;, then click RUN to see the Bode magnitude plot.</div></div>
+        <div class="plot-host" id="plot-${prefix}-bode"><div class="placeholder">${BODE_PH}</div></div>
       </div>
-      <div class="plot-host tall" id="plot-${prefix}-time"><div class="placeholder">Sensor displacement vs. time appears here after RUN.</div></div>
+      <div class="plot-host tall" id="plot-${prefix}-time"><div class="placeholder">${TIME_PH}</div></div>
       <div class="plot-host tall" id="plot-${prefix}-phaseplot" style="display:none;"></div>
     `;
 
         const svg = document.getElementById(`beam-svg-${prefix}`);
         const NS = "http://www.w3.org/2000/svg";
-        let playing = true, phase = 0, lastTs = null, rafId = null;
-        let dyn = null; // current animation data
+        const $ = (suffix) => document.getElementById(`sim-${prefix}-${suffix}`);
+        const errEl = document.getElementById(`err-${prefix}`);
+        const bodeEl = document.getElementById(`plot-${prefix}-bode`);
+        const timeEl = document.getElementById(`plot-${prefix}-time`);
+        const phaseEl = document.getElementById(`plot-${prefix}-phaseplot`);
+        const playBtn = document.getElementById(`btn-${prefix}-play`);
+        const boxEl = $("omega"), sliderEl = slider ? $("wslider") : null;
+        let playing = false, phase = 0, lastTs = null, rafId = null;
+        let dyn = null;          // current animation data (what the beam is showing)
+        let svgSensors = [];     // sensors currently drawn on the beam
+        let bodeState = null;    // what the Bode plot is currently showing
 
         function el(name, attrs) {
           const e = document.createElementNS(NS, name);
@@ -1241,6 +1465,7 @@
         }
 
         function buildSvg(sensors, axisMax, w) {
+          svgSensors = sensors.map((s) => Object.assign({}, s));
           svg.innerHTML = "";
           svg.appendChild(el("rect", { x: 0, y: 0, width: SVG_W, height: SVG_H, fill: "#171A21" }));
           svg.appendChild(txt(SVG_W / 2, 18, w ? `Sinusoidal Force Input, ω=${Number(w.toPrecision(5))} rad/s` : "Sinusoidal Force Input", { "text-anchor": "middle", "font-size": 12 }));
@@ -1260,6 +1485,14 @@
           const yl = txt(14, (YTOP + YBOT) / 2, "position x along the beam", { "text-anchor": "middle", fill: "#8B92A5" });
           yl.setAttribute("transform", `rotate(-90 14 ${(YTOP + YBOT) / 2})`);
           svg.appendChild(yl);
+          // optional mode-shape overlay (behind the beam)
+          if (drag && $("modes").checked) {
+            MODE_SHAPES.forEach((v, i) => {
+              const pts = v.map((p, k) => `${(CX + p * HALF * 0.9).toFixed(2)},${svgY(k / NEL).toFixed(2)}`).join(" ");
+              svg.appendChild(el("polyline", { points: pts, fill: "none", stroke: MODE_COLORS[i], "stroke-width": 2, "stroke-opacity": 0.45, "stroke-dasharray": "6 4" }));
+              svg.appendChild(txt(CX - HALF + 6, YTOP + 14 + 14 * i, `φ${i + 1}(x)`, { fill: MODE_COLORS[i], "fill-opacity": 0.85 }));
+            });
+          }
           // clamp
           svg.appendChild(el("line", { x1: CX - HALF, x2: CX + HALF, y1: YBOT, y2: YBOT, stroke: "#E7E9EE", "stroke-width": 8 }));
           // beam
@@ -1272,12 +1505,14 @@
           svg.appendChild(fLine); svg.appendChild(fDot);
           svg.appendChild(txt(CX - HALF + 6, fy - 6, "Force", { fill: "#E7E9EE" }));
           // sensors
-          sensors.forEach((s) => {
+          svgSensors.forEach((s) => {
             const sy = svgY(s.node / NEL);
             const l = el("line", { id: `sen-line-${prefix}-${s.id}`, x1: CX, x2: CX + HALF, y1: sy, y2: sy, stroke: s.color, "stroke-width": 2.5, "stroke-dasharray": "2 4" });
-            const d = el("circle", { id: `sen-dot-${prefix}-${s.id}`, cx: CX, cy: sy, r: 6, fill: s.color });
-            svg.appendChild(l); svg.appendChild(d);
-            svg.appendChild(txt(CX + HALF * 0.7 - 8, sy - 6, `sensor ${s.id}`, { fill: s.color }));
+            const dAttrs = { id: `sen-dot-${prefix}-${s.id}`, cx: CX, cy: sy, r: 6, fill: s.color };
+            // draggable dots get a wide transparent stroke as a larger hit area
+            if (s.drag) Object.assign(dAttrs, { r: 7, stroke: "transparent", "stroke-width": 16, "data-drag": s.id, style: "cursor:ns-resize;" });
+            svg.appendChild(l); svg.appendChild(el("circle", dAttrs));
+            svg.appendChild(txt(CX + HALF * 0.7 - 8, sy - 6, `sensor ${s.id}`, { id: `sen-txt-${prefix}-${s.id}`, fill: s.color }));
           });
         }
 
@@ -1294,7 +1529,7 @@
           const fx = svgX(ys[FORCE_NODE], dyn.axisMax);
           const fd = document.getElementById(`force-dot-${prefix}`); if (fd) fd.setAttribute("cx", fx);
           const fl = document.getElementById(`force-line-${prefix}`); if (fl) fl.setAttribute("x2", fx);
-          dyn.sensors.forEach((s) => {
+          svgSensors.forEach((s) => {
             const x = svgX(ys[s.node], dyn.axisMax);
             const d = document.getElementById(`sen-dot-${prefix}-${s.id}`); if (d) d.setAttribute("cx", x);
             const l = document.getElementById(`sen-line-${prefix}-${s.id}`); if (l) l.setAttribute("x1", x);
@@ -1307,117 +1542,250 @@
           drawFrame();
           rafId = requestAnimationFrame(tick);
         }
+        function ensureLoop() { if (!rafId) rafId = requestAnimationFrame(tick); }
+
+        // rebuild the beam drawing for the given sensors, keeping the current animation data and phase
+        function showSvg(sensors) {
+          buildSvg(sensors, dyn ? dyn.axisMax : 0.05, dyn ? dyn.w : null);
+          if (dyn) drawFrame();
+          else document.getElementById(`beam-line-${prefix}`).setAttribute("points", `${svgX(0, 0.05)},${svgY(0)} ${svgX(0, 0.05)},${svgY(1)}`);
+        }
 
         function readSensors() {
+          if (opts.sensorMode === "fixed") return [{ id: "A", color: SENS[0].color, x: 1, xs: "1", node: NEL }];
+          if (drag) {
+            const out = [{ id: "A", color: SENS[0].color, x: 1, xs: "1", node: NEL }];
+            DRAG.forEach((d) => {
+              if (d.id === "C" && !$("senC-on").checked) return;
+              const k = Math.min(NEL, Math.max(1, Math.round(Number($(`sen${d.id}-node`).value) || d.def)));
+              out.push({ id: d.id, color: colorOf(d.id), x: k / NEL, xs: (k / NEL).toFixed(3), node: k, drag: true });
+            });
+            return out;
+          }
           const out = [];
           SENS.forEach((s) => {
-            const on = document.getElementById(`sim-${prefix}-sen${s.id}-on`).checked;
-            const x = Number(document.getElementById(`sim-${prefix}-sen${s.id}-x`).value);
-            if (on && isFinite(x) && x >= 0 && x <= 1) out.push({ id: s.id, color: s.color, x, node: sensorNode(x) });
+            const on = $(`sen${s.id}-on`).checked;
+            const x = Number($(`sen${s.id}-x`).value);
+            if (on && isFinite(x) && x >= 0 && x <= 1) out.push({ id: s.id, color: s.color, x, xs: String(x), node: sensorNode(x) });
           });
           return out;
         }
 
         function refreshCards() {
-          SENS.forEach((s) => {
-            const on = document.getElementById(`sim-${prefix}-sen${s.id}-on`).checked;
-            document.getElementById(`card-${prefix}-${s.id}`).classList.toggle("off", !on);
-          });
+          if (!cards) return;
+          SENS.forEach((s) => document.getElementById(`card-${prefix}-${s.id}`).classList.toggle("off", !$(`sen${s.id}-on`).checked));
+        }
+
+        // frequency: getOmega() reads silently; readFreq() also reports a blank/invalid box inline
+        function getOmega() {
+          const raw = boxEl.value.trim();
+          if (raw === "") return null;
+          const w = Number(raw);
+          return isFinite(w) && w > 0 ? w : null;
+        }
+        function readFreq() {
+          const w = getOmega();
+          errEl.textContent = w ? "" : (boxEl.value.trim() === "" ? FREQ_BLANK : FREQ_BAD);
+          return w;
+        }
+        function clearFreqErr() { if (errEl.textContent === FREQ_BLANK || errEl.textContent === FREQ_BAD) errEl.textContent = ""; }
+
+        function setPlaceholder(target, text) {
+          if (target.data) Plotly.purge(target);
+          target.innerHTML = `<div class="placeholder">${text}</div>`;
+        }
+
+        function renderBode(sensors, w) {
+          const showPhase = $("phase").checked && sensors.length > 0;
+          phaseEl.style.display = showPhase ? "block" : "none";
+          if (!sensors.length) { setPlaceholder(bodeEl, NO_SENS); if (phaseEl.data) Plotly.purge(phaseEl); bodeState = null; return; }
+          if (!bodeEl.data) bodeEl.innerHTML = "";
+          Plotly.newPlot(bodeEl, sensors.map((s) => ({ x: BODE_OM, y: BODE_CACHE[s.node].mag, mode: "lines", line: { color: s.color, width: 2 }, name: traceName(s), connectgaps: false })),
+            plotLayout("Amplitude Ratio (Y/F)", "Frequency (rad/sec)", { xaxis: { type: "log" }, yaxis: { type: "log", exponentformat: "power" }, shapes: markerShapes(w) }), PLOT_OPTS);
+          if (showPhase) {
+            Plotly.newPlot(phaseEl, sensors.map((s) => ({ x: BODE_OM, y: BODE_CACHE[s.node].ph, mode: "lines", line: { color: s.color, width: 2 }, name: traceName(s) })),
+              plotLayout("Phase Difference (Y/F) [deg]", "Frequency (rad/sec)", { xaxis: { type: "log" }, yaxis: { dtick: 90 }, shapes: markerShapes(w) }), PLOT_OPTS);
+          } else if (phaseEl.data) Plotly.purge(phaseEl);
+          bodeState = { ids: sensors.map((s) => s.id).join(), nodes: skey(sensors), w, phase: showPhase };
+        }
+
+        // live update: swap cached curves / move the omega marker without rebuilding the plot
+        function updateBode(sensors, w) {
+          const ids = sensors.map((s) => s.id).join();
+          if (!bodeState || !bodeEl.data || bodeState.ids !== ids || bodeState.phase !== ($("phase").checked && sensors.length > 0)) { renderBode(sensors, w); return; }
+          const nodes = skey(sensors);
+          if (nodes !== bodeState.nodes) {
+            const idx = sensors.map((_, i) => i), names = sensors.map(traceName);
+            Plotly.restyle(bodeEl, { y: sensors.map((s) => BODE_CACHE[s.node].mag), name: names }, idx);
+            if (bodeState.phase) Plotly.restyle(phaseEl, { y: sensors.map((s) => BODE_CACHE[s.node].ph), name: names }, idx);
+            bodeState.nodes = nodes;
+          }
+          if (w !== bodeState.w) {
+            Plotly.relayout(bodeEl, { shapes: markerShapes(w) });
+            if (bodeState.phase) Plotly.relayout(phaseEl, { shapes: markerShapes(w) });
+            bodeState.w = w;
+          }
+        }
+
+        function renderTime(sensors, ss) {
+          if (!sensors.length) { setPlaceholder(timeEl, NO_SENS); return; }
+          if (!ss) { setPlaceholder(timeEl, TIME_PH); return; }
+          if (!timeEl.data) timeEl.innerHTML = "";
+          Plotly.react(timeEl, sensors.map((s, j) => ({ x: ss.t, y: ss.ysens[j], mode: "lines", line: { color: s.color, width: 2 }, name: traceName(s) })),
+            plotLayout("Displacement Msmts y(x,t) [m]", "Time (sec)"), PLOT_OPTS);
+        }
+
+        // swap the animation data in place (phase keeps running)
+        function applyAnim(ss, w, sensors) {
+          dyn = { re: ss.re, im: ss.im, axisMax: ss.axisMax, w, sensors: sensors.map((s) => Object.assign({}, s)) };
+          showSvg(sensors);
+          document.getElementById(`meta-${prefix}`).textContent = `F₀ = ${fmt(ss.U0, 4)} N · max|y| = ${(ss.maxy * 100).toFixed(3)} cm`;
+          runFlags[prefix] = true;
+          ensureLoop();
+          updateAnimNote();
+        }
+
+        // what the animation is behind on (only panels where PLAY applies the current settings)
+        function staleParts() {
+          const parts = [];
+          if (!opts.applyOnPlay || !dyn) return parts;
+          const w = getOmega();
+          if (w && w !== dyn.w) parts.push(`animation shows ω = ${Number(dyn.w.toPrecision(5))} rad/s (press PLAY to update)`);
+          if (drag && skey(readSensors()) !== skey(dyn.sensors)) parts.push("sensor moved, press PLAY to update animation");
+          return parts;
+        }
+        function updatePlayLabel() { playBtn.textContent = playing && !staleParts().length ? "PAUSE" : "PLAY"; }
+        function updateAnimNote() {
+          document.getElementById(`note-${prefix}`).textContent = staleParts().join(" · ");
+          updatePlayLabel();
+        }
+        function startPlaying() { playing = true; ensureLoop(); updatePlayLabel(); }
+
+        function liveUpdate() {
+          const w = getOmega(), sensors = readSensors();
+          updateBode(sensors, w);
+          const ss = w ? steadyState(w, sensors) : null;
+          renderTime(sensors, ss);
+          if (opts.liveAnim && ss) {
+            const first = !dyn;
+            applyAnim(ss, w, sensors);
+            if (first) startPlaying();
+          }
+          updateAnimNote();
+        }
+        let livePending = false;
+        function scheduleLive() {
+          if (livePending) return;
+          livePending = true;
+          requestAnimationFrame(() => { livePending = false; liveUpdate(); });
         }
 
         function run() {
-          const errEl = document.getElementById(`err-${prefix}`);
-          const w = Number(document.getElementById(`sim-${prefix}-omega`).value);
-          if (!isFinite(w) || w <= 0) { errEl.textContent = "Enter a positive input frequency ω."; return; }
+          const w = readFreq();
+          if (!w) return;
           const sensors = readSensors();
-          const bad = SENS.filter((s) => document.getElementById(`sim-${prefix}-sen${s.id}-on`).checked)
-            .filter((s) => { const x = Number(document.getElementById(`sim-${prefix}-sen${s.id}-x`).value); return !(isFinite(x) && x >= 0 && x <= 1); });
-          errEl.textContent = bad.length ? `Sensor ${bad.map((s) => s.id).join(", ")}: location must be between 0 and 1 (ignored).` : "";
-          runFlags[prefix] = true;
-
-          // --- steady-state response of every node at w; scale force so max |y| = 1 cm ---
-          const Gall = [];
-          let gmax = 0;
-          for (let k = 0; k < NN; k++) { const g = Gnode(k, w); Gall.push(g); gmax = Math.max(gmax, Math.hypot(g[0], g[1])); }
-          const U0 = YMAX / gmax;
-          const re = new Float64Array(NN), im = new Float64Array(NN);
-          for (let k = 0; k < NN; k++) { re[k] = U0 * Gall[k][0]; im[k] = U0 * Gall[k][1]; }
-          // time samples exactly as the livescript: 10 cycles, 1000 samples
-          const tf = 10 * 2 * Math.PI / w, NT = 1000;
-          const t = Array.from({ length: NT }, (_, i) => tf * i / (NT - 1));
-          let maxy = 0;
-          const ysens = sensors.map(() => new Array(NT));
-          for (let i = 0; i < NT; i++) {
-            const sp = Math.sin(w * t[i]), cp = Math.cos(w * t[i]);
-            for (let k = 0; k < NN; k++) maxy = Math.max(maxy, Math.abs(re[k] * sp + im[k] * cp));
-            sensors.forEach((s, j) => { ysens[j][i] = re[s.node] * sp + im[s.node] * cp; });
+          if (cards) {
+            const bad = SENS.filter((s) => $(`sen${s.id}-on`).checked)
+              .filter((s) => { const x = Number($(`sen${s.id}-x`).value); return !(isFinite(x) && x >= 0 && x <= 1); });
+            errEl.textContent = bad.length ? `Sensor ${bad.map((s) => s.id).join(", ")}: location must be between 0 and 1 (ignored).` : "";
           }
-          const axisMax = 5 * maxy;
-          dyn = { re, im, axisMax, sensors };
-          buildSvg(sensors, axisMax, w);
-          drawFrame();
-          document.getElementById(`meta-${prefix}`).textContent = `F₀ = ${fmt(U0, 4)} N · max|y| = ${(maxy * 100).toFixed(3)} cm`;
-
-          // --- Bode ---
-          const bodeEl = document.getElementById(`plot-${prefix}-bode`);
-          const timeEl = document.getElementById(`plot-${prefix}-time`);
-          const phaseEl = document.getElementById(`plot-${prefix}-phaseplot`);
-          const showPhase = document.getElementById(`sim-${prefix}-phase`).checked;
-          phaseEl.style.display = showPhase ? "block" : "none";
-          let bodeInfo = null;
-          if (sensors.length > 0) {
-            const NB = 2000, lo = Math.log10(WN[0]) - 0.5, hi = Math.log10(WN[2]) + 0.5;
-            const om = Array.from({ length: NB }, (_, i) => Math.pow(10, lo + (hi - lo) * i / (NB - 1)));
-            const magTraces = [], phTraces = [];
-            let ymin = Infinity, ymax = 0;
-            sensors.forEach((s) => {
-              const mag = new Array(NB), ph = new Array(NB);
-              let prev = 0, acc = 0;
-              for (let i = 0; i < NB; i++) {
-                const g = s.node === 0 ? [0, 0] : Gnode(s.node, om[i]);
-                const m = Math.hypot(g[0], g[1]);
-                mag[i] = m > 0 ? m : null;
-                if (m > 0) { ymin = Math.min(ymin, m); ymax = Math.max(ymax, m); }
-                const a = Math.atan2(g[1], g[0]) * 180 / Math.PI;
-                if (i === 0) { acc = a; } else { let d = a - prev; while (d > 180) d -= 360; while (d < -180) d += 360; acc += d; }
-                prev = a; ph[i] = acc;
-              }
-              const ph0 = ph[0];
-              magTraces.push({ x: om, y: mag, mode: "lines", line: { color: s.color, width: 2 }, name: `Sensor ${s.id} (${s.x}L)`, connectgaps: false });
-              phTraces.push({ x: om, y: ph.map((v) => v - ph0), mode: "lines", line: { color: s.color, width: 2 }, name: `Sensor ${s.id} (${s.x}L)` });
-            });
-            const wLine = [{ type: "line", xref: "x", yref: "paper", x0: w, x1: w, y0: 0, y1: 1, line: { color: "#8B92A5", width: 1, dash: "dot" } }];
-            bodeEl.innerHTML = "";
-            Plotly.newPlot(bodeEl, magTraces, plotLayout("Amplitude Ratio (Y/F)", "Frequency (rad/sec)", { xaxis: { type: "log" }, yaxis: { type: "log", exponentformat: "power" }, shapes: wLine }), PLOT_OPTS);
-            if (showPhase) {
-              Plotly.newPlot(phaseEl, phTraces, plotLayout("Phase Difference (Y/F) [deg]", "Frequency (rad/sec)", { xaxis: { type: "log" }, yaxis: { dtick: 90 }, shapes: wLine }), PLOT_OPTS);
-            }
-            bodeInfo = true;
-            timeEl.innerHTML = "";
-            Plotly.newPlot(timeEl, sensors.map((s, j) => ({ x: t, y: ysens[j], mode: "lines", line: { color: s.color, width: 2 }, name: `Sensor ${s.id} (${s.x}L)` })),
-              plotLayout("Displacement Msmts y(x,t) [m]", "Time (sec)"), PLOT_OPTS);
-          } else {
-            bodeEl.innerHTML = '<div class="placeholder">Enable at least one sensor to see the Bode and time plots.</div>';
-            timeEl.innerHTML = '<div class="placeholder">Enable at least one sensor to see the Bode and time plots.</div>';
-            phaseEl.style.display = "none";
-          }
-          lastRun[prefix] = { w, sensors, hasPlots: sensors.length > 0 };
-          playing = true; document.getElementById(`btn-${prefix}-play`).textContent = "PAUSE";
-          if (!rafId) rafId = requestAnimationFrame(tick);
+          const ss = steadyState(w, sensors);
+          applyAnim(ss, w, sensors);
+          renderBode(sensors, w);
+          renderTime(sensors, ss);
+          lastRun[prefix] = { w, sensors };
+          startPlaying();
           if (window.__scheduleSave) window.__scheduleSave();
+        }
+
+        function play() {
+          if (playing && !staleParts().length) { playing = false; updatePlayLabel(); return; }
+          const w = readFreq();
+          if (!w) return;
+          if (!dyn || staleParts().length) {
+            if (!slider) { run(); return; }
+            const sensors = readSensors();
+            applyAnim(steadyState(w, sensors), w, sensors);
+          }
+          startPlaying();
         }
 
         function reset() {
-          dyn = null; runFlags[prefix] = false; lastRun[prefix] = null;
-          buildSvg([], 0.05, null);
-          document.getElementById(`beam-line-${prefix}`).setAttribute("points", `${svgX(0, 0.05)},${svgY(0)} ${svgX(0, 0.05)},${svgY(1)}`);
-          document.getElementById(`plot-${prefix}-bode`).innerHTML = '<div class="placeholder">Set sensors and ω, then click RUN to see the Bode magnitude plot.</div>';
-          document.getElementById(`plot-${prefix}-time`).innerHTML = '<div class="placeholder">Sensor displacement vs. time appears here after RUN.</div>';
-          document.getElementById(`plot-${prefix}-phaseplot`).style.display = "none";
+          dyn = null; runFlags[prefix] = false; lastRun[prefix] = null; playing = false;
+          errEl.textContent = "";
           document.getElementById(`meta-${prefix}`).textContent = "";
+          if (slider) { boxEl.value = ""; sliderEl.value = 0; }
+          if (drag) { DRAG.forEach((d) => { $(`sen${d.id}-node`).value = d.def; }); $("senC-on").checked = false; updateDragUi(); }
+          const sensors = slider ? readSensors() : [];
+          showSvg(sensors);
+          if (slider) renderBode(sensors, null);
+          else { setPlaceholder(bodeEl, BODE_PH); if (phaseEl.data) Plotly.purge(phaseEl); phaseEl.style.display = "none"; bodeState = null; }
+          setPlaceholder(timeEl, TIME_PH);
+          updateAnimNote();
           if (window.__scheduleSave) window.__scheduleSave();
         }
 
+        // ---- draggable sensors (Problem 5) ----
+        function updateDragUi() {
+          if (!drag) return;
+          const cOn = $("senC-on").checked;
+          $("senC-node").disabled = !cOn;
+          document.getElementById(`vs-${prefix}-C`).classList.toggle("off", !cOn);
+          document.getElementById(`readout-${prefix}`).innerHTML = readSensors().map((s) => s.drag
+            ? `<span style="color:${s.color}">Sensor ${s.id}</span>: x/L = ${s.xs} (node ${s.node})`
+            : `<span style="color:${s.color}">Sensor ${s.id}</span>: x/L = 1 (fixed)`).join(" &nbsp;&middot;&nbsp; ");
+        }
+        function moveSvgSensor(id, k) {
+          const s = svgSensors.find((q) => q.id === id);
+          if (!s) return;
+          s.node = k;
+          const sy = svgY(k / NEL);
+          const d = document.getElementById(`sen-dot-${prefix}-${id}`); if (d) d.setAttribute("cy", sy);
+          const l = document.getElementById(`sen-line-${prefix}-${id}`); if (l) { l.setAttribute("y1", sy); l.setAttribute("y2", sy); }
+          const t = document.getElementById(`sen-txt-${prefix}-${id}`); if (t) t.setAttribute("y", sy - 6);
+          drawFrame();
+        }
+        function onSensorNodeChange(id) {
+          moveSvgSensor(id, Number($(`sen${id}-node`).value));
+          updateDragUi();
+          scheduleLive();
+          if (window.__scheduleSave) window.__scheduleSave();
+        }
+        let dragId = null;
+        function onDragMove(ev) {
+          if (!dragId) return;
+          const ctm = svg.getScreenCTM();
+          if (!ctm) return;
+          const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(ctm.inverse());
+          const k = Math.min(NEL, Math.max(1, sensorNode((YBOT - p.y) / (YBOT - YTOP))));   // never node 0 (clamped)
+          const inp = $(`sen${dragId}-node`);
+          if (Number(inp.value) === k) return;
+          inp.value = k;
+          onSensorNodeChange(dragId);
+        }
+        function endDrag() {
+          dragId = null;
+          window.removeEventListener("pointermove", onDragMove);
+          window.removeEventListener("pointerup", endDrag);
+          window.removeEventListener("pointercancel", endDrag);
+        }
+        if (drag) {
+          svg.addEventListener("pointerdown", (ev) => {
+            const t = ev.target.closest ? ev.target.closest("[data-drag]") : null;
+            if (!t) return;
+            ev.preventDefault();
+            dragId = t.getAttribute("data-drag");
+            window.addEventListener("pointermove", onDragMove);
+            window.addEventListener("pointerup", endDrag);
+            window.addEventListener("pointercancel", endDrag);
+            onDragMove(ev);
+          });
+          DRAG.forEach((d) => $(`sen${d.id}-node`).addEventListener("input", () => onSensorNodeChange(d.id)));
+          $("senC-on").addEventListener("change", () => { updateDragUi(); showSvg(readSensors()); scheduleLive(); });
+          $("modes").addEventListener("change", () => showSvg(readSensors()));
+        }
+
+        // ---- capture ----
         async function svgToCanvasImage() {
           const clone = svg.cloneNode(true);
           clone.setAttribute("xmlns", NS); clone.setAttribute("width", SVG_W); clone.setAttribute("height", SVG_H);
@@ -1431,61 +1799,69 @@
 
         async function capture() {
           const st = document.getElementById(`capstat-${prefix}`);
-          const info = lastRun[prefix];
-          if (!info) { st.style.color = "#FB7185"; st.textContent = "Click RUN first."; return; }
+          const hasBode = !!bodeEl.data, hasTime = !!timeEl.data;
+          if (!hasBode && !dyn) { st.style.color = "#FB7185"; st.textContent = "Click RUN first."; return; }
+          // slider panels: plots follow the current controls; RUN panels: plots show the last RUN
+          const info = slider ? { w: getOmega(), sensors: readSensors() } : (lastRun[prefix] || { w: null, sensors: [] });
           st.style.color = "#5EEAD4"; st.textContent = "Capturing…";
           try {
             const W = 1500, H1 = 450, H2 = 340;
-            const cv = document.createElement("canvas"); cv.width = W; cv.height = H1 + (info.hasPlots ? H2 : 0);
+            const cv = document.createElement("canvas"); cv.width = W; cv.height = H1 + (hasTime ? H2 : 0);
             const cx = cv.getContext("2d");
             cx.fillStyle = "#171A21"; cx.fillRect(0, 0, cv.width, cv.height);
             cx.drawImage(await svgToCanvasImage(), 0, 0, SVG_W, SVG_H);
-            if (info.hasPlots) {
-              const bodeUrl = await Plotly.toImage(document.getElementById(`plot-${prefix}-bode`), { format: "png", width: W - SVG_W, height: H1 });
+            if (hasBode) {
+              const bodeUrl = await Plotly.toImage(bodeEl, { format: "png", width: W - SVG_W, height: H1 });
               cx.drawImage(await loadImg(bodeUrl), SVG_W, 0, W - SVG_W, H1);
-              const timeUrl = await Plotly.toImage(document.getElementById(`plot-${prefix}-time`), { format: "png", width: W, height: H2 });
+            }
+            if (hasTime) {
+              const timeUrl = await Plotly.toImage(timeEl, { format: "png", width: W, height: H2 });
               cx.drawImage(await loadImg(timeUrl), 0, H1, W, H2);
             }
-            const sensTxt = info.sensors.length ? info.sensors.map((s) => `${s.id}@${s.x}L`).join(", ") : "none";
-            window.__addCapture({ prefix, w: info.w, caption: `${TITLES[prefix]} — ω = ${Number(info.w.toPrecision(6))} rad/s — sensors: ${sensTxt}`, dataUrl: cv.toDataURL("image/png"), width: cv.width, height: cv.height });
+            const sensTxt = (list) => (list.length ? list.map((s) => `${s.id}@${s.xs}L`).join(", ") : "none");
+            let caption = `${TITLES[prefix]} — ω = ${info.w ? Number(info.w.toPrecision(6)) + " rad/s" : "(not set)"} — sensors: ${sensTxt(info.sensors)}`;
+            if (dyn && dyn.w !== info.w) caption += ` — animation ω = ${Number(dyn.w.toPrecision(6))} rad/s`;
+            if (dyn && skey(dyn.sensors) !== skey(info.sensors)) caption += ` — animation sensors: ${sensTxt(dyn.sensors)}`;
+            window.__addCapture({ prefix, w: info.w, caption, dataUrl: cv.toDataURL("image/png"), width: cv.width, height: cv.height });
             st.textContent = "Figure captured — see Submission.";
           } catch (err) {
             console.error(err); st.style.color = "#FB7185"; st.textContent = "Could not capture figure.";
           }
         }
 
+        // restore after autosave load: re-sync the slider to the box and redraw
+        function restore(wasRun) {
+          refreshCards();
+          if (slider) { const w = getOmega(); if (w) sliderEl.value = wToSlider(w); }
+          updateDragUi();
+          if (wasRun && getOmega()) { run(); return; }
+          if (slider) { showSvg(readSensors()); bodeState = null; liveUpdate(); }
+        }
+
         document.getElementById(`btn-${prefix}-run`).addEventListener("click", run);
         document.getElementById(`btn-${prefix}-reset`).addEventListener("click", reset);
         document.getElementById(`btn-${prefix}-capture`).addEventListener("click", capture);
-        document.getElementById(`btn-${prefix}-play`).addEventListener("click", () => {
-          playing = !playing; document.getElementById(`btn-${prefix}-play`).textContent = playing ? "PAUSE" : "PLAY";
-        });
-        SENS.forEach((s) => document.getElementById(`sim-${prefix}-sen${s.id}-on`).addEventListener("change", refreshCards));
-        if (opts.presets) {
-          opts.presets.forEach((pr, i) => document.getElementById(`btn-${prefix}-preset${i}`).addEventListener("click", () => {
-            SENS.forEach((s, j) => {
-              const on = pr.sensors[j] !== null && pr.sensors[j] !== undefined;
-              document.getElementById(`sim-${prefix}-sen${s.id}-on`).checked = on;
-              if (on) document.getElementById(`sim-${prefix}-sen${s.id}-x`).value = pr.sensors[j];
-            });
-            refreshCards(); if (window.__scheduleSave) window.__scheduleSave();
-          }));
+        playBtn.addEventListener("click", play);
+        if (cards) SENS.forEach((s) => $(`sen${s.id}-on`).addEventListener("change", refreshCards));
+        if (slider) {
+          sliderEl.addEventListener("input", () => { boxEl.value = sliderToW(Number(sliderEl.value)); clearFreqErr(); scheduleLive(); });
+          boxEl.addEventListener("input", () => { const w = getOmega(); if (w) { sliderEl.value = wToSlider(w); clearFreqErr(); } scheduleLive(); });
+          $("phase").addEventListener("change", () => renderBode(readSensors(), getOmega()));
+        } else {
+          boxEl.addEventListener("input", () => { if (getOmega()) clearFreqErr(); });
         }
-        panelApi[prefix] = { run, refreshCards };
-        buildSvg([], 0.05, null);
-        document.getElementById(`beam-line-${prefix}`).setAttribute("points", `${svgX(0, 0.05)},${svgY(0)} ${svgX(0, 0.05)},${svgY(1)}`);
+        panelApi[prefix] = { run, refreshCards, restore };
+
+        updateDragUi();
+        if (slider) { const sensors = readSensors(); showSvg(sensors); renderBode(sensors, null); }
+        else showSvg([]);
       }
 
-      buildSimPanel("p1", { sensors: [1, null, null, null, null], omega: 171, spare: [1, 0.78, 0.33, 0.7, 0.5] });
-      buildSimPanel("p2", { sensors: [1, null, null, null, null], omega: 171, spare: [1, 0.78, 0.33, 0.7, 0.5] });
-      buildSimPanel("p3", {
-        sensors: [1, 0.78, 0.33, null, null], omega: 1074, spare: [1, 0.78, 0.33, 0.865, 0.5],
-        presets: [{ label: "Sensors [1, 0.78, 0.33]", sensors: [1, 0.78, 0.33, null, null] }]
-      });
-      buildSimPanel("p4", {
-        sensors: [1, 0.7, 0.33, null, null], omega: 300, spare: [1, 0.7, 0.33, 0.865, 0.5],
-        presets: [{ label: "Sensors [1, 0.7, 0.33]", sensors: [1, 0.7, 0.33, null, null] }]
-      });
+      buildSimPanel("p1", { sensorMode: "fixed", freq: "slider", liveAnim: true });
+      buildSimPanel("p2", { sensorMode: "fixed", freq: "slider", applyOnPlay: true });
+      buildSimPanel("p3", { sensorMode: "cards", locked: [1, 0.78, 0.33], spare: [1, 0.78, 0.33, 0.865, 0.5], freq: "box" });
+      buildSimPanel("p4", { sensorMode: "cards", locked: [1, 0.7, 0.33], spare: [1, 0.7, 0.33, 0.865, 0.5], freq: "box" });
+      buildSimPanel("p5", { sensorMode: "drag", freq: "slider", applyOnPlay: true });
 
       // ---------------------------------------------------------------
       // KaTeX
@@ -1499,7 +1875,7 @@
       // ---------------------------------------------------------------
       // Navigation
       // ---------------------------------------------------------------
-      const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
+      const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", p5: "part-p5", submission: "part-submission" };
       function activate(part) {
         document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
         Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
@@ -1560,7 +1936,7 @@
         if (id === "input-netid") return "Your NetID";
         if (id === "input-group-netids") return "Group member NetIDs";
         const m = id.match(/^input-(p\d)-(.+)$/);
-        return m ? `${m[1]} (${m[2].replace(/-/g, " ")})` : id;
+        return m ? `${m[1]} (${m[2].replace(/-/g, " ")})${m[1] === "p5" ? " (optional)" : ""}` : id;
       }
       function findBlankItems() {
         const blanks = [];
@@ -1640,6 +2016,11 @@
           addText("b) Discussion:", { bold: true }); addText(reflect("input-p4-reflect-zeros"));
           if (captures.some((c) => c.prefix === "p4")) addCaptures("p4");
 
+          addHeading("Problem 5 (Optional): Move the Sensor");
+          addText("a) What happens to the peaks as the sensor moves up the beam?", { bold: true }); addText(reflect("input-p5-reflect-peaks"));
+          addText("b) Where would you put a sensor to not see mode 2? mode 3?", { bold: true }); addText(reflect("input-p5-reflect-null"));
+          if (captures.some((c) => c.prefix === "p5")) addCaptures("p5");
+
           const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
           if (appendixFiles.length > 0) {
             const { PDFDocument } = window.PDFLib;
@@ -1682,7 +2063,7 @@
       function saveProgress() {
         try {
           const active = document.querySelector(".nav-btn.active");
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeTab: active ? active.dataset.part : "intro", fields: collectFieldValues(), runFlags }));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 2, activeTab: active ? active.dataset.part : "intro", fields: collectFieldValues(), runFlags }));
         } catch (err) { /* storage unavailable */ }
       }
       let saveTimer = null;
@@ -1695,13 +2076,15 @@
       function loadProgress() {
         let state;
         try { const raw = localStorage.getItem(STORAGE_KEY); if (!raw) return; state = JSON.parse(raw); } catch (err) { return; }
+        // saves from before v2 carry default simulator frequencies/sensors; keep only the answers from those
+        const simOk = state.v === 2;
         if (state.fields) Object.keys(state.fields).forEach((id) => {
-          const e = document.getElementById(id); if (!e) return;
+          if (!simOk && id.startsWith("sim-")) return;
+          const e = document.getElementById(id); if (!e || e.hasAttribute("data-locked")) return;
           if (e.type === "checkbox") e.checked = !!state.fields[id]; else e.value = state.fields[id];
         });
-        ["p1", "p2", "p3", "p4"].forEach((p) => panelApi[p].refreshCards());
+        ["p1", "p2", "p3", "p4", "p5"].forEach((p) => panelApi[p].restore(simOk && !!(state.runFlags && state.runFlags[p])));
         if (state.activeTab && SECTION_IDS[state.activeTab]) activate(state.activeTab);
-        if (state.runFlags) ["p1", "p2", "p3", "p4"].forEach((p) => { if (state.runFlags[p]) panelApi[p].run(); });
       }
       loadProgress();
 

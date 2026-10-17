@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Second-Order Systems Explorer</title>
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0F1115; --panel: #171A21; --panel2: #1D212B; --line: #282D3A;
+    --amber: #FFB454; --cyan: #5EEAD4; --rose: #FB7185; --pink: #F472B6;
+    --fg: #E7E9EE; --muted: #8B92A5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--ink); color: var(--fg); font-family: 'Inter', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  header h1 { font-size: 14px; margin: 0; font-weight: 600; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+
+  main { flex: 1; display: flex; overflow: hidden; }
+  nav { width: 220px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line); order: 2; padding: 16px 14px; overflow-y: auto; }
+  nav p.label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; margin: 14px 0 8px 0; }
+  nav p.label:first-child { margin-top: 0; }
+  .nav-btn { display: block; width: 100%; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 9px 12px; margin-bottom: 6px; background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; color: var(--fg); cursor: pointer; }
+  .nav-btn.active { border-color: var(--amber); color: var(--amber); }
+  .nav-btn small { display: block; font-family: 'Inter', sans-serif; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .content { flex: 1; order: 1; overflow-y: auto; padding: 28px 40px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  h2.section-title { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--amber); margin: 0 0 14px 0; }
+  h3.problem-title { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--cyan); margin: 0 0 10px 0; }
+  h4.part-title { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--fg); margin: 22px 0 8px 0; }
+  p.instructions { font-size: 14.5px; line-height: 1.65; color: var(--fg); margin: 0 0 16px 0; }
+  ul.goals { padding-left: 20px; margin: 0 0 16px 0; }
+  ul.goals li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .eq-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; margin: 14px 0; text-align: center; font-size: 16px; }
+  .given-line { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin: 0 0 18px 0; line-height: 1.8; }
+  .given-line b { color: var(--fg); font-weight: 600; }
+  .note-box { background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 4px; padding: 12px 16px; margin: 0 0 18px 0; font-size: 13px; line-height: 1.6; color: var(--fg); }
+  .note-box code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan); background: var(--ink); padding: 1px 5px; border-radius: 3px; }
+
+  .panel-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
+  .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  .form-grid.one { grid-template-columns: 1fr; }
+  .form-grid.two { grid-template-columns: 1fr 1fr; }
+  .form-grid.five { grid-template-columns: repeat(5, 1fr); }
+  .field { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .field label { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .field input[type="text"], .field input[type="number"] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 8px 10px; }
+  .field input:focus { outline: none; border-color: var(--amber); }
+  .field select { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 8px 10px; }
+  .field select:focus { outline: none; border-color: var(--amber); }
+
+  .reflection-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  .reflection-box textarea { width: 100%; min-height: 90px; resize: vertical; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'Inter', sans-serif; font-size: 14px; padding: 10px 12px; line-height: 1.5; }
+  .reflection-box textarea:focus { outline: none; border-color: var(--amber); }
+
+  .run-btn { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; padding: 10px 22px; border-radius: 6px; border: none; background: var(--amber); color: var(--ink); cursor: pointer; }
+  .run-btn:hover { filter: brightness(1.08); }
+  .run-btn:active { transform: scale(0.98); }
+  .run-btn.secondary { background: none; color: var(--muted); border: 1px solid var(--line); }
+  .run-btn.secondary:hover { color: var(--rose); border-color: var(--rose); }
+  .run-btn.small { font-size: 11.5px; padding: 8px 14px; }
+
+  .match-banner { display: none; margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line); }
+  .match-banner.match { display: block; border-color: var(--cyan); color: var(--cyan); }
+  .match-banner.no-match { display: block; border-color: var(--rose); color: var(--rose); }
+  .field-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; min-height: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .plot-host { height: 300px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin-top: 14px; }
+  .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 13px; text-align: center; max-width: 320px; margin: 0 auto; padding: 0 20px; }
+
+  .steps-list { padding-left: 20px; margin: 0 0 16px 0; }
+  .steps-list li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .upload-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 0 0 18px 0; }
+  .upload-block input[type="file"] { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--fg); }
+  .upload-thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .thumb-wrap { position: relative; width: 90px; height: 120px; }
+  .thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); display: block; }
+  .thumb-remove { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+  .upload-status { font-size: 11px; color: var(--cyan); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; }
+  .upload-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+  .file-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; margin: 4px 6px 4px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .file-chip .chip-remove { background: none; border: none; color: var(--rose); cursor: pointer; font-size: 13px; line-height: 1; font-family: 'JetBrains Mono', monospace; padding: 0; }
+
+  .vib-top-row { display: flex; gap: 18px; align-items: flex-start; margin-top: 14px; }
+  .vib-svg-host { flex: 1.3; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .vib-output { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .vib-output h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .vib-output .out-row { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; margin-bottom: 7px; color: var(--fg); gap: 8px; }
+  .vib-output .out-row span.k { color: var(--muted); flex-shrink: 0; }
+  .vib-output .out-row span.v { color: var(--cyan); text-align: right; }
+  .vib-presets { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+  .katex { color: var(--fg); }
+</style>
+<style>
+  body { overflow: auto; height: auto; display: block; }
+  .layout { display: grid; grid-template-columns: 370px minmax(0, 1fr); gap: 20px; padding: 18px 22px 40px; max-width: 1500px; margin: 0 auto; align-items: start; }
+  .side { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; padding-right: 4px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .card h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em; font-weight: 500; }
+  .seg { display: flex; gap: 6px; flex-wrap: wrap; }
+  .seg button, .pbtn { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; padding: 7px 10px; border-radius: 6px; background: var(--panel2); border: 1px solid var(--line); color: var(--fg); cursor: pointer; text-align: left; }
+  .seg button.on { border-color: var(--amber); color: var(--amber); }
+  .seg button:hover, .pbtn:hover { border-color: var(--amber); }
+  .ctl { margin-bottom: 11px; }
+  .ctl label { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--fg); margin-bottom: 5px; }
+  .ctl label .u { color: var(--muted); }
+  .ctl-in { display: flex; gap: 8px; align-items: center; }
+  .ctl-in input[type=range] { flex: 1; accent-color: var(--amber); min-width: 0; }
+  .ctl-in input[type=number] { width: 84px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 5px 7px; }
+  .ctl-in input[type=number]:focus, select:focus { outline: none; border-color: var(--amber); }
+  .ctl-in input.bad { border-color: var(--rose); }
+  select { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 7px 8px; margin-bottom: 11px; }
+  .chk { display: flex; align-items: center; gap: 7px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--fg); margin: 6px 0; }
+  .chk input { accent-color: var(--amber); }
+  .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .grp-de { display: none; }
+  body.de .grp-de { display: block; }
+  body.de .grp-mech { display: none; }
+  .plot { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  .rd { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px 18px; }
+  .rd div { display: flex; justify-content: space-between; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; border-bottom: 1px dashed var(--line); padding: 4px 0; }
+  .rd .k { color: var(--muted); } .rd .v { color: var(--cyan); text-align: right; }
+  .msg { font-size: 12.5px; line-height: 1.55; color: var(--amber); margin: 10px 0 0 0; min-height: 4px; }
+  .eqs .eq { text-align: left; font-size: 14.5px; margin: 8px 0; overflow-x: auto; }
+  .eqs .cap { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); letter-spacing: .06em; margin-top: 12px; }
+  .anim-bar { display: flex; gap: 8px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+  .anim-bar input[type=range] { flex: 1; min-width: 120px; accent-color: var(--cyan); }
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } .side { position: static; max-height: none; } .two { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="dot"></div>
+  <h1>SECOND-ORDER SYSTEMS EXPLORER <span>&mdash; damping, resonance &amp; forced response (M&amp;AE 3260)</span></h1>
+</header>
+
+<div class="layout">
+  <!-- ===================== CONTROLS ===================== -->
+  <div class="side">
+    <div class="card">
+      <h5>NOTATION</h5>
+      <div class="seg" id="seg-notation">
+        <button data-n="mech" class="on">Mechanical<br><span style="color:var(--muted)">m x&Prime; + c x&prime; + k x = F(t)</span></button>
+        <button data-n="de">Differential eqs.<br><span style="color:var(--muted)">y&Prime; + 2&zeta;&omega;<sub>n</sub> y&prime; + &omega;<sub>n</sub>&sup2; y = f(t)</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h5>SYSTEM</h5>
+      <div id="ctl-sys"></div>
+    </div>
+
+    <div class="card">
+      <h5>INPUT</h5>
+      <select id="sel-type">
+        <option value="none">None (free response)</option>
+        <option value="sin" selected>Sine&nbsp;&nbsp;A sin(&omega;t)</option>
+        <option value="cos">Cosine&nbsp;&nbsp;A cos(&omega;t)</option>
+        <option value="step">Step&nbsp;&nbsp;A &middot; u(t)</option>
+      </select>
+      <div id="ctl-in"></div>
+      <div class="seg" id="w-btns" style="margin-top:2px;">
+        <button id="btn-w-wn">&omega; = &omega;<sub>n</sub></button>
+        <button id="btn-w-peak">&omega; = peak frequency</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h5>INITIAL CONDITIONS</h5>
+      <div id="ctl-ic"></div>
+    </div>
+
+    <div class="card">
+      <h5>PRESETS</h5>
+      <div class="presets" id="presets"></div>
+    </div>
+
+    <div class="card">
+      <h5>DISPLAY</h5>
+      <label class="chk"><input type="checkbox" id="chk-in" checked /> show input overlay (F(t)/k)</label>
+      <label class="chk"><input type="checkbox" id="chk-tr" /> show transient (homogeneous) part</label>
+      <label class="chk"><input type="checkbox" id="chk-ss" /> show steady-state (particular) part</label>
+      <label class="chk"><input type="checkbox" id="chk-auto" checked /> automatic time window</label>
+      <div class="ctl" id="tend-row" style="display:none;margin-top:6px;">
+        <label>t<sub>end</sub><span class="u">s</span></label>
+        <div class="ctl-in"><input type="number" id="num-tend" value="20" step="any" /></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== OUTPUT ===================== -->
+  <div class="main">
+    <div class="card">
+      <h5>ANIMATION</h5>
+      <svg id="anim" viewBox="0 0 460 190" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="anim-bar">
+        <button class="run-btn small" id="btn-play">PAUSE</button>
+        <button class="run-btn secondary small" id="btn-restart">RESTART</button>
+        <input type="range" id="rng-time" min="0" max="1000" value="0" />
+        <select id="sel-speed" style="width:auto;margin:0;">
+          <option value="0.25">0.25&times;</option><option value="0.5">0.5&times;</option><option value="1" selected>1&times;</option><option value="2">2&times;</option>
+        </select>
+        <span class="tag" id="tag-time"></span>
+      </div>
+      <p class="msg" id="msg"></p>
+    </div>
+
+    <div class="plot" id="plot-time" style="height:340px;"></div>
+
+    <div class="two">
+      <div class="plot" id="plot-mag" style="height:290px;"></div>
+      <div class="plot" id="plot-phase" style="height:290px;"></div>
+    </div>
+    <div class="two">
+      <div class="plot" id="plot-pole" style="height:300px;"></div>
+      <div class="card" style="margin:0;"><h5>READOUTS</h5><div class="rd" id="readouts"></div></div>
+    </div>
+
+    <div class="card eqs" style="margin-top:14px;">
+      <h5>THE MATH, WITH YOUR NUMBERS</h5>
+      <div class="cap">EQUATION OF MOTION</div><div class="eq" id="eq-ode"></div>
+      <div class="cap">CHARACTERISTIC EQUATION &amp; POLES</div><div class="eq" id="eq-char"></div>
+      <div class="cap">FORCED (PARTICULAR) PART</div><div class="eq" id="eq-part"></div>
+      <div class="cap">FREE (HOMOGENEOUS) PART</div><div class="eq" id="eq-hom"></div>
+      <div class="cap">COMPLETE SOLUTION</div><div class="eq" id="eq-total"></div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+  const S = { notation: "mech", m: 1, c: 0.5, k: 4, type: "sin", A: 1, w: 1, x0: 0, v0: 0, showIn: true, showTr: false, showSs: false, auto: true, tEnd: 20 };
+  const TAU = 2 * Math.PI;
+  const nm = (v) => String(Number(Number(v).toPrecision(4)));
+  const sgn = (v, rest) => (v < 0 ? `- ${nm(-v)}${rest}` : `+ ${nm(v)}${rest}`);
+
+  // ---------------------------------------------------------------
+  // Exact closed-form solution  m x'' + c x' + k x = F(t)
+  //   x(t) = x_h(t) (free, fixed by x(0), x'(0)) + x_p(t) (forced)
+  // ---------------------------------------------------------------
+  function model(P) {
+    const { m, c, k, type, A, w, x0, v0 } = P;
+    const wn = Math.sqrt(k / m), z = c / (2 * Math.sqrt(k * m)), sig = z * wn;
+    const F0 = type === "none" ? 0 : A;
+    let xp = () => 0, xp0 = 0, vp0 = 0, M = 0, phi = 0, res = false;
+    if (type === "sin" || type === "cos") {
+      const r = w / wn;
+      if (z === 0 && Math.abs(1 - r) < 1e-9) {
+        res = true;
+        const g = F0 / (2 * m * wn);
+        if (type === "sin") { xp = (t) => -g * t * Math.cos(wn * t); vp0 = -g; }
+        else { xp = (t) => g * t * Math.sin(wn * t); }
+      } else {
+        M = (F0 / k) / Math.hypot(1 - r * r, 2 * z * r);
+        phi = Math.atan2(2 * z * r, 1 - r * r);
+        if (type === "sin") { xp = (t) => M * Math.sin(w * t - phi); xp0 = -M * Math.sin(phi); vp0 = M * w * Math.cos(phi); }
+        else { xp = (t) => M * Math.cos(w * t - phi); xp0 = M * Math.cos(phi); vp0 = M * w * Math.sin(phi); }
+      }
+    } else if (type === "step") {
+      xp = () => F0 / k; xp0 = F0 / k; vp0 = 0;
+    }
+    const a0 = x0 - xp0, b0 = v0 - vp0;
+    let xh, kind, C1, C2, wd = null, r1 = null, r2 = null, poles;
+    if (z === 0) {
+      kind = "undamped"; C1 = a0; C2 = b0 / wn;
+      xh = (t) => C1 * Math.cos(wn * t) + C2 * Math.sin(wn * t);
+      poles = [[0, wn], [0, -wn]];
+    } else if (z < 1 - 1e-9) {
+      kind = "under"; wd = wn * Math.sqrt(1 - z * z); C1 = a0; C2 = (b0 + sig * a0) / wd;
+      xh = (t) => Math.exp(-sig * t) * (C1 * Math.cos(wd * t) + C2 * Math.sin(wd * t));
+      poles = [[-sig, wd], [-sig, -wd]];
+    } else if (Math.abs(z - 1) <= 1e-9) {
+      kind = "critical"; C1 = a0; C2 = b0 + wn * a0;
+      xh = (t) => (C1 + C2 * t) * Math.exp(-wn * t);
+      poles = [[-wn, 0], [-wn, 0]];
+    } else {
+      kind = "over"; const s = Math.sqrt(z * z - 1);
+      r1 = wn * (-z + s); r2 = wn * (-z - s);
+      C1 = (b0 - r2 * a0) / (r1 - r2); C2 = a0 - C1;
+      xh = (t) => C1 * Math.exp(r1 * t) + C2 * Math.exp(r2 * t);
+      poles = [[r1, 0], [r2, 0]];
+    }
+    const Fin = type === "sin" ? (t) => Math.sin(w * t) : type === "cos" ? (t) => Math.cos(w * t) : type === "step" ? () => 1 : () => 0;
+    return { P, wn, z, sig, wd, r1, r2, kind, C1, C2, M, phi, res, xp, xh, Fin, F0, poles, xp0, vp0,
+      total: (t) => xh(t) + xp(t) };
+  }
+  function autoTEnd(md) {
+    const Tn = TAU / md.wn; let T = 8 * Tn;
+    if (md.z > 0) {
+      const slow = md.z < 1 ? md.sig : md.wn * (md.z - Math.sqrt(Math.max(md.z * md.z - 1, 0)));
+      T = Math.max(T, 5 / Math.max(slow, 1e-9));
+    }
+    if (md.P.type === "sin" || md.P.type === "cos") T = Math.max(T, 6 * TAU / md.P.w);
+    if (md.res) T = Math.max(T, 14 * Tn);
+    return Math.min(T, 800);
+  }
+  window.__model = model;
+
+  // ---------------------------------------------------------------
+  // Controls
+  // ---------------------------------------------------------------
+  const D = (id, grp, host, label, unit, min, max, get, set, valid, log) => ({ id, grp, host, label, unit, min, max, get, set, valid, log });
+  const pos = (v) => v > 0, nonneg = (v) => v >= 0, any = () => true;
+  const CTL = [
+    D("m", "mech", "ctl-sys", "m (mass)", "kg", 0.1, 10, () => S.m, (v) => { S.m = v; }, pos),
+    D("c", "mech", "ctl-sys", "c (damping)", "N·s/m", 0, 20, () => S.c, (v) => { S.c = v; }, nonneg),
+    D("k", "mech", "ctl-sys", "k (stiffness)", "N/m", 0.1, 100, () => S.k, (v) => { S.k = v; }, pos),
+    D("wn", "de", "ctl-sys", "ωₙ (natural freq.)", "rad/s", 0.2, 20, () => Math.sqrt(S.k / S.m), (v) => { const z = S.c / (2 * Math.sqrt(S.k * S.m)); S.k = S.m * v * v; S.c = 2 * z * Math.sqrt(S.k * S.m); }, pos),
+    D("zeta", "de", "ctl-sys", "ζ (damping ratio)", "", 0, 3, () => S.c / (2 * Math.sqrt(S.k * S.m)), (v) => { S.c = 2 * v * Math.sqrt(S.k * S.m); }, nonneg),
+    D("A", "mech", "ctl-in", "A (force amplitude F₀)", "N", 0, 10, () => S.A, (v) => { S.A = v; }, any),
+    D("Ad", "de", "ctl-in", "A (input amplitude f₀)", "", 0, 10, () => S.A / S.m, (v) => { S.A = v * S.m; }, any),
+    D("w", "both", "ctl-in", "ω (input frequency)", "rad/s", 0.05, 100, () => S.w, (v) => { S.w = v; }, pos, true),
+    D("x0", "both", "ctl-ic", "x(0)", "", -5, 5, () => S.x0, (v) => { S.x0 = v; }, any),
+    D("v0", "both", "ctl-ic", "x′(0)", "", -10, 10, () => S.v0, (v) => { S.v0 = v; }, any),
+  ];
+  const SL = 4000;
+  function toPos(d, v) {
+    let p = d.log ? Math.log(Math.max(v, d.min) / d.min) / Math.log(d.max / d.min) : (v - d.min) / (d.max - d.min);
+    return Math.round(Math.min(1, Math.max(0, p)) * SL);
+  }
+  function fromPos(d, p) { const f = p / SL; return d.log ? d.min * Math.pow(d.max / d.min, f) : d.min + f * (d.max - d.min); }
+  CTL.forEach((d) => {
+    const row = document.createElement("div");
+    row.className = `ctl grp-${d.grp === "both" ? "all" : d.grp}`;
+    row.innerHTML = `<label><span class="lab">${d.label}</span><span class="u">${d.unit}</span></label>
+      <div class="ctl-in"><input type="range" min="0" max="${SL}" step="1" /><input type="number" step="any" /></div>`;
+    document.getElementById(d.host).appendChild(row);
+    d.rng = row.querySelector('input[type="range"]'); d.num = row.querySelector('input[type="number"]'); d.lab = row.querySelector(".lab");
+    d.rng.addEventListener("input", () => { const v = fromPos(d, Number(d.rng.value)); d.set(Number(nm(v))); d.num.value = nm(d.get()); d.num.classList.remove("bad"); update(d); });
+    d.num.addEventListener("input", () => {
+      const v = Number(d.num.value);
+      if (d.num.value.trim() === "" || !isFinite(v) || !d.valid(v)) { d.num.classList.add("bad"); return; }
+      d.num.classList.remove("bad"); d.set(v); d.rng.value = toPos(d, v); update(d);
+    });
+  });
+  function syncFields(src) {
+    CTL.forEach((d) => {
+      const v = d.get();
+      if (d !== src || true) { d.rng.value = toPos(d, v); }
+      if (d !== src && document.activeElement !== d.num) { d.num.value = nm(v); d.num.classList.remove("bad"); }
+    });
+    const sym = S.notation === "mech" ? "x" : "y";
+    CTL.find((d) => d.id === "x0").lab.textContent = `${sym}(0)`;
+    CTL.find((d) => d.id === "v0").lab.textContent = `${sym}′(0)`;
+  }
+
+  document.getElementById("sel-type").addEventListener("change", (e) => { S.type = e.target.value; update(); });
+  document.querySelectorAll("#seg-notation button").forEach((b) => b.addEventListener("click", () => {
+    S.notation = b.dataset.n;
+    document.body.classList.toggle("de", S.notation === "de");
+    document.querySelectorAll("#seg-notation button").forEach((x) => x.classList.toggle("on", x === b));
+    update();
+  }));
+  document.getElementById("btn-w-wn").addEventListener("click", () => { S.w = Math.sqrt(S.k / S.m); update(); });
+  document.getElementById("btn-w-peak").addEventListener("click", () => {
+    const wn = Math.sqrt(S.k / S.m), z = S.c / (2 * Math.sqrt(S.k * S.m));
+    S.w = z < Math.SQRT1_2 ? wn * Math.sqrt(1 - 2 * z * z) : wn; update();
+  });
+  [["chk-in", "showIn"], ["chk-tr", "showTr"], ["chk-ss", "showSs"], ["chk-auto", "auto"]].forEach(([id, key]) => document.getElementById(id).addEventListener("change", (e) => {
+    S[key] = e.target.checked;
+    if (key === "auto") document.getElementById("tend-row").style.display = S.auto ? "none" : "block";
+    update();
+  }));
+  document.getElementById("num-tend").addEventListener("input", (e) => { const v = Number(e.target.value); if (isFinite(v) && v > 0) { S.tEnd = v; update(); } });
+
+  const PRESETS = [
+    ["Underdamped, free", { m: 1, c: 0.4, k: 4, type: "none", x0: 1, v0: 0 }],
+    ["Critically damped, free", { m: 1, c: 4, k: 4, type: "none", x0: 1, v0: 0 }],
+    ["Overdamped, free", { m: 1, c: 8, k: 4, type: "none", x0: 1, v0: 0 }],
+    ["Undamped, free", { m: 1, c: 0, k: 4, type: "none", x0: 1, v0: 0 }],
+    ["Resonance (light damping)", { m: 1, c: 0.2, k: 4, type: "sin", A: 1, w: 2, x0: 0, v0: 0 }],
+    ["Pure resonance (ζ = 0)", { m: 1, c: 0, k: 4, type: "sin", A: 1, w: 2, x0: 0, v0: 0 }],
+    ["Beating (ζ = 0, ω ≈ ωₙ)", { m: 1, c: 0, k: 4, type: "sin", A: 1, w: 1.8, x0: 0, v0: 0 }],
+    ["Step response", { m: 1, c: 0.8, k: 4, type: "step", A: 4, x0: 0, v0: 0 }],
+    ["Slow drive (ω ≪ ωₙ)", { m: 1, c: 0.4, k: 4, type: "sin", A: 1, w: 0.3, x0: 0, v0: 0 }],
+    ["Fast drive (ω ≫ ωₙ)", { m: 1, c: 0.4, k: 4, type: "sin", A: 1, w: 12, x0: 0, v0: 0 }],
+  ];
+  const ph = document.getElementById("presets");
+  PRESETS.forEach(([label, vals]) => {
+    const b = document.createElement("button"); b.className = "pbtn"; b.textContent = label;
+    b.addEventListener("click", () => { Object.assign(S, { A: 1, w: 1.5, x0: 0, v0: 0 }, vals); document.getElementById("sel-type").value = S.type; update(); });
+    ph.appendChild(b);
+  });
+
+  // ---------------------------------------------------------------
+  // Plots
+  // ---------------------------------------------------------------
+  const PO = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+  function lay(xt, yt, extra) {
+    return Object.assign({
+      paper_bgcolor: "#171A21", plot_bgcolor: "#171A21", font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
+      margin: { l: 62, r: 14, t: 28, b: 44 }, showlegend: true, legend: { orientation: "h", y: -0.27, font: { size: 9 } },
+      xaxis: { title: xt, gridcolor: "#282D3A", zerolinecolor: "#3a4052" }, yaxis: { title: yt, gridcolor: "#282D3A", zerolinecolor: "#3a4052" },
+    }, extra || {});
+  }
+  let cur = null;   // current run: { md, t, tot, tr, ss, inp, tEnd, xmax }
+  let tc = 0, playing = true, lastTs = null;
+
+  function update(src) {
+    const md = model(S);
+    const tEnd = S.auto ? autoTEnd(md) : S.tEnd;
+    const wmax = Math.max(md.wd || md.wn, (S.type === "sin" || S.type === "cos") ? S.w : 0);
+    const N = Math.min(12000, Math.max(1500, Math.ceil(tEnd * wmax / TAU * 40)));
+    const t = new Array(N), tot = new Array(N), tr = new Array(N), ss = new Array(N), inp = new Array(N);
+    let xmax = 1e-12;
+    for (let i = 0; i < N; i++) {
+      const ti = tEnd * i / (N - 1); t[i] = ti;
+      tr[i] = md.xh(ti); ss[i] = md.xp(ti); tot[i] = tr[i] + ss[i];
+      inp[i] = md.F0 * md.Fin(ti) / S.k; xmax = Math.max(xmax, Math.abs(tot[i]));
+    }
+    cur = { md, t, tot, tr, ss, inp, tEnd, xmax, N };
+    tc = Math.min(tc, tEnd);
+    syncFields(src);
+    drawTimePlot(); drawBode(md); drawPoles(md); readouts(md); equations(md); messages(md);
+    drawAnim();
+  }
+
+  function drawTimePlot() {
+    const { md, t, tot, tr, ss, inp, xmax } = cur;
+    const sym = S.notation === "mech" ? "x" : "y";
+    const hasIn = S.type !== "none";
+    const ymax = Math.max(xmax, ...(S.showIn && hasIn ? [Math.max(...inp.map(Math.abs))] : [0])) * 1.1;
+    const traces = [
+      { x: t, y: tot, mode: "lines", name: `total ${sym}(t)`, line: { color: "#5EEAD4", width: 2.5 } },
+      { x: t, y: inp, mode: "lines", name: S.notation === "mech" ? "input F(t)/k" : "input f(t)/ωₙ²", line: { color: "#FFB454", width: 1.5, dash: "dash" }, visible: S.showIn && hasIn },
+      { x: t, y: tr, mode: "lines", name: "transient (homogeneous)", line: { color: "#FB7185", width: 1.6 }, visible: S.showTr },
+      { x: t, y: ss, mode: "lines", name: "steady-state (particular)", line: { color: "#F472B6", width: 1.6, dash: "dot" }, visible: S.showSs },
+      { x: [tc, tc], y: [-ymax, ymax], mode: "lines", name: "now", showlegend: false, hoverinfo: "skip", line: { color: "#8B92A5", width: 1 } },
+      { x: [tc], y: [md.total(tc)], mode: "markers", name: "now", showlegend: false, hoverinfo: "skip", marker: { color: "#FFFFFF", size: 8 } },
+    ];
+    Plotly.react("plot-time", traces, lay("time t [s]", `${sym}(t)`, { yaxis: { title: `${sym}(t)`, gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: [-ymax, ymax] }, xaxis: { title: "time t [s]", gridcolor: "#282D3A", range: [0, cur.tEnd] } }), PO);
+  }
+
+  function drawBode(md) {
+    const wn = md.wn, z = md.z;
+    const lo = Math.min(wn / 30, S.w / 2), hi = Math.max(wn * 30, S.w * 2), NB = 600;
+    const om = [], mag = [], phs = [];
+    for (let i = 0; i < NB; i++) {
+      const w = lo * Math.pow(hi / lo, i / (NB - 1)), r = w / wn, den = Math.hypot(1 - r * r, 2 * z * r);
+      om.push(w); mag.push(den > 1e-9 ? 1 / den : null); phs.push(-Math.atan2(2 * z * r, 1 - r * r) * 180 / Math.PI);
+    }
+    const marker = (y0, y1) => [{ type: "line", xref: "x", yref: "paper", x0: S.w, x1: S.w, y0: 0, y1: 1, line: { color: "#FFB454", width: 1.5, dash: "dot" } }];
+    const wr = z < Math.SQRT1_2 ? wn * Math.sqrt(1 - 2 * z * z) : null;
+    const magT = [{ x: om, y: mag, mode: "lines", name: "|X|/(F₀/k)", line: { color: "#5EEAD4", width: 2.2 } }];
+    if (wr && z > 0) magT.push({ x: [wr], y: [1 / (2 * z * Math.sqrt(1 - z * z))], mode: "markers", name: "peak", marker: { color: "#FB7185", size: 8 } });
+    magT.push({ x: [wn], y: [null], mode: "markers", showlegend: false });
+    Plotly.react("plot-mag", magT, lay("frequency ω [rad/s]", "amplitude ratio |X| / (F₀/k)", { xaxis: { type: "log", title: "frequency ω [rad/s]", gridcolor: "#282D3A" }, yaxis: { type: "log", title: "amplitude ratio |X| / (F₀/k)", gridcolor: "#282D3A", exponentformat: "power" }, shapes: marker(), title: { text: "Bode magnitude (sinusoidal input)", font: { size: 11 }, x: 0.02 } }), PO);
+    Plotly.react("plot-phase", [{ x: om, y: phs, mode: "lines", name: "phase", line: { color: "#A78BFA", width: 2.2 } }],
+      lay("frequency ω [rad/s]", "phase of x vs. input [deg]", { showlegend: false, xaxis: { type: "log", title: "frequency ω [rad/s]", gridcolor: "#282D3A" }, yaxis: { title: "phase of x vs. input [deg]", gridcolor: "#282D3A", range: [-190, 10], dtick: 45 }, shapes: marker(), title: { text: "Bode phase (lag)", font: { size: 11 }, x: 0.02 } }), PO);
+  }
+
+  function drawPoles(md) {
+    const px = md.poles.map((p) => p[0]), py = md.poles.map((p) => p[1]);
+    const circ = Array.from({ length: 181 }, (_, i) => [md.wn * Math.cos(Math.PI * (0.5 + i / 180)), md.wn * Math.sin(Math.PI * (0.5 + i / 180))]);
+    const R = md.wn * 1.35;
+    Plotly.react("plot-pole", [
+      { x: circ.map((c) => c[0]), y: circ.map((c) => c[1]), mode: "lines", name: "|s| = ωₙ", line: { color: "#3a4052", dash: "dot", width: 1 }, hoverinfo: "skip" },
+      { x: px, y: py, mode: "markers", name: "poles", marker: { symbol: "x", size: 12, color: "#FB7185", line: { width: 3, color: "#FB7185" } } },
+    ], lay("real part [1/s]", "imaginary part [rad/s]", { xaxis: { title: "real part [1/s]", range: [-Math.max(R, Math.abs(Math.min(...px)) * 1.2), R * 0.3], gridcolor: "#282D3A", zerolinecolor: "#5a6177" },
+      yaxis: { title: "imaginary part [rad/s]", range: [-R, R], gridcolor: "#282D3A", zerolinecolor: "#5a6177", scaleanchor: "x" }, title: { text: "Poles in the s-plane", font: { size: 11 }, x: 0.02 } }), PO);
+  }
+
+  // ---------------------------------------------------------------
+  // Readouts, messages, equations
+  // ---------------------------------------------------------------
+  const KIND = { undamped: "undamped (ζ = 0)", under: "underdamped (0 < ζ < 1)", critical: "critically damped (ζ = 1)", over: "overdamped (ζ > 1)" };
+  function readouts(md) {
+    const rows = [["ωₙ", `${nm(md.wn)} rad/s`], ["fₙ", `${nm(md.wn / TAU)} Hz`], ["ζ", nm(md.z)], ["case", KIND[md.kind]]];
+    if (md.wd) rows.push(["ω_d (damped)", `${nm(md.wd)} rad/s`]);
+    if (md.kind === "under") { rows.push(["decay rate σ = ζωₙ", `${nm(md.sig)} 1/s`]); rows.push(["2% settling ≈ 4/σ", `${nm(4 / md.sig)} s`]); }
+    if (md.kind === "over") rows.push(["slow pole", `${nm(md.r1)} 1/s`]);
+    if (md.z < Math.SQRT1_2 && md.z > 0) { rows.push(["resonant peak ω_r", `${nm(md.wn * Math.sqrt(1 - 2 * md.z * md.z))} rad/s`]); rows.push(["peak gain", `${nm(1 / (2 * md.z * Math.sqrt(1 - md.z * md.z)))} × static`]); }
+    if (S.type === "sin" || S.type === "cos") {
+      if (md.res) rows.push(["amplitude", "grows without bound"]);
+      else {
+        rows.push(["steady-state amp |X|", nm(md.M)]); rows.push(["amplification", `${nm(md.M * S.k / S.A)} × static`]);
+        rows.push(["phase lag", `${nm(md.phi * 180 / Math.PI)}°`]); rows.push(["time lag", `${nm(md.phi / S.w)} s`]);
+      }
+    }
+    if (S.type === "step") {
+      rows.push(["final value A/k", nm(S.A / S.k)]);
+      if (md.z < 1 && md.z > 0 && S.x0 === 0 && S.v0 === 0) rows.push(["overshoot", `${nm(100 * Math.exp(-Math.PI * md.z / Math.sqrt(1 - md.z * md.z)))} %`]);
+    }
+    document.getElementById("readouts").innerHTML = rows.map((r) => `<div><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`).join("");
+  }
+  function messages(md) {
+    let msg = "";
+    const forced = S.type === "sin" || S.type === "cos";
+    if (md.res) msg = "Undamped system driven exactly at ωₙ: pure resonance. The amplitude grows linearly in time without bound.";
+    else if (md.z === 0 && forced) msg = "No damping: the free (transient) part never dies out, so you see the free motion at ωₙ added to the forced motion at ω. When ω is close to ωₙ this produces beating.";
+    else if (md.z === 0) msg = "No damping and no input: the mass oscillates forever at ωₙ.";
+    else if (forced && md.z < 0.15 && Math.abs(S.w / md.wn - 1) < 0.1) msg = "Near resonance with light damping: a large steady-state amplitude, but it takes a while to build up (the transient decays slowly).";
+    document.getElementById("msg").textContent = msg;
+  }
+  function ks(tex, id) { katex.render(tex, document.getElementById(id), { throwOnError: false, displayMode: false }); }
+  function equations(md) {
+    const de = S.notation === "de", s = de ? "y" : "x", P = S;
+    const f = P.type === "sin" ? `\\sin(${nm(P.w)}t)` : P.type === "cos" ? `\\cos(${nm(P.w)}t)` : P.type === "step" ? "u(t)" : "";
+    const amp = de ? P.A / P.m : P.A;
+    const rhs = P.type === "none" ? "0" : `${nm(amp)}${f ? "\\," + f : ""}`;
+    if (de) {
+      ks(`\\ddot y + 2\\zeta\\omega_n\\dot y + \\omega_n^2 y = f(t)\\quad\\Rightarrow\\quad \\ddot y + ${nm(2 * md.z * md.wn)}\\,\\dot y + ${nm(md.wn * md.wn)}\\,y = ${rhs}`, "eq-ode");
+    } else {
+      ks(`m\\ddot x + c\\dot x + kx = F(t)\\quad\\Rightarrow\\quad ${nm(P.m)}\\ddot x + ${nm(P.c)}\\dot x + ${nm(P.k)}x = ${rhs}`, "eq-ode");
+    }
+    const sigTxt = nm(md.sig);
+    let ch = de ? `s^2 + 2\\zeta\\omega_n s + \\omega_n^2 = s^2 + ${nm(2 * md.z * md.wn)}s + ${nm(md.wn * md.wn)} = 0` : `ms^2 + cs + k = 0`;
+    if (md.kind === "under") ch += `\\quad\\Rightarrow\\quad s = -${sigTxt} \\pm j\\,${nm(md.wd)}`;
+    else if (md.kind === "undamped") ch += `\\quad\\Rightarrow\\quad s = \\pm j\\,${nm(md.wn)}`;
+    else if (md.kind === "critical") ch += `\\quad\\Rightarrow\\quad s = -${nm(md.wn)}\\ \\text{(repeated)}`;
+    else ch += `\\quad\\Rightarrow\\quad s = ${nm(md.r1)},\\ ${nm(md.r2)}`;
+    ks(ch, "eq-char");
+    // particular
+    let part;
+    if (P.type === "none") part = `${s}_p(t) = 0`;
+    else if (P.type === "step") part = `${s}_p = \\dfrac{F_0}{k} = ${nm(P.A / P.k)}`;
+    else if (md.res) part = P.type === "sin" ? `${s}_p(t) = -\\dfrac{F_0}{2m\\omega_n}\\,t\\cos(\\omega_n t) = ${sgn(-P.A / (2 * P.m * md.wn), "")}\\,t\\cos(${nm(md.wn)}t)` : `${s}_p(t) = \\dfrac{F_0}{2m\\omega_n}\\,t\\sin(\\omega_n t) = ${nm(P.A / (2 * P.m * md.wn))}\\,t\\sin(${nm(md.wn)}t)`;
+    else part = `${s}_p(t) = M\\${P.type}(\\omega t-\\varphi),\\quad M = \\dfrac{F_0/k}{\\sqrt{(1-r^2)^2+(2\\zeta r)^2}} = ${nm(md.M)},\\ \\ \\varphi = \\tan^{-1}\\!\\dfrac{2\\zeta r}{1-r^2} = ${nm(md.phi)}\\ \\text{rad},\\ \\ r = \\dfrac{\\omega}{\\omega_n} = ${nm(P.w / md.wn)}`;
+    ks(part, "eq-part");
+    // homogeneous
+    let hom, c12;
+    if (md.kind === "under") { hom = `${s}_h(t) = e^{-\\sigma t}\\left(C_1\\cos\\omega_d t + C_2\\sin\\omega_d t\\right) = e^{-${sigTxt}t}\\left(${nm(md.C1)}\\cos ${nm(md.wd)}t ${sgn(md.C2, "")}\\sin ${nm(md.wd)}t\\right)`; }
+    else if (md.kind === "undamped") hom = `${s}_h(t) = C_1\\cos\\omega_n t + C_2\\sin\\omega_n t = ${nm(md.C1)}\\cos ${nm(md.wn)}t ${sgn(md.C2, "")}\\sin ${nm(md.wn)}t`;
+    else if (md.kind === "critical") hom = `${s}_h(t) = (C_1 + C_2 t)e^{-\\omega_n t} = (${nm(md.C1)} ${sgn(md.C2, "\\,t")})e^{-${nm(md.wn)}t}`;
+    else hom = `${s}_h(t) = C_1e^{s_1t} + C_2e^{s_2t} = ${nm(md.C1)}e^{${nm(md.r1)}t} ${sgn(md.C2, "")}e^{${nm(md.r2)}t}`;
+    ks(hom + `\\qquad (C_1, C_2 \\text{ from } ${s}(0)=${nm(P.x0)},\\ \\dot ${s}(0)=${nm(P.v0)})`, "eq-hom");
+    ks(`${s}(t) = ${s}_h(t) + ${s}_p(t)`, "eq-total");
+  }
+
+  // ---------------------------------------------------------------
+  // Animation (mass-spring-damper)
+  // ---------------------------------------------------------------
+  const svg = document.getElementById("anim"), NS = "http://www.w3.org/2000/svg";
+  const REST_L = 250, MASS_W = 60, SCALE = 50, WALL_X = 32, YS = 100, YD = 142;
+  function mk(name, a) { const e = document.createElementNS(NS, name); Object.keys(a || {}).forEach((k) => e.setAttribute(k, a[k])); return e; }
+  svg.appendChild(mk("rect", { x: 0, y: 0, width: 460, height: 190, fill: "#171A21" }));
+  svg.appendChild(mk("rect", { x: 20, y: 60, width: 12, height: 110, fill: "#8B92A5" }));
+  svg.appendChild(mk("line", { x1: REST_L + MASS_W / 2, x2: REST_L + MASS_W / 2, y1: 52, y2: 176, stroke: "#3a4052", "stroke-dasharray": "3 4" }));
+  const spring = mk("polyline", { fill: "none", stroke: "#5EEAD4", "stroke-width": 2 });
+  const rod = mk("line", { x1: WALL_X, x2: 190, y1: YD, y2: YD, stroke: "#FFB454", "stroke-width": 3 });
+  const cyl = mk("rect", { y: YD - 10, height: 20, width: 140, fill: "none", stroke: "#FFB454", "stroke-width": 2 });
+  const pis = mk("rect", { x: 188, y: YD - 7, width: 5, height: 14, fill: "#FFB454" });
+  const mass = mk("rect", { y: 80, width: MASS_W, height: 80, rx: 5, fill: "#5EEAD4" });
+  const mtxt = mk("text", { y: 126, "text-anchor": "middle", fill: "#0F1115", "font-size": 13, "font-weight": 700, "font-family": "JetBrains Mono, monospace" }); mtxt.textContent = "m";
+  const farr = mk("line", { y1: 120, y2: 120, stroke: "#F472B6", "stroke-width": 4 });
+  const fhead = mk("polygon", { fill: "#F472B6" });
+  const ftxt = mk("text", { y: 108, fill: "#F472B6", "font-size": 11, "font-family": "JetBrains Mono, monospace" }); ftxt.textContent = "F(t)";
+  const xtxt = mk("text", { x: 230, y: 20, "text-anchor": "middle", fill: "#E7E9EE", "font-size": 12, "font-family": "JetBrains Mono, monospace" });
+  const lspr = mk("text", { x: 100, y: 84, fill: "#5EEAD4", "font-size": 10, "font-family": "JetBrains Mono, monospace" }); lspr.textContent = "spring k";
+  const ldmp = mk("text", { x: 100, y: 172, fill: "#FFB454", "font-size": 10, "font-family": "JetBrains Mono, monospace" }); ldmp.textContent = "damper c";
+  [spring, rod, cyl, pis, mass, mtxt, farr, fhead, ftxt, xtxt, lspr, ldmp].forEach((e) => svg.appendChild(e));
+
+  function drawAnim() {
+    if (!cur) return;
+    const { md, t, tot, tEnd, xmax, N } = cur;
+    const i = Math.min(N - 1, Math.max(0, Math.round(tc / tEnd * (N - 1))));
+    const x = tot[i], mx = REST_L + (x / xmax) * SCALE;
+    mass.setAttribute("x", mx); mtxt.setAttribute("x", mx + MASS_W / 2);
+    const pts = [`${WALL_X},${YS}`], n = 12, len = mx - WALL_X;
+    for (let j = 1; j < n; j++) pts.push(`${WALL_X + (len * j) / n},${YS + (j % 2 ? -11 : 11)}`);
+    pts.push(`${mx},${YS}`); spring.setAttribute("points", pts.join(" "));
+    cyl.setAttribute("x", mx - 140);
+    const Fn = md.F0 * md.Fin(tc), Fmax = md.F0 || 1;
+    const L = (Fn / Fmax) * 45, x0 = mx + MASS_W;
+    if (S.type === "none" || Math.abs(L) < 1) { farr.setAttribute("opacity", 0); fhead.setAttribute("opacity", 0); ftxt.setAttribute("opacity", 0); }
+    else {
+      const d = Math.sign(L), xe = x0 + L;
+      farr.setAttribute("opacity", 1); fhead.setAttribute("opacity", 1); ftxt.setAttribute("opacity", 1);
+      farr.setAttribute("x1", x0); farr.setAttribute("x2", xe - d * 8);
+      fhead.setAttribute("points", `${xe},120 ${xe - d * 12},114 ${xe - d * 12},126`);
+      ftxt.setAttribute("x", x0 + 4);
+    }
+    xtxt.textContent = `t = ${tc.toFixed(2)} s     ${S.notation === "mech" ? "x" : "y"} = ${nm(x)}`;
+    document.getElementById("tag-time").textContent = `${tc.toFixed(2)} / ${nm(tEnd)} s`;
+    document.getElementById("rng-time").value = Math.round(tc / tEnd * 1000);
+    try { Plotly.restyle("plot-time", { x: [[tc, tc]] }, [4]); Plotly.restyle("plot-time", { x: [[tc]], y: [[x]] }, [5]); } catch (e) { /* plot not ready */ }
+  }
+  function tick(ts) {
+    if (lastTs === null) lastTs = ts;
+    const dt = (ts - lastTs) / 1000; lastTs = ts;
+    if (playing && cur) {
+      const speed = Number(document.getElementById("sel-speed").value);
+      tc += (cur.tEnd / 15) * speed * dt;
+      if (tc > cur.tEnd) tc = 0;
+      drawAnim();
+    }
+    requestAnimationFrame(tick);
+  }
+  document.getElementById("btn-play").addEventListener("click", () => { playing = !playing; document.getElementById("btn-play").textContent = playing ? "PAUSE" : "PLAY"; });
+  document.getElementById("btn-restart").addEventListener("click", () => { tc = 0; drawAnim(); });
+  document.getElementById("rng-time").addEventListener("input", (e) => { tc = Number(e.target.value) / 1000 * cur.tEnd; drawAnim(); });
+
+  document.getElementById("sel-type").value = S.type;
+  update();
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
