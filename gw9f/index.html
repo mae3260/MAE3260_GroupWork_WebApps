@@ -820,40 +820,6 @@
       line-height: 1.5;
     }
 
-    .beam-flex {
-      display: flex;
-      gap: 6px;
-      align-items: stretch;
-    }
-
-    .beam-flex svg {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .vslider {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      padding: 30px 0 40px;
-    }
-
-    .vslider input[type="range"] {
-      writing-mode: vertical-lr;
-      direction: rtl;
-      flex: 1;
-      width: 18px;
-      margin: 0;
-      accent-color: var(--amber);
-    }
-
-    .vslider.off {
-      opacity: 0.35;
-    }
-
     @media (max-width: 900px) {
       .sim-grid {
         grid-template-columns: 1fr;
@@ -885,13 +851,12 @@
       <button class="nav-btn" data-part="p2">General Response<small>Sweep &omega;n1 &rarr; &omega;n2</small></button>
 
       <p class="label">PROBLEM 3</p>
-      <button class="nav-btn" data-part="p3">Sensor Locations<small>[1, 0.78, 0.33]</small></button>
+      <button class="nav-btn" data-part="p3">Vary Sensor Locations (Original)<small>[1, 0.78, 0.33]</small></button>
+      <button class="nav-btn" data-part="p3s">Vary Sensor Locations (Simple)<small>[1, 0.78, 0.33] &middot; drag D/E</small></button>
+      <button class="nav-btn" data-part="p3d">Vary Sensor Locations (Difficult)<small>[1, 0.78, 0.33] &middot; drag D/E</small></button>
 
       <p class="label">PROBLEM 4</p>
       <button class="nav-btn" data-part="p4">Resonant Zeroes<small>[1, 0.7, 0.33]</small></button>
-
-      <p class="label">PROBLEM 5 (OPTIONAL)</p>
-      <button class="nav-btn" data-part="p5">Problem 5<small>Drag a sensor</small></button>
 
       <p class="label">SUBMIT</p>
       <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
@@ -930,10 +895,6 @@
             frequency of mode <i>i</i>:
           </p>
           <div class="eq-block" id="eq-modal"></div>
-          <p class="instructions">
-            Problem 5 is an optional exploration (not one of the handout's four problems): drag a sensor along the
-            beam and watch its Bode plot change.
-          </p>
         </section>
 
         <!-- ============== PROBLEM 1 ============== -->
@@ -1001,7 +962,7 @@
 
         <!-- ============== PROBLEM 3 ============== -->
         <section id="part-p3" style="display:none;">
-          <h3 class="problem-title">Problem 3: Vary Sensor Locations along the Beam</h3>
+          <h3 class="problem-title">Vary Sensor Locations (Original)</h3>
           <p class="given-line">GIVEN &middot; sensors A, B, C at <b>[1, 0.78, 0.33]</b> &middot; simulate at &omega; =
             &omega;<sub>n2</sub></p>
           <p class="instructions">
@@ -1021,8 +982,8 @@
           <p class="instructions">
             Can you add a sensor at a location that does not measure the third mode (&omega; = &omega;<sub>n3</sub>)?
             Try
-            candidate locations in sensors D/E and run at &omega;<sub>n3</sub>. You can also try Problem 5 (Move the
-            Sensor) to find candidate locations quickly.
+            candidate locations in sensors D/E and run at &omega;<sub>n3</sub>. To find candidate locations quickly, you
+            can also drag sensors D/E along the beam in the Vary Sensor Locations (Simple) tab.
           </p>
           <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
             <div class="field"><label>sensor location 1 [x/L]</label><input type="number" id="input-p3-loc1"
@@ -1032,6 +993,119 @@
           </div>
           <div class="reflection-box"><textarea id="input-p3-reflect-mode3"
               placeholder="Explain your reasoning here..."></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 3 (SIMPLE) ============== -->
+        <section id="part-p3s" style="display:none;">
+          <h3 class="problem-title">Vary Sensor Locations (Simple)</h3>
+          <p class="instructions">
+            This problem explores how the transfer function changes as the sensor location changes. Sensors A, B, C
+            are fixed at [1, 0.78, 0.33]; sensors D and E can be dragged along the beam.
+          </p>
+          <div class="panel-box" id="sim-p3s"></div>
+
+          <h4 class="part-title">a)</h4>
+          <p class="instructions">
+            Simulate the system at the second resonant mode, &omega; = &omega;<sub>n2</sub>, with sensors A, B, C.
+            Discuss with your group why the three Bode magnitude plots look as they do near &omega; =
+            &omega;<sub>n2</sub>, and how this relates to the animation/response. Be sure to discuss physically what
+            is occurring.
+          </p>
+          <div class="reflection-box"><textarea id="input-p3s-reflect-a"
+              placeholder="Type your discussion here..."></textarea></div>
+
+          <h4 class="part-title">b)</h4>
+          <p class="instructions">
+            Drag sensor D from the tip of the beam down to the clamped end. What changes in the Bode plot, and what
+            stays the same? Why?
+          </p>
+          <div class="reflection-box"><textarea id="input-p3s-reflect-b"
+              placeholder="Type your answer here..."></textarea></div>
+
+          <h4 class="part-title">c)</h4>
+          <p class="instructions">
+            Place sensor D where the second resonant peak nearly disappears. Simulate at &omega; =
+            &omega;<sub>n2</sub> and compare the sensor reading with the animation. Is this location where you
+            expected?
+          </p>
+          <div class="reflection-box"><textarea id="input-p3s-reflect-c"
+              placeholder="Type your answer here..."></textarea></div>
+
+          <h4 class="part-title">d)</h4>
+          <p class="instructions">
+            Can you place a sensor at a location that does not measure the third mode (&omega; =
+            &omega;<sub>n3</sub>)? Find it, and discuss how you know from the animation.
+          </p>
+          <div class="reflection-box"><textarea id="input-p3s-reflect-d"
+              placeholder="Type your answer here..."></textarea></div>
+
+          <h4 class="part-title">e)</h4>
+          <p class="instructions">
+            Place sensor E at the force location (x/L &asymp; 0.32). How do the resonant zeros compare to the
+            resonant poles for this sensor, and what is different from the sensors in (a)?
+          </p>
+          <div class="reflection-box"><textarea id="input-p3s-reflect-e"
+              placeholder="Type your answer here..."></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 3 (DIFFICULT) ============== -->
+        <section id="part-p3d" style="display:none;">
+          <h3 class="problem-title">Vary Sensor Locations (Difficult)</h3>
+          <p class="instructions">
+            This problem explores how the transfer function changes as the sensor location changes. Sensors A, B, C
+            are fixed at [1, 0.78, 0.33]; sensors D and E can be dragged along the beam. The mode shapes of a
+            cantilever beam are
+          </p>
+          <div class="eq-block" id="eq-p3d-modes"></div>
+          <p class="instructions">
+            with b<sub>1</sub>L = 1.875, b<sub>2</sub>L = 4.694, b<sub>3</sub>L = 7.855 and
+          </p>
+          <div class="eq-block" id="eq-p3d-s"></div>
+          <div class="panel-box" id="sim-p3d"></div>
+
+          <h4 class="part-title">a)</h4>
+          <p class="instructions">
+            Simulate at &omega; = &omega;<sub>n2</sub> with sensors A, B, C. Discuss why the three Bode magnitude
+            plots look as they do near &omega; = &omega;<sub>n2</sub>, and how this relates to the animation.
+          </p>
+          <div class="reflection-box"><textarea id="input-p3d-reflect-a"
+              placeholder="Type your discussion here..."></textarea></div>
+
+          <h4 class="part-title">b)</h4>
+          <p class="instructions">
+            Using the mode shapes, calculate the sensor locations x/L where the second mode and the third mode should
+            not be measured. Drag a sensor to each location and compare with the Bode plot. How close is the result,
+            and why isn't it exact?
+          </p>
+          <p class="instructions"><i>Hint: the sensor can only sit at the nodes of the finite element model, so watch
+              the x/L readout as you drag.</i></p>
+          <div class="reflection-box"><textarea id="input-p3d-reflect-b"
+              placeholder="Type your answer here..."></textarea></div>
+
+          <h4 class="part-title">c)</h4>
+          <p class="instructions">
+            At &omega; = &omega;<sub>n2</sub>, read the height of the second resonant peak for at least six sensor
+            locations. Plot peak height versus x/L and compare with |&phi;<sub>2</sub>(x)|. What does this tell you
+            about what a sensor measures?
+          </p>
+          <div class="reflection-box"><textarea id="input-p3d-reflect-c"
+              placeholder="Type your answer here..."></textarea></div>
+
+          <h4 class="part-title">d)</h4>
+          <p class="instructions">
+            Drag a sensor to the force location (x/L &asymp; 0.32). How does the transfer function change (zeros,
+            phase)? Explain why a sensor at the force location is special.
+          </p>
+          <div class="reflection-box"><textarea id="input-p3d-reflect-d"
+              placeholder="Type your answer here..."></textarea></div>
+
+          <h4 class="part-title">e)</h4>
+          <p class="instructions">
+            Choose one sensor location that measures modes 1 and 2 clearly but nearly misses mode 3. Justify your
+            choice with a calculation.
+          </p>
+          <div class="reflection-box"><textarea id="input-p3d-reflect-e"
+              placeholder="Type your answer here..."></textarea></div>
         </section>
 
         <!-- ============== PROBLEM 4 ============== -->
@@ -1061,34 +1135,6 @@
           <p class="instructions">What is physically happening at each resonant zero frequency?</p>
           <div class="reflection-box"><textarea id="input-p4-reflect-zeros"
               placeholder="Type your discussion here..."></textarea></div>
-        </section>
-
-        <!-- ============== PROBLEM 5 (OPTIONAL) ============== -->
-        <section id="part-p5" style="display:none;">
-          <h3 class="problem-title">Problem 5 (Optional): Move the Sensor</h3>
-          <p class="given-line">GIVEN &middot; sensor A fixed at <b>1.0 L</b> &middot; sensor B (and optional C) draggable
-            &middot; force at node 12 (&asymp; 0.32 L)</p>
-          <div class="note-box">
-            This is an <b>optional exploration extension</b>. It is not part of the handout's four problems.
-          </div>
-          <p class="instructions">
-            Drag sensor B up and down the beam (or use the small slider beside the beam). The sensor snaps to the
-            finite-element nodes, and its Bode magnitude plot and time response update as you drag. Tick
-            <b>show mode shapes</b> to overlay &phi;<sub>1</sub>, &phi;<sub>2</sub>, &phi;<sub>3</sub>: watch what
-            happens to a peak when the sensor sits where that mode shape crosses zero. Press <b>PLAY</b> to update
-            the animation with the current sensor positions and &omega;.
-          </p>
-          <div class="panel-box" id="sim-p5"></div>
-
-          <h4 class="part-title">a) Moving the sensor</h4>
-          <p class="instructions">What happens to the peaks as the sensor moves up the beam?</p>
-          <div class="reflection-box"><textarea id="input-p5-reflect-peaks"
-              placeholder="Type your answer here..."></textarea></div>
-
-          <h4 class="part-title">b) Hiding a mode</h4>
-          <p class="instructions">Where would you put a sensor to not see mode 2? mode 3?</p>
-          <div class="reflection-box"><textarea id="input-p5-reflect-null"
-              placeholder="Type your answer here..."></textarea></div>
         </section>
 
         <!-- ============== SUBMISSION ============== -->
@@ -1287,7 +1333,7 @@
         { id: "D", color: "#A78BFA" },
         { id: "E", color: "#7DD3FC" },
       ];
-      const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p4: "Problem 4", p5: "Problem 5" };
+      const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p3s: "Problem 3 (Simple)", p3d: "Problem 3 (Difficult)", p4: "Problem 4" };
 
       function plotLayout(yTitle, xTitle, opts) {
         opts = opts || {};
@@ -1337,14 +1383,6 @@
       function sliderToW(v) { return Number(Math.pow(10, BODE_LO + (BODE_HI - BODE_LO) * v / W_STEPS).toPrecision(5)); }
       function wToSlider(w) { return Math.min(W_STEPS, Math.max(0, Math.round((Math.log10(w) - BODE_LO) / (BODE_HI - BODE_LO) * W_STEPS))); }
 
-      // first three mode shapes (translation DOFs), normalized to unit max with a positive tip
-      const MODE_SHAPES = [0, 1, 2].map((i) => {
-        const v = Array.from({ length: NN }, (_, k) => (k === 0 ? 0 : eig.phi[(2 * k - 2) * NF + i]));
-        const m = Math.max(...v.map(Math.abs)) * (v[NEL] < 0 ? -1 : 1);
-        return v.map((p) => p / m);
-      });
-      const MODE_COLORS = ["#A3E635", "#F472B6", "#C4B5FD"];
-
       // steady-state response of every node at w; force scaled so max |y| = 1 cm;
       // time samples exactly as the livescript: 10 cycles, 1000 samples
       function steadyState(w, sensors) {
@@ -1370,11 +1408,11 @@
       const markerShapes = (w) => (w ? [{ type: "line", xref: "x", yref: "paper", x0: w, x1: w, y0: 0, y1: 1, line: { color: "#8B92A5", width: 1, dash: "dot" } }] : []);
       const FREQ_BLANK = "Enter a frequency first", FREQ_BAD = "Enter a positive input frequency ω.";
       const NO_SENS = "Enable at least one sensor to see the Bode and time plots.";
-      const DRAG = [{ id: "B", def: 18 }, { id: "C", def: 9 }];   // default nodes of the draggable sensors
+      const DRAG_IDS = ["D", "E"];   // card sensors that can be dragged on the beam when opts.dragDE is set
 
       function buildSimPanel(prefix, opts) {
         const host = document.getElementById(`sim-${prefix}`);
-        const slider = opts.freq === "slider", cards = opts.sensorMode === "cards", drag = opts.sensorMode === "drag";
+        const slider = opts.freq === "slider", cards = opts.sensorMode === "cards", drag = !!opts.dragDE;
         const BODE_PH = "Set sensors and &omega;, then click RUN to see the Bode magnitude plot.";
         const TIME_PH = slider ? "Move the slider or type &omega; to see sensor displacement vs. time." : "Sensor displacement vs. time appears here after RUN.";
         let sensorHtml = "";
@@ -1394,7 +1432,7 @@
         <input type="number" id="sim-${prefix}-sen${s.id}-x" value="${opts.spare[i]}" min="0" max="1" step="any" />
       </div>`;
           }).join("");
-          sensorHtml = `<p class="mono" style="font-size:11px;color:var(--muted);margin:0 0 8px 0;">SENSOR LOCATIONS (fraction 0&ndash;1 of beam length L; A&ndash;C are fixed for this problem, tick D/E to enable)</p>
+          sensorHtml = `<p class="mono" style="font-size:11px;color:var(--muted);margin:0 0 8px 0;">SENSOR LOCATIONS (fraction 0&ndash;1 of beam length L; A&ndash;C are fixed for this problem, tick D/E to enable${drag ? ", then drag them on the beam" : ""})</p>
       <div class="sensor-row">${sensorCards}</div>`;
         }
         const freqHtml = slider
@@ -1404,17 +1442,11 @@
             <input type="number" id="sim-${prefix}-omega" step="any" min="0" placeholder="ω" aria-label="input frequency ω [rad/s]" />
           </div></div>`
           : `<div class="field"><label>input frequency &omega; [rad/s]</label><input type="number" id="sim-${prefix}-omega" step="any" placeholder="enter ω" /></div>`;
-        const dragChk = drag ? `<label class="chk"><input type="checkbox" id="sim-${prefix}-senC-on" /> add sensor C</label>
-        <label class="chk"><input type="checkbox" id="sim-${prefix}-modes" /> show mode shapes</label>` : "";
-        const colorOf = (id) => SENS.find((s) => s.id === id).color;
-        const vSliders = drag ? DRAG.map((d) => `<div class="vslider" id="vs-${prefix}-${d.id}"><span style="color:${colorOf(d.id)}">${d.id}</span>
-          <input type="range" id="sim-${prefix}-sen${d.id}-node" min="1" max="${NEL}" step="1" value="${d.def}" aria-label="Sensor ${d.id} position (node 1 = bottom, ${NEL} = tip)" /></div>`).join("") : "";
         host.innerHTML = `
       ${sensorHtml}
       <div class="ctl-row">
         ${freqHtml}
         <label class="chk"><input type="checkbox" id="sim-${prefix}-phase" /> show phase plot</label>
-        ${dragChk}
         <div class="btn-row">
           <button class="run-btn" id="btn-${prefix}-run">RUN</button>
           <button class="run-btn secondary" id="btn-${prefix}-reset">RESET</button>
@@ -1426,9 +1458,8 @@
       <div class="sim-grid">
         <div>
           <div class="beam-host">
-            ${drag ? `<div class="drag-readout" id="readout-${prefix}"></div><div class="beam-flex">` : ""}
+            ${drag ? `<div class="drag-readout" id="readout-${prefix}"></div>` : ""}
             <svg id="beam-svg-${prefix}" viewBox="0 0 ${SVG_W} ${SVG_H}" width="100%" xmlns="http://www.w3.org/2000/svg"${drag ? ' style="touch-action:none;"' : ""}></svg>
-            ${drag ? `${vSliders}</div>` : ""}
           </div>
           <div class="beam-tools"><span class="meta" id="meta-${prefix}"></span></div>
           <p class="anim-note" id="note-${prefix}"></p>
@@ -1485,14 +1516,6 @@
           const yl = txt(14, (YTOP + YBOT) / 2, "position x along the beam", { "text-anchor": "middle", fill: "#8B92A5" });
           yl.setAttribute("transform", `rotate(-90 14 ${(YTOP + YBOT) / 2})`);
           svg.appendChild(yl);
-          // optional mode-shape overlay (behind the beam)
-          if (drag && $("modes").checked) {
-            MODE_SHAPES.forEach((v, i) => {
-              const pts = v.map((p, k) => `${(CX + p * HALF * 0.9).toFixed(2)},${svgY(k / NEL).toFixed(2)}`).join(" ");
-              svg.appendChild(el("polyline", { points: pts, fill: "none", stroke: MODE_COLORS[i], "stroke-width": 2, "stroke-opacity": 0.45, "stroke-dasharray": "6 4" }));
-              svg.appendChild(txt(CX - HALF + 6, YTOP + 14 + 14 * i, `φ${i + 1}(x)`, { fill: MODE_COLORS[i], "fill-opacity": 0.85 }));
-            });
-          }
           // clamp
           svg.appendChild(el("line", { x1: CX - HALF, x2: CX + HALF, y1: YBOT, y2: YBOT, stroke: "#E7E9EE", "stroke-width": 8 }));
           // beam
@@ -1553,20 +1576,11 @@
 
         function readSensors() {
           if (opts.sensorMode === "fixed") return [{ id: "A", color: SENS[0].color, x: 1, xs: "1", node: NEL }];
-          if (drag) {
-            const out = [{ id: "A", color: SENS[0].color, x: 1, xs: "1", node: NEL }];
-            DRAG.forEach((d) => {
-              if (d.id === "C" && !$("senC-on").checked) return;
-              const k = Math.min(NEL, Math.max(1, Math.round(Number($(`sen${d.id}-node`).value) || d.def)));
-              out.push({ id: d.id, color: colorOf(d.id), x: k / NEL, xs: (k / NEL).toFixed(3), node: k, drag: true });
-            });
-            return out;
-          }
           const out = [];
           SENS.forEach((s) => {
             const on = $(`sen${s.id}-on`).checked;
             const x = Number($(`sen${s.id}-x`).value);
-            if (on && isFinite(x) && x >= 0 && x <= 1) out.push({ id: s.id, color: s.color, x, xs: String(x), node: sensorNode(x) });
+            if (on && isFinite(x) && x >= 0 && x <= 1) out.push({ id: s.id, color: s.color, x, xs: String(x), node: sensorNode(x), drag: drag && DRAG_IDS.includes(s.id) });
           });
           return out;
         }
@@ -1662,6 +1676,7 @@
         function startPlaying() { playing = true; ensureLoop(); updatePlayLabel(); }
 
         function liveUpdate() {
+          if (!slider && !bodeState) return;   // RUN panels: plots go live only after the first RUN
           const w = getOmega(), sensors = readSensors();
           updateBode(sensors, w);
           const ss = w ? steadyState(w, sensors) : null;
@@ -1715,8 +1730,8 @@
           errEl.textContent = "";
           document.getElementById(`meta-${prefix}`).textContent = "";
           if (slider) { boxEl.value = ""; sliderEl.value = 0; }
-          if (drag) { DRAG.forEach((d) => { $(`sen${d.id}-node`).value = d.def; }); $("senC-on").checked = false; updateDragUi(); }
-          const sensors = slider ? readSensors() : [];
+          updateDragUi();
+          const sensors = slider || drag ? readSensors() : [];
           showSvg(sensors);
           if (slider) renderBode(sensors, null);
           else { setPlaceholder(bodeEl, BODE_PH); if (phaseEl.data) Plotly.purge(phaseEl); phaseEl.style.display = "none"; bodeState = null; }
@@ -1725,15 +1740,13 @@
           if (window.__scheduleSave) window.__scheduleSave();
         }
 
-        // ---- draggable sensors (Problem 5) ----
+        // ---- draggable sensors D/E (opts.dragDE) ----
         function updateDragUi() {
           if (!drag) return;
-          const cOn = $("senC-on").checked;
-          $("senC-node").disabled = !cOn;
-          document.getElementById(`vs-${prefix}-C`).classList.toggle("off", !cOn);
-          document.getElementById(`readout-${prefix}`).innerHTML = readSensors().map((s) => s.drag
-            ? `<span style="color:${s.color}">Sensor ${s.id}</span>: x/L = ${s.xs} (node ${s.node})`
-            : `<span style="color:${s.color}">Sensor ${s.id}</span>: x/L = 1 (fixed)`).join(" &nbsp;&middot;&nbsp; ");
+          const list = readSensors().filter((s) => s.drag);
+          document.getElementById(`readout-${prefix}`).innerHTML = list.length
+            ? list.map((s) => `<span style="color:${s.color}">Sensor ${s.id}</span>: x/L = ${(s.node / NEL).toFixed(3)} (node ${s.node})`).join(" &nbsp;&middot;&nbsp; ")
+            : "Tick sensor D or E to drag it along the beam.";
         }
         function moveSvgSensor(id, k) {
           const s = svgSensors.find((q) => q.id === id);
@@ -1745,11 +1758,12 @@
           const t = document.getElementById(`sen-txt-${prefix}-${id}`); if (t) t.setAttribute("y", sy - 6);
           drawFrame();
         }
-        function onSensorNodeChange(id) {
-          moveSvgSensor(id, Number($(`sen${id}-node`).value));
+        // sensors were enabled/typed in the cards: redraw them on the beam and update the plots
+        function onSensorsEdited() {
           updateDragUi();
+          showSvg(readSensors());
           scheduleLive();
-          if (window.__scheduleSave) window.__scheduleSave();
+          updateAnimNote();
         }
         let dragId = null;
         function onDragMove(ev) {
@@ -1758,10 +1772,13 @@
           if (!ctm) return;
           const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(ctm.inverse());
           const k = Math.min(NEL, Math.max(1, sensorNode((YBOT - p.y) / (YBOT - YTOP))));   // never node 0 (clamped)
-          const inp = $(`sen${dragId}-node`);
-          if (Number(inp.value) === k) return;
-          inp.value = k;
-          onSensorNodeChange(dragId);
+          const inp = $(`sen${dragId}-x`);
+          if (sensorNode(Number(inp.value)) === k && inp.value !== "") return;
+          inp.value = (k / NEL).toFixed(3);   // snaps to node k (sensorNode maps it back exactly)
+          moveSvgSensor(dragId, k);
+          updateDragUi();
+          scheduleLive();
+          if (window.__scheduleSave) window.__scheduleSave();
         }
         function endDrag() {
           dragId = null;
@@ -1780,9 +1797,10 @@
             window.addEventListener("pointercancel", endDrag);
             onDragMove(ev);
           });
-          DRAG.forEach((d) => $(`sen${d.id}-node`).addEventListener("input", () => onSensorNodeChange(d.id)));
-          $("senC-on").addEventListener("change", () => { updateDragUi(); showSvg(readSensors()); scheduleLive(); });
-          $("modes").addEventListener("change", () => showSvg(readSensors()));
+          DRAG_IDS.forEach((id) => {
+            $(`sen${id}-on`).addEventListener("change", onSensorsEdited);
+            $(`sen${id}-x`).addEventListener("input", onSensorsEdited);
+          });
         }
 
         // ---- capture ----
@@ -1801,8 +1819,8 @@
           const st = document.getElementById(`capstat-${prefix}`);
           const hasBode = !!bodeEl.data, hasTime = !!timeEl.data;
           if (!hasBode && !dyn) { st.style.color = "#FB7185"; st.textContent = "Click RUN first."; return; }
-          // slider panels: plots follow the current controls; RUN panels: plots show the last RUN
-          const info = slider ? { w: getOmega(), sensors: readSensors() } : (lastRun[prefix] || { w: null, sensors: [] });
+          // slider/drag panels: plots follow the current controls; RUN panels: plots show the last RUN
+          const info = slider || drag ? { w: getOmega(), sensors: readSensors() } : (lastRun[prefix] || { w: null, sensors: [] });
           st.style.color = "#5EEAD4"; st.textContent = "Capturing…";
           try {
             const W = 1500, H1 = 450, H2 = 340;
@@ -1836,6 +1854,7 @@
           updateDragUi();
           if (wasRun && getOmega()) { run(); return; }
           if (slider) { showSvg(readSensors()); bodeState = null; liveUpdate(); }
+          else if (drag) showSvg(readSensors());
         }
 
         document.getElementById(`btn-${prefix}-run`).addEventListener("click", run);
@@ -1854,14 +1873,16 @@
 
         updateDragUi();
         if (slider) { const sensors = readSensors(); showSvg(sensors); renderBode(sensors, null); }
-        else showSvg([]);
+        else showSvg(drag ? readSensors() : []);
       }
 
       buildSimPanel("p1", { sensorMode: "fixed", freq: "slider", liveAnim: true });
       buildSimPanel("p2", { sensorMode: "fixed", freq: "slider", applyOnPlay: true });
       buildSimPanel("p3", { sensorMode: "cards", locked: [1, 0.78, 0.33], spare: [1, 0.78, 0.33, 0.865, 0.5], freq: "box" });
+      // temporary draft variants of Problem 3: same setup, but D/E can be dragged on the beam
+      buildSimPanel("p3s", { sensorMode: "cards", locked: [1, 0.78, 0.33], spare: [1, 0.78, 0.33, 0.865, 0.5], freq: "box", dragDE: true, applyOnPlay: true });
+      buildSimPanel("p3d", { sensorMode: "cards", locked: [1, 0.78, 0.33], spare: [1, 0.78, 0.33, 0.865, 0.5], freq: "box", dragDE: true, applyOnPlay: true });
       buildSimPanel("p4", { sensorMode: "cards", locked: [1, 0.7, 0.33], spare: [1, 0.7, 0.33, 0.865, 0.5], freq: "box" });
-      buildSimPanel("p5", { sensorMode: "drag", freq: "slider", applyOnPlay: true });
 
       // ---------------------------------------------------------------
       // KaTeX
@@ -1870,12 +1891,14 @@
       kr("eq-tf", "\\frac{Y_A(s)}{F(s)}=G_{f2yA}(s),\\qquad \\frac{Y_B(s)}{F(s)}=G_{f2yB}(s),\\qquad \\frac{Y_C(s)}{F(s)}=G_{f2yC}(s)");
       kr("eq-fem", "M\\ddot x+Kx=Bf,\\qquad M,K\\in\\mathbb{R}^{76\\times 76}");
       kr("eq-modal", "y(x,t)=\\sum_{i=1}^{n}\\phi_i(x)\\,\\big[Y_i\\sin(\\omega t+\\gamma_i)\\big]=|G(j\\omega)|\\,F\\sin(\\omega t+\\gamma)");
-      kr("eq-zeros", "G(s)=\\frac{\\cdots(s^2+2\\zeta_z\\omega_{nz}s+\\omega_{nz}^2)\\cdots}{\\cdots(s^2+2\\zeta_p\\omega_{np}s+\\omega_{np}^2)\\cdots}");
+      kr("eq-p3d-modes", "\\phi_i(x)=\\cosh(b_i x)-\\cos(b_i x)-s_i\\big(\\sinh(b_i x)-\\sin(b_i x)\\big)");
+      kr("eq-p3d-s", "s_i=\\frac{\\cosh(b_i L)+\\cos(b_i L)}{\\sinh(b_i L)+\\sin(b_i L)}");
+      kr("eq-zeros","G(s)=\\frac{\\cdots(s^2+2\\zeta_z\\omega_{nz}s+\\omega_{nz}^2)\\cdots}{\\cdots(s^2+2\\zeta_p\\omega_{np}s+\\omega_{np}^2)\\cdots}");
 
       // ---------------------------------------------------------------
       // Navigation
       // ---------------------------------------------------------------
-      const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", p5: "part-p5", submission: "part-submission" };
+      const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p3s: "part-p3s", p3d: "part-p3d", p4: "part-p4", submission: "part-submission" };
       function activate(part) {
         document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
         Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
@@ -1899,6 +1922,7 @@
       function saveCaptures() { try { localStorage.setItem(CAP_KEY, JSON.stringify(captures)); } catch (e) { /* too large / unavailable */ } }
       window.__addCapture = function (c) { captures.push(c); renderCaptures(); saveCaptures(); };
       try { const raw = localStorage.getItem(CAP_KEY); if (raw) captures = JSON.parse(raw) || []; } catch (e) { captures = []; }
+      captures = captures.filter((c) => TITLES[c.prefix]);   // drop captures from removed problems (old Problem 5)
       renderCaptures();
 
       // ---------------------------------------------------------------
@@ -1935,13 +1959,18 @@
       function fieldLabelFor(id) {
         if (id === "input-netid") return "Your NetID";
         if (id === "input-group-netids") return "Group member NetIDs";
-        const m = id.match(/^input-(p\d)-(.+)$/);
-        return m ? `${m[1]} (${m[2].replace(/-/g, " ")})${m[1] === "p5" ? " (optional)" : ""}` : id;
+        const m = id.match(/^input-(p\d[sd]?)-(.+)$/);
+        return m ? `${m[1]} (${m[2].replace(/-/g, " ")})` : id;
       }
+      // Problem 3 Simple/Difficult drafts: only included (and checked for blanks) once they have some content
+      const P3_VERSIONS = { p3s: "Simple", p3d: "Difficult" };
+      const versionHasContent = (p) => ["a", "b", "c", "d", "e"].some((l) => val(`input-${p}-reflect-${l}`)) || captures.some((c) => c.prefix === p);
       function findBlankItems() {
         const blanks = [];
         document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => {
           if (/^input-p3-loc2$/.test(e.id)) return; // optional second location
+          const v = e.id.match(/^input-(p3[sd])-/);
+          if (v && !versionHasContent(v[1])) return;
           if (e.value.trim() === "") blanks.push(fieldLabelFor(e.id));
         });
         ["p1", "p2", "p3", "p4"].forEach((p) => { if (!runFlags[p]) blanks.push(`${p} (simulation not yet run)`); });
@@ -2011,15 +2040,16 @@
           addText(`b) Sensor location(s) not measuring mode 3: ${val("input-p3-loc1") || "—"}${val("input-p3-loc2") ? ", " + val("input-p3-loc2") : ""} (x/L)`);
           addText(reflect("input-p3-reflect-mode3"));
 
+          Object.keys(P3_VERSIONS).filter(versionHasContent).forEach((p) => {
+            addHeading(`Problem 3 (${P3_VERSIONS[p]})`);
+            ["a", "b", "c", "d", "e"].forEach((l) => { addText(`${l})`, { bold: true }); addText(reflect(`input-${p}-reflect-${l}`)); });
+            if (captures.some((c) => c.prefix === p)) addCaptures(p);
+          });
+
           addHeading("Problem 4: Sinusoidal Inputs at Zero Frequencies");
           addText(`a) Zero frequencies used: ωnz = ${val("input-p4-wz1") || "—"} and ${val("input-p4-wz2") || "—"} rad/s`);
           addText("b) Discussion:", { bold: true }); addText(reflect("input-p4-reflect-zeros"));
           if (captures.some((c) => c.prefix === "p4")) addCaptures("p4");
-
-          addHeading("Problem 5 (Optional): Move the Sensor");
-          addText("a) What happens to the peaks as the sensor moves up the beam?", { bold: true }); addText(reflect("input-p5-reflect-peaks"));
-          addText("b) Where would you put a sensor to not see mode 2? mode 3?", { bold: true }); addText(reflect("input-p5-reflect-null"));
-          if (captures.some((c) => c.prefix === "p5")) addCaptures("p5");
 
           const safeNetId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
           if (appendixFiles.length > 0) {
@@ -2083,7 +2113,7 @@
           const e = document.getElementById(id); if (!e || e.hasAttribute("data-locked")) return;
           if (e.type === "checkbox") e.checked = !!state.fields[id]; else e.value = state.fields[id];
         });
-        ["p1", "p2", "p3", "p4", "p5"].forEach((p) => panelApi[p].restore(simOk && !!(state.runFlags && state.runFlags[p])));
+        ["p1", "p2", "p3", "p3s", "p3d", "p4"].forEach((p) => panelApi[p].restore(simOk && !!(state.runFlags && state.runFlags[p])));
         if (state.activeTab && SECTION_IDS[state.activeTab]) activate(state.activeTab);
       }
       loadProgress();
