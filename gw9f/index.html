@@ -851,9 +851,7 @@
       <button class="nav-btn" data-part="p2">General Response<small>Sweep &omega;n1 &rarr; &omega;n2</small></button>
 
       <p class="label">PROBLEM 3</p>
-      <button class="nav-btn" data-part="p3">Vary Sensor Locations (Original)<small>[1, 0.78, 0.33]</small></button>
-      <button class="nav-btn" data-part="p3s">Vary Sensor Locations (Simple)<small>[1, 0.78, 0.33] &middot; drag D/E</small></button>
-      <button class="nav-btn" data-part="p3d">Vary Sensor Locations (Difficult)<small>[1, 0.78, 0.33] &middot; drag D/E</small></button>
+      <button class="nav-btn" data-part="p3">Vary Sensor Locations (Simple)<small>[1, 0.78, 0.33] &middot; drag D/E</small></button>
 
       <p class="label">PROBLEM 4</p>
       <button class="nav-btn" data-part="p4">Resonant Zeroes<small>[1, 0.7, 0.33]</small></button>
@@ -907,6 +905,10 @@
             estimate the first three resonant poles, which are the same as the first three vibrating-mode natural
             frequencies &omega;<sub>n1</sub>, &omega;<sub>n2</sub>, &omega;<sub>n3</sub>.
           </p>
+          <div class="note-box">
+            Note: The plot for Displacement Measurements y(x, t) vs. Time adjusts the force amplitude to keep the
+            largest steady-state beam displacement at 0.01 m.
+          </div>
           <div class="panel-box" id="sim-p1"></div>
 
           <h4 class="part-title">a) Estimate the resonant poles</h4>
@@ -962,47 +964,13 @@
 
         <!-- ============== PROBLEM 3 ============== -->
         <section id="part-p3" style="display:none;">
-          <h3 class="problem-title">Vary Sensor Locations (Original)</h3>
-          <p class="given-line">GIVEN &middot; sensors A, B, C at <b>[1, 0.78, 0.33]</b> &middot; simulate at &omega; =
-            &omega;<sub>n2</sub></p>
+          <h3 class="problem-title">Problem 3: Vary Sensor Locations along the Beam (Simple)</h3>
           <p class="instructions">
-            Sensors A, B and C are fixed at these locations; simulate at the second resonant mode.
+            This problem explores how the transfer function changes as the sensor location changes. In the
+            simulator, sensors A, B, C are fixed at [1, 0.78, 0.33], and sensors D and E can be dragged along the
+            beam.
           </p>
           <div class="panel-box" id="sim-p3"></div>
-
-          <h4 class="part-title">a) Discuss</h4>
-          <p class="instructions">
-            Why do the three Bode magnitude plots look as they do near &omega; = &omega;<sub>n2</sub>, and how does this
-            relate to the animation/response? Discuss physically what is occurring.
-          </p>
-          <div class="reflection-box"><textarea id="input-p3-reflect-bode"
-              placeholder="Type your discussion here..."></textarea></div>
-
-          <h4 class="part-title">b) A sensor that doesn't measure mode 3</h4>
-          <p class="instructions">
-            Can you add a sensor at a location that does not measure the third mode (&omega; = &omega;<sub>n3</sub>)?
-            Try
-            candidate locations in sensors D/E and run at &omega;<sub>n3</sub>. To find candidate locations quickly, you
-            can also drag sensors D/E along the beam in the Vary Sensor Locations (Simple) tab.
-          </p>
-          <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
-            <div class="field"><label>sensor location 1 [x/L]</label><input type="number" id="input-p3-loc1"
-                step="any" /></div>
-            <div class="field"><label>sensor location 2 [x/L] (optional)</label><input type="number" id="input-p3-loc2"
-                step="any" /></div>
-          </div>
-          <div class="reflection-box"><textarea id="input-p3-reflect-mode3"
-              placeholder="Explain your reasoning here..."></textarea></div>
-        </section>
-
-        <!-- ============== PROBLEM 3 (SIMPLE) ============== -->
-        <section id="part-p3s" style="display:none;">
-          <h3 class="problem-title">Vary Sensor Locations (Simple)</h3>
-          <p class="instructions">
-            This problem explores how the transfer function changes as the sensor location changes. Sensors A, B, C
-            are fixed at [1, 0.78, 0.33]; sensors D and E can be dragged along the beam.
-          </p>
-          <div class="panel-box" id="sim-p3s"></div>
 
           <h4 class="part-title">a)</h4>
           <p class="instructions">
@@ -1011,7 +979,7 @@
             &omega;<sub>n2</sub>, and how this relates to the animation/response. Be sure to discuss physically what
             is occurring.
           </p>
-          <div class="reflection-box"><textarea id="input-p3s-reflect-a"
+          <div class="reflection-box"><textarea id="input-p3-reflect-a"
               placeholder="Type your discussion here..."></textarea></div>
 
           <h4 class="part-title">b)</h4>
@@ -1019,7 +987,7 @@
             Drag sensor D from the tip of the beam down to the clamped end. What changes in the Bode plot, and what
             stays the same? Why?
           </p>
-          <div class="reflection-box"><textarea id="input-p3s-reflect-b"
+          <div class="reflection-box"><textarea id="input-p3-reflect-b"
               placeholder="Type your answer here..."></textarea></div>
 
           <h4 class="part-title">c)</h4>
@@ -1028,7 +996,7 @@
             &omega;<sub>n2</sub> and compare the sensor reading with the animation. Is this location where you
             expected?
           </p>
-          <div class="reflection-box"><textarea id="input-p3s-reflect-c"
+          <div class="reflection-box"><textarea id="input-p3-reflect-c"
               placeholder="Type your answer here..."></textarea></div>
 
           <h4 class="part-title">d)</h4>
@@ -1036,7 +1004,7 @@
             Can you place a sensor at a location that does not measure the third mode (&omega; =
             &omega;<sub>n3</sub>)? Find it, and discuss how you know from the animation.
           </p>
-          <div class="reflection-box"><textarea id="input-p3s-reflect-d"
+          <div class="reflection-box"><textarea id="input-p3-reflect-d"
               placeholder="Type your answer here..."></textarea></div>
 
           <h4 class="part-title">e)</h4>
@@ -1044,68 +1012,25 @@
             Place sensor E at the force location (x/L &asymp; 0.32). How do the resonant zeros compare to the
             resonant poles for this sensor, and what is different from the sensors in (a)?
           </p>
-          <div class="reflection-box"><textarea id="input-p3s-reflect-e"
-              placeholder="Type your answer here..."></textarea></div>
-        </section>
-
-        <!-- ============== PROBLEM 3 (DIFFICULT) ============== -->
-        <section id="part-p3d" style="display:none;">
-          <h3 class="problem-title">Vary Sensor Locations (Difficult)</h3>
-          <p class="instructions">
-            This problem explores how the transfer function changes as the sensor location changes. Sensors A, B, C
-            are fixed at [1, 0.78, 0.33]; sensors D and E can be dragged along the beam. The mode shapes of a
-            cantilever beam are
-          </p>
-          <div class="eq-block" id="eq-p3d-modes"></div>
-          <p class="instructions">
-            with b<sub>1</sub>L = 1.875, b<sub>2</sub>L = 4.694, b<sub>3</sub>L = 7.855 and
-          </p>
-          <div class="eq-block" id="eq-p3d-s"></div>
-          <div class="panel-box" id="sim-p3d"></div>
-
-          <h4 class="part-title">a)</h4>
-          <p class="instructions">
-            Simulate at &omega; = &omega;<sub>n2</sub> with sensors A, B, C. Discuss why the three Bode magnitude
-            plots look as they do near &omega; = &omega;<sub>n2</sub>, and how this relates to the animation.
-          </p>
-          <div class="reflection-box"><textarea id="input-p3d-reflect-a"
-              placeholder="Type your discussion here..."></textarea></div>
-
-          <h4 class="part-title">b)</h4>
-          <p class="instructions">
-            Using the mode shapes, calculate the sensor locations x/L where the second mode and the third mode should
-            not be measured. Drag a sensor to each location and compare with the Bode plot. How close is the result,
-            and why isn't it exact?
-          </p>
-          <p class="instructions"><i>Hint: the sensor can only sit at the nodes of the finite element model, so watch
-              the x/L readout as you drag.</i></p>
-          <div class="reflection-box"><textarea id="input-p3d-reflect-b"
+          <div class="reflection-box"><textarea id="input-p3-reflect-e"
               placeholder="Type your answer here..."></textarea></div>
 
-          <h4 class="part-title">c)</h4>
+          <h4 class="part-title">f)</h4>
           <p class="instructions">
-            At &omega; = &omega;<sub>n2</sub>, read the height of the second resonant peak for at least six sensor
-            locations. Plot peak height versus x/L and compare with |&phi;<sub>2</sub>(x)|. What does this tell you
-            about what a sensor measures?
+            The mode shapes of this cantilever beam can be written in the continuous form (without the
+            discretization from the finite element method) as follows:
           </p>
-          <div class="reflection-box"><textarea id="input-p3d-reflect-c"
-              placeholder="Type your answer here..."></textarea></div>
-
-          <h4 class="part-title">d)</h4>
+          <div class="eq-block" id="eq-p3-modes"></div>
           <p class="instructions">
-            Drag a sensor to the force location (x/L &asymp; 0.32). How does the transfer function change (zeros,
-            phase)? Explain why a sensor at the force location is special.
+            with &beta;<sub>1</sub>L = 1.875, &beta;<sub>2</sub>L = 4.694, &beta;<sub>3</sub>L = 7.855 and
           </p>
-          <div class="reflection-box"><textarea id="input-p3d-reflect-d"
-              placeholder="Type your answer here..."></textarea></div>
-
-          <h4 class="part-title">e)</h4>
+          <div class="eq-block" id="eq-p3-sigma"></div>
           <p class="instructions">
-            Choose one sensor location that measures modes 1 and 2 clearly but nearly misses mode 3. Justify your
-            choice with a calculation.
+            Using the mode shapes, <b>calculate</b> the sensor locations x/L where the second mode and the third
+            mode should not be measured.
           </p>
-          <div class="reflection-box"><textarea id="input-p3d-reflect-e"
-              placeholder="Type your answer here..."></textarea></div>
+          <div class="reflection-box"><textarea id="input-p3-reflect-f"
+              placeholder="Show your calculation here..."></textarea></div>
         </section>
 
         <!-- ============== PROBLEM 4 ============== -->
@@ -1333,7 +1258,7 @@
         { id: "D", color: "#A78BFA" },
         { id: "E", color: "#7DD3FC" },
       ];
-      const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p3s: "Problem 3 (Simple)", p3d: "Problem 3 (Difficult)", p4: "Problem 4" };
+      const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p4: "Problem 4" };
 
       function plotLayout(yTitle, xTitle, opts) {
         opts = opts || {};
@@ -1878,10 +1803,7 @@
 
       buildSimPanel("p1", { sensorMode: "fixed", freq: "slider", liveAnim: true });
       buildSimPanel("p2", { sensorMode: "fixed", freq: "slider", applyOnPlay: true });
-      buildSimPanel("p3", { sensorMode: "cards", locked: [1, 0.78, 0.33], spare: [1, 0.78, 0.33, 0.865, 0.5], freq: "box" });
-      // temporary draft variants of Problem 3: same setup, but D/E can be dragged on the beam
-      buildSimPanel("p3s", { sensorMode: "cards", locked: [1, 0.78, 0.33], spare: [1, 0.78, 0.33, 0.865, 0.5], freq: "box", dragDE: true, applyOnPlay: true });
-      buildSimPanel("p3d", { sensorMode: "cards", locked: [1, 0.78, 0.33], spare: [1, 0.78, 0.33, 0.865, 0.5], freq: "box", dragDE: true, applyOnPlay: true });
+      buildSimPanel("p3", { sensorMode: "cards", locked: [1, 0.78, 0.33], spare: [1, 0.78, 0.33, 0.865, 0.5], freq: "box", dragDE: true, applyOnPlay: true });
       buildSimPanel("p4", { sensorMode: "cards", locked: [1, 0.7, 0.33], spare: [1, 0.7, 0.33, 0.865, 0.5], freq: "box" });
 
       // ---------------------------------------------------------------
@@ -1891,14 +1813,14 @@
       kr("eq-tf", "\\frac{Y_A(s)}{F(s)}=G_{f2yA}(s),\\qquad \\frac{Y_B(s)}{F(s)}=G_{f2yB}(s),\\qquad \\frac{Y_C(s)}{F(s)}=G_{f2yC}(s)");
       kr("eq-fem", "M\\ddot x+Kx=Bf,\\qquad M,K\\in\\mathbb{R}^{76\\times 76}");
       kr("eq-modal", "y(x,t)=\\sum_{i=1}^{n}\\phi_i(x)\\,\\big[Y_i\\sin(\\omega t+\\gamma_i)\\big]=|G(j\\omega)|\\,F\\sin(\\omega t+\\gamma)");
-      kr("eq-p3d-modes", "\\phi_i(x)=\\cosh(b_i x)-\\cos(b_i x)-s_i\\big(\\sinh(b_i x)-\\sin(b_i x)\\big)");
-      kr("eq-p3d-s", "s_i=\\frac{\\cosh(b_i L)+\\cos(b_i L)}{\\sinh(b_i L)+\\sin(b_i L)}");
+      kr("eq-p3-modes", "\\phi_i(x)=\\cosh\\beta_i x-\\cos\\beta_i x-\\sigma_i\\left(\\sinh\\beta_i x-\\sin\\beta_i x\\right)");
+      kr("eq-p3-sigma", "\\sigma_i=\\frac{\\cosh\\beta_i L+\\cos\\beta_i L}{\\sinh\\beta_i L+\\sin\\beta_i L}");
       kr("eq-zeros","G(s)=\\frac{\\cdots(s^2+2\\zeta_z\\omega_{nz}s+\\omega_{nz}^2)\\cdots}{\\cdots(s^2+2\\zeta_p\\omega_{np}s+\\omega_{np}^2)\\cdots}");
 
       // ---------------------------------------------------------------
       // Navigation
       // ---------------------------------------------------------------
-      const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p3s: "part-p3s", p3d: "part-p3d", p4: "part-p4", submission: "part-submission" };
+      const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
       function activate(part) {
         document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
         Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
@@ -1959,18 +1881,12 @@
       function fieldLabelFor(id) {
         if (id === "input-netid") return "Your NetID";
         if (id === "input-group-netids") return "Group member NetIDs";
-        const m = id.match(/^input-(p\d[sd]?)-(.+)$/);
+        const m = id.match(/^input-(p\d)-(.+)$/);
         return m ? `${m[1]} (${m[2].replace(/-/g, " ")})` : id;
       }
-      // Problem 3 Simple/Difficult drafts: only included (and checked for blanks) once they have some content
-      const P3_VERSIONS = { p3s: "Simple", p3d: "Difficult" };
-      const versionHasContent = (p) => ["a", "b", "c", "d", "e"].some((l) => val(`input-${p}-reflect-${l}`)) || captures.some((c) => c.prefix === p);
       function findBlankItems() {
         const blanks = [];
         document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => {
-          if (/^input-p3-loc2$/.test(e.id)) return; // optional second location
-          const v = e.id.match(/^input-(p3[sd])-/);
-          if (v && !versionHasContent(v[1])) return;
           if (e.value.trim() === "") blanks.push(fieldLabelFor(e.id));
         });
         ["p1", "p2", "p3", "p4"].forEach((p) => { if (!runFlags[p]) blanks.push(`${p} (simulation not yet run)`); });
@@ -2034,17 +1950,9 @@
           addText("b) General response for any ω:", { bold: true }); addText(reflect("input-p2-reflect-general"));
           if (captures.some((c) => c.prefix === "p2")) addCaptures("p2");
 
-          addHeading("Problem 3: Vary Sensor Locations along the Beam");
-          addText("a) Discussion:", { bold: true }); addText(reflect("input-p3-reflect-bode"));
+          addHeading("Problem 3: Vary Sensor Locations along the Beam (Simple)");
+          ["a", "b", "c", "d", "e", "f"].forEach((l) => { addText(`${l})`, { bold: true }); addText(reflect(`input-p3-reflect-${l}`)); });
           if (captures.some((c) => c.prefix === "p3")) addCaptures("p3");
-          addText(`b) Sensor location(s) not measuring mode 3: ${val("input-p3-loc1") || "—"}${val("input-p3-loc2") ? ", " + val("input-p3-loc2") : ""} (x/L)`);
-          addText(reflect("input-p3-reflect-mode3"));
-
-          Object.keys(P3_VERSIONS).filter(versionHasContent).forEach((p) => {
-            addHeading(`Problem 3 (${P3_VERSIONS[p]})`);
-            ["a", "b", "c", "d", "e"].forEach((l) => { addText(`${l})`, { bold: true }); addText(reflect(`input-${p}-reflect-${l}`)); });
-            if (captures.some((c) => c.prefix === p)) addCaptures(p);
-          });
 
           addHeading("Problem 4: Sinusoidal Inputs at Zero Frequencies");
           addText(`a) Zero frequencies used: ωnz = ${val("input-p4-wz1") || "—"} and ${val("input-p4-wz2") || "—"} rad/s`);
@@ -2113,7 +2021,7 @@
           const e = document.getElementById(id); if (!e || e.hasAttribute("data-locked")) return;
           if (e.type === "checkbox") e.checked = !!state.fields[id]; else e.value = state.fields[id];
         });
-        ["p1", "p2", "p3", "p3s", "p3d", "p4"].forEach((p) => panelApi[p].restore(simOk && !!(state.runFlags && state.runFlags[p])));
+        ["p1", "p2", "p3", "p4"].forEach((p) => panelApi[p].restore(simOk && !!(state.runFlags && state.runFlags[p])));
         if (state.activeTab && SECTION_IDS[state.activeTab]) activate(state.activeTab);
       }
       loadProgress();
