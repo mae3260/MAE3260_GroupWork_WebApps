@@ -688,8 +688,7 @@
 
     .sim-grid .plot-host {
       margin-top: 0;
-      height: 100%;
-      min-height: 380px;
+      height: 440px;   /* fixed: a %-height here feeds back through Plotly's autosize and grows on every update */
     }
 
     .beam-host {
@@ -851,7 +850,7 @@
       <button class="nav-btn" data-part="p2">General Response<small>Sweep &omega;n1 &rarr; &omega;n2</small></button>
 
       <p class="label">PROBLEM 3</p>
-      <button class="nav-btn" data-part="p3">Vary Sensor Locations (Simple)<small>[1, 0.78, 0.33] &middot; drag D/E</small></button>
+      <button class="nav-btn" data-part="p3">Vary Sensor Locations<small>[1, 0.78, 0.33] &middot; drag D/E</small></button>
 
       <p class="label">PROBLEM 4</p>
       <button class="nav-btn" data-part="p4">Resonant Zeroes<small>[1, 0.7, 0.33]</small></button>
@@ -964,7 +963,7 @@
 
         <!-- ============== PROBLEM 3 ============== -->
         <section id="part-p3" style="display:none;">
-          <h3 class="problem-title">Problem 3: Vary Sensor Locations along the Beam (Simple)</h3>
+          <h3 class="problem-title">Problem 3: Vary Sensor Locations along the Beam</h3>
           <p class="instructions">
             This problem explores how the transfer function changes as the sensor location changes. In the
             simulator, sensors A, B, C are fixed at [1, 0.78, 0.33], and sensors D and E can be dragged along the
@@ -972,7 +971,7 @@
           </p>
           <div class="panel-box" id="sim-p3"></div>
 
-          <h4 class="part-title">a)</h4>
+          <h4 class="part-title">a) Bode plots at &omega;<sub>n2</sub></h4>
           <p class="instructions">
             Simulate the system at the second resonant mode, &omega; = &omega;<sub>n2</sub>, with sensors A, B, C.
             Discuss with your group why the three Bode magnitude plots look as they do near &omega; =
@@ -982,7 +981,7 @@
           <div class="reflection-box"><textarea id="input-p3-reflect-a"
               placeholder="Type your discussion here..."></textarea></div>
 
-          <h4 class="part-title">b)</h4>
+          <h4 class="part-title">b) Move the sensor</h4>
           <p class="instructions">
             Drag sensor D from the tip of the beam down to the clamped end. What changes in the Bode plot, and what
             stays the same? Why?
@@ -990,7 +989,7 @@
           <div class="reflection-box"><textarea id="input-p3-reflect-b"
               placeholder="Type your answer here..."></textarea></div>
 
-          <h4 class="part-title">c)</h4>
+          <h4 class="part-title">c) Hide mode 2</h4>
           <p class="instructions">
             Place sensor D where the second resonant peak nearly disappears. Simulate at &omega; =
             &omega;<sub>n2</sub> and compare the sensor reading with the animation. Is this location where you
@@ -999,7 +998,7 @@
           <div class="reflection-box"><textarea id="input-p3-reflect-c"
               placeholder="Type your answer here..."></textarea></div>
 
-          <h4 class="part-title">d)</h4>
+          <h4 class="part-title">d) Hide mode 3</h4>
           <p class="instructions">
             Can you place a sensor at a location that does not measure the third mode (&omega; =
             &omega;<sub>n3</sub>)? Find it, and discuss how you know from the animation.
@@ -1007,7 +1006,7 @@
           <div class="reflection-box"><textarea id="input-p3-reflect-d"
               placeholder="Type your answer here..."></textarea></div>
 
-          <h4 class="part-title">e)</h4>
+          <h4 class="part-title">e) Force location</h4>
           <p class="instructions">
             Place sensor E at the force location (x/L &asymp; 0.32). How do the resonant zeros compare to the
             resonant poles for this sensor, and what is different from the sensors in (a)?
@@ -1015,7 +1014,7 @@
           <div class="reflection-box"><textarea id="input-p3-reflect-e"
               placeholder="Type your answer here..."></textarea></div>
 
-          <h4 class="part-title">f)</h4>
+          <h4 class="part-title">f) Mode-shape nodes</h4>
           <p class="instructions">
             The mode shapes of this cantilever beam can be written in the continuous form (without the
             discretization from the finite element method) as follows:
@@ -1288,6 +1287,8 @@
       const NB = 2000, BODE_LO = Math.log10(WN[0]) - 0.5, BODE_HI = Math.log10(WN[2]) + 0.5;
       const BODE_OM = Array.from({ length: NB }, (_, i) => Math.pow(10, BODE_LO + (BODE_HI - BODE_LO) * i / (NB - 1)));
       const BODE_CACHE = [];
+      // pin the axis to the data range so an omega marker outside it cannot stretch the axis (log axis: range in log10)
+      const BODE_X = { type: "log", range: [BODE_LO, BODE_HI] };
       for (let k = 0; k < NN; k++) {
         const mag = new Array(NB), ph = new Array(NB);
         let prev = 0, acc = 0;
@@ -1540,10 +1541,10 @@
           if (!sensors.length) { setPlaceholder(bodeEl, NO_SENS); if (phaseEl.data) Plotly.purge(phaseEl); bodeState = null; return; }
           if (!bodeEl.data) bodeEl.innerHTML = "";
           Plotly.newPlot(bodeEl, sensors.map((s) => ({ x: BODE_OM, y: BODE_CACHE[s.node].mag, mode: "lines", line: { color: s.color, width: 2 }, name: traceName(s), connectgaps: false })),
-            plotLayout("Amplitude Ratio (Y/F)", "Frequency (rad/sec)", { xaxis: { type: "log" }, yaxis: { type: "log", exponentformat: "power" }, shapes: markerShapes(w) }), PLOT_OPTS);
+            plotLayout("Amplitude Ratio (Y/F)", "Frequency (rad/sec)", { xaxis: BODE_X, yaxis: { type: "log", exponentformat: "power" }, shapes: markerShapes(w) }), PLOT_OPTS);
           if (showPhase) {
             Plotly.newPlot(phaseEl, sensors.map((s) => ({ x: BODE_OM, y: BODE_CACHE[s.node].ph, mode: "lines", line: { color: s.color, width: 2 }, name: traceName(s) })),
-              plotLayout("Phase Difference (Y/F) [deg]", "Frequency (rad/sec)", { xaxis: { type: "log" }, yaxis: { dtick: 90 }, shapes: markerShapes(w) }), PLOT_OPTS);
+              plotLayout("Phase Difference (Y/F) [deg]", "Frequency (rad/sec)", { xaxis: BODE_X, yaxis: { dtick: 90 }, shapes: markerShapes(w) }), PLOT_OPTS);
           } else if (phaseEl.data) Plotly.purge(phaseEl);
           bodeState = { ids: sensors.map((s) => s.id).join(), nodes: skey(sensors), w, phase: showPhase };
         }
@@ -1950,8 +1951,9 @@
           addText("b) General response for any ω:", { bold: true }); addText(reflect("input-p2-reflect-general"));
           if (captures.some((c) => c.prefix === "p2")) addCaptures("p2");
 
-          addHeading("Problem 3: Vary Sensor Locations along the Beam (Simple)");
-          ["a", "b", "c", "d", "e", "f"].forEach((l) => { addText(`${l})`, { bold: true }); addText(reflect(`input-p3-reflect-${l}`)); });
+          addHeading("Problem 3: Vary Sensor Locations along the Beam");
+          const P3_PARTS = { a: "Bode plots at ωn2", b: "Move the sensor", c: "Hide mode 2", d: "Hide mode 3", e: "Force location", f: "Mode-shape nodes" };
+          Object.keys(P3_PARTS).forEach((l) => { addText(`${l}) ${P3_PARTS[l]}:`, { bold: true }); addText(reflect(`input-p3-reflect-${l}`)); });
           if (captures.some((c) => c.prefix === "p3")) addCaptures("p3");
 
           addHeading("Problem 4: Sinusoidal Inputs at Zero Frequencies");
