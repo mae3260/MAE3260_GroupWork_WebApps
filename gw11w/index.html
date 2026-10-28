@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GroupWork 11W &mdash; PD Controller Design</title>
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0F1115; --panel: #171A21; --panel2: #1D212B; --line: #282D3A;
+    --amber: #FFB454; --cyan: #5EEAD4; --rose: #FB7185; --pink: #F472B6;
+    --fg: #E7E9EE; --muted: #8B92A5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--ink); color: var(--fg); font-family: 'Inter', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  header h1 { font-size: 14px; margin: 0; font-weight: 600; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+
+  main { flex: 1; display: flex; overflow: hidden; }
+  nav { width: 220px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line); order: 2; padding: 16px 14px; overflow-y: auto; }
+  nav p.label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; margin: 14px 0 8px 0; }
+  nav p.label:first-child { margin-top: 0; }
+  .nav-btn { display: block; width: 100%; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 9px 12px; margin-bottom: 6px; background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; color: var(--fg); cursor: pointer; }
+  .nav-btn.active { border-color: var(--amber); color: var(--amber); }
+  .nav-btn small { display: block; font-family: 'Inter', sans-serif; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .content { flex: 1; order: 1; overflow-y: auto; padding: 28px 40px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  h2.section-title { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--amber); margin: 0 0 14px 0; }
+  h3.problem-title { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--cyan); margin: 0 0 10px 0; }
+  h4.part-title { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--fg); margin: 22px 0 8px 0; }
+  p.instructions { font-size: 14.5px; line-height: 1.65; color: var(--fg); margin: 0 0 16px 0; }
+  ul.goals { padding-left: 20px; margin: 0 0 16px 0; }
+  ul.goals li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .eq-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; margin: 14px 0; text-align: center; font-size: 16px; }
+  .given-line { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin: 0 0 18px 0; line-height: 1.8; }
+  .given-line b { color: var(--fg); font-weight: 600; }
+  .note-box { background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 4px; padding: 12px 16px; margin: 0 0 18px 0; font-size: 13px; line-height: 1.6; color: var(--fg); }
+  .note-box code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan); background: var(--ink); padding: 1px 5px; border-radius: 3px; }
+
+  .panel-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
+  .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  .form-grid.one { grid-template-columns: 1fr; }
+  .form-grid.two { grid-template-columns: 1fr 1fr; }
+  .form-grid.five { grid-template-columns: repeat(5, 1fr); }
+  .field { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .field label { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .field input[type="text"], .field input[type="number"] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 8px 10px; }
+  .field input:focus { outline: none; border-color: var(--amber); }
+  .field select { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 8px 10px; }
+  .field select:focus { outline: none; border-color: var(--amber); }
+
+  .reflection-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  .reflection-box textarea { width: 100%; min-height: 90px; resize: vertical; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'Inter', sans-serif; font-size: 14px; padding: 10px 12px; line-height: 1.5; }
+  .reflection-box textarea:focus { outline: none; border-color: var(--amber); }
+
+  .run-btn { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; padding: 10px 22px; border-radius: 6px; border: none; background: var(--amber); color: var(--ink); cursor: pointer; }
+  .run-btn:hover { filter: brightness(1.08); }
+  .run-btn:active { transform: scale(0.98); }
+  .run-btn.secondary { background: none; color: var(--muted); border: 1px solid var(--line); }
+  .run-btn.secondary:hover { color: var(--rose); border-color: var(--rose); }
+  .run-btn.small { font-size: 11.5px; padding: 8px 14px; }
+
+  .match-banner { display: none; margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line); }
+  .match-banner.match { display: block; border-color: var(--cyan); color: var(--cyan); }
+  .match-banner.no-match { display: block; border-color: var(--rose); color: var(--rose); }
+  .field-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; min-height: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .plot-host { height: 300px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin-top: 14px; }
+  .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 13px; text-align: center; max-width: 320px; margin: 0 auto; padding: 0 20px; }
+
+  .steps-list { padding-left: 20px; margin: 0 0 16px 0; }
+  .steps-list li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .upload-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 0 0 18px 0; }
+  .upload-block input[type="file"] { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--fg); }
+  .upload-thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .thumb-wrap { position: relative; width: 90px; height: 120px; }
+  .thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); display: block; }
+  .thumb-remove { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+  .upload-status { font-size: 11px; color: var(--cyan); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; }
+  .upload-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+  .file-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; margin: 4px 6px 4px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .file-chip .chip-remove { background: none; border: none; color: var(--rose); cursor: pointer; font-size: 13px; line-height: 1; font-family: 'JetBrains Mono', monospace; padding: 0; }
+
+  .vib-top-row { display: flex; gap: 18px; align-items: flex-start; margin-top: 14px; }
+  .vib-svg-host { flex: 1.3; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .vib-output { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .vib-output h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .vib-output .out-row { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; margin-bottom: 7px; color: var(--fg); gap: 8px; }
+  .vib-output .out-row span.k { color: var(--muted); flex-shrink: 0; }
+  .vib-output .out-row span.v { color: var(--cyan); text-align: right; }
+  .vib-presets { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+  .katex { color: var(--fg); }
+</style>
+<style>
+  .app-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 14px; align-items: start; }
+  .app-grid .card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+  .card h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em; font-weight: 500; }
+  .num-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .num-row label, .sl label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+  .num-row input, .sl input[type=number] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .num-row input:focus, .sl input[type=number]:focus { outline: none; border-color: var(--amber); }
+  .sl { margin-bottom: 10px; }
+  .sl .row { display: flex; gap: 8px; align-items: center; }
+  .sl input[type=range] { flex: 1; min-width: 0; accent-color: var(--rose); }
+  .sl input[type=number] { width: 74px; }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .tools label { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--fg); display: flex; align-items: center; gap: 6px; }
+  .tools input { accent-color: var(--amber); }
+  .app-bottom { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; align-items: start; }
+  .plot-host.t { height: 400px; margin-top: 0; }
+  .plot-host.p { height: 340px; margin-top: 0; }
+  table.mt { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  table.mt th, table.mt td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: right; }
+  table.mt th:first-child, table.mt td:first-child { text-align: left; color: var(--muted); }
+  table.mt th { color: var(--muted); font-weight: 500; }
+  table.mt td.b { color: var(--cyan); } table.mt td.c { color: var(--rose); }
+  table.sum { border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; margin: 8px 0 16px; }
+  table.sum th, table.sum td { border: 1px solid var(--line); padding: 6px 8px; }
+  table.sum th { color: var(--muted); font-weight: 500; background: var(--panel); }
+  table.sum select { background: var(--ink); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 12px; padding: 4px; }
+  .cap-list { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 18px; }
+  .cap-item { width: 250px; background: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px; position: relative; }
+  .cap-item img { width: 100%; border-radius: 4px; display: block; }
+  .cap-item .cap-text { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+  .cap-item .cap-x { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px; line-height: 1; }
+  @media (max-width: 1000px) { .app-grid, .app-bottom { grid-template-columns: 1fr; } }
+</style>
+<style>
+  .case-card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px 6px; margin-bottom: 12px; border-left-width: 4px; }
+  .case-card.c0 { border-left-color: #5EEAD4; } .case-card.c1 { border-left-color: #FB7185; } .case-card.c2 { border-left-color: #FFB454; }
+  .case-card .hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+  .case-card .hd input { accent-color: var(--amber); }
+  .sl.locked input[type=number] { opacity: 0.65; border-style: dashed; }
+  .sl .lock { font-size: 10px; color: var(--amber); font-family: 'JetBrains Mono', monospace; }
+  .r0-row { display: flex; align-items: center; gap: 10px; }
+  .r0-row input[type=number] { width: 90px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .r0-row .deg { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); }
+  .plot-host.t { height: 400px; }
+  .plot-host.u { height: 320px; margin-top: 0; }
+  .app-below { margin-top: 14px; }
+  table.mt td.k0 { color: #5EEAD4; } table.mt td.k1 { color: #FB7185; } table.mt td.k2 { color: #FFB454; }
+  table.mt th.k0 { color: #5EEAD4; } table.mt th.k1 { color: #FB7185; } table.mt th.k2 { color: #FFB454; }
+  .ref-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; }
+  .plot-host.r { height: 290px; margin-top: 0; }
+  .range-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+  .range-row input { width: 90px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .range-row input:focus { outline: none; border-color: var(--amber); }
+  @media (max-width: 1000px) { .ref-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>GROUPWORK 11W <span>&mdash; Proportional and Derivative Controller (M&amp;AE 3260)</span></h1>
+</header>
+
+<main>
+  <nav>
+    <p class="label">BACKGROUND</p>
+    <button class="nav-btn active" data-part="intro">Intro<small>System, control law &amp; the app</small></button>
+    <button class="nav-btn" data-part="ref">Reference charts<small>Figure 3 (lookup curves)</small></button>
+
+    <p class="label">PROBLEM 1</p>
+    <button class="nav-btn" data-part="p1">Steady state error<small>E(s)/R(s), FVT</small></button>
+
+    <p class="label">PROBLEM 2</p>
+    <button class="nav-btn" data-part="p2">Design K<sub>D</sub><small>K<sub>P</sub> = 11</small></button>
+
+    <p class="label">PROBLEM 3</p>
+    <button class="nav-btn" data-part="p3">Design K<sub>P</sub><small>K<sub>D</sub> = 9</small></button>
+
+    <p class="label">PROBLEM 4</p>
+    <button class="nav-btn" data-part="p4">Design K<sub>P</sub> and K<sub>D</sub><small>e<sub>ss</sub>, u<sub>max</sub>, MO</small></button>
+
+    <p class="label">SUBMIT</p>
+    <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+  </nav>
+
+  <div class="content">
+    <div class="wrap">
+
+      <!-- ============== INTRO ============== -->
+      <section id="part-intro">
+        <h2 class="section-title">Proportional and Derivative Controller</h2>
+
+        <p class="instructions"><b>Learning Goals:</b></p>
+        <ul class="goals">
+          <li>Find the transfer function for a closed loop system with a PD controller</li>
+          <li>Calculate the closed loop steady state error of a system using the Final Value Theorem (FVT)</li>
+          <li>Select PD controller gains (K<sub>P</sub>, K<sub>D</sub>) to meet performance requirements</li>
+          <li>Calculate the initial control effort u(0) using the Initial Value Theorem (IVT); many times, this is also the maximum control effort u<sub>max</sub></li>
+        </ul>
+
+        <p class="instructions">
+          We will design PD controllers so that a robotic arm (for example, one picking grapes and dropping them into a bin) meets specific
+          requirements. The open loop dynamics depend on the arm inertia, gravity, joint friction and the motor torque. With all parameters substituted,
+          the open loop transfer function from motor torque u = T [Nm] to arm angle y = &theta; [rad] (measured from vertical) is
+        </p>
+        <div class="eq-block" id="eq-G"></div>
+        <p class="instructions">The proposed control law is a PD controller with a &lsquo;modified&rsquo; D term (it acts on the measurement, not the error):</p>
+        <div class="eq-block" id="eq-law"></div>
+        <p class="instructions">Combining the plant and the control law gives the closed loop transfer function from the reference R(s) to the output Y(s):</p>
+        <div class="eq-block" id="eq-CL"></div>
+        <p class="instructions">so the closed loop parameters are related to the gains by</p>
+        <div class="eq-block" id="eq-rel"></div>
+        <p class="instructions">For a step reference R(s) = R<sub>0</sub>/s the underdamped response is</p>
+        <div class="eq-block" id="eq-step"></div>
+        <p class="instructions">with &omega;<sub>d</sub><sup>CL</sup> = &omega;<sub>n</sub><sup>CL</sup>&radic;(1&minus;(&zeta;<sup>CL</sup>)&sup2;) and &phi; = tan<sup>&minus;1</sup>(&radic;(1&minus;&zeta;&sup2;)/&zeta;). The step response metrics (dropping CL) are</p>
+        <div class="eq-block" id="eq-metrics"></div>
+        <p class="instructions">Finally, the closed loop transfer functions from the reference to the error and to the control are</p>
+        <div class="eq-block" id="eq-EU"></div>
+
+      </section>
+
+      <!-- ============== REFERENCE ============== -->
+      <section id="part-ref" style="display:none;">
+        <h2 class="section-title">Reference charts (Figure 3)</h2>
+        <p class="instructions">Underdamped second order system. Upper left: rise time t<sub>R</sub> versus &omega;<sub>d</sub> with &zeta;&omega;<sub>n</sub> = 5 held fixed (use for Problem 3). Others: normalized rise time &omega;<sub>d</sub>t<sub>R</sub> and maximum overshoot M<sub>O</sub> versus damping ratio, and settling time t<sub>S</sub> versus &zeta;&omega;<sub>n</sub>. Hover over a curve to read values.</p>
+        <div class="ref-grid">
+          <div class="plot-host r" id="ref-1"></div>
+          <div class="plot-host r" id="ref-2"></div>
+          <div class="plot-host r" id="ref-3"></div>
+          <div class="plot-host r" id="ref-4"></div>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 1 ============== -->
+      <section id="part-p1" style="display:none;">
+        <h3 class="problem-title">Problem 1: Closed-loop transfer functions, steady state error</h3>
+        <p class="instructions">
+          Verify the closed loop reference-to-error transfer function E(s)/R(s) from the quiz, and the general form of the steady state error as a function
+          of the control gains. Are there any values of K<sub>P</sub> and K<sub>D</sub> for which the system will yield zero steady state error?
+          Use the app to test your result: change K<sub>P</sub> and K<sub>D</sub> and compare the steady state error in the response.
+        </p>
+        <h4 class="part-title">Derivation</h4>
+        <div class="reflection-box"><textarea id="input-p1-derivation" placeholder="E(s)/R(s) and the FVT derivation of e_ss as a function of K_P, K_D..."></textarea></div>
+        <div class="panel-box" id="app-p1" style="margin-top:14px;"></div>
+        <h4 class="part-title">Discuss</h4>
+        <div class="reflection-box"><textarea id="input-p1-discuss" placeholder="Does e_ss depend on K_P? On K_D? Can e_ss be zero? What does the app show?"></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 2 ============== -->
+      <section id="part-p2" style="display:none;">
+        <h3 class="problem-title">Problem 2: Designing the Derivative (D) gain in a PD controller</h3>
+        <p class="given-line">GIVEN &middot; <b>K<sub>P</sub> = 11</b></p>
+        <p class="instructions">Find the range of K<sub>D</sub> that meets the following criteria:</p>
+        <div class="eq-block" id="eq-p2reqs"></div>
+        <div class="note-box">Hint: turn (a, b) into an acceptable region in the s-plane, then use Eqns (4, 5) to find the range of K<sub>D</sub>.</div>
+        <h4 class="part-title">Derivation</h4>
+        <div class="reflection-box"><textarea id="input-p2-derivation" placeholder="Your derivation of the K_D range..."></textarea></div>
+        <p class="instructions" style="margin-top:14px;">Your K<sub>D</sub> range:</p>
+        <div class="range-row"><input type="number" id="input-p2-kd-lo" step="any" /> <span>&lt; K<sub>D</sub> &lt;</span> <input type="number" id="input-p2-kd-hi" step="any" /></div>
+        <h4 class="part-title">Check with the app</h4>
+        <p class="instructions">K<sub>P</sub> is fixed at 11. Enter K<sub>D</sub> values inside and just outside your range and compare the responses.</p>
+        <div class="panel-box" id="app-p2"></div>
+        <h4 class="part-title">Optional: negative K<sub>D</sub></h4>
+        <p class="instructions">Suppose a sign error makes the derivative gain negative. How would this affect the system&rsquo;s response? Verify with the app.</p>
+        <div class="reflection-box"><textarea id="input-p2-negkd" placeholder="Describe the effect of a negative derivative gain (try K_D < −1 and −1 < K_D < 0)..."></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 3 ============== -->
+      <section id="part-p3" style="display:none;">
+        <h3 class="problem-title">Problem 3: Designing the Proportional (P) gain in a PD controller</h3>
+        <p class="given-line">GIVEN &middot; <b>K<sub>D</sub> = 9</b></p>
+        <p class="instructions">Find the range of K<sub>P</sub> that meets the following criteria:</p>
+        <div class="eq-block" id="eq-p3reqs"></div>
+        <div class="note-box">Hint: turn (a, b) into an acceptable region in the s-plane, then use Eqns (4, 5) to find the range of K<sub>P</sub>. For rise time, use the t<sub>R</sub> vs. &omega;<sub>d</sub> chart in the <b>Reference charts</b> tab.</div>
+        <h4 class="part-title">Derivation</h4>
+        <div class="reflection-box"><textarea id="input-p3-derivation" placeholder="Your derivation of the K_P range..."></textarea></div>
+        <p class="instructions" style="margin-top:14px;">Your K<sub>P</sub> range:</p>
+        <div class="range-row"><input type="number" id="input-p3-kp-lo" step="any" /> <span>&lt; K<sub>P</sub> &lt;</span> <input type="number" id="input-p3-kp-hi" step="any" /></div>
+        <h4 class="part-title">Check with the app</h4>
+        <p class="instructions">K<sub>D</sub> is fixed at 9. Deliverable: the K<sub>P</sub> range and a plot of the response with an acceptable K<sub>P</sub>.</p>
+        <div class="panel-box" id="app-p3"></div>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p3-discuss" placeholder="Your chosen K_P and how the response and metrics compare with the requirements..."></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 4 ============== -->
+      <section id="part-p4" style="display:none;">
+        <h3 class="problem-title">Problem 4: Designing a PD controller</h3>
+        <p class="given-line">GIVEN &middot; <b>R<sub>0</sub> = 20&deg; = 0.349 rad</b></p>
+        <p class="instructions">Find the range of values for both K<sub>P</sub> and K<sub>D</sub> that meets the following criteria:</p>
+        <div class="eq-block" id="eq-p4reqs"></div>
+        <div class="note-box">Hint: turn (a, b, c) into an acceptable region in the s-plane and use Eqns (4, 5). For (b), assume the maximum control effort is at t = 0 and use the Initial Value Theorem, u(0) = lim<sub>s&rarr;&infin;</sub> s&middot;U(s).</div>
+        <h4 class="part-title">Derivation</h4>
+        <div class="reflection-box"><textarea id="input-p4-derivation" placeholder="Your derivation: e_ss (FVT), u(0) (IVT) and overshoot constraints on K_P, K_D..."></textarea></div>
+        <p class="instructions" style="margin-top:14px;">Your ranges:</p>
+        <div class="range-row"><input type="number" id="input-p4-kp-lo" step="any" /> <span>&lt; K<sub>P</sub> &lt;</span> <input type="number" id="input-p4-kp-hi" step="any" /></div>
+        <div class="range-row"><input type="number" id="input-p4-kd-lo" step="any" /> <span>&lt; K<sub>D</sub> &lt;</span> <input type="number" id="input-p4-kd-hi" step="any" /></div>
+        <h4 class="part-title">Check with the app</h4>
+        <p class="instructions">R<sub>0</sub> is fixed at 0.349 rad. Enter acceptable K<sub>P</sub> and K<sub>D</sub> values and compare against the criteria in the table (e<sub>ss</sub>/R<sub>0</sub>, max |u|, overshoot).</p>
+        <div class="panel-box" id="app-p4"></div>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p4-discuss" placeholder="Your chosen K_P, K_D and how the response meets each requirement..."></textarea></div>
+      </section>
+
+      <!-- ============== SUBMISSION ============== -->
+      <section id="part-submission" style="display:none;">
+        <h2 class="section-title">Submission</h2>
+
+        <div class="form-grid two">
+          <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid" placeholder="netid" spellcheck="false" /></div>
+          <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids" placeholder="person1, person2, person3, ..." spellcheck="false" /></div>
+        </div>
+
+        <ul class="steps-list" style="margin-top:22px;">
+          <li>Enter your NetID and group member NetIDs above and export PDF.</li>
+          <li>Submit: (1) derivation and written discussion of steady state error; (2) the derivation of the K<sub>D</sub> range and a plot of the response with an acceptable K<sub>D</sub>; (3) the derivation of the K<sub>P</sub> range and a plot of the response with an acceptable K<sub>P</sub>; (4) the derivation of the K<sub>P</sub> and K<sub>D</sub> ranges and a plot of the response with acceptable K<sub>P</sub> and K<sub>D</sub>.</li>
+          <li>Attach any handwritten derivations or sketches as a PDF below; they are appended to the end of the exported file.</li>
+        </ul>
+
+        <p class="instructions"><b>Captured figures</b> (from CAPTURE FIGURE in each problem):</p>
+        <div class="cap-list" id="cap-list"></div>
+
+        <p class="instructions">Append an existing PDF to the end of your export (optional):</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-appendix" accept="application/pdf" multiple />
+          <div id="upload-thumbs-appendix" style="display:flex; flex-wrap:wrap; margin-top:10px;"></div>
+          <p class="upload-err" id="upload-err-appendix"></p>
+        </div>
+
+        <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+        <p class="field-err" id="exportStatus" style="color:var(--muted);"></p>
+      </section>
+
+    </div>
+  </div>
+</main>
+<script>
+(function () {
+  "use strict";
+
+  // ---------------------------------------------------------------
+  // Closed loop:  Y/R = KP / (s^2 + (1+KD) s + (25+KP)),  u = KP (r - y) - KD ydot
+  // Unit step shape s(t) of  b/(s^2 + a s + b);   y = R0*KP/b * s(t)
+  // ---------------------------------------------------------------
+  const nm = (v, d) => String(Number(Number(v).toPrecision(d || 4)));
+  const fmtT = (v) => (v === null || v === undefined ? "—" : nm(v, 4));
+
+  function makeResp(a, b) {
+    const disc = a * a - 4 * b, sg = a / 2;
+    if (disc < -1e-9) {
+      const wd = Math.sqrt(b - a * a / 4);
+      return { kind: "c", wd,
+        s: (t) => 1 - Math.exp(-sg * t) * (Math.cos(wd * t) + (sg / wd) * Math.sin(wd * t)),
+        h: (t) => (b / wd) * Math.exp(-sg * t) * Math.sin(wd * t) };
+    }
+    if (Math.abs(disc) <= 1e-9) {
+      return { kind: "r", s: (t) => 1 - Math.exp(-sg * t) * (1 + sg * t), h: (t) => b * t * Math.exp(-sg * t) };
+    }
+    const r = Math.sqrt(disc), s1 = (-a + r) / 2, s2 = (-a - r) / 2;
+    return { kind: "o", s1, s2,
+      s: (t) => 1 + (s2 * Math.exp(s1 * t) - s1 * Math.exp(s2 * t)) / (s1 - s2),
+      h: (t) => b / (s1 - s2) * (Math.exp(s1 * t) - Math.exp(s2 * t)) };
+  }
+
+  function calc(KP, KD, R0) {
+    const a = 1 + KD, b = 25 + KP, wn = Math.sqrt(b), z = a / (2 * wn), sg = a / 2, disc = a * a - 4 * b;
+    const F = makeResp(a, b);
+    const stable = a > 1e-9;
+    const under = stable && F.kind === "c";
+    const wd = F.kind === "c" ? F.wd : null;
+    let poles, kind, rate;
+    if (F.kind === "c") { poles = [[-sg, F.wd], [-sg, -F.wd]]; rate = Math.abs(sg); }
+    else if (F.kind === "r") { poles = [[-sg, 0], [-sg, 0]]; rate = Math.abs(sg); }
+    else { poles = [[F.s1, 0], [F.s2, 0]]; rate = stable ? Math.min(Math.abs(F.s1), Math.abs(F.s2)) : Math.max(F.s1, F.s2); }
+    if (stable) kind = under ? "stable, underdamped" : (F.kind === "r" ? "stable, critically damped" : "stable, overdamped");
+    else if (Math.abs(a) <= 1e-9) kind = "marginally stable (undamped)";
+    else kind = F.kind === "c" ? "UNSTABLE (growing oscillation)" : "UNSTABLE (exponential growth)";
+
+    let tfinal;
+    if (stable) tfinal = Math.min(5 / rate, 400);
+    else if (Math.abs(a) <= 1e-9) tfinal = 20 * Math.PI / F.wd;
+    else tfinal = Math.min(6 / Math.max(rate, 1e-6), 400);
+    const k = R0 * KP / b, NT = 1500, t = new Array(NT), y = new Array(NT), u = new Array(NT);
+    for (let i = 0; i < NT; i++) {
+      const ti = tfinal * i / (NT - 1);
+      t[i] = ti; y[i] = k * F.s(ti); u[i] = KP * (R0 - y[i]) - KD * k * F.h(ti);
+    }
+    const yss = stable ? k : null;
+    let OS = 0, tp = null, tR = null, ts = null, ts4 = null, umax = null, ymax = null;
+    if (stable && KP > 1e-9) {
+      if (under) {
+        OS = 100 * Math.exp(-Math.PI * z / Math.sqrt(1 - z * z));
+        tp = Math.PI / wd; tR = (Math.PI - Math.acos(z)) / wd;
+      }
+      ts4 = 4 / sg;
+      const tscan = 10 / rate, NF = 60001, dt = tscan / (NF - 1);
+      let last = -1, prev = 0;
+      for (let i = 0; i < NF; i++) { const v = F.s(i * dt); if (Math.abs(v - 1) > 0.02) { last = i; prev = v; } }
+      if (last >= 0 && last < NF - 1) {
+        const v2 = F.s((last + 1) * dt), e = prev > 1 ? 1.02 : 0.98;
+        ts = last * dt + (e - prev) / (v2 - prev) * dt;
+      } else if (last < 0) ts = 0;
+      umax = 0; for (let i = 0; i < NT; i++) umax = Math.max(umax, Math.abs(u[i]));
+      ymax = Math.max.apply(null, y);
+    }
+    return { KP, KD, R0, a, b, wn, z, sg, wd, stable, under, kind, poles, tfinal, t, y, u, yss,
+      m: { OS, tp, tR, ts, ts4, ess: stable ? 25 * R0 / b : null, u0: KP * R0, umax, ymax } };
+  }
+  window.GW11W = { calc, makeResp };
+
+  // ---------------------------------------------------------------
+  // Plot helpers
+  // ---------------------------------------------------------------
+  const PO = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+  const CC = ["#5EEAD4", "#FB7185", "#FFB454"];
+  const MD = { yss: "dot", peak: "longdash", tp: "dot", ts: "dash", tr: "dashdot" };
+  const baseLayout = (extra) => Object.assign({
+    paper_bgcolor: "#171A21", plot_bgcolor: "#171A21", font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
+    margin: { l: 58, r: 14, t: 34, b: 44 }, showlegend: true,
+    xaxis: { gridcolor: "#282D3A", zerolinecolor: "#3a4052" }, yaxis: { gridcolor: "#282D3A", zerolinecolor: "#3a4052" },
+  }, extra || {});
+  const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p4: "Problem 4" };
+  const pstr = (p) => (Math.abs(p[1]) < 1e-9 ? nm(p[0], 4) : `${nm(p[0], 4)} ± ${nm(Math.abs(p[1]), 4)}j`);
+  const polesStr = (r) => (r.poles[0][1] !== 0 ? pstr(r.poles[0]) : (Math.abs(r.poles[0][0] - r.poles[1][0]) < 1e-9 ? nm(r.poles[0][0], 4) + " (double)" : `${nm(r.poles[0][0], 4)}, ${nm(r.poles[1][0], 4)}`));
+  const panels = {};
+
+  function buildApp(prefix, o) {
+    const host = document.getElementById(`app-${prefix}`);
+    const sl = (i, k, lab, mn, mx, st, v, locked) => `
+        <div class="sl${locked ? " locked" : ""}"><label>${lab}${locked ? ' <span class="lock">(fixed)</span>' : ""}</label><div class="row">
+          <input type="range" id="sim-${prefix}-c${i}-${k}-s" min="${mn}" max="${mx}" step="${st}" value="${v === "" ? mn : v}" ${locked ? "disabled" : ""} />
+          <input type="number" id="sim-${prefix}-c${i}-${k}" value="${v}" step="any" ${locked ? "readonly" : ""} /></div></div>`;
+    const caseCards = o.cases.map((c, i) => `
+      <div class="case-card c${i}">
+        <div class="hd"><input type="checkbox" id="sim-${prefix}-c${i}-on" ${c.on ? "checked" : ""} /> CASE ${i + 1}</div>
+        ${sl(i, "kp", "K<sub>P</sub>", 0, 200, 0.5, c.kp, o.lockKP !== undefined)}
+        ${sl(i, "kd", "K<sub>D</sub>", -5, 40, 0.1, c.kd, o.lockKD !== undefined)}
+      </div>`).join("");
+    host.innerHTML = `
+      <div class="app-grid">
+        <div>
+          <div class="card">
+            <h5>STEP SIZE</h5>
+            <div class="r0-row"><span class="mono" style="font-size:12px;color:var(--muted);">R<sub>0</sub> [rad]</span>
+              <input type="number" id="sim-${prefix}-r0" value="${o.R0}" step="any" ${o.lockR0 ? "readonly" : ""} />
+              <span class="deg" id="deg-${prefix}"></span>${o.lockR0 ? '<span class="lock" style="font-size:10px;color:var(--amber);">(fixed)</span>' : ""}</div>
+          </div>
+          ${caseCards}
+          <div class="tools">
+            <label><input type="checkbox" id="sim-${prefix}-lines" checked /> Metric lines</label>
+            <label><input type="checkbox" id="sim-${prefix}-collect" /> Collect poles</label>
+            <button class="run-btn secondary small" id="btn-${prefix}-clear">Clear pole plot</button>
+            <button class="run-btn small" id="btn-${prefix}-capture">CAPTURE FIGURE</button>
+          </div>
+          <p class="field-err" id="err-${prefix}"></p>
+          <p class="upload-status" id="capstat-${prefix}"></p>
+        </div>
+        <div class="plot-host t" id="plot-${prefix}-th"></div>
+      </div>
+      <div class="app-bottom">
+        <div class="plot-host u" id="plot-${prefix}-u"></div>
+        <div class="plot-host u" id="plot-${prefix}-pole"></div>
+      </div>
+      <div class="app-below" id="mt-${prefix}"></div>`;
+    const E = (id) => document.getElementById(`sim-${prefix}-${id}`);
+    let hist = [], lastKey = "", raf = null;
+    const num = (el) => (el.value === "" ? NaN : Number(el.value));
+
+    function update() {
+      const R0 = num(E("r0"));
+      const errs = [], res = [];
+      E("r0"); document.getElementById(`deg-${prefix}`).textContent = isFinite(R0) ? `= ${nm(R0 * 180 / Math.PI, 4)}°` : "";
+      o.cases.forEach((_, i) => {
+        if (!E(`c${i}-on`).checked) return;
+        const KP = num(E(`c${i}-kp`)), KD = num(E(`c${i}-kd`));
+        if (!isFinite(KP) || !isFinite(KD)) return;
+        if (!(R0 > 0)) { errs.push("R0 must be a positive number."); return; }
+        if (KP <= -25 + 1e-6) { errs.push(`Case ${i + 1}: need 25 + KP > 0.`); return; }
+        const r = calc(KP, KD, R0); r.idx = i; res.push(r);
+      });
+      document.getElementById(`err-${prefix}`).textContent = errs.filter((e, j) => errs.indexOf(e) === j).join(" ");
+      panels[prefix].res = res;
+
+      const thEl = document.getElementById(`plot-${prefix}-th`), uEl = document.getElementById(`plot-${prefix}-u`), poleEl = document.getElementById(`plot-${prefix}-pole`);
+      if (!res.length) {
+        thEl.innerHTML = '<div class="placeholder">Enter K<sub>P</sub> and K<sub>D</sub> for at least one case (and tick it) to see the response.</div>';
+        uEl.innerHTML = '<div class="placeholder">Control input u(t) appears here.</div>';
+        Plotly.purge(poleEl); poleEl.innerHTML = '<div class="placeholder">Closed loop poles appear here.</div>';
+        document.getElementById(`mt-${prefix}`).innerHTML = "";
+        if (window.__scheduleSave) window.__scheduleSave();
+        return;
+      }
+      [thEl, uEl, poleEl].forEach((el) => { if (el.querySelector(".placeholder")) el.innerHTML = ""; });
+      const anyUnstable = res.some((r) => !r.stable);
+      const tmax = Math.max.apply(null, res.map((r) => r.tfinal));
+      const showLines = E("lines").checked;
+
+      // theta(t)
+      const tr = [{ x: [0, tmax], y: [R0, R0], mode: "lines", name: "r = R0", line: { color: "#8B92A5", width: 1.2, dash: "dash" }, hoverinfo: "skip" }];
+      let lo = Math.min(0, R0), hi = R0;
+      res.forEach((r) => {
+        const col = CC[r.idx], nmc = `θ(t) case ${r.idx + 1}`;
+        tr.push({ x: r.t, y: r.y, mode: "lines", name: nmc, line: { color: col, width: 2.6 }, hovertemplate: "t=%{x:.3f}s  θ=%{y:.4f}<extra>" + nmc + "</extra>" });
+        if (r.stable) { lo = Math.min(lo, Math.min.apply(null, r.y)); hi = Math.max(hi, Math.max.apply(null, r.y)); }
+        if (showLines && r.stable) {
+          const add = (key, x, y) => tr.push({ x, y, mode: "lines", showlegend: false, hoverinfo: "skip", opacity: 0.85, line: { color: col, width: 1.2, dash: MD[key] } });
+          const top = Math.max(r.yss, r.m.ymax) * 1.08;
+          add("yss", [0, tmax], [r.yss, r.yss]);
+          if (r.m.OS > 0) add("peak", [0, tmax], [r.m.ymax, r.m.ymax]);
+          if (r.m.tp !== null) add("tp", [r.m.tp, r.m.tp], [0, top]);
+          if (r.m.ts !== null) add("ts", [r.m.ts, r.m.ts], [0, top]);
+          if (r.m.tR !== null) add("tr", [r.m.tR, r.m.tR], [0, top]);
+        }
+      });
+      if (showLines) [["θss", "yss"], ["Peak", "peak"], ["Peak time", "tp"], ["Settling time (2%)", "ts"], ["Rise time", "tr"]].forEach(([n, k]) =>
+        tr.push({ x: [null], y: [null], mode: "lines", name: n, line: { color: "#B8BECC", width: 1.4, dash: MD[k] } }));
+      let yr = [lo - 0.08 * (hi - lo || 1), hi + 0.12 * (hi - lo || 1)];
+      if (anyUnstable) yr = [Math.min(yr[0], -3 * R0), Math.max(yr[1], 3.5 * R0)];
+      Plotly.react(thEl, tr, baseLayout({ title: { text: "Step response θ(t)", font: { size: 12 }, x: 0.02 },
+        xaxis: { title: "time (sec)", gridcolor: "#282D3A", range: [0, tmax] }, yaxis: { title: "output θ(t) [rad]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: yr },
+        legend: { orientation: "h", y: -0.22, font: { size: 9 } }, margin: { l: 58, r: 14, t: 34, b: 90 } }), PO);
+
+      // u(t)
+      let ulo = 0, uhi = 0;
+      const ut = [];
+      res.forEach((r) => {
+        const col = CC[r.idx], nmc = `u(t) case ${r.idx + 1}`;
+        ut.push({ x: r.t, y: r.u, mode: "lines", name: nmc, line: { color: col, width: 2.4 }, hovertemplate: "t=%{x:.3f}s  u=%{y:.3f}<extra>" + nmc + "</extra>" });
+        ut.push({ x: [0], y: [r.m.u0], mode: "markers", showlegend: false, marker: { color: col, size: 8, symbol: "circle-open", line: { width: 2, color: col } }, hovertemplate: "u(0)=%{y:.3f}<extra>case " + (r.idx + 1) + "</extra>" });
+        if (r.stable) { ulo = Math.min(ulo, Math.min.apply(null, r.u)); uhi = Math.max(uhi, Math.max.apply(null, r.u)); }
+      });
+      ut.push({ x: [null], y: [null], mode: "markers", name: "u(0) = KP·R0 (IVT)", marker: { color: "#B8BECC", size: 8, symbol: "circle-open", line: { width: 2, color: "#B8BECC" } } });
+      let ur = [ulo - 0.1 * (uhi - ulo || 1), uhi + 0.1 * (uhi - ulo || 1)];
+      if (anyUnstable) { const m = 3 * Math.max.apply(null, res.map((r) => Math.abs(r.m.u0)).concat([1])); ur = [Math.min(ur[0], -m), Math.max(ur[1], m)]; }
+      Plotly.react(uEl, ut, baseLayout({ title: { text: "Control input u(t)", font: { size: 12 }, x: 0.02 },
+        xaxis: { title: "time (sec)", gridcolor: "#282D3A", range: [0, tmax] }, yaxis: { title: "control u(t) [Nm]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: ur },
+        legend: { orientation: "h", y: -0.28, font: { size: 9 } }, margin: { l: 58, r: 14, t: 34, b: 84 } }), PO);
+
+      // poles
+      if (!E("collect").checked) hist = [];
+      const key = JSON.stringify(res.map((r) => [r.idx, r.poles]));
+      if (key !== lastKey) {
+        lastKey = key;
+        res.forEach((r) => r.poles.forEach((p) => hist.push({ x: p[0], y: p[1], c: r.idx })));
+        if (hist.length > 900) hist = hist.slice(-900);
+      }
+      let lim = 0;
+      res.forEach((r) => r.poles.forEach((p) => { lim = Math.max(lim, Math.abs(p[0]), Math.abs(p[1])); }));
+      hist.forEach((h) => { lim = Math.max(lim, Math.abs(h.x), Math.abs(h.y)); });
+      lim = (lim || 10) * 1.2;
+      const ptr = [0, 1, 2].map((c) => {
+        const hh = hist.filter((h) => h.c === c);
+        return { x: hh.map((h) => h.x), y: hh.map((h) => h.y), mode: "markers", name: `case ${c + 1}`, marker: { symbol: "x", size: 13, color: CC[c], line: { width: 3, color: CC[c] } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>case " + (c + 1) + "</extra>" };
+      }).filter((tt) => tt.x.length);
+      Plotly.react(poleEl, ptr, baseLayout({ title: { text: "Closed loop poles", font: { size: 12 }, x: 0.02 }, margin: { l: 52, r: 14, t: 34, b: 84 }, legend: { orientation: "h", y: -0.28, font: { size: 9 } },
+        xaxis: { title: "Re(s)", range: [-lim, lim], gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 },
+        yaxis: { title: "Im(s)", range: [-lim, lim], scaleanchor: "x", gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 } }), PO);
+
+      // metrics table
+      const rows = [
+        ["K_P", (r) => nm(r.KP)], ["K_D", (r) => nm(r.KD)], ["R_0 [rad]", (r) => nm(r.R0)], ["type", (r) => r.kind],
+        ["ω_n^CL = √(25+K_P) [rad/s]", (r) => nm(r.wn)], ["ζ^CL = (1+K_D)/(2ω_n)", (r) => nm(r.z)], ["ζ^CL·ω_n^CL", (r) => nm(r.sg)],
+        ["ω_d^CL [rad/s]", (r) => (r.wd === null ? "—" : nm(r.wd))], ["closed loop poles", (r) => polesStr(r)],
+        ["θ_ss [rad]", (r) => (r.yss === null ? "n/a" : nm(r.yss))], ["e_ss = 25 R_0/(25+K_P) [rad]", (r) => (r.m.ess === null ? "n/a" : nm(r.m.ess))],
+        ["e_ss / R_0", (r) => (r.m.ess === null ? "n/a" : nm(r.m.ess / r.R0))],
+        ["u(0) = K_P·R_0 [Nm]", (r) => nm(r.m.u0)], ["max |u(t)| [Nm]", (r) => (r.m.umax === null ? "n/a" : nm(r.m.umax))],
+        ["max overshoot M_O [%]", (r) => (r.stable && r.KP > 1e-9 ? nm(r.m.OS) : "n/a")], ["peak time [s]", (r) => fmtT(r.m.tp)], ["0–100% rise time [s]", (r) => fmtT(r.m.tR)],
+        ["2% settling time (numeric) [s]", (r) => fmtT(r.m.ts)], ["settling 4/(ζω_n) [s]", (r) => fmtT(r.m.ts4)],
+      ];
+      document.getElementById(`mt-${prefix}`).innerHTML = `<table class="mt"><tr><th>metric</th>${res.map((r) => `<th class="k${r.idx}">case ${r.idx + 1}</th>`).join("")}</tr>` +
+        rows.map(([lab, f]) => `<tr><td>${lab}</td>${res.map((r) => `<td class="k${r.idx}">${f(r)}</td>`).join("")}</tr>`).join("") + "</table>";
+      if (window.__scheduleSave) window.__scheduleSave();
+    }
+    function schedule() { if (raf) return; raf = requestAnimationFrame(() => { raf = null; update(); }); }
+
+    E("r0").addEventListener("input", schedule);
+    ["lines", "collect"].forEach((k) => E(k).addEventListener("change", schedule));
+    document.getElementById(`btn-${prefix}-clear`).addEventListener("click", () => { hist = []; lastKey = ""; update(); });
+    o.cases.forEach((_, i) => {
+      E(`c${i}-on`).addEventListener("change", schedule);
+      ["kp", "kd"].forEach((k) => {
+        const s = E(`c${i}-${k}-s`), n = E(`c${i}-${k}`);
+        s.addEventListener("input", () => { n.value = s.value; E(`c${i}-on`).checked = true; schedule(); });
+        n.addEventListener("input", () => { const v = Number(n.value); if (n.value !== "" && isFinite(v)) s.value = v; if (n.value !== "") E(`c${i}-on`).checked = true; schedule(); });
+      });
+    });
+
+    async function capture() {
+      const st = document.getElementById(`capstat-${prefix}`), res = panels[prefix].res;
+      if (!res || !res.length) { st.style.color = "#FB7185"; st.textContent = "Enter at least one case first."; return; }
+      st.style.color = "#5EEAD4"; st.textContent = "Capturing…";
+      try {
+        const img = (src) => new Promise((rs, rj) => { const i = new Image(); i.onload = () => rs(i); i.onerror = rj; i.src = src; });
+        const a = await Plotly.toImage(document.getElementById(`plot-${prefix}-th`), { format: "png", width: 1300, height: 440 });
+        const b = await Plotly.toImage(document.getElementById(`plot-${prefix}-u`), { format: "png", width: 760, height: 380 });
+        const c = await Plotly.toImage(document.getElementById(`plot-${prefix}-pole`), { format: "png", width: 540, height: 380 });
+        const cv = document.createElement("canvas"); cv.width = 1300; cv.height = 820;
+        const cx = cv.getContext("2d"); cx.fillStyle = "#171A21"; cx.fillRect(0, 0, 1300, 820);
+        cx.drawImage(await img(a), 0, 0, 1300, 440); cx.drawImage(await img(b), 0, 440, 760, 380); cx.drawImage(await img(c), 760, 440, 540, 380);
+        window.__addCapture({ prefix, lines: caseLines(res), dataUrl: cv.toDataURL("image/png"), width: cv.width, height: cv.height });
+        st.textContent = "Figure captured — see Submission.";
+      } catch (e) { console.error(e); st.style.color = "#FB7185"; st.textContent = "Could not capture figure."; }
+    }
+    document.getElementById(`btn-${prefix}-capture`).addEventListener("click", capture);
+    panels[prefix] = { update, res: [] };
+    update();
+  }
+
+  function caseLines(res) {
+    return res.map((r) => `Case ${r.idx + 1}: KP=${nm(r.KP)}, KD=${nm(r.KD)}, R0=${nm(r.R0)} rad | ${r.kind} | zeta=${nm(r.z)}, wn=${nm(r.wn)}, ` +
+      (r.stable ? `MO=${nm(r.m.OS)}%, tR=${r.m.tR === null ? "n/a" : nm(r.m.tR) + " s"}, tS(2%)=${nm(r.m.ts)} s, ess=${nm(r.m.ess)} rad (ess/R0=${nm(r.m.ess / r.R0)}), ` : "") +
+      `u(0)=${nm(r.m.u0)} Nm` + (r.stable ? `, max|u|=${nm(r.m.umax)} Nm` : ""));
+  }
+
+  const K = (kp, kd, on) => ({ kp, kd, on });
+  buildApp("p1", { R0: 1, cases: [K(25, 5, true), K("", "", false), K("", "", false)] });
+  buildApp("p2", { R0: 1, lockKP: 11, cases: [K(11, "", true), K(11, "", false), K(11, "", false)] });
+  buildApp("p3", { R0: 1, lockKD: 9, cases: [K("", 9, true), K("", 9, false), K("", 9, false)] });
+  buildApp("p4", { R0: 0.349, lockR0: true, cases: [K("", "", true), K("", "", false), K("", "", false)] });
+
+  // ---------------------------------------------------------------
+  // KaTeX
+  // ---------------------------------------------------------------
+  const kr = (id, tex) => katex.render(tex, document.getElementById(id), { throwOnError: false, displayMode: true });
+  kr("eq-G", "\\frac{Y(s)}{U(s)}=\\frac{\\Theta(s)}{T(s)}=G(s)=\\frac{1}{s^2+s+25}=\\frac{1}{s^2+2\\zeta\\omega_n s+\\omega_n^2}\\qquad(1)");
+  kr("eq-law", "u=K_P\\,(r-y)+K_D\\,(-\\dot y)\\qquad(2)");
+  kr("eq-CL", "\\frac{Y(s)}{R(s)}=\\frac{K_P}{s^2+(1+K_D)\\,s+(25+K_P)}\\equiv\\frac{C}{s^2+2\\zeta^{CL}\\omega_n^{CL}s+(\\omega_n^{CL})^2}\\qquad(3)");
+  kr("eq-rel", "1+K_D=2\\zeta^{CL}\\omega_n^{CL}\\quad(4),\\qquad 25+K_P=(\\omega_n^{CL})^2\\quad(5)");
+  kr("eq-step", "y(t)=R_0\\,\\frac{C}{(\\omega_n^{CL})^2}\\left[1-\\frac{1}{\\sqrt{1-(\\zeta^{CL})^2}}\\,e^{-\\zeta^{CL}\\omega_n^{CL}t}\\sin\\!\\left(\\omega_d^{CL}t+\\phi^{CL}\\right)\\right]\\qquad(6)");
+  kr("eq-metrics", "t_R=\\frac{\\pi-\\phi}{\\omega_d},\\quad t_S=\\frac{4}{\\zeta\\omega_n},\\quad M_O=100\\%\\times\\exp\\!\\left(\\frac{-\\pi\\zeta}{\\sqrt{1-\\zeta^2}}\\right)");
+  kr("eq-EU", "\\frac{E(s)}{R(s)}=\\frac{s^2+(1+K_D)s+25}{s^2+(1+K_D)s+(25+K_P)},\\qquad \\frac{U(s)}{R(s)}=\\frac{K_P\\,(s^2+s+25)}{s^2+(1+K_D)s+(25+K_P)}\\qquad(7)");
+  kr("eq-p2reqs", "\\text{a) under-damped: } 0<\\zeta^{CL}<1,\\qquad \\text{b) settling time } t_S<2\\ \\text{sec}");
+  kr("eq-p3reqs", "\\text{a) max overshoot } M_O<20\\%,\\qquad \\text{b) rise time } t_R<0.25\\ \\text{sec}");
+  kr("eq-p4reqs", "\\text{a) } \\frac{e_{ss}}{R_0}<0.2,\\qquad \\text{b) } \\max|u(t)|<50\\ \\text{N-m},\\qquad \\text{c) } M_O<10\\%");
+
+  // ---------------------------------------------------------------
+  // Reference charts (Figure 3)
+  // ---------------------------------------------------------------
+  const refDone = {};
+  function drawRef() {
+    const line = (x, y, name) => [{ x, y, mode: "lines", name, line: { color: "#5EEAD4", width: 2.4 }, showlegend: false }];
+    const L = (title, xt, yt, extra) => baseLayout(Object.assign({ title: { text: title, font: { size: 12 }, x: 0.02 }, showlegend: false, margin: { l: 58, r: 14, t: 34, b: 46 },
+      xaxis: { title: xt, gridcolor: "#282D3A" }, yaxis: { title: yt, gridcolor: "#282D3A" } }, extra || {}));
+    const lin = (a, b, n) => Array.from({ length: n }, (_, i) => a + (b - a) * i / (n - 1));
+    const wd = lin(3, 16, 200), z = lin(0, 0.999, 300), sg = Array.from({ length: 200 }, (_, i) => Math.pow(10, -2 + 4 * i / 199));
+    Plotly.react("ref-1", line(wd, wd.map((w) => (Math.PI - Math.atan(w / 5)) / w)), L("t_R vs ω_d  (ζω_n = 5 fixed)", "damped natural frequency ω_d [rad/s]", "rise time t_R [s]"), PO);
+    Plotly.react("ref-2", line(z, z.map((q) => Math.PI - Math.acos(q))), L("normalized rise time ω_d·t_R vs ζ", "damping ratio ζ", "ω_d t_R"), PO);
+    Plotly.react("ref-3", line(sg, sg.map((s) => 4 / s)), L("settling time t_S vs ζω_n", "negative real pole ζω_n", "settling time t_S [s]", { xaxis: { type: "log", title: "negative real pole ζω_n", gridcolor: "#282D3A" }, yaxis: { type: "log", title: "settling time t_S [s]", gridcolor: "#282D3A" } }), PO);
+    Plotly.react("ref-4", line(z, z.map((q) => 100 * Math.exp(-Math.PI * q / Math.sqrt(1 - q * q))), "MO"), L("max overshoot M_O vs ζ", "damping ratio ζ", "M_O [%]"), PO);
+  }
+  drawRef();
+
+  // ---------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------
+  const SECTION_IDS = { intro: "part-intro", ref: "part-ref", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
+  function activate(part) {
+    document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
+    Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+    const sec = document.getElementById(SECTION_IDS[part]); sec.style.display = "block";
+    sec.querySelectorAll(".js-plotly-plot").forEach((p) => { try { Plotly.Plots.resize(p); } catch (e) { /* ignore */ } });
+  }
+  document.querySelectorAll(".nav-btn").forEach((b) => b.addEventListener("click", () => activate(b.dataset.part)));
+
+  // ---------------------------------------------------------------
+  // Captured figures
+  // ---------------------------------------------------------------
+  let captures = []; const CAP_KEY = "gw11w_captures_v1";
+  function renderCaptures() {
+    const host = document.getElementById("cap-list");
+    if (!captures.length) { host.innerHTML = '<span class="mono" style="font-size:11.5px;color:var(--muted);">No figures captured yet.</span>'; return; }
+    host.innerHTML = captures.map((c, i) => `<div class="cap-item"><button class="cap-x" data-i="${i}" type="button">✕</button><img src="${c.dataUrl}" alt="" /><div class="cap-text"><b>${TITLES[c.prefix]}</b><br>${c.lines.join("<br>")}</div></div>`).join("");
+    host.querySelectorAll(".cap-x").forEach((b) => b.addEventListener("click", () => { captures.splice(Number(b.dataset.i), 1); renderCaptures(); saveCaps(); }));
+  }
+  function saveCaps() { try { localStorage.setItem(CAP_KEY, JSON.stringify(captures)); } catch (e) { /* quota */ } }
+  window.__addCapture = (c) => { captures.push(c); renderCaptures(); saveCaps(); };
+  try { const raw = localStorage.getItem(CAP_KEY); if (raw) captures = JSON.parse(raw) || []; } catch (e) { captures = []; }
+  renderCaptures();
+
+  // ---------------------------------------------------------------
+  // PDF export
+  // ---------------------------------------------------------------
+  let appendixFiles = [];
+  function renderChips() {
+    const host = document.getElementById("upload-thumbs-appendix"); host.innerHTML = "";
+    appendixFiles.forEach((f, i) => { const d = document.createElement("div"); d.className = "file-chip"; d.innerHTML = `<span>${f.name}</span><button class="chip-remove" data-i="${i}" type="button">✕</button>`; host.appendChild(d); });
+    host.querySelectorAll(".chip-remove").forEach((b) => b.addEventListener("click", () => { appendixFiles.splice(Number(b.dataset.i), 1); renderChips(); }));
+  }
+  const appIn = document.getElementById("upload-input-appendix");
+  appIn.addEventListener("change", () => {
+    const chosen = Array.from(appIn.files || []);
+    const bad = chosen.filter((f) => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+    appendixFiles = appendixFiles.concat(chosen.filter((f) => !bad.includes(f)));
+    document.getElementById("upload-err-appendix").textContent = bad.length ? `Skipped (not a PDF): ${bad.map((f) => f.name).join(", ")}` : "";
+    renderChips(); appIn.value = "";
+  });
+  const setStatus = (t, err) => { const e = document.getElementById("exportStatus"); e.textContent = t; e.style.color = err ? "#FB7185" : "#8B92A5"; };
+  const val = (id) => document.getElementById(id).value.trim();
+  const reflect = (id) => val(id) || "(No response entered.)";
+  function blankItems() {
+    const out = [];
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.value.trim() === "") out.push(e.id.replace(/^input-/, "").replace(/-/g, " ")); });
+    if (!captures.length) out.push("no captured figures");
+    return out;
+  }
+  async function exportPdf() {
+    const blanks = blankItems();
+    if (blanks.length && !confirm(`The following are still blank:\n\n${blanks.map((b) => "• " + b).join("\n")}\n\nDo you want to export the PDF anyway?`)) return;
+    const btn = document.getElementById("exportPdfBtn"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = "EXPORTING…"; setStatus("");
+    try {
+      const { jsPDF } = window.jspdf, doc = new jsPDF({ unit: "pt", format: "letter" });
+      const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), mg = 48, mw = W - mg * 2; let y = mg;
+      const ensure = (h) => { if (y + h > H - mg) { doc.addPage(); y = mg; } };
+      const safe = (t) => String(t).replace(/ω_?n/g, "omega_n").replace(/ω/g, "omega").replace(/ζ/g, "zeta").replace(/θ/g, "theta").replace(/₀/g, "0")
+        .replace(/[−–]/g, "-").replace(/≤/g, "<=").replace(/≥/g, ">=").replace(/√/g, "sqrt").replace(/·/g, "*").replace(/×/g, "x").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/±/g, "+/-").replace(/→/g, "->").replace(/[^\x00-\xFF]/g, "?");
+      const heading = (t) => { ensure(30); doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(safe(t), mg, y); y += 22; };
+      const text = (t, o) => { const s = (o && o.size) || 10.5; doc.setFont("helvetica", o && o.bold ? "bold" : "normal"); doc.setFontSize(s); const lh = s * 1.35; doc.splitTextToSize(safe(t), mw).forEach((l) => { ensure(lh); doc.text(l, mg, y); y += lh; }); y += 4; };
+      const caps = (p) => {
+        captures.filter((c) => c.prefix === p).forEach((c) => { const h = mw * (c.height / c.width); ensure(h + 40); c.lines.forEach((l) => text(l, { size: 8 })); ensure(h + 10); doc.addImage(c.dataUrl, "PNG", mg, y, mw, h); y += h + 14; });
+      };
+      const cases = (p) => { const res = panels[p].res || []; if (res.length) { text("Cases entered in the app:", { bold: true }); caseLines(res).forEach((l) => text(l, { size: 9 })); } };
+      const range = (lab, lo, hi) => text(`${lab}: ${val(lo) || "(blank)"} < ${lab} < ${val(hi) || "(blank)"}`, { bold: true });
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+      doc.splitTextToSize("GroupWork 11W — Proportional and Derivative Controller", mw).forEach((l) => { doc.text(l, mg, y); y += 20; }); y += 6;
+      const netId = val("input-netid") || "(not entered)";
+      text(`Your NetID: ${netId}`, { bold: true, size: 11.5 }); text(`Group member NetIDs: ${val("input-group-netids") || "(not entered)"}`, { bold: true, size: 11.5 }); y += 6;
+
+      heading("Problem 1: Steady state error");
+      text("Derivation:", { bold: true }); text(reflect("input-p1-derivation")); text("Discussion:", { bold: true }); text(reflect("input-p1-discuss")); cases("p1"); caps("p1");
+      heading("Problem 2: Designing the D gain (KP = 11)");
+      text("Derivation:", { bold: true }); text(reflect("input-p2-derivation")); range("KD", "input-p2-kd-lo", "input-p2-kd-hi"); cases("p2"); caps("p2");
+      text("Optional - negative KD:", { bold: true }); text(reflect("input-p2-negkd"));
+      heading("Problem 3: Designing the P gain (KD = 9)");
+      text("Derivation:", { bold: true }); text(reflect("input-p3-derivation")); range("KP", "input-p3-kp-lo", "input-p3-kp-hi"); text("Discussion:", { bold: true }); text(reflect("input-p3-discuss")); cases("p3"); caps("p3");
+      heading("Problem 4: Designing a PD controller (R0 = 0.349 rad)");
+      text("Derivation:", { bold: true }); text(reflect("input-p4-derivation")); range("KP", "input-p4-kp-lo", "input-p4-kp-hi"); range("KD", "input-p4-kd-lo", "input-p4-kd-hi");
+      text("Discussion:", { bold: true }); text(reflect("input-p4-discuss")); cases("p4"); caps("p4");
+
+      const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+      if (appendixFiles.length) {
+        const { PDFDocument } = window.PDFLib, merged = await PDFDocument.load(doc.output("arraybuffer")), failed = [];
+        for (const f of appendixFiles) { try { const ap = await PDFDocument.load(await f.arrayBuffer()); (await merged.copyPages(ap, ap.getPageIndices())).forEach((p) => merged.addPage(p)); } catch (e) { console.error(e); failed.push(f.name); } }
+        const url = URL.createObjectURL(new Blob([await merged.save()], { type: "application/pdf" }));
+        const a = document.createElement("a"); a.href = url; a.download = `GroupWork11W_${safeId}.pdf`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        setStatus(failed.length ? `PDF downloaded, but could not append: ${failed.join(", ")}` : "PDF downloaded (with appendix attached).");
+      } else { doc.save(`GroupWork11W_${safeId}.pdf`); setStatus("PDF downloaded."); }
+    } catch (e) { console.error(e); setStatus(`Could not export PDF: ${e.message}`, true); }
+    finally { btn.disabled = false; btn.textContent = label; }
+  }
+  document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+  // ---------------------------------------------------------------
+  // Autosave
+  // ---------------------------------------------------------------
+  const KEY = "gw11w_progress_v1";
+  function collect() {
+    const v = {};
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"], input[id^="sim-"]').forEach((e) => { v[e.id] = e.type === "checkbox" ? e.checked : e.value; });
+    return v;
+  }
+  function save() { try { const a = document.querySelector(".nav-btn.active"); localStorage.setItem(KEY, JSON.stringify({ tab: a ? a.dataset.part : "intro", f: collect() })); } catch (e) { /* ignore */ } }
+  let st = null; const sched = () => { clearTimeout(st); st = setTimeout(save, 250); };
+  window.__scheduleSave = sched; document.addEventListener("input", sched); document.addEventListener("change", sched); document.addEventListener("click", sched);
+  (function load() {
+    let s; try { const raw = localStorage.getItem(KEY); if (!raw) return; s = JSON.parse(raw); } catch (e) { return; }
+    Object.keys(s.f || {}).forEach((id) => {
+      const e = document.getElementById(id); if (!e || e.readOnly || e.disabled) return;
+      if (e.type === "checkbox") e.checked = !!s.f[id]; else e.value = s.f[id];
+    });
+    Object.keys(panels).forEach((p) => panels[p].update());
+    if (s.tab && SECTION_IDS[s.tab]) activate(s.tab);
+  })();
+})();
+</script>
+
+</body>
+</html>

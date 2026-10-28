@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GroupWork 11F &mdash; PID Control</title>
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0F1115; --panel: #171A21; --panel2: #1D212B; --line: #282D3A;
+    --amber: #FFB454; --cyan: #5EEAD4; --rose: #FB7185; --pink: #F472B6;
+    --fg: #E7E9EE; --muted: #8B92A5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--ink); color: var(--fg); font-family: 'Inter', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  header h1 { font-size: 14px; margin: 0; font-weight: 600; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+
+  main { flex: 1; display: flex; overflow: hidden; }
+  nav { width: 220px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line); order: 2; padding: 16px 14px; overflow-y: auto; }
+  nav p.label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; margin: 14px 0 8px 0; }
+  nav p.label:first-child { margin-top: 0; }
+  .nav-btn { display: block; width: 100%; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 9px 12px; margin-bottom: 6px; background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; color: var(--fg); cursor: pointer; }
+  .nav-btn.active { border-color: var(--amber); color: var(--amber); }
+  .nav-btn small { display: block; font-family: 'Inter', sans-serif; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .content { flex: 1; order: 1; overflow-y: auto; padding: 28px 40px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  h2.section-title { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--amber); margin: 0 0 14px 0; }
+  h3.problem-title { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--cyan); margin: 0 0 10px 0; }
+  h4.part-title { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--fg); margin: 22px 0 8px 0; }
+  p.instructions { font-size: 14.5px; line-height: 1.65; color: var(--fg); margin: 0 0 16px 0; }
+  ul.goals { padding-left: 20px; margin: 0 0 16px 0; }
+  ul.goals li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .eq-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; margin: 14px 0; text-align: center; font-size: 16px; }
+  .given-line { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin: 0 0 18px 0; line-height: 1.8; }
+  .given-line b { color: var(--fg); font-weight: 600; }
+  .note-box { background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 4px; padding: 12px 16px; margin: 0 0 18px 0; font-size: 13px; line-height: 1.6; color: var(--fg); }
+  .note-box code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan); background: var(--ink); padding: 1px 5px; border-radius: 3px; }
+
+  .panel-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
+  .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  .form-grid.one { grid-template-columns: 1fr; }
+  .form-grid.two { grid-template-columns: 1fr 1fr; }
+  .form-grid.five { grid-template-columns: repeat(5, 1fr); }
+  .field { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .field label { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .field input[type="text"], .field input[type="number"] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 8px 10px; }
+  .field input:focus { outline: none; border-color: var(--amber); }
+  .field select { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 8px 10px; }
+  .field select:focus { outline: none; border-color: var(--amber); }
+
+  .reflection-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  .reflection-box textarea { width: 100%; min-height: 90px; resize: vertical; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'Inter', sans-serif; font-size: 14px; padding: 10px 12px; line-height: 1.5; }
+  .reflection-box textarea:focus { outline: none; border-color: var(--amber); }
+
+  .run-btn { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; padding: 10px 22px; border-radius: 6px; border: none; background: var(--amber); color: var(--ink); cursor: pointer; }
+  .run-btn:hover { filter: brightness(1.08); }
+  .run-btn:active { transform: scale(0.98); }
+  .run-btn.secondary { background: none; color: var(--muted); border: 1px solid var(--line); }
+  .run-btn.secondary:hover { color: var(--rose); border-color: var(--rose); }
+  .run-btn.small { font-size: 11.5px; padding: 8px 14px; }
+
+  .match-banner { display: none; margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line); }
+  .match-banner.match { display: block; border-color: var(--cyan); color: var(--cyan); }
+  .match-banner.no-match { display: block; border-color: var(--rose); color: var(--rose); }
+  .field-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; min-height: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .plot-host { height: 300px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin-top: 14px; }
+  .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 13px; text-align: center; max-width: 320px; margin: 0 auto; padding: 0 20px; }
+
+  .steps-list { padding-left: 20px; margin: 0 0 16px 0; }
+  .steps-list li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .upload-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 0 0 18px 0; }
+  .upload-block input[type="file"] { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--fg); }
+  .upload-thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .thumb-wrap { position: relative; width: 90px; height: 120px; }
+  .thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); display: block; }
+  .thumb-remove { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+  .upload-status { font-size: 11px; color: var(--cyan); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; }
+  .upload-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+  .file-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; margin: 4px 6px 4px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .file-chip .chip-remove { background: none; border: none; color: var(--rose); cursor: pointer; font-size: 13px; line-height: 1; font-family: 'JetBrains Mono', monospace; padding: 0; }
+
+  .vib-top-row { display: flex; gap: 18px; align-items: flex-start; margin-top: 14px; }
+  .vib-svg-host { flex: 1.3; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .vib-output { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .vib-output h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .vib-output .out-row { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; margin-bottom: 7px; color: var(--fg); gap: 8px; }
+  .vib-output .out-row span.k { color: var(--muted); flex-shrink: 0; }
+  .vib-output .out-row span.v { color: var(--cyan); text-align: right; }
+  .vib-presets { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+  .katex { color: var(--fg); }
+</style>
+<style>
+  .app-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 14px; align-items: start; }
+  .app-grid .card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+  .card h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em; font-weight: 500; }
+  .num-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .num-row label, .sl label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+  .num-row input, .sl input[type=number] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .num-row input:focus, .sl input[type=number]:focus { outline: none; border-color: var(--amber); }
+  .sl { margin-bottom: 10px; }
+  .sl .row { display: flex; gap: 8px; align-items: center; }
+  .sl input[type=range] { flex: 1; min-width: 0; accent-color: var(--rose); }
+  .sl input[type=number] { width: 74px; }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .tools label { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--fg); display: flex; align-items: center; gap: 6px; }
+  .tools input { accent-color: var(--amber); }
+  .app-bottom { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; align-items: start; }
+  .plot-host.t { height: 400px; margin-top: 0; }
+  .plot-host.p { height: 340px; margin-top: 0; }
+  table.mt { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  table.mt th, table.mt td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: right; }
+  table.mt th:first-child, table.mt td:first-child { text-align: left; color: var(--muted); }
+  table.mt th { color: var(--muted); font-weight: 500; }
+  table.mt td.b { color: var(--cyan); } table.mt td.c { color: var(--rose); }
+  table.sum { border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; margin: 8px 0 16px; }
+  table.sum th, table.sum td { border: 1px solid var(--line); padding: 6px 8px; }
+  table.sum th { color: var(--muted); font-weight: 500; background: var(--panel); }
+  table.sum select { background: var(--ink); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 12px; padding: 4px; }
+  .cap-list { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 18px; }
+  .cap-item { width: 250px; background: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px; position: relative; }
+  .cap-item img { width: 100%; border-radius: 4px; display: block; }
+  .cap-item .cap-text { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+  .cap-item .cap-x { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px; line-height: 1; }
+  @media (max-width: 1000px) { .app-grid, .app-bottom { grid-template-columns: 1fr; } }
+</style>
+<style>
+  .case-card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px 6px; margin-bottom: 12px; border-left-width: 4px; }
+  .case-card.c0 { border-left-color: #5EEAD4; } .case-card.c1 { border-left-color: #FB7185; } .case-card.c2 { border-left-color: #FFB454; }
+  .case-card .hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+  .case-card .hd input { accent-color: var(--amber); }
+  .sl.locked input[type=number] { opacity: 0.65; border-style: dashed; }
+  .sl .lock { font-size: 10px; color: var(--amber); font-family: 'JetBrains Mono', monospace; }
+  .r0-row { display: flex; align-items: center; gap: 10px; }
+  .r0-row input[type=number] { width: 90px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .r0-row .deg { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); }
+  .plot-host.t { height: 400px; }
+  .plot-host.u { height: 320px; margin-top: 0; }
+  .app-below { margin-top: 14px; }
+  table.mt td.k0 { color: #5EEAD4; } table.mt td.k1 { color: #FB7185; } table.mt td.k2 { color: #FFB454; }
+  table.mt th.k0 { color: #5EEAD4; } table.mt th.k1 { color: #FB7185; } table.mt th.k2 { color: #FFB454; }
+  .ref-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; }
+  .plot-host.r { height: 290px; margin-top: 0; }
+  .range-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+  .range-row input { width: 90px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .range-row input:focus { outline: none; border-color: var(--amber); }
+  @media (max-width: 1000px) { .ref-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>GROUPWORK 11F <span>&mdash; PID Control (M&amp;AE 3260)</span></h1>
+</header>
+
+<main>
+  <nav>
+    <p class="label">BACKGROUND</p>
+    <button class="nav-btn active" data-part="intro">Intro<small>System, PID law &amp; the app</small></button>
+    <button class="nav-btn" data-part="ref">Reference charts<small>Figure 3 (t<sub>S</sub>, M<sub>O</sub>)</small></button>
+
+    <p class="label">PROBLEM 1</p>
+    <button class="nav-btn" data-part="p1">Tuning by hand<small>System 1: K<sub>P</sub>, K<sub>I</sub>, K<sub>D</sub></small></button>
+
+    <p class="label">PROBLEM 2</p>
+    <button class="nav-btn" data-part="p2">Second-order analogue<small>System 2: &zeta;, &omega;<sub>n</sub>, p<sub>3</sub></small></button>
+
+    <p class="label">PROBLEM 3</p>
+    <button class="nav-btn" data-part="p3">First-order analogue<small>System 3: &zeta;, &omega;<sub>n</sub>, p<sub>3</sub></small></button>
+
+    <p class="label">PROBLEM 4</p>
+    <button class="nav-btn" data-part="p4">Analysis<small>Compare all three systems</small></button>
+
+    <p class="label">SUBMIT</p>
+    <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+  </nav>
+
+  <div class="content">
+    <div class="wrap">
+
+      <!-- ============== INTRO ============== -->
+      <section id="part-intro">
+        <h2 class="section-title">PID Control</h2>
+
+        <p class="instructions"><b>Learning Goals:</b></p>
+        <ul class="goals">
+          <li>Derive closed loop transfer functions for a system with a PID controller with internal feedback</li>
+          <li>Select PID controller gains (K<sub>P</sub>, K<sub>I</sub>, K<sub>D</sub>) to meet multiple performance requirements</li>
+          <li>Design feedback control systems using dominant poles (1st or 2nd order)</li>
+        </ul>
+
+        <p class="instructions">For all problems we use the robot arm, whose equation of motion is</p>
+        <div class="eq-block" id="eq-eom"></div>
+        <p class="instructions">where T(t) is the torque input. The PID controller with internal feedback is</p>
+        <div class="eq-block" id="eq-law"></div>
+        <p class="instructions">The resulting closed loop transfer functions are</p>
+        <div class="eq-block" id="eq-CL"></div>
+        <p class="instructions">Including integral control makes the closed loop system <b>third order</b>, so the 2nd order step response metrics cannot be applied directly. Instead we design using <b>dominant poles</b>. The closed loop characteristic polynomial is matched to a complex pair and one simple pole:</p>
+        <div class="eq-block" id="eq-match"></div>
+        <p class="instructions">The reference is a 20&deg; step, R(s) = 0.349/s rad. Requirements:</p>
+        <div class="eq-block req-list" id="eq-reqs"></div>
+        <p class="instructions">Note that max |u(t)| does not necessarily occur at t = 0, so it must be checked in the simulation.</p>
+
+      </section>
+
+      <!-- ============== REFERENCE ============== -->
+      <section id="part-ref" style="display:none;">
+        <h2 class="section-title">Reference charts (Figure 3)</h2>
+        <p class="instructions">Settling time t<sub>S</sub> as a function of &zeta;&omega;<sub>n</sub>, and maximum overshoot M<sub>O</sub> as a function of &zeta;, for an underdamped second order system. Hover over a curve to read values.</p>
+        <div class="ref-grid">
+          <div class="plot-host r" id="ref-1"></div>
+          <div class="plot-host r" id="ref-2"></div>
+        </div>
+      </section>
+
+      <!-- ============== PROBLEM 1 ============== -->
+      <section id="part-p1" style="display:none;">
+        <h3 class="problem-title">Problem 1: Tuning by hand</h3>
+        <p class="instructions">
+          Using System 1, try to find values of K<sub>P</sub>, K<sub>I</sub> and K<sub>D</sub> that satisfy the step-response requirements. Record at least three trends you observe
+          while varying the gains (how do the poles and the response change?). This is hard to do &mdash; it is okay if you cannot meet the requirements this way.
+          Record your observations and move on to Problem 2 after 5&ndash;10 minutes.
+        </p>
+        <div class="panel-box" id="app-p1"></div>
+        <h4 class="part-title">Observations</h4>
+        <div class="reflection-box"><textarea id="input-p1-trend1" placeholder="Trend 1..."></textarea></div>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p1-trend2" placeholder="Trend 2..."></textarea></div>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p1-trend3" placeholder="Trend 3..."></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 2 ============== -->
+      <section id="part-p2" style="display:none;">
+        <h3 class="problem-title">Problem 2: Second-order analogue</h3>
+        <p class="instructions">
+          To guide the design, choose where the closed loop poles go, then compute the gains that give those poles. If 1/p<sub>3</sub> &ll; 1/(&zeta;&omega;<sub>n</sub>), the system behaves approximately as
+        </p>
+        <div class="eq-block" id="eq-2nd"></div>
+        <p class="instructions">
+          Using this approximation, choose &zeta;<sup>CL</sup> and &omega;<sub>n</sub><sup>CL</sup> to satisfy the design requirements, then choose p<sub>3</sub> so that the associated pole is non-dominant.
+          A good rule is to make the non-dominant time constant 5&times; smaller (faster):
+        </p>
+        <div class="eq-block" id="eq-rule2"></div>
+        <div class="note-box">
+          Avoid setting &zeta; = 1 exactly; use &zeta; &asymp; 0.9&ndash;0.99 for a nearly critically damped response, since critically damped responses sometimes have undefined metrics.
+          Tip: design the dominant (low-frequency) poles first to set rise/settling time, then place the remaining pole far to the left.
+        </div>
+        <h4 class="part-title">Calculations</h4>
+        <div class="reflection-box"><textarea id="input-p2-calc" placeholder="Your calculations: the &zeta; and &omega;n bounds from overshoot and settling time, and your choice of p3..."></textarea></div>
+        <h4 class="part-title">Verify with System 2</h4>
+        <div class="panel-box" id="app-p2"></div>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p2-notes" placeholder="Did your design meet all requirements? What did you adjust and why?"></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 3 ============== -->
+      <section id="part-p3" style="display:none;">
+        <h3 class="problem-title">Problem 3: First-order analogue</h3>
+        <p class="instructions">
+          Repeat the process of Problem 2, but now choose the simple pole to be dominant. If 1/(&zeta;&omega;<sub>n</sub>) &ll; 1/p<sub>3</sub>, the system behaves approximately as
+        </p>
+        <div class="eq-block" id="eq-1st"></div>
+        <p class="instructions">
+          Using this approximation, choose p<sub>3</sub> to satisfy the design requirements, then choose &zeta;<sup>CL</sup> and &omega;<sub>n</sub><sup>CL</sup> so that their poles are non-dominant
+          (again, make their time constant 5&times; smaller):
+        </p>
+        <div class="eq-block" id="eq-rule3"></div>
+        <h4 class="part-title">Calculations</h4>
+        <div class="reflection-box"><textarea id="input-p3-calc" placeholder="Your calculations: time constant from the settling time requirement, choice of p3, then zeta and wn..."></textarea></div>
+        <h4 class="part-title">Verify with System 3</h4>
+        <div class="panel-box" id="app-p3"></div>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p3-notes" placeholder="Did your design meet all requirements? What did you adjust and why?"></textarea></div>
+      </section>
+
+      <!-- ============== PROBLEM 4 ============== -->
+      <section id="part-p4" style="display:none;">
+        <h3 class="problem-title">Problem 4: Analysis</h3>
+        <p class="instructions">The plots below overlay the three systems as currently entered in Problems 1&ndash;3 (pole map, step response and control input).</p>
+        <div class="panel-box" id="app-p4"></div>
+        <h4 class="part-title">a) Compare Problems 2 and 3</h4>
+        <p class="instructions">Did one method result in a better response or controller? Explain any differences you observe in the gain values, response shape and control input.</p>
+        <div class="reflection-box"><textarea id="input-p4-a" placeholder="Your comparison..."></textarea></div>
+        <h4 class="part-title">b) Maximum control effort</h4>
+        <p class="instructions">In systems we looked at earlier in the semester, the maximum control occurred at the beginning of the step input (t = 0). Do you observe the same behavior in this system? If not, explain why.</p>
+        <div class="reflection-box"><textarea id="input-p4-b" placeholder="Your explanation..."></textarea></div>
+      </section>
+
+      <!-- ============== SUBMISSION ============== -->
+      <section id="part-submission" style="display:none;">
+        <h2 class="section-title">Submission</h2>
+
+        <div class="form-grid two">
+          <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid" placeholder="netid" spellcheck="false" /></div>
+          <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids" placeholder="person1, person2, person3, ..." spellcheck="false" /></div>
+        </div>
+
+        <ul class="steps-list" style="margin-top:22px;">
+          <li>Enter your NetID and group member NetIDs above and export PDF.</li>
+          <li>Submit: your observations from Problems 1&ndash;4; gain values (K<sub>P</sub>, K<sub>D</sub>, K<sub>I</sub>) for Problems 1&ndash;3; parameter values (&zeta;<sup>CL</sup>, &omega;<sub>n</sub><sup>CL</sup>, p<sub>3</sub>) for Problems 2&ndash;3; and final plots (pole map, step response, control) showing all three systems. The exported PDF lists the values currently entered in each app.</li>
+          <li>Capture the final figures in Problem 4 so they are included, and attach any handwritten work as a PDF below.</li>
+        </ul>
+
+        <p class="instructions"><b>Captured figures</b> (from CAPTURE FIGURE in each problem):</p>
+        <div class="cap-list" id="cap-list"></div>
+
+        <p class="instructions">Append an existing PDF to the end of your export (optional):</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-appendix" accept="application/pdf" multiple />
+          <div id="upload-thumbs-appendix" style="display:flex; flex-wrap:wrap; margin-top:10px;"></div>
+          <p class="upload-err" id="upload-err-appendix"></p>
+        </div>
+
+        <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+        <p class="field-err" id="exportStatus" style="color:var(--muted);"></p>
+      </section>
+
+    </div>
+  </div>
+</main>
+<script>
+(function () {
+  "use strict";
+
+  const nm = (v, d) => String(Number(Number(v).toPrecision(d || 4)));
+  const fmtT = (v) => (v === null || v === undefined ? "—" : nm(v, 4));
+  const R0 = 0.349;
+
+  // ---------------------------------------------------------------
+  // Closed loop (third order):  Y/R = KI / (s^3 + (1+KD) s^2 + (25+KP) s + KI)
+  //   u = -KP y - KD ydot + KI * int(r - y)
+  // Simulated exactly with a matrix exponential on [y, ydot, w, 1].
+  // ---------------------------------------------------------------
+  function mul4(A, B) {
+    const C = new Float64Array(16);
+    for (let i = 0; i < 4; i++) for (let k = 0; k < 4; k++) { const a = A[i * 4 + k]; if (a !== 0) for (let j = 0; j < 4; j++) C[i * 4 + j] += a * B[k * 4 + j]; }
+    return C;
+  }
+  function expm4(A, dt) {
+    let norm = 0;
+    for (let i = 0; i < 4; i++) { let s = 0; for (let j = 0; j < 4; j++) s += Math.abs(A[i * 4 + j]); norm = Math.max(norm, s); }
+    norm *= dt;
+    const k = Math.max(0, Math.ceil(Math.log2(Math.max(norm, 1e-300) / 0.5))), sc = dt / Math.pow(2, k);
+    const M = new Float64Array(16); for (let i = 0; i < 16; i++) M[i] = A[i] * sc;
+    let E = new Float64Array(16), T = new Float64Array(16);
+    for (let i = 0; i < 4; i++) { E[i * 5] = 1; T[i * 5] = 1; }
+    for (let j = 1; j <= 18; j++) { T = mul4(T, M); for (let i = 0; i < 16; i++) { T[i] /= j; E[i] += T[i]; } }
+    for (let i = 0; i < k; i++) E = mul4(E, E);
+    return E;
+  }
+
+  // roots of s^3 + a s^2 + b s + c (Durand-Kerner, then exact quadratic for the complex pair)
+  function cubicRoots(a, b, c) {
+    const sc = Math.max(Math.abs(a), Math.sqrt(Math.abs(b)), Math.cbrt(Math.abs(c)), 1e-3);
+    const mul = (p, q) => [p[0] * q[0] - p[1] * q[1], p[0] * q[1] + p[1] * q[0]];
+    const sub = (p, q) => [p[0] - q[0], p[1] - q[1]];
+    const div = (p, q) => { const d = q[0] * q[0] + q[1] * q[1]; return [(p[0] * q[0] + p[1] * q[1]) / d, (p[1] * q[0] - p[0] * q[1]) / d]; };
+    let z;
+    z = [[-sc, 0.1 * sc], [-0.5 * sc, 0.8 * sc], [-0.2 * sc, -0.6 * sc]];
+    const f = (s) => { const s2 = mul(s, s), s3 = mul(s2, s); return [s3[0] + a * s2[0] + b * s[0] + c, s3[1] + a * s2[1] + b * s[1]]; };
+    for (let it = 0; it < 500; it++) {
+      let ch = 0;
+      for (let i = 0; i < 3; i++) {
+        let d = [1, 0];
+        for (let j = 0; j < 3; j++) if (j !== i) d = mul(d, sub(z[i], z[j]));
+        if (Math.hypot(d[0], d[1]) < 1e-300) d = [1e-300, 0];
+        const dz = div(f(z[i]), d); z[i] = sub(z[i], dz); ch = Math.max(ch, Math.hypot(dz[0], dz[1]));
+      }
+      if (ch < 1e-13 * sc) break;
+    }
+    // real root = smallest |imag|; Newton polish; exact quadratic for the rest
+    let ri = 0; for (let i = 1; i < 3; i++) if (Math.abs(z[i][1]) < Math.abs(z[ri][1])) ri = i;
+    let r = z[ri][0];
+    for (let i = 0; i < 6; i++) { const fr = r * r * r + a * r * r + b * r + c, dr = 3 * r * r + 2 * a * r + b; if (dr !== 0) r -= fr / dr; }
+    const p = a + r, q = b + r * p, disc = p * p - 4 * q;
+    let roots;
+    if (disc < 0) { const w = Math.sqrt(-disc) / 2; roots = [[-p / 2, w], [-p / 2, -w]]; }
+    else { const w = Math.sqrt(disc) / 2; roots = [[-p / 2 + w, 0], [-p / 2 - w, 0]]; }
+    roots.unshift([r, 0]);
+    return { roots, r, p, q, disc };
+  }
+
+  function simulate(KP, KI, KD, tfOv) {
+    const a = 1 + KD, b = 25 + KP, c = KI;
+    const cr = cubicRoots(a, b, c), roots = cr.roots;
+    const maxRe = Math.max.apply(null, roots.map((p) => p[0]));
+    const scale = Math.max(1, Math.abs(a), Math.sqrt(Math.abs(b)));
+    const stable = maxRe < -1e-9 * scale && KI > 0;
+    let tf;
+    if (tfOv > 0) tf = tfOv;
+    else if (stable) tf = Math.min(8 / (-maxRe), 300);
+    else tf = maxRe > 1e-9 * scale ? Math.min(6 / maxRe, 20) : 10;
+    const NF = 20001, dt = tf / (NF - 1);
+    const A = new Float64Array([0, 1, 0, 0, -b, -a, c, 0, -1, 0, 0, R0, 0, 0, 0, 0]);
+    const Ed = expm4(A, dt);
+    const y = new Float64Array(NF), v = new Float64Array(NF), u = new Float64Array(NF);
+    let s0 = 0, s1 = 0, s2 = 0;
+    for (let i = 0; i < NF; i++) {
+      y[i] = s0; v[i] = s1; u[i] = -KP * s0 - KD * s1 + KI * s2;
+      const n0 = Ed[0] * s0 + Ed[1] * s1 + Ed[2] * s2 + Ed[3];
+      const n1 = Ed[4] * s0 + Ed[5] * s1 + Ed[6] * s2 + Ed[7];
+      const n2 = Ed[8] * s0 + Ed[9] * s1 + Ed[10] * s2 + Ed[11];
+      s0 = n0; s1 = n1; s2 = n2;
+    }
+    const m = { OS: null, tp: null, tr: null, ts: null, umax: null, tumax: null, u0: u[0], ymax: null, settled: null };
+    if (stable) {
+      let im = 0; for (let i = 1; i < NF; i++) if (y[i] > y[im]) im = i;
+      m.ymax = y[im]; m.OS = Math.max(0, (y[im] - R0) / R0 * 100); m.tp = im * dt;
+      let i10 = -1, i90 = -1;
+      for (let i = 0; i < NF; i++) { if (i10 < 0 && y[i] >= 0.1 * R0) i10 = i; if (y[i] >= 0.9 * R0) { i90 = i; break; } }
+      if (i10 > 0 && i90 > 0) {
+        const at = (lvl, i) => (i - 1 + (lvl - y[i - 1]) / (y[i] - y[i - 1])) * dt;
+        m.tr = at(0.9 * R0, i90) - at(0.1 * R0, i10);
+      }
+      let last = -1; for (let i = 0; i < NF; i++) if (Math.abs(y[i] - R0) > 0.02 * R0) last = i;
+      if (last < 0) { m.ts = 0; m.settled = true; }
+      else if (last >= NF - 1) { m.ts = null; m.settled = false; }
+      else { const e = y[last] > R0 ? 1.02 * R0 : 0.98 * R0; m.ts = (last + (e - y[last]) / (y[last + 1] - y[last])) * dt; m.settled = true; }
+      let um = 0, tu = 0; for (let i = 0; i < NF; i++) if (Math.abs(u[i]) > um) { um = Math.abs(u[i]); tu = i * dt; }
+      m.umax = um; m.tumax = tu;
+    }
+    const step = 10, n = Math.floor((NF - 1) / step) + 1, t = new Array(n), yy = new Array(n), uu = new Array(n);
+    for (let i = 0; i < n; i++) { t[i] = i * step * dt; yy[i] = y[i * step]; uu[i] = u[i * step]; }
+    // equivalent (zeta, wn, p3) when there is one real pole and a complex pair
+    let eq = null;
+    if (cr.disc < -1e-12 * Math.max(1, cr.q)) { const wn = Math.sqrt(cr.q); eq = { z: cr.p / (2 * wn), wn, p3: -cr.r }; }
+    let kind;
+    if (stable) kind = "stable"; else if (KI <= 0) kind = "no integral action (pole at origin)"; else if (maxRe > 0) kind = "UNSTABLE"; else kind = "marginally stable";
+    return { KP, KI, KD, tf, stable, kind, roots, t, y: yy, u: uu, m, eq };
+  }
+  const gainsFromPoles = (z, wn, p3) => ({ KP: wn * wn + 2 * z * wn * p3 - 25, KI: wn * wn * p3, KD: 2 * z * wn + p3 - 1 });
+  window.GW11F = { simulate, gainsFromPoles, cubicRoots };
+
+  // ---------------------------------------------------------------
+  // Plot helpers
+  // ---------------------------------------------------------------
+  const PO = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+  const SC = ["#5EEAD4", "#FB7185", "#FFB454"], GH = ["#8B92A5", "#6E7589", "#565C70"];
+  const baseLayout = (extra) => Object.assign({
+    paper_bgcolor: "#171A21", plot_bgcolor: "#171A21", font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
+    margin: { l: 58, r: 14, t: 34, b: 44 }, showlegend: true,
+    xaxis: { gridcolor: "#282D3A", zerolinecolor: "#3a4052" }, yaxis: { gridcolor: "#282D3A", zerolinecolor: "#3a4052" },
+  }, extra || {});
+  const TITLES = { p1: "Problem 1 (System 1)", p2: "Problem 2 (System 2)", p3: "Problem 3 (System 3)", p4: "Problem 4 (all systems)" };
+  const pstr = (p) => (Math.abs(p[1]) < 1e-9 * Math.max(1, Math.abs(p[0])) ? nm(p[0], 4) : `${nm(p[0], 4)} ± ${nm(Math.abs(p[1]), 4)}j`);
+
+  // items: [{res, color, name, ghost}]
+  function drawAll(prefix, items, showLines, collectHist) {
+    const thEl = document.getElementById(`plot-${prefix}-th`), uEl = document.getElementById(`plot-${prefix}-u`), poleEl = document.getElementById(`plot-${prefix}-pole`);
+    [thEl, uEl, poleEl].forEach((el) => { if (el.querySelector(".placeholder")) el.innerHTML = ""; });
+    const live = items.filter((it) => !it.ghost);
+    const anyUnstable = items.some((it) => !it.res.stable);
+    const tmax = Math.max.apply(null, items.map((it) => it.res.tf));
+    // theta(t)
+    const tr = [{ x: [0, tmax], y: [R0, R0], mode: "lines", name: "r = 0.349", line: { color: "#B8BECC", width: 1.2, dash: "dash" }, hoverinfo: "skip" }];
+    let hi = R0; items.forEach((it) => { if (it.res.stable) hi = Math.max(hi, Math.max.apply(null, it.res.y)); });
+    items.forEach((it) => {
+      const r = it.res;
+      tr.push({ x: r.t, y: r.y, mode: "lines", name: `θ(t) ${it.name}`, line: { color: it.color, width: it.ghost ? 1.8 : 2.6, dash: it.ghost ? "dot" : "solid" }, hovertemplate: "t=%{x:.4f}s  θ=%{y:.4f}<extra>" + it.name + "</extra>" });
+      if (showLines && !it.ghost && r.stable) {
+        const add = (x, y, dash) => tr.push({ x, y, mode: "lines", showlegend: false, hoverinfo: "skip", opacity: 0.85, line: { color: it.color, width: 1.2, dash } });
+        const top = Math.max(r.m.ymax, R0) * 1.05;
+        if (r.m.OS > 0) add([0, tmax], [r.m.ymax, r.m.ymax], "longdash");
+        if (r.m.tp !== null && r.m.OS > 0) add([r.m.tp, r.m.tp], [0, top], "dot");
+        if (r.m.ts !== null) add([r.m.ts, r.m.ts], [0, top], "dash");
+      }
+    });
+    if (showLines) [["Peak", "longdash"], ["Peak time", "dot"], ["Settling time (2%)", "dash"]].forEach(([n, d]) => tr.push({ x: [null], y: [null], mode: "lines", name: n, line: { color: "#B8BECC", width: 1.4, dash: d } }));
+    let yr = [-0.04 * hi, hi * 1.12];
+    if (anyUnstable) yr = [-3 * R0, 3.5 * R0];
+    Plotly.react(thEl, tr, baseLayout({ title: { text: "Step response θ(t)", font: { size: 12 }, x: 0.02 },
+      xaxis: { title: "time [sec]", gridcolor: "#282D3A", range: [0, tmax] }, yaxis: { title: "output θ(t) [rad]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: yr },
+      legend: { orientation: "h", y: -0.22, font: { size: 9 } }, margin: { l: 58, r: 14, t: 34, b: 90 } }), PO);
+    // u(t)
+    let umax = 0, umin = 0; items.forEach((it) => { if (it.res.stable) { umax = Math.max(umax, Math.max.apply(null, it.res.u)); umin = Math.min(umin, Math.min.apply(null, it.res.u)); } });
+    const ut = items.map((it) => ({ x: it.res.t, y: it.res.u, mode: "lines", name: `u(t) ${it.name}`, line: { color: it.color, width: it.ghost ? 1.8 : 2.4, dash: it.ghost ? "dot" : "solid" }, hovertemplate: "t=%{x:.4f}s  u=%{y:.3f}<extra>" + it.name + "</extra>" }));
+    let ur = [umin - 0.1 * (umax - umin || 1), umax + 0.1 * (umax - umin || 1)];
+    if (anyUnstable) { const m = 3 * Math.max(Math.abs(umax), Math.abs(umin), 50); ur = [-m, m]; }
+    Plotly.react(uEl, ut, baseLayout({ title: { text: "Control input u(t)", font: { size: 12 }, x: 0.02 },
+      xaxis: { title: "time [sec]", gridcolor: "#282D3A", range: [0, tmax] }, yaxis: { title: "control u(t) [Nm]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: ur },
+      legend: { orientation: "h", y: -0.3, font: { size: 9 } }, margin: { l: 58, r: 14, t: 34, b: 84 } }), PO);
+    // poles
+    let lim = 0;
+    const pts = [];
+    items.forEach((it) => it.res.roots.forEach((p) => { lim = Math.max(lim, Math.abs(p[0]), Math.abs(p[1])); }));
+    (collectHist || []).forEach((h) => { lim = Math.max(lim, Math.abs(h.x), Math.abs(h.y)); });
+    lim = (lim || 10) * 1.2;
+    const ptr = [];
+    (collectHist || []).forEach((h) => { if (!h.cur) ptr.push({ x: [h.x], y: [h.y], mode: "markers", showlegend: false, marker: { symbol: "x", size: 9, color: h.color, opacity: 0.45, line: { width: 2, color: h.color } }, hoverinfo: "skip" }); });
+    live.forEach((it) => ptr.push({ x: it.res.roots.map((p) => p[0]), y: it.res.roots.map((p) => p[1]), mode: "markers", name: it.name,
+      marker: { symbol: "x", size: 13, color: it.color, line: { width: 3, color: it.color } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>" + it.name + "</extra>" }));
+    Plotly.react(poleEl, ptr, baseLayout({ title: { text: "Closed loop poles", font: { size: 12 }, x: 0.02 }, margin: { l: 52, r: 14, t: 34, b: 84 }, legend: { orientation: "h", y: -0.3, font: { size: 9 } },
+      xaxis: { title: "Re(s)", range: [-lim, lim * 0.35], gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 },
+      yaxis: { title: "Im(s)", range: [-lim * 0.675, lim * 0.675], gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 } }), PO);
+  }
+
+  const ROWS = [
+    ["K_P", (r) => nm(r.KP)], ["K_I", (r) => nm(r.KI)], ["K_D", (r) => nm(r.KD)], ["stability", (r) => r.kind],
+    ["closed loop poles", (r) => r.roots[1][1] !== 0 ? `${pstr(r.roots[1])}; ${nm(r.roots[0][0], 4)}` : r.roots.map((p) => nm(p[0], 4)).join("; ")],
+    ["equivalent ζ^CL", (r) => (r.eq ? nm(r.eq.z) : "—")], ["equivalent ω_n^CL [rad/s]", (r) => (r.eq ? nm(r.eq.wn) : "—")], ["equivalent p_3", (r) => (r.eq ? nm(r.eq.p3) : "—")],
+    ["p_3 / (ζ ω_n)", (r) => (r.eq ? nm(r.eq.p3 / (r.eq.z * r.eq.wn)) : "—")],
+    ["max overshoot M_O [%]", (r) => (r.stable ? nm(r.m.OS) : "n/a")], ["peak time [s]", (r) => (r.stable && r.m.OS > 0 ? fmtT(r.m.tp) : "—")],
+    ["10–90% rise time [s]", (r) => (r.stable ? fmtT(r.m.tr) : "n/a")], ["2% settling time [s]", (r) => (r.stable ? (r.m.settled ? fmtT(r.m.ts) : "not settled") : "n/a")],
+    ["max |u(t)| [Nm]", (r) => (r.stable ? nm(r.m.umax) : "n/a")], ["time of max |u| [s]", (r) => (r.stable ? fmtT(r.m.tumax) : "n/a")], ["u(0) [Nm]", (r) => nm(r.m.u0)],
+  ];
+  function drawTable(prefix, items) {
+    const cls = (it, i) => (it.ghost ? "" : `k${it.k}`);
+    document.getElementById(`mt-${prefix}`).innerHTML = `<table class="mt"><tr><th>metric</th>${items.map((it) => `<th class="${it.ghost ? "" : "k" + it.k}">${it.name}</th>`).join("")}</tr>` +
+      ROWS.map(([lab, f]) => `<tr><td>${lab}</td>${items.map((it) => `<td class="${it.ghost ? "" : "k" + it.k}">${f(it.res)}</td>`).join("")}</tr>`).join("") + "</table>";
+  }
+  function caseLine(name, r) {
+    return `${name}: KP=${nm(r.KP)}, KI=${nm(r.KI)}, KD=${nm(r.KD)} | ${r.kind}` + (r.eq ? ` | zeta=${nm(r.eq.z)}, wn=${nm(r.eq.wn)}, p3=${nm(r.eq.p3)}` : "") +
+      (r.stable ? ` | MO=${nm(r.m.OS)}%, rise(10-90)=${fmtT(r.m.tr)} s, tS(2%)=${r.m.settled ? fmtT(r.m.ts) : "not settled"} s, max|u|=${nm(r.m.umax)} Nm at t=${fmtT(r.m.tumax)} s` : "");
+  }
+
+  async function captureFigure(prefix, lines, statEl) {
+    statEl.style.color = "#5EEAD4"; statEl.textContent = "Capturing…";
+    try {
+      const img = (src) => new Promise((rs, rj) => { const i = new Image(); i.onload = () => rs(i); i.onerror = rj; i.src = src; });
+      const a = await Plotly.toImage(document.getElementById(`plot-${prefix}-th`), { format: "png", width: 1300, height: 440 });
+      const b = await Plotly.toImage(document.getElementById(`plot-${prefix}-u`), { format: "png", width: 760, height: 380 });
+      const c = await Plotly.toImage(document.getElementById(`plot-${prefix}-pole`), { format: "png", width: 540, height: 380 });
+      const cv = document.createElement("canvas"); cv.width = 1300; cv.height = 820;
+      const cx = cv.getContext("2d"); cx.fillStyle = "#171A21"; cx.fillRect(0, 0, 1300, 820);
+      cx.drawImage(await img(a), 0, 0, 1300, 440); cx.drawImage(await img(b), 0, 440, 760, 380); cx.drawImage(await img(c), 760, 440, 540, 380);
+      window.__addCapture({ prefix, lines, dataUrl: cv.toDataURL("image/png"), width: cv.width, height: cv.height });
+      statEl.textContent = "Figure captured — see Submission.";
+    } catch (e) { console.error(e); statEl.style.color = "#FB7185"; statEl.textContent = "Could not capture figure."; }
+  }
+
+  // ---------------------------------------------------------------
+  // One system per problem tab
+  // ---------------------------------------------------------------
+  const panels = {};
+  function buildApp(prefix, o) {
+    const host = document.getElementById(`app-${prefix}`);
+    const sl = (k, lab, mn, mx, st, v) => `
+      <div class="sl"><label>${lab}</label><div class="row">
+        <input type="range" id="sim-${prefix}-${k}-s" min="${mn}" max="${mx}" step="${st}" value="${v === "" ? mn : v}" />
+        <input type="number" id="sim-${prefix}-${k}" value="${v}" step="any" /></div></div>`;
+    const inputs = o.type === "gains"
+      ? sl("kp", "K<sub>P</sub>", 0, 10000, 10, o.kp) + sl("ki", "K<sub>I</sub>", 0, 100000, 100, o.ki) + sl("kd", "K<sub>D</sub>", 0, 500, 1, o.kd)
+      : sl("z", "&zeta;<sup>CL</sup>", 0.05, 1.5, 0.01, "") + sl("wn", "&omega;<sub>n</sub><sup>CL</sup> [rad/s]", 1, 300, 0.5, "") + sl("p3", "p<sub>3</sub> [1/s]", 1, 300, 0.5, "");
+    host.innerHTML = `
+      <div class="app-grid">
+        <div>
+          <div class="case-card c${o.k}">
+            <div class="hd">SYSTEM ${o.k + 1}</div>
+            ${inputs}
+            ${o.type === "poles" ? '<div class="gains-out" id="gout-' + prefix + '"></div>' : ""}
+            <div class="sl"><label>Reference step R<sub>0</sub> = 0.349 rad (20&deg;) <span class="lock">(fixed)</span></label></div>
+            <div class="sl"><label>t<sub>final</sub> [s] (optional; blank = automatic)</label><div class="row"><input type="number" id="sim-${prefix}-tf" value="" step="any" placeholder="auto" /></div></div>
+          </div>
+          <div class="tools">
+            <label><input type="checkbox" id="sim-${prefix}-lines" checked /> Metric lines</label>
+            <label><input type="checkbox" id="sim-${prefix}-collect" /> Collect poles</label>
+          </div>
+          <div class="btn-row">
+            <button class="run-btn secondary small" id="btn-${prefix}-hold">Hold response</button>
+            <button class="run-btn secondary small" id="btn-${prefix}-unhold">Clear held</button>
+            <button class="run-btn secondary small" id="btn-${prefix}-clear">Clear pole trail</button>
+            <button class="run-btn small" id="btn-${prefix}-capture">CAPTURE FIGURE</button>
+          </div>
+          <p class="field-err" id="err-${prefix}"></p>
+          <p class="upload-status" id="capstat-${prefix}"></p>
+        </div>
+        <div class="plot-host t" id="plot-${prefix}-th"><div class="placeholder">Enter the ${o.type === "gains" ? "gains" : "design parameters"} to see the response.</div></div>
+      </div>
+      <div class="app-bottom">
+        <div class="plot-host u" id="plot-${prefix}-u"><div class="placeholder">Control input u(t) appears here.</div></div>
+        <div class="plot-host u" id="plot-${prefix}-pole"><div class="placeholder">Closed loop poles appear here.</div></div>
+      </div>
+      <div class="app-below" id="mt-${prefix}"></div>`;
+    const E = (id) => document.getElementById(`sim-${prefix}-${id}`);
+    const num = (el) => (el.value === "" ? NaN : Number(el.value));
+    const keys = o.type === "gains" ? ["kp", "ki", "kd"] : ["z", "wn", "p3"];
+    let held = [], hist = [], lastKey = "", raf = null;
+
+    function current() {
+      const v = keys.map((k) => num(E(k)));
+      const err = document.getElementById(`err-${prefix}`); err.textContent = "";
+      if (!v.every(isFinite)) return null;
+      let KP, KI, KD;
+      if (o.type === "gains") {
+        [KP, KI, KD] = v;
+        if (KP < 0 || KI < 0 || KD < 0) { err.textContent = "Gains are expected to be non-negative."; }
+      } else {
+        const [z, wn, p3] = v;
+        if (!(z > 0 && wn > 0 && p3 > 0)) { err.textContent = "ζ, ω_n and p_3 must be positive."; return null; }
+        ({ KP, KI, KD } = gainsFromPoles(z, wn, p3));
+        document.getElementById(`gout-${prefix}`).innerHTML = `K<sub>P</sub> = ${nm(KP, 5)}<br>K<sub>I</sub> = ${nm(KI, 5)}<br>K<sub>D</sub> = ${nm(KD, 5)}`;
+      }
+      if (!(25 + KP > -1e9)) return null;
+      const tfv = num(E("tf"));
+      return simulate(KP, KI, KD, tfv > 0 ? tfv : 0);
+    }
+    function update() {
+      const cur = current();
+      panels[prefix].cur = cur;
+      if (o.type === "poles" && !cur) document.getElementById(`gout-${prefix}`).innerHTML = "";
+      const items = held.map((h, i) => ({ res: h.res, color: GH[i % 3], name: h.name, ghost: true, k: o.k }));
+      if (cur) items.push({ res: cur, color: SC[o.k], name: `System ${o.k + 1}`, ghost: false, k: o.k });
+      panels[prefix].items = items;
+      if (!items.length) { if (window.__scheduleSave) window.__scheduleSave(); return; }
+      if (!E("collect").checked) hist = [];
+      else if (cur) {
+        const key = JSON.stringify(cur.roots);
+        if (key !== lastKey) { lastKey = key; hist.forEach((h) => (h.cur = false)); cur.roots.forEach((p) => { hist.push({ x: p[0], y: p[1], color: SC[o.k] }); }); if (hist.length > 600) hist = hist.slice(-600); }
+      }
+      drawAll(prefix, items, E("lines").checked, E("collect").checked ? hist : []);
+      drawTable(prefix, items);
+      if (window.__scheduleSave) window.__scheduleSave();
+    }
+    function schedule() { if (raf) return; raf = requestAnimationFrame(() => { raf = null; update(); }); }
+
+    keys.forEach((k) => {
+      const s = E(`${k}-s`), n = E(k);
+      s.addEventListener("input", () => { n.value = s.value; schedule(); });
+      n.addEventListener("input", () => { const v = Number(n.value); if (n.value !== "" && isFinite(v)) s.value = v; schedule(); });
+    });
+    ["tf"].forEach((k) => E(k).addEventListener("input", schedule));
+    ["lines", "collect"].forEach((k) => E(k).addEventListener("change", schedule));
+    document.getElementById(`btn-${prefix}-hold`).addEventListener("click", () => {
+      const cur = panels[prefix].cur; if (!cur) return;
+      held.push({ res: cur, name: `held (KP=${nm(cur.KP, 3)}, KI=${nm(cur.KI, 3)}, KD=${nm(cur.KD, 3)})` }); if (held.length > 3) held.shift(); update();
+    });
+    document.getElementById(`btn-${prefix}-unhold`).addEventListener("click", () => { held = []; update(); });
+    document.getElementById(`btn-${prefix}-clear`).addEventListener("click", () => { hist = []; lastKey = ""; update(); });
+    document.getElementById(`btn-${prefix}-capture`).addEventListener("click", () => {
+      const it = panels[prefix].items, st = document.getElementById(`capstat-${prefix}`);
+      if (!it || !it.length) { st.style.color = "#FB7185"; st.textContent = "Enter a system first."; return; }
+      captureFigure(prefix, it.map((x) => caseLine(x.name, x.res)), st);
+    });
+    panels[prefix] = { update, cur: null, items: [] };
+    update();
+  }
+  buildApp("p1", { type: "gains", k: 0, kp: 100, ki: 9559, kd: 19 });
+  buildApp("p2", { type: "poles", k: 1 });
+  buildApp("p3", { type: "poles", k: 2 });
+
+  // ---------------------------------------------------------------
+  // Problem 4: overlay of all three systems
+  // ---------------------------------------------------------------
+  (function () {
+    const host = document.getElementById("app-p4");
+    host.innerHTML = `
+      <div class="tools"><label><input type="checkbox" id="sim-p4-lines" /> Metric lines</label>
+        <button class="run-btn small" id="btn-p4-capture">CAPTURE FIGURE</button></div>
+      <p class="upload-status" id="capstat-p4"></p>
+      <div class="plot-host t" id="plot-p4-th"><div class="placeholder">Enter the systems in Problems 1&ndash;3 to see them here.</div></div>
+      <div class="app-bottom">
+        <div class="plot-host u" id="plot-p4-u"></div>
+        <div class="plot-host u" id="plot-p4-pole"></div>
+      </div>
+      <div class="app-below" id="mt-p4"></div>`;
+    let items = [];
+    function render() {
+      items = ["p1", "p2", "p3"].map((p, i) => ({ res: panels[p].cur, color: SC[i], name: `System ${i + 1}`, ghost: false, k: i })).filter((it) => it.res);
+      if (!items.length) { document.getElementById("mt-p4").innerHTML = ""; return; }
+      drawAll("p4", items, document.getElementById("sim-p4-lines").checked, []);
+      drawTable("p4", items);
+    }
+    panels.p4 = { update: render, get items() { return items; } };
+    document.getElementById("sim-p4-lines").addEventListener("change", render);
+    document.getElementById("btn-p4-capture").addEventListener("click", () => {
+      const st = document.getElementById("capstat-p4");
+      if (!items.length) { st.style.color = "#FB7185"; st.textContent = "Enter at least one system first."; return; }
+      captureFigure("p4", items.map((x) => caseLine(x.name, x.res)), st);
+    });
+  })();
+
+  // ---------------------------------------------------------------
+  // KaTeX
+  // ---------------------------------------------------------------
+  const kr = (id, tex) => katex.render(tex, document.getElementById(id), { throwOnError: false, displayMode: true });
+  kr("eq-eom", "\\ddot\\theta+\\dot\\theta+25\\,\\theta=T(t)\\qquad(1)");
+  kr("eq-law", "u(t)=T(t)=K_P\\,(0-y)+K_I\\!\\int_0^t\\!\\big(r(\\tau)-y(\\tau)\\big)d\\tau+K_D\\!\\left(0-\\frac{dy}{dt}\\right)\\qquad(2)");
+  kr("eq-CL", "\\frac{Y(s)}{R(s)}=\\frac{K_I}{s^3+(1+K_D)s^2+(25+K_P)s+K_I}\\equiv\\frac{C}{\\big(s^2+2\\zeta^{CL}\\omega_n^{CL}s+(\\omega_n^{CL})^2\\big)(s+p_3)}\\qquad(3)\\qquad\\frac{U(s)}{R(s)}=\\frac{K_I\\,(s^2+s+25)}{s^3+(1+K_D)s^2+(25+K_P)s+K_I}\\qquad(4)");
+  kr("eq-match", "1+K_D=2\\zeta^{CL}\\omega_n^{CL}+p_3,\\qquad 25+K_P=(\\omega_n^{CL})^2+2\\zeta^{CL}\\omega_n^{CL}p_3,\\qquad K_I=(\\omega_n^{CL})^2p_3");
+  kr("eq-reqs", "\\begin{aligned}&\\text{1) 2\\% settling time } t_S<0.25\\ \\text{[sec]}\\\\&\\text{2) percent overshoot } M_O<5\\%\\\\&\\text{3) } \\max|u(t)|<100\\ \\text{[N-m]}\\end{aligned}");
+  kr("eq-2nd", "\\frac{Y(s)}{R(s)}\\approx\\frac{(\\omega_n^{CL})^2}{s^2+(2\\zeta^{CL}\\omega_n^{CL})s+(\\omega_n^{CL})^2}\\qquad(5)");
+  kr("eq-rule2", "5\\cdot\\frac{1}{p_3}<\\frac{1}{\\zeta^{CL}\\omega_n^{CL}}\\qquad(6)");
+  kr("eq-1st", "\\frac{Y(s)}{R(s)}\\approx\\frac{p_3}{s+p_3}\\qquad(7)");
+  kr("eq-rule3", "5\\cdot\\frac{1}{\\zeta^{CL}\\omega_n^{CL}}<\\frac{1}{p_3}\\qquad(8)");
+
+  // ---------------------------------------------------------------
+  // Reference charts
+  // ---------------------------------------------------------------
+  (function () {
+    const lin = (a, b, n) => Array.from({ length: n }, (_, i) => a + (b - a) * i / (n - 1));
+    const sg = Array.from({ length: 200 }, (_, i) => Math.pow(10, -2 + 4 * i / 199)), z = lin(0, 0.999, 300);
+    const L = (title, extra) => baseLayout(Object.assign({ title: { text: title, font: { size: 12 }, x: 0.02 }, showlegend: false, margin: { l: 58, r: 14, t: 34, b: 46 } }, extra));
+    const line = (x, y) => [{ x, y, mode: "lines", line: { color: "#5EEAD4", width: 2.4 }, showlegend: false }];
+    Plotly.react("ref-1", line(sg, sg.map((s) => 4 / s)), L("settling time t_S vs ζω_n", { xaxis: { type: "log", title: "negative real pole ζω_n", gridcolor: "#282D3A" }, yaxis: { type: "log", title: "settling time t_S [s]", gridcolor: "#282D3A" } }), PO);
+    Plotly.react("ref-2", line(z, z.map((q) => 100 * Math.exp(-Math.PI * q / Math.sqrt(1 - q * q)))), L("max overshoot M_O vs ζ", { xaxis: { title: "damping ratio ζ", gridcolor: "#282D3A" }, yaxis: { title: "M_O [%]", gridcolor: "#282D3A" } }), PO);
+  })();
+
+  // ---------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------
+  const SECTION_IDS = { intro: "part-intro", ref: "part-ref", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
+  function activate(part) {
+    document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
+    Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+    const sec = document.getElementById(SECTION_IDS[part]); sec.style.display = "block";
+    if (part === "p4") panels.p4.update();
+    sec.querySelectorAll(".js-plotly-plot").forEach((p) => { try { Plotly.Plots.resize(p); } catch (e) { /* ignore */ } });
+  }
+  document.querySelectorAll(".nav-btn").forEach((b) => b.addEventListener("click", () => activate(b.dataset.part)));
+
+  // ---------------------------------------------------------------
+  // Captured figures
+  // ---------------------------------------------------------------
+  let captures = []; const CAP_KEY = "gw11f_captures_v1";
+  function renderCaptures() {
+    const host = document.getElementById("cap-list");
+    if (!captures.length) { host.innerHTML = '<span class="mono" style="font-size:11.5px;color:var(--muted);">No figures captured yet.</span>'; return; }
+    host.innerHTML = captures.map((c, i) => `<div class="cap-item"><button class="cap-x" data-i="${i}" type="button">✕</button><img src="${c.dataUrl}" alt="" /><div class="cap-text"><b>${TITLES[c.prefix]}</b><br>${c.lines.join("<br>")}</div></div>`).join("");
+    host.querySelectorAll(".cap-x").forEach((b) => b.addEventListener("click", () => { captures.splice(Number(b.dataset.i), 1); renderCaptures(); saveCaps(); }));
+  }
+  function saveCaps() { try { localStorage.setItem(CAP_KEY, JSON.stringify(captures)); } catch (e) { /* quota */ } }
+  window.__addCapture = (c) => { captures.push(c); renderCaptures(); saveCaps(); };
+  try { const raw = localStorage.getItem(CAP_KEY); if (raw) captures = JSON.parse(raw) || []; } catch (e) { captures = []; }
+  renderCaptures();
+
+  // ---------------------------------------------------------------
+  // PDF export
+  // ---------------------------------------------------------------
+  let appendixFiles = [];
+  function renderChips() {
+    const host = document.getElementById("upload-thumbs-appendix"); host.innerHTML = "";
+    appendixFiles.forEach((f, i) => { const d = document.createElement("div"); d.className = "file-chip"; d.innerHTML = `<span>${f.name}</span><button class="chip-remove" data-i="${i}" type="button">✕</button>`; host.appendChild(d); });
+    host.querySelectorAll(".chip-remove").forEach((b) => b.addEventListener("click", () => { appendixFiles.splice(Number(b.dataset.i), 1); renderChips(); }));
+  }
+  const appIn = document.getElementById("upload-input-appendix");
+  appIn.addEventListener("change", () => {
+    const chosen = Array.from(appIn.files || []);
+    const bad = chosen.filter((f) => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+    appendixFiles = appendixFiles.concat(chosen.filter((f) => !bad.includes(f)));
+    document.getElementById("upload-err-appendix").textContent = bad.length ? `Skipped (not a PDF): ${bad.map((f) => f.name).join(", ")}` : "";
+    renderChips(); appIn.value = "";
+  });
+  const setStatus = (t, err) => { const e = document.getElementById("exportStatus"); e.textContent = t; e.style.color = err ? "#FB7185" : "#8B92A5"; };
+  const val = (id) => document.getElementById(id).value.trim();
+  const reflect = (id) => val(id) || "(No response entered.)";
+  function blankItems() {
+    const out = [];
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.value.trim() === "") out.push(e.id.replace(/^input-/, "").replace(/-/g, " ")); });
+    ["p1", "p2", "p3"].forEach((p) => { if (!panels[p].cur) out.push(`${p}: no system entered in the app`); });
+    if (!captures.length) out.push("no captured figures");
+    return out;
+  }
+  async function exportPdf() {
+    const blanks = blankItems();
+    if (blanks.length && !confirm(`The following are still blank:\n\n${blanks.map((b) => "• " + b).join("\n")}\n\nDo you want to export the PDF anyway?`)) return;
+    const btn = document.getElementById("exportPdfBtn"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = "EXPORTING…"; setStatus("");
+    try {
+      const { jsPDF } = window.jspdf, doc = new jsPDF({ unit: "pt", format: "letter" });
+      const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), mg = 48, mw = W - mg * 2; let y = mg;
+      const ensure = (h) => { if (y + h > H - mg) { doc.addPage(); y = mg; } };
+      const safe = (t) => String(t).replace(/ω_?n/g, "omega_n").replace(/ω/g, "omega").replace(/ζ/g, "zeta").replace(/θ/g, "theta").replace(/₀/g, "0")
+        .replace(/[−–]/g, "-").replace(/≤/g, "<=").replace(/≥/g, ">=").replace(/√/g, "sqrt").replace(/·/g, "*").replace(/×/g, "x").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/±/g, "+/-").replace(/→/g, "->").replace(/[^\x00-\xFF]/g, "?");
+      const heading = (t) => { ensure(30); doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(safe(t), mg, y); y += 22; };
+      const text = (t, o) => { const s = (o && o.size) || 10.5; doc.setFont("helvetica", o && o.bold ? "bold" : "normal"); doc.setFontSize(s); const lh = s * 1.35; doc.splitTextToSize(safe(t), mw).forEach((l) => { ensure(lh); doc.text(l, mg, y); y += lh; }); y += 4; };
+      const caps = (p) => { captures.filter((c) => c.prefix === p).forEach((c) => { const h = mw * (c.height / c.width); ensure(h + 40); c.lines.forEach((l) => text(l, { size: 8 })); ensure(h + 10); doc.addImage(c.dataUrl, "PNG", mg, y, mw, h); y += h + 14; }); };
+      const sysLine = (p, name) => { const r = panels[p].cur; text(r ? caseLine(name, r) : `${name}: (not entered)`, { size: 9 }); };
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+      doc.splitTextToSize("GroupWork 11F — PID Control", mw).forEach((l) => { doc.text(l, mg, y); y += 20; }); y += 6;
+      const netId = val("input-netid") || "(not entered)";
+      text(`Your NetID: ${netId}`, { bold: true, size: 11.5 }); text(`Group member NetIDs: ${val("input-group-netids") || "(not entered)"}`, { bold: true, size: 11.5 }); y += 6;
+
+      heading("Problem 1: Tuning by hand");
+      sysLine("p1", "System 1"); text("Observed trends:", { bold: true });
+      ["1", "2", "3"].forEach((n) => text(`${n}. ${reflect("input-p1-trend" + n)}`)); caps("p1");
+      heading("Problem 2: Second-order analogue");
+      text("Calculations:", { bold: true }); text(reflect("input-p2-calc")); sysLine("p2", "System 2"); text("Notes:", { bold: true }); text(reflect("input-p2-notes")); caps("p2");
+      heading("Problem 3: First-order analogue");
+      text("Calculations:", { bold: true }); text(reflect("input-p3-calc")); sysLine("p3", "System 3"); text("Notes:", { bold: true }); text(reflect("input-p3-notes")); caps("p3");
+      heading("Problem 4: Analysis");
+      text("a) Comparison of Problems 2 and 3:", { bold: true }); text(reflect("input-p4-a"));
+      text("b) Maximum control effort:", { bold: true }); text(reflect("input-p4-b")); caps("p4");
+
+      const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+      if (appendixFiles.length) {
+        const { PDFDocument } = window.PDFLib, merged = await PDFDocument.load(doc.output("arraybuffer")), failed = [];
+        for (const f of appendixFiles) { try { const ap = await PDFDocument.load(await f.arrayBuffer()); (await merged.copyPages(ap, ap.getPageIndices())).forEach((p) => merged.addPage(p)); } catch (e) { console.error(e); failed.push(f.name); } }
+        const url = URL.createObjectURL(new Blob([await merged.save()], { type: "application/pdf" }));
+        const a = document.createElement("a"); a.href = url; a.download = `GroupWork11F_${safeId}.pdf`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        setStatus(failed.length ? `PDF downloaded, but could not append: ${failed.join(", ")}` : "PDF downloaded (with appendix attached).");
+      } else { doc.save(`GroupWork11F_${safeId}.pdf`); setStatus("PDF downloaded."); }
+    } catch (e) { console.error(e); setStatus(`Could not export PDF: ${e.message}`, true); }
+    finally { btn.disabled = false; btn.textContent = label; }
+  }
+  document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+  // ---------------------------------------------------------------
+  // Autosave
+  // ---------------------------------------------------------------
+  const KEY = "gw11f_progress_v1";
+  function collect() {
+    const v = {};
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"], input[id^="sim-"]').forEach((e) => { v[e.id] = e.type === "checkbox" ? e.checked : e.value; });
+    return v;
+  }
+  function save() { try { const a = document.querySelector(".nav-btn.active"); localStorage.setItem(KEY, JSON.stringify({ tab: a ? a.dataset.part : "intro", f: collect() })); } catch (e) { /* ignore */ } }
+  let st = null; const sched = () => { clearTimeout(st); st = setTimeout(save, 250); };
+  window.__scheduleSave = sched; document.addEventListener("input", sched); document.addEventListener("change", sched); document.addEventListener("click", sched);
+  (function load() {
+    let s; try { const raw = localStorage.getItem(KEY); if (!raw) return; s = JSON.parse(raw); } catch (e) { return; }
+    Object.keys(s.f || {}).forEach((id) => { const e = document.getElementById(id); if (!e) return; if (e.type === "checkbox") e.checked = !!s.f[id]; else e.value = s.f[id]; });
+    ["p1", "p2", "p3"].forEach((p) => panels[p].update());
+    if (s.tab && SECTION_IDS[s.tab]) activate(s.tab);
+  })();
+})();
+</script>
+
+</body>
+</html>

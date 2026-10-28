@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GroupWork 10W &mdash; Step Response Metrics</title>
+
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink: #0F1115;
+      --panel: #171A21;
+      --panel2: #1D212B;
+      --line: #282D3A;
+      --amber: #FFB454;
+      --cyan: #5EEAD4;
+      --rose: #FB7185;
+      --pink: #F472B6;
+      --fg: #E7E9EE;
+      --muted: #8B92A5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--ink);
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+
+    header h1 {
+      font-size: 14px;
+      margin: 0;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    header h1 span {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    nav {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      order: 2;
+      padding: 16px 14px;
+      overflow-y: auto;
+    }
+
+    nav p.label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin: 14px 0 8px 0;
+    }
+
+    nav p.label:first-child {
+      margin-top: 0;
+    }
+
+    .nav-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 9px 12px;
+      margin-bottom: 6px;
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--fg);
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .nav-btn small {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .content {
+      flex: 1;
+      order: 1;
+      overflow-y: auto;
+      padding: 28px 40px;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    h2.section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      color: var(--amber);
+      margin: 0 0 14px 0;
+    }
+
+    h3.problem-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: var(--cyan);
+      margin: 0 0 10px 0;
+    }
+
+    h4.part-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--fg);
+      margin: 22px 0 8px 0;
+    }
+
+    p.instructions {
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: var(--fg);
+      margin: 0 0 16px 0;
+    }
+
+    ul.goals {
+      padding-left: 20px;
+      margin: 0 0 16px 0;
+    }
+
+    ul.goals li {
+      margin-bottom: 6px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--fg);
+    }
+
+    .eq-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .given-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 18px 0;
+      line-height: 1.8;
+    }
+
+    .given-line b {
+      color: var(--fg);
+      font-weight: 600;
+    }
+
+    .note-box {
+      background: var(--panel2);
+      border-left: 3px solid var(--amber);
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 0 0 18px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--fg);
+    }
+
+    .note-box code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--cyan);
+      background: var(--ink);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .panel-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .form-grid.one {
+      grid-template-columns: 1fr;
+    }
+
+    .form-grid.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .form-grid.five {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .field {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .field label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"] {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .field select {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 8px 10px;
+    }
+
+    .field select:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .reflection-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .reflection-box textarea {
+      width: 100%;
+      min-height: 90px;
+      resize: vertical;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 10px 12px;
+      line-height: 1.5;
+    }
+
+    .reflection-box textarea:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .run-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 6px;
+      border: none;
+      background: var(--amber);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .run-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .run-btn:active {
+      transform: scale(0.98);
+    }
+
+    .run-btn.secondary {
+      background: none;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .run-btn.secondary:hover {
+      color: var(--rose);
+      border-color: var(--rose);
+    }
+
+    .run-btn.small {
+      font-size: 11.5px;
+      padding: 8px 14px;
+    }
+
+    .match-banner {
+      display: none;
+      margin-top: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+    }
+
+    .match-banner.match {
+      display: block;
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .match-banner.no-match {
+      display: block;
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+
+    .field-err {
+      font-size: 11px;
+      color: var(--rose);
+      margin: 8px 0 0 0;
+      min-height: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .plot-host {
+      height: 300px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 14px;
+    }
+
+    .placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      max-width: 320px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .steps-list {
+      padding-left: 20px;
+      margin: 0 0 16px 0;
+    }
+
+    .steps-list li {
+      margin-bottom: 6px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--fg);
+    }
+
+    .upload-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 0 0 18px 0;
+    }
+
+    .upload-block input[type="file"] {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      color: var(--fg);
+    }
+
+    .upload-thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .thumb-wrap {
+      position: relative;
+      width: 90px;
+      height: 120px;
+    }
+
+    .thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    .thumb-remove {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: var(--ink);
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .upload-status {
+      font-size: 11px;
+      color: var(--cyan);
+      margin: 8px 0 0 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .upload-err {
+      font-size: 11px;
+      color: var(--rose);
+      margin: 8px 0 0 0;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.5;
+    }
+
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin: 4px 6px 4px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .file-chip .chip-remove {
+      background: none;
+      border: none;
+      color: var(--rose);
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0;
+    }
+
+    .vib-top-row {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      margin-top: 14px;
+    }
+
+    .vib-svg-host {
+      flex: 1.3;
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .vib-output {
+      flex: 1;
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .vib-output h5 {
+      margin: 0 0 10px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .vib-output .out-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      margin-bottom: 7px;
+      color: var(--fg);
+      gap: 8px;
+    }
+
+    .vib-output .out-row span.k {
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .vib-output .out-row span.v {
+      color: var(--cyan);
+      text-align: right;
+    }
+
+    .vib-presets {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .katex {
+      color: var(--fg);
+    }
+  </style>
+  <style>
+    .app-grid {
+      display: grid;
+      grid-template-columns: 330px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .app-grid .card {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+
+    .card h5 {
+      margin: 0 0 10px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      font-weight: 500;
+    }
+
+    .num-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .num-row label,
+    .sl label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .num-row input,
+    .sl input[type=number] {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 6px 8px;
+    }
+
+    .num-row input:focus,
+    .sl input[type=number]:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .sl {
+      margin-bottom: 10px;
+    }
+
+    .sl .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .sl input[type=range] {
+      flex: 1;
+      min-width: 0;
+      accent-color: var(--rose);
+    }
+
+    .sl input[type=number] {
+      width: 74px;
+    }
+
+    .tools {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .tools label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tools input {
+      accent-color: var(--amber);
+    }
+
+    .app-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+      align-items: start;
+    }
+
+    .app-bottom.solo {
+      grid-template-columns: minmax(0, 480px);
+      justify-content: center;
+    }
+
+    table.mt td.ok {
+      color: #A3E635;
+    }
+
+    table.mt td.bad {
+      color: #FB7185;
+    }
+
+    .plot-host.t {
+      height: 400px;
+      margin-top: 0;
+    }
+
+    .plot-host.p {
+      height: 340px;
+      margin-top: 0;
+    }
+
+    table.mt {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    table.mt th,
+    table.mt td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+    }
+
+    table.mt th:first-child,
+    table.mt td:first-child {
+      text-align: left;
+      color: var(--muted);
+    }
+
+    table.mt th {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    table.mt td.b {
+      color: var(--cyan);
+    }
+
+    table.mt td.c {
+      color: var(--rose);
+    }
+
+    table.sum {
+      border-collapse: collapse;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      margin: 8px 0 16px;
+    }
+
+    table.sum th,
+    table.sum td {
+      border: 1px solid var(--line);
+      padding: 6px 8px;
+    }
+
+    table.sum th {
+      color: var(--muted);
+      font-weight: 500;
+      background: var(--panel);
+    }
+
+    table.sum select {
+      background: var(--ink);
+      color: var(--fg);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 12px;
+      padding: 4px;
+    }
+
+    .cap-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 10px 0 18px;
+    }
+
+    .cap-item {
+      width: 250px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      position: relative;
+    }
+
+    .cap-item img {
+      width: 100%;
+      border-radius: 4px;
+      display: block;
+    }
+
+    .cap-item .cap-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+
+    .cap-item .cap-x {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: var(--ink);
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    @media (max-width: 1000px) {
+
+      .app-grid,
+      .app-bottom {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="dot"></div>
+    <h1>GROUPWORK 10W <span>&mdash; Metrics in 2nd Order Step Response (M&amp;AE 3260)</span></h1>
+  </header>
+
+  <main>
+    <nav>
+      <p class="label">BACKGROUND</p>
+      <button class="nav-btn active" data-part="intro">Intro<small>Theory &amp; the app</small></button>
+
+      <p class="label">PROBLEM 1</p>
+      <button class="nav-btn" data-part="p1">Step vs. &zeta;<small>Damping ratio</small></button>
+
+      <p class="label">PROBLEM 2</p>
+      <button class="nav-btn" data-part="p2">Step vs. &omega;<sub>n</sub><small>Natural frequency</small></button>
+
+      <p class="label">PROBLEM 3</p>
+      <button class="nav-btn" data-part="p3">Step vs. C, C&#772;<small>Numerator constant</small></button>
+
+      <p class="label">PROBLEM 4</p>
+      <button class="nav-btn" data-part="p4">Design<small>Meet the requirements</small></button>
+
+      <p class="label">SUBMIT</p>
+      <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+    </nav>
+
+    <div class="content">
+      <div class="wrap">
+
+        <!-- ============== INTRO ============== -->
+        <section id="part-intro">
+          <h2 class="section-title">Metrics in 2nd Order Step Response</h2>
+
+          <p class="instructions"><b>Learning Goals:</b></p>
+          <ul class="goals">
+            <li>Observe and analyze how the damping ratio &zeta; and natural frequency &omega;<sub>n</sub> impact 2nd
+              order step response metrics</li>
+            <li>Observe and analyze how the s-plane pole locations and the numerator constant impact 2nd order step
+              response metrics</li>
+            <li>Derive desired s-plane pole regions based on desired 2nd order step response metrics</li>
+          </ul>
+
+          <p class="instructions">
+            In this problem set, we study the metrics associated with the step response of a second order system:
+            rise time, settling time, overshoot, and steady state error. Consider a general 2nd order system (ODE)
+            and its transfer function, where C&#772; is a constant that may be different for different systems:
+          </p>
+          <div class="eq-block" id="eq-ode"></div>
+          <p class="instructions">
+            For a step input R(s) = R<sub>0</sub>/s, the output of an under-damped system is
+          </p>
+          <div class="eq-block" id="eq-step"></div>
+          <p class="instructions">
+            with damped natural frequency &omega;<sub>d</sub> and phase &phi; given by &omega;<sub>d</sub> =
+            &omega;<sub>n</sub>&radic;(1&minus;&zeta;&sup2;) and
+            &phi; = tan<sup>&minus;1</sup>(&radic;(1&minus;&zeta;&sup2;)/&zeta;). The steady state value is
+            x<sub>ss</sub> = R<sub>0</sub>C&#772;. Formulas for
+            the first three metrics (underdamped systems) are:
+          </p>
+          <div class="eq-block" id="eq-metrics"></div>
+
+        </section>
+
+        <!-- ============== PROBLEM 1 ============== -->
+        <section id="part-p1" style="display:none;">
+          <h3 class="problem-title">Problem 1: Step response as a function of &zeta;</h3>
+          <p class="given-line">GIVEN &middot; base case <b>&zeta; = 0.2, &omega;<sub>n</sub> = 10, C =
+              &omega;<sub>n</sub>&sup2;</b> (C&#772; = 1)</p>
+          <p class="instructions">
+            The base case below is already set. Use the comparison case to vary &zeta;, trying both underdamped
+            (&zeta; &lt; 1) and overdamped (&zeta; &gt; 1) values.
+          </p>
+          <div class="panel-box" id="app-p1"></div>
+          <h4 class="part-title">Effect of &zeta; on the step metrics</h4>
+          <p class="instructions">How does changing &zeta; affect the rise time, settling time, overshoot, and steady
+            state error? Are the trends the same for underdamped and overdamped systems?</p>
+          <div class="reflection-box"><textarea id="input-p1-reflect"></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 2 ============== -->
+        <section id="part-p2" style="display:none;">
+          <h3 class="problem-title">Problem 2: Step response as a function of &omega;<sub>n</sub></h3>
+          <p class="given-line">GIVEN &middot; same baseline as Problem 1 (&zeta; = 0.2, &omega;<sub>n</sub> = 10,
+            C&#772; = 1)</p>
+          <p class="instructions">
+            Using the same baseline case as Problem 1, vary &omega;<sub>n</sub> of the comparison case, for both
+            underdamped and overdamped values of &zeta;.
+          </p>
+          <div class="panel-box" id="app-p2"></div>
+          <h4 class="part-title">Effect of &omega;<sub>n</sub> on the step metrics</h4>
+          <p class="instructions">Discuss how the rise time, settling time, overshoot, and steady state error change as
+            a
+            function of &omega;<sub>n</sub>. Are these trends the same for underdamped and overdamped systems? Be sure
+            to observe how the poles move in the s-plane, too, and the relationship between pole locations and step
+            metrics.</p>
+          <div class="reflection-box"><textarea id="input-p2-reflect"></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 3 ============== -->
+        <section id="part-p3" style="display:none;">
+          <h3 class="problem-title">Problem 3: Step response as a function of C, C&#772;</h3>
+          <p class="instructions">
+            Now explore and discuss how the final parameter, the numerator coefficient C, impacts the 2nd order
+            metrics. We assume that C = C&#772;&omega;<sub>n</sub>&sup2;, which is convenient for plotting, but also
+            simplifies the steady state value.
+          </p>
+          <h4 class="part-title">a) Effect of C&#772; on the metrics</h4>
+          <p class="instructions">Using the app, vary C&#772; of the comparison case and observe how the metrics
+            change.</p>
+          <div class="panel-box" id="app-p3"></div>
+          <p class="instructions" style="margin-top:18px;">Discuss how the metrics change with varying C&#772;.</p>
+          <div class="reflection-box" style="margin-bottom:14px;"><textarea id="input-p3-reflect-metrics"></textarea></div>
+          <h4 class="part-title">b) Physical meaning of C and C&#772;</h4>
+          <p class="instructions"><i>Note: Complete this question only after finishing all other problems in this
+              groupwork.</i> Refer to the RLC circuit and rotary second-order systems discussed in Week 3 (Wednesday
+            lecture) to explore the physical meaning and behavior of C and C&#772;. Discuss how these quantities may
+            vary in each of the two systems.</p>
+          <div class="reflection-box"><textarea id="input-p3-reflect-physical"></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 4 ============== -->
+        <section id="part-p4" style="display:none;">
+          <h3 class="problem-title">Problem 4: Design problem for desired step response</h3>
+          <p class="instructions">
+            We now consider a &lsquo;design&rsquo; problem, with requirements on the step response, and select s-plane
+            pole locations to meet them.
+            Consider the following requirements:
+          </p>
+          <div class="eq-block" id="eq-reqs"></div>
+          <h4 class="part-title">a) Acceptable regions</h4>
+          <p class="instructions">
+            For the settling time, rise time, and overshoot, calculate and sketch how these requirements create
+            regions of acceptability in the s-plane; the rise time does not map as nicely.
+          </p>
+          <p class="instructions" style="margin-top:16px;">Upload your calculations and sketch for part a):</p>
+          <div class="upload-block">
+            <input type="file" id="upload-input-p4a" accept="image/*" multiple />
+            <div class="upload-thumbs" id="upload-thumbs-p4a"></div>
+            <p class="upload-status" id="upload-status-p4a"></p>
+            <p class="upload-err" id="upload-err-p4a"></p>
+          </div>
+
+          <h4 class="part-title">b) Select &zeta;, &omega;<sub>n</sub> and verify</h4>
+          <p class="instructions">Choose &zeta; and &omega;<sub>n</sub> inside your acceptable region, enter them in the
+            base case below (C&#772; = 1), and confirm that the rise time, settling time, and overshoot all meet the
+            requirements. Capture the figure for your submission.</p>
+          <div class="panel-box" id="app-p4"></div>
+        </section>
+
+        <!-- ============== SUBMISSION ============== -->
+        <section id="part-submission" style="display:none;">
+          <h2 class="section-title">Submission</h2>
+
+          <div class="form-grid two">
+            <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid"
+                placeholder="netid" spellcheck="false" /></div>
+            <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids"
+                placeholder="person1, person2, person3, ..." spellcheck="false" /></div>
+          </div>
+
+          <p class="instructions" style="margin-top:22px;"><b>Summary table (underdamped systems)</b><br>How does
+            <i>increasing</i> each parameter change each metric?
+          </p>
+          <table class="sum" id="sum-table"></table>
+          <p class="instructions">Where does the behavior differ for overdamped systems?</p>
+          <div class="reflection-box" style="margin-bottom:18px;"><textarea id="input-sum-over"></textarea></div>
+
+          <ul class="steps-list">
+            <li>Enter your NetID and group member NetIDs above and export PDF.</li>
+            <li>Submit: discussion of the effect of each parameter on each metric (with figures), your calculations and
+              sketches of the acceptable pole regions (uploaded in Problem 4a), and a captured figure confirming that
+              your final design meets the requirements.</li>
+          </ul>
+
+          <p class="instructions"><b>Captured figures</b> (from CAPTURE FIGURE in each problem):</p>
+          <div class="cap-list" id="cap-list"></div>
+
+          <p class="instructions">Append an existing PDF to the end of your export (optional):</p>
+          <div class="upload-block">
+            <input type="file" id="upload-input-appendix" accept="application/pdf" multiple />
+            <div id="upload-thumbs-appendix" style="display:flex; flex-wrap:wrap; margin-top:10px;"></div>
+            <p class="upload-err" id="upload-err-appendix"></p>
+          </div>
+
+          <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+          <p class="field-err" id="exportStatus" style="color:var(--muted);"></p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      // ---------------------------------------------------------------
+      // Second-order step response + metrics (unit step R0 = 1)
+      //   x'' + 2 zeta wn x' + wn^2 x = Cbar wn^2 r      xss = R0*Cbar
+      // ---------------------------------------------------------------
+      const nm = (v, d) => String(Number(Number(v).toPrecision(d || 4)));
+      function stepUnit(z, wn, t) {
+        if (Math.abs(z - 1) < 1e-6) return 1 - Math.exp(-wn * t) * (1 + wn * t);
+        if (z < 1) { const wd = wn * Math.sqrt(1 - z * z), s = z * wn; return 1 - Math.exp(-s * t) * (Math.cos(wd * t) + (s / wd) * Math.sin(wd * t)); }
+        const r = Math.sqrt(z * z - 1), s1 = wn * (-z + r), s2 = wn * (-z - r);
+        return 1 + (s2 * Math.exp(s1 * t) - s1 * Math.exp(s2 * t)) / (s1 - s2);
+      }
+      // tPlot: fixed plot window [s]; when omitted, the plot uses the metrics window
+      function calc(z, wn, Cb, tPlot) {
+        const tfinal = z < 0.8 ? 5 / (z * wn) : (1.5 * 56 / 7) * z / wn; // same window rule as the MATLAB app
+        const tend = tPlot || tfinal;
+        const NT = 1000, t = new Array(NT), x = new Array(NT);
+        for (let i = 0; i < NT; i++) { t[i] = tend * i / (NT - 1); x[i] = Cb * stepUnit(z, wn, t[i]); }
+        const under = z < 1 - 1e-6;
+        let OS = 0, tp = null, tR = null;
+        if (under) {
+          const wd = wn * Math.sqrt(1 - z * z);
+          OS = 100 * Math.exp(-Math.PI * z / Math.sqrt(1 - z * z));
+          tp = Math.PI / wd; tR = (Math.PI - Math.acos(z)) / wd;
+        }
+        // 2% settling time from a fine sampling of the response
+        const NF = 40001, dt = tfinal / (NF - 1);
+        let last = -1, prevVal = 0;
+        const vals = new Float64Array(NF);
+        for (let i = 0; i < NF; i++) { vals[i] = stepUnit(z, wn, i * dt); if (Math.abs(vals[i] - 1) > 0.02) last = i; }
+        let ts = null;
+        if (last >= 0 && last < NF - 1) {
+          const e = vals[last] > 1 ? 1.02 : 0.98;
+          ts = last * dt + (e - vals[last]) / (vals[last + 1] - vals[last]) * dt;
+        }
+        let poles, kind;
+        if (under) { poles = [[-z * wn, wn * Math.sqrt(1 - z * z)], [-z * wn, -wn * Math.sqrt(1 - z * z)]]; kind = "underdamped"; }
+        else if (Math.abs(z - 1) < 1e-6) { poles = [[-wn, 0], [-wn, 0]]; kind = "critically damped"; }
+        else { const r = Math.sqrt(z * z - 1); poles = [[wn * (-z + r), 0], [wn * (-z - r), 0]]; kind = "overdamped"; }
+        return { z, wn, Cb, t, x, tfinal, tend, xss: Cb, poles, kind, m: { OS, tp, tR, ts, ess: 1 - Cb } };
+      }
+      window.__calc = calc;
+
+      // ---------------------------------------------------------------
+      // Plot helpers
+      // ---------------------------------------------------------------
+      const PO = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+      const BASE_C = "#5EEAD4", COMP_C = "#FB7185";
+      const MET = {
+        xss: { name: "x_ss", color: "#E7E9EE", dash: "dot" },
+        peak: { name: "Peak", color: "#FFB454", dash: "dot" },
+        tp: { name: "Peak time", color: "#8B92A5", dash: "dashdot" },
+        ts: { name: "Settling time", color: "#A3E635", dash: "dashdot" },
+        tr: { name: "100% Rise time", color: "#F472B6", dash: "dashdot" },
+      };
+      function caseTraces(r, color, isBase) {
+        const tr = [];
+        const name = isBase ? "x(t) Base case" : "x(t) Comparison";
+        tr.push({ x: r.t, y: r.x, mode: "lines", name, line: { color, width: 2.6 }, hovertemplate: "t=%{x:.3f}s  x=%{y:.4f}<extra>" + name + "</extra>" });
+        const op = isBase ? 1 : 0.6, w = isBase ? 1.3 : 1.1, top = r.xss * 1.4;
+        const add = (key, x, y, show) => tr.push({
+          x, y, mode: "lines", name: MET[key].name, legendgroup: key, showlegend: isBase && show !== false,
+          line: { color: MET[key].color, width: w, dash: MET[key].dash }, opacity: op, hoverinfo: "skip"
+        });
+        add("xss", [0, r.tend], [r.xss, r.xss]);
+        if (r.m.OS > 0) add("peak", [0, r.tend], [r.xss * (1 + r.m.OS / 100), r.xss * (1 + r.m.OS / 100)]);
+        if (r.m.tp !== null) add("tp", [r.m.tp, r.m.tp], [0, top]);
+        if (r.m.ts !== null) add("ts", [r.m.ts, r.m.ts], [0, top]);
+        if (r.m.tR !== null) add("tr", [r.m.tR, r.m.tR], [0, top]);
+        return tr;
+      }
+      const baseLayout = (xt, yt, extra) => Object.assign({
+        paper_bgcolor: "#171A21", plot_bgcolor: "#171A21", font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
+        margin: { l: 58, r: 14, t: 34, b: 44 }, showlegend: true,
+        xaxis: { title: xt, gridcolor: "#282D3A", zerolinecolor: "#3a4052" }, yaxis: { title: yt, gridcolor: "#282D3A", zerolinecolor: "#3a4052" },
+      }, extra || {});
+
+      // ---------------------------------------------------------------
+      // The app (one independent instance per problem)
+      // ---------------------------------------------------------------
+      const panels = {};
+      const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p4: "Problem 4" };
+      const fmtT = (v) => (v === null ? "—" : nm(v, 4));
+
+      function buildApp(prefix, o) {
+        const host = document.getElementById(`app-${prefix}`);
+        const compHtml = o.comp ? `
+      <div class="card">
+        <h5>COMPARISON CASE</h5>
+        ${[["wn", "&omega;<sub>n</sub>", 0.1, 100, 0.1, o.wn], ["z", "&zeta;", 0.1, 1.5, 0.01, o.zeta], ["C", "C&#772;", 0.4, 1.6, 0.01, o.Cb]].map(([k, lab, mn, mx, st, v]) => `
+        <div class="sl"><label>${lab}</label><div class="row">
+          <input type="range" id="sim-${prefix}-c-${k}-s" min="${mn}" max="${mx}" step="${st}" value="${v}" />
+          <input type="number" id="sim-${prefix}-c-${k}" value="${v}" step="any" /></div></div>`).join("")}
+        <button class="run-btn secondary small" id="btn-${prefix}-resetcomp">Reset Comp Case</button>
+      </div>` : "";
+        host.innerHTML = `
+      <div class="app-grid">
+        <div>
+          <div class="card">
+            <h5>BASE CASE</h5>
+            <div class="num-row">
+              <div><label>&omega;<sub>n</sub></label><input type="number" id="sim-${prefix}-b-wn" value="${o.blank ? "" : o.wn}" step="any" /></div>
+              <div><label>&zeta;</label><input type="number" id="sim-${prefix}-b-z" value="${o.blank ? "" : o.zeta}" step="any" /></div>
+              <div><label>C&#772;</label><input type="number" id="sim-${prefix}-b-C" value="${o.Cb}" step="any" /></div>
+            </div>
+          </div>
+          ${compHtml}
+          <div class="tools">
+            <button class="run-btn small" id="btn-${prefix}-capture">CAPTURE FIGURE</button>
+          </div>
+          <p class="field-err" style="color:var(--muted);">The time axis runs to 1 s past the later settling time of the cases shown (at most ${o.tPlot} s). Click and drag on the plot to zoom in; double-click to zoom back out.</p>
+          <p class="field-err" id="err-${prefix}"></p>
+          <p class="upload-status" id="capstat-${prefix}"></p>
+        </div>
+        <div class="plot-host t" id="plot-${prefix}-time"></div>
+      </div>
+      <div class="app-bottom${o.metrics ? "" : " solo"}">
+        <div class="plot-host p" id="plot-${prefix}-pole"></div>
+        ${o.metrics ? `<div id="mt-${prefix}"></div>` : ""}
+      </div>`;
+        const E = (id) => document.getElementById(`sim-${prefix}-${id}`);
+        let raf = null;
+
+        function readCase(zid, wid, cid) {
+          const z = E(zid).value === "" ? NaN : Number(E(zid).value), wn = E(wid).value === "" ? NaN : Number(E(wid).value), C = E(cid).value === "" ? NaN : Number(E(cid).value);
+          return [z, wn, C].every((v) => isFinite(v) && v > 0) ? { z, wn, C } : null;
+        }
+        function update() {
+          const b = readCase("b-z", "b-wn", "b-C");
+          const c = o.comp ? readCase("c-z", "c-wn", "c-C") : null;
+          const err = document.getElementById(`err-${prefix}`);
+          err.textContent = (!b && !o.blank) || (!b && o.blank && (E("b-wn").value !== "" || E("b-z").value !== "")) ? "ω_n, ζ and C̄ must be positive numbers." : "";
+          // x-axis window: 1 s past the later settling time, capped at o.tPlot (unsettled cases use the cap)
+          const ts = [b, c].filter(Boolean).map((k) => { const m = calc(k.z, k.wn, k.C).m; return m.ts === null ? Infinity : m.ts; });
+          const tWin = ts.length ? Math.min(o.tPlot, Math.max(...ts) + 1) : o.tPlot;
+          const rb = b ? calc(b.z, b.wn, b.C, tWin) : null, rc = c ? calc(c.z, c.wn, c.C, tWin) : null;
+          panels[prefix].rb = rb; panels[prefix].rc = rc;
+
+          // step plot
+          const timeEl = document.getElementById(`plot-${prefix}-time`);
+          if (!rb && !rc) {
+            timeEl.innerHTML = '<div class="placeholder">Enter &omega;<sub>n</sub> and &zeta; in the base case to see the step response.</div>';
+          } else {
+            if (timeEl.querySelector(".placeholder")) timeEl.innerHTML = "";
+            const traces = [];
+            if (rc) traces.push(...caseTraces(rc, COMP_C, false));
+            if (rb) traces.push(...caseTraces(rb, BASE_C, true));
+            const tmax = Math.max(rb ? rb.tend : 0, rc ? rc.tend : 0);
+            Plotly.react(timeEl, traces, baseLayout("time (sec)", "output x(t)", { title: { text: "Step response", font: { size: 12 }, x: 0.02 }, xaxis: { title: "time (sec)", gridcolor: "#282D3A", range: [0, tmax] }, legend: { orientation: "h", y: -0.2, font: { size: 9 } }, margin: { l: 58, r: 14, t: 34, b: 80 } }), PO);
+          }
+
+          // poles
+          const poleEl = document.getElementById(`plot-${prefix}-pole`);
+          let lim = 0;
+          [rb, rc].forEach((r) => { if (r) lim = Math.max(lim, r.z < 1 ? r.wn : Math.abs(Math.min(r.poles[0][0], r.poles[1][0]))); });
+          lim = (lim || 10) * 1.2;
+          const hb = rb ? rb.poles : [], hc = rc ? rc.poles : [];
+          Plotly.react(poleEl, [
+            { x: hc.map((p) => p[0]), y: hc.map((p) => p[1]), mode: "markers", name: "comparison", marker: { symbol: "x", size: 13, color: COMP_C, line: { width: 3, color: COMP_C } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>comp</extra>" },
+            { x: hb.map((p) => p[0]), y: hb.map((p) => p[1]), mode: "markers", name: "base", marker: { symbol: "x", size: 13, color: BASE_C, line: { width: 3, color: BASE_C } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>base</extra>" },
+          ], baseLayout("Re(s)", "Im(s)", {
+            title: { text: "Poles in the s-plane", font: { size: 12 }, x: 0.02 }, margin: { l: 52, r: 14, t: 34, b: 44 }, legend: { orientation: "h", y: -0.2, font: { size: 9 } },
+            xaxis: { title: "Re(s)", range: [-lim, lim], gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 },
+            yaxis: { title: "Im(s)", range: [-lim, lim], scaleanchor: "x", gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 }
+          }), PO);
+
+          // metrics table (design problem only): design values plus each requirement and whether it is met
+          if (o.metrics) {
+            const req = (v, lim) => (v === null ? '<td class="bad">✗</td>' : `<td class="${v < lim ? "ok" : "bad"}">${v < lim ? "✓" : "✗"}</td>`);
+            const mt = document.getElementById(`mt-${prefix}`);
+            if (!rb) mt.innerHTML = "";
+            else mt.innerHTML = `<table class="mt"><tr><th>metric</th><th>value</th><th>requirement</th><th>met?</th></tr>` +
+              [["ω_n [rad/s]", nm(rb.wn)], ["ζ", nm(rb.z)], ["C̄", nm(rb.Cb)], ["case", rb.kind]].map(([lab, v]) => `<tr><td>${lab}</td><td class="b">${v}</td><td></td><td></td></tr>`).join("") +
+              `<tr><td>100% rise time [s]</td><td class="b">${fmtT(rb.m.tR)}</td><td>&lt; 0.15</td>${req(rb.m.tR, 0.15)}</tr>` +
+              `<tr><td>2% settling time [s]</td><td class="b">${fmtT(rb.m.ts)}</td><td>&lt; 0.3</td>${req(rb.m.ts, 0.3)}</tr>` +
+              `<tr><td>overshoot [%]</td><td class="b">${nm(rb.m.OS)}</td><td>&lt; 10</td>${req(rb.m.OS, 10)}</tr></table>`;
+          }
+          if (window.__scheduleSave) window.__scheduleSave();
+        }
+        function schedule() { if (raf) return; raf = requestAnimationFrame(() => { raf = null; update(); }); }
+
+        ["b-wn", "b-z", "b-C"].forEach((id) => E(id).addEventListener("input", schedule));
+        if (o.comp) {
+          ["wn", "z", "C"].forEach((k) => {
+            const s = E(`c-${k}-s`), n = E(`c-${k}`);
+            s.addEventListener("input", () => { n.value = s.value; schedule(); });
+            n.addEventListener("input", () => { const v = Number(n.value); if (isFinite(v) && v > 0) s.value = v; schedule(); });
+          });
+          document.getElementById(`btn-${prefix}-resetcomp`).addEventListener("click", () => {
+            [["wn", "b-wn"], ["z", "b-z"], ["C", "b-C"]].forEach(([k, bk]) => { E(`c-${k}`).value = E(bk).value; E(`c-${k}-s`).value = E(bk).value; });
+            update();
+          });
+        }
+
+        async function capture() {
+          const st = document.getElementById(`capstat-${prefix}`);
+          const rb = panels[prefix].rb, rc = panels[prefix].rc;
+          if (!rb && !rc) { st.style.color = "#FB7185"; st.textContent = "Enter a base case first."; return; }
+          st.style.color = "#5EEAD4"; st.textContent = "Capturing…";
+          try {
+            const img = (src) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+            const tUrl = await Plotly.toImage(document.getElementById(`plot-${prefix}-time`), { format: "png", width: 980, height: 440 });
+            const pUrl = await Plotly.toImage(document.getElementById(`plot-${prefix}-pole`), { format: "png", width: 440, height: 440 });
+            const cv = document.createElement("canvas"); cv.width = 1420; cv.height = 440;
+            const cx = cv.getContext("2d"); cx.fillStyle = "#171A21"; cx.fillRect(0, 0, 1420, 440);
+            cx.drawImage(await img(tUrl), 0, 0, 980, 440); cx.drawImage(await img(pUrl), 980, 0, 440, 440);
+            const line = (nmx, r) => `${nmx}: zeta=${nm(r.z)}, wn=${nm(r.wn)}, Cbar=${nm(r.Cb)}` + (o.metrics ? ` | overshoot=${nm(r.m.OS)}%, rise=${r.m.tR === null ? "n/a" : nm(r.m.tR) + " s"}, settling=${r.m.ts === null ? "n/a" : nm(r.m.ts) + " s"}` : "");
+            const lines = [];
+            if (rb) lines.push(line("Base", rb));
+            if (rc) lines.push(line("Comparison", rc));
+            window.__addCapture({ prefix, lines, dataUrl: cv.toDataURL("image/png"), width: cv.width, height: cv.height });
+            st.textContent = "Figure captured — see Submission.";
+          } catch (e) { console.error(e); st.style.color = "#FB7185"; st.textContent = "Could not capture figure."; }
+        }
+        document.getElementById(`btn-${prefix}-capture`).addEventListener("click", capture);
+        panels[prefix] = { update, rb: null, rc: null };
+        update();
+      }
+      const D = { wn: 10, zeta: 0.2, Cb: 1, tPlot: 5 };
+      buildApp("p1", Object.assign({ comp: true }, D));
+      buildApp("p2", Object.assign({ comp: true }, D));
+      buildApp("p3", Object.assign({ comp: true }, D));
+      buildApp("p4", { comp: false, blank: true, metrics: true, wn: "", zeta: "", Cb: 1, tPlot: 5 });
+
+      // ---------------------------------------------------------------
+      // KaTeX
+      // ---------------------------------------------------------------
+      const kr = (id, tex) => katex.render(tex, document.getElementById(id), { throwOnError: false, displayMode: true });
+      kr("eq-ode", "\\ddot x+2\\zeta\\omega_n\\dot x+\\omega_n^2x=\\bar C\\,\\omega_n^2\\,r\\quad\\xrightarrow{\\ \\mathcal L\\ }\\quad\\frac{X(s)}{R(s)}=\\frac{\\bar C\\,\\omega_n^2}{s^2+2\\zeta\\omega_ns+\\omega_n^2}");
+      kr("eq-step", "x(t)=R_0\\bar C\\left[1-\\frac{1}{\\sqrt{1-\\zeta^2}}\\,e^{-\\zeta\\omega_nt}\\sin(\\omega_dt+\\phi)\\right]");
+      kr("eq-metrics", "MO=100\\,\\exp\\!\\left(\\frac{-\\pi\\zeta}{\\sqrt{1-\\zeta^2}}\\right),\\qquad t_R=\\frac{\\pi-\\cos^{-1}\\zeta}{\\omega_n\\sqrt{1-\\zeta^2}},\\qquad t_S=\\frac{4}{\\zeta\\omega_n}");
+      kr("eq-reqs", "t_R<0.15\\ \\text{sec},\\qquad t_S<0.3\\ \\text{sec},\\qquad MO<10\\%");
+
+      // ---------------------------------------------------------------
+      // Navigation
+      // ---------------------------------------------------------------
+      const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
+      function activate(part) {
+        document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
+        Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
+        const sec = document.getElementById(SECTION_IDS[part]); sec.style.display = "block";
+        sec.querySelectorAll(".js-plotly-plot").forEach((p) => { try { Plotly.Plots.resize(p); } catch (e) { /* ignore */ } });
+      }
+      document.querySelectorAll(".nav-btn").forEach((b) => b.addEventListener("click", () => activate(b.dataset.part)));
+
+      // ---------------------------------------------------------------
+      // Summary table (submission)
+      // ---------------------------------------------------------------
+      const SUM_ROWS = ["Increase ζ", "Increase ω_n", "Increase C̄"], SUM_COLS = ["Rise time", "Settling time", "Overshoot", "Steady-state error"];
+      document.getElementById("sum-table").innerHTML = `<tr><th></th>${SUM_COLS.map((c) => `<th>${c}</th>`).join("")}</tr>` +
+        SUM_ROWS.map((r, i) => `<tr><th>${r}</th>${SUM_COLS.map((c, j) => `<td><select id="select-sum-r${i}-c${j}"><option value="">--</option><option value="increases">increases</option><option value="decreases">decreases</option><option value="no change">no change</option></select></td>`).join("")}</tr>`).join("");
+
+      // ---------------------------------------------------------------
+      // Captured figures
+      // ---------------------------------------------------------------
+      let captures = []; const CAP_KEY = "gw10w_captures_v1";
+      function renderCaptures() {
+        const host = document.getElementById("cap-list");
+        if (!captures.length) { host.innerHTML = '<span class="mono" style="font-size:11.5px;color:var(--muted);">No figures captured yet.</span>'; return; }
+        host.innerHTML = captures.map((c, i) => `<div class="cap-item"><button class="cap-x" data-i="${i}" type="button">✕</button><img src="${c.dataUrl}" alt="" /><div class="cap-text"><b>${TITLES[c.prefix]}</b><br>${c.lines.join("<br>")}</div></div>`).join("");
+        host.querySelectorAll(".cap-x").forEach((b) => b.addEventListener("click", () => { captures.splice(Number(b.dataset.i), 1); renderCaptures(); saveCaps(); }));
+      }
+      function saveCaps() { try { localStorage.setItem(CAP_KEY, JSON.stringify(captures)); } catch (e) { /* quota */ } }
+      window.__addCapture = (c) => { captures.push(c); renderCaptures(); saveCaps(); };
+      try { const raw = localStorage.getItem(CAP_KEY); if (raw) captures = JSON.parse(raw) || []; } catch (e) { captures = []; }
+      renderCaptures();
+
+      // ---------------------------------------------------------------
+      // Uploaded calculations/sketch (Problem 4a). Resized to a fixed max
+      // dimension and re-compressed as JPEG so the exported PDF stays small.
+      // ---------------------------------------------------------------
+      const MAX_IMAGE_DIM = 1200, IMAGE_QUALITY = 0.7, IMG_KEY = "gw10w_p4a_images_v1";
+      let p4aImages = [];
+      function resizeAndCompressImage(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => reject(new Error("Could not read file."));
+          reader.onload = () => {
+            const img = new Image();
+            img.onerror = () => reject(new Error("Could not load image."));
+            img.onload = () => {
+              let w = img.width, h = img.height;
+              if (w > h && w > MAX_IMAGE_DIM) { h = Math.round(h * MAX_IMAGE_DIM / w); w = MAX_IMAGE_DIM; }
+              else if (h >= w && h > MAX_IMAGE_DIM) { w = Math.round(w * MAX_IMAGE_DIM / h); h = MAX_IMAGE_DIM; }
+              const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+              const cx = cv.getContext("2d"); cx.fillStyle = "#FFFFFF"; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
+              resolve({ dataUrl: cv.toDataURL("image/jpeg", IMAGE_QUALITY), width: w, height: h });
+            };
+            img.src = reader.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+      function saveImages() { try { localStorage.setItem(IMG_KEY, JSON.stringify(p4aImages)); } catch (e) { /* quota */ } }
+      function renderThumbs() {
+        const host = document.getElementById("upload-thumbs-p4a"); host.innerHTML = "";
+        p4aImages.forEach((entry, i) => {
+          const wrap = document.createElement("div"); wrap.className = "thumb-wrap";
+          wrap.innerHTML = `<img class="thumb-img" src="${entry.dataUrl}" alt="" /><button class="thumb-remove" type="button" title="Remove">&times;</button>`;
+          wrap.querySelector("button").addEventListener("click", () => { p4aImages.splice(i, 1); renderThumbs(); saveImages(); });
+          host.appendChild(wrap);
+        });
+        const n = p4aImages.length;
+        document.getElementById("upload-status-p4a").textContent = n ? `\u2713 ${n} image${n > 1 ? "s" : ""} uploaded` : "";
+      }
+      const imgIn = document.getElementById("upload-input-p4a");
+      imgIn.addEventListener("change", async () => {
+        const failed = [];
+        for (const f of Array.from(imgIn.files || [])) {
+          try { p4aImages.push(await resizeAndCompressImage(f)); } catch (e) { console.error(e); failed.push(f.name); }
+        }
+        document.getElementById("upload-err-p4a").textContent = failed.length ? `Could not load: ${failed.join(", ")}. The file may be an unsupported format (e.g. HEIC) or corrupted \u2014 try re-saving as JPEG/PNG, or take a screenshot instead.` : "";
+        renderThumbs(); saveImages(); imgIn.value = "";
+      });
+      try { const raw = localStorage.getItem(IMG_KEY); if (raw) p4aImages = JSON.parse(raw) || []; } catch (e) { p4aImages = []; }
+      renderThumbs();
+
+      // ---------------------------------------------------------------
+      // PDF export
+      // ---------------------------------------------------------------
+      let appendixFiles = [];
+      function renderChips() {
+        const host = document.getElementById("upload-thumbs-appendix"); host.innerHTML = "";
+        appendixFiles.forEach((f, i) => { const d = document.createElement("div"); d.className = "file-chip"; d.innerHTML = `<span>${f.name}</span><button class="chip-remove" data-i="${i}" type="button">✕</button>`; host.appendChild(d); });
+        host.querySelectorAll(".chip-remove").forEach((b) => b.addEventListener("click", () => { appendixFiles.splice(Number(b.dataset.i), 1); renderChips(); }));
+      }
+      const appIn = document.getElementById("upload-input-appendix");
+      appIn.addEventListener("change", () => {
+        const chosen = Array.from(appIn.files || []);
+        const bad = chosen.filter((f) => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+        appendixFiles = appendixFiles.concat(chosen.filter((f) => !bad.includes(f)));
+        document.getElementById("upload-err-appendix").textContent = bad.length ? `Skipped (not a PDF): ${bad.map((f) => f.name).join(", ")}` : "";
+        renderChips(); appIn.value = "";
+      });
+      const setStatus = (t, err) => { const e = document.getElementById("exportStatus"); e.textContent = t; e.style.color = err ? "#FB7185" : "#8B92A5"; };
+      const val = (id) => document.getElementById(id).value.trim();
+      const reflect = (id) => val(id) || "(No response entered.)";
+      function blankItems() {
+        const out = [];
+        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.value.trim() === "") out.push(e.id.replace(/^input-/, "").replace(/-/g, " ")); });
+        if (!p4aImages.length) out.push("p4a (no calculations/sketch uploaded)");
+        if (!val("sim-p4-b-wn") || !val("sim-p4-b-z")) out.push("p4 (design zeta, wn not entered)");
+        if (!captures.length) out.push("no captured figures");
+        return out;
+      }
+      async function exportPdf() {
+        const blanks = blankItems();
+        if (blanks.length && !confirm(`The following are still blank:\n\n${blanks.map((b) => "• " + b).join("\n")}\n\nDo you want to export the PDF anyway?`)) return;
+        const btn = document.getElementById("exportPdfBtn"), label = btn.textContent;
+        btn.disabled = true; btn.textContent = "EXPORTING…"; setStatus("");
+        try {
+          const { jsPDF } = window.jspdf, doc = new jsPDF({ unit: "pt", format: "letter" });
+          const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), mg = 48, mw = W - mg * 2; let y = mg;
+          const ensure = (h) => { if (y + h > H - mg) { doc.addPage(); y = mg; } };
+          const safe = (t) => String(t).replace(/ω_?n/g, "omega_n").replace(/ω/g, "omega").replace(/ζ/g, "zeta").replace(/C̄/g, "Cbar").replace(/₀/g, "0");
+          const heading = (t) => { ensure(30); doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(safe(t), mg, y); y += 22; };
+          const text = (t, o) => { const s = (o && o.size) || 10.5; doc.setFont("helvetica", o && o.bold ? "bold" : "normal"); doc.setFontSize(s); const lh = s * 1.35; doc.splitTextToSize(safe(t), mw).forEach((l) => { ensure(lh); doc.text(l, mg, y); y += lh; }); y += 4; };
+          const caps = (p) => {
+            const list = captures.filter((c) => c.prefix === p);
+            list.forEach((c) => { const h = mw * (c.height / c.width); ensure(h + 40); c.lines.forEach((l) => text(l, { size: 8.5 })); ensure(h + 10); doc.addImage(c.dataUrl, "PNG", mg, y, mw, h); y += h + 14; });
+          };
+          doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+          doc.splitTextToSize("GroupWork 10W — Metrics in 2nd Order Step Response", mw).forEach((l) => { doc.text(l, mg, y); y += 20; }); y += 6;
+          const netId = val("input-netid") || "(not entered)";
+          text(`Your NetID: ${netId}`, { bold: true, size: 11.5 }); text(`Group member NetIDs: ${val("input-group-netids") || "(not entered)"}`, { bold: true, size: 11.5 }); y += 6;
+
+          heading("Problem 1: Step response as a function of zeta");
+          text(reflect("input-p1-reflect")); caps("p1");
+          heading("Problem 2: Step response as a function of omega_n");
+          text(reflect("input-p2-reflect")); caps("p2");
+          heading("Problem 3: Step response as a function of C, Cbar");
+          text("a) Effect of varying Cbar on the metrics:", { bold: true }); text(reflect("input-p3-reflect-metrics")); caps("p3"); text("b) Physical meaning of C, Cbar (RLC circuit and rotary systems):", { bold: true }); text(reflect("input-p3-reflect-physical"));
+          heading("Problem 4: Design for desired step response");
+          text("a) Acceptable regions (calculations and sketch):", { bold: true });
+          if (!p4aImages.length) text("(No images uploaded.)");
+          p4aImages.forEach((e) => {
+            const maxW = mw / 2, maxH = (H - mg * 2) / 2, asp = e.height / e.width;
+            let w = maxW, h = w * asp; if (h > maxH) { h = maxH; w = h / asp; }
+            ensure(h + 10); doc.addImage(e.dataUrl, "JPEG", mg + (mw - w) / 2, y, w, h); y += h + 16;
+          });
+          const dz = Number(val("sim-p4-b-z")), dw = Number(val("sim-p4-b-wn")), dC = Number(val("sim-p4-b-C"));
+          if (dz > 0 && dw > 0 && dC > 0) {
+            const r = calc(dz, dw, dC);
+            text(`b) Selected design: zeta = ${nm(dz)}, omega_n = ${nm(dw)}, Cbar = ${nm(dC)}`, { bold: true });
+            text(`Metrics: overshoot = ${nm(r.m.OS)} %, 100% rise time = ${r.m.tR === null ? "n/a" : nm(r.m.tR) + " s"}, 2% settling time = ${r.m.ts === null ? "n/a" : nm(r.m.ts) + " s"}`);
+          } else text("b) Selected design: (not entered)", { bold: true });
+          caps("p4");
+          heading("Summary of trends (underdamped)");
+          SUM_ROWS.forEach((r, i) => text(`${r}: ` + SUM_COLS.map((c, j) => `${c} ${document.getElementById(`select-sum-r${i}-c${j}`).value || "(blank)"}`).join("; ")));
+          text("Differences for overdamped systems:", { bold: true }); text(reflect("input-sum-over"));
+
+          const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+          if (appendixFiles.length) {
+            const { PDFDocument } = window.PDFLib, merged = await PDFDocument.load(doc.output("arraybuffer")), failed = [];
+            for (const f of appendixFiles) { try { const ap = await PDFDocument.load(await f.arrayBuffer()); (await merged.copyPages(ap, ap.getPageIndices())).forEach((p) => merged.addPage(p)); } catch (e) { console.error(e); failed.push(f.name); } }
+            const url = URL.createObjectURL(new Blob([await merged.save()], { type: "application/pdf" }));
+            const a = document.createElement("a"); a.href = url; a.download = `GroupWork10W_${safeId}.pdf`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+            setStatus(failed.length ? `PDF downloaded, but could not append: ${failed.join(", ")}` : "PDF downloaded (with appendix attached).");
+          } else { doc.save(`GroupWork10W_${safeId}.pdf`); setStatus("PDF downloaded."); }
+        } catch (e) { console.error(e); setStatus(`Could not export PDF: ${e.message}`, true); }
+        finally { btn.disabled = false; btn.textContent = label; }
+      }
+      document.getElementById("exportPdfBtn").addEventListener("click", exportPdf);
+
+      // ---------------------------------------------------------------
+      // Autosave
+      // ---------------------------------------------------------------
+      const KEY = "gw10w_progress_v1";
+      function collect() {
+        const v = {};
+        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"], select[id^="select-"], input[id^="sim-"]').forEach((e) => { v[e.id] = e.type === "checkbox" ? e.checked : e.value; });
+        return v;
+      }
+      function save() { try { const a = document.querySelector(".nav-btn.active"); localStorage.setItem(KEY, JSON.stringify({ tab: a ? a.dataset.part : "intro", f: collect() })); } catch (e) { /* ignore */ } }
+      let st = null; const sched = () => { clearTimeout(st); st = setTimeout(save, 250); };
+      window.__scheduleSave = sched; document.addEventListener("input", sched); document.addEventListener("change", sched); document.addEventListener("click", sched);
+      (function load() {
+        let s; try { const raw = localStorage.getItem(KEY); if (!raw) return; s = JSON.parse(raw); } catch (e) { return; }
+        Object.keys(s.f || {}).forEach((id) => { const e = document.getElementById(id); if (!e) return; if (e.type === "checkbox") e.checked = !!s.f[id]; else e.value = s.f[id]; });
+        Object.keys(panels).forEach((p) => panels[p].update());
+        if (s.tab && SECTION_IDS[s.tab]) activate(s.tab);
+      })();
+    })();
+  </script>
+
+</body>
+
+</html>
