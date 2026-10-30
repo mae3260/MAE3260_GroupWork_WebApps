@@ -1720,15 +1720,6 @@
             K<sub>I</sub>/s. The reference-to-error and reference-to-control transfer functions are</p>
           <div class="eq-block" id="eq-tf"></div>
           <p class="instructions">The reference is a step R(s) = R<sub>0</sub>/s with R<sub>0</sub> = 50 rad/s.</p>
-
-          <div class="note-box">
-            <b>How the app works.</b> In Problems 2&ndash;5 you get the same workflow as in the handout, starting from
-            the open Simulink model (<code>GroupWork_10F_sim_2025</code>): double-click the <b>PI Controller</b> block to set the controller,
-            gains and saturation, press <b>Run</b> under the SIMULATION tab, and
-            read the <b>Control Effort</b> and <b>Input/Output</b> scope windows (with cursors). The model and the
-            controller settings are shared by all problems, as in Simulink, so change them as each problem asks.
-            Use <b>CAPTURE FIGURE</b> to save both scope windows for your submission PDF in place of screenshots.
-          </div>
         </section>
 
         <!-- ============== PROBLEM 1 ============== -->
@@ -2553,7 +2544,7 @@
       }
       const scIO = makeScope("scope-io", {
         title: "Input/Output", ylab: "r(t), y(t)", ylim: [-10, 90], traces: [
-          { key: "r", name: "r", color: "#1fa21f", width: 4, dash: "solid" }, { key: "y", name: "y", color: "#1f1ff0", width: 4, dash: "dash" }]
+          { key: "r", name: "r", color: "#1fa21f", width: 4, dash: "solid" }, { key: "y", name: "y", color: "#4db8ff", width: 4, dash: "dash" }]
       });
       const scU = makeScope("scope-u", {
         title: "Control Effort", plotTitle: "u_actual", ylab: "u(t)", ylim: [-1000, 10000], traces: [
@@ -2649,7 +2640,7 @@
       const kr = (id, tex) => katex.render(tex, $(id), { throwOnError: false, displayMode: true });
       kr("eq-eom", "I\\,\\dot\\omega(t)+b\\,\\omega(t)=u(t),\\qquad I=25\\ \\text{kg m}^2,\\ b=20\\ \\text{N m s/rad}\\qquad(1)");
       kr("eq-law", "u(t)=u_P(t)+u_I(t)=K_P\\,e(t)+K_I\\!\\int_0^t e(\\tau)\\,d\\tau\\qquad(2)");
-      kr("eq-tf", "\\frac{E(s)}{R(s)}=\\frac{1}{1+G(s)K(s)}=\\frac{Is^2+bs}{Is^2+(b+K_P)s+K_I}\\quad(4)\\qquad \\frac{U(s)}{R(s)}=\\frac{K(s)}{1+G(s)K(s)}=\\frac{(IK_P)s^2+(IK_I+bK_P)s+bK_I}{Is^2+(b+K_P)s+K_I}\\quad(5)");
+      kr("eq-tf", "\\begin{gathered}\\frac{E(s)}{R(s)}=\\frac{1}{1+G(s)K(s)}=\\frac{Is^2+bs}{Is^2+(b+K_P)s+K_I}\\quad(4)\\\\[10pt] \\frac{U(s)}{R(s)}=\\frac{K(s)}{1+G(s)K(s)}=\\frac{(IK_P)s^2+(IK_I+bK_P)s+bK_I}{Is^2+(b+K_P)s+K_I}\\quad(5)\\end{gathered}");
       kr("eq-reqs", "\\begin{aligned}&\\text{settling time } t_S<4\\ \\text{sec}\\quad(t_S=4/\\zeta\\omega_n)\\\\&\\text{damping ratio } \\zeta=1\\ \\text{(no overshoot, maximize rise time)}\\\\&\\text{initial control effort } u(0)<2000\\ \\text{Nm}\\\\&\\text{zero steady state error, } e_{ss}=0\\end{aligned}");
 
       // ---------------------------------------------------------------
