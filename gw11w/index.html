@@ -85,6 +85,9 @@
   .plot-host { height: 300px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin-top: 14px; }
   .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 13px; text-align: center; max-width: 320px; margin: 0 auto; padding: 0 20px; }
 
+  .crit-list { list-style: none; padding: 0; margin: 0 0 16px 0; }
+  .crit-list li { position: relative; padding-left: 26px; margin-bottom: 8px; font-size: 14.5px; line-height: 1.6; color: var(--fg); }
+  .crit-list .lbl { position: absolute; left: 4px; }
   .steps-list { padding-left: 20px; margin: 0 0 16px 0; }
   .steps-list li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
 
@@ -161,6 +164,33 @@
   table.mt th.k0 { color: #5EEAD4; } table.mt th.k1 { color: #FB7185; } table.mt th.k2 { color: #FFB454; }
   .ref-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; }
   .plot-host.r { height: 290px; margin-top: 0; }
+  .cmp-ctrl { display: flex; gap: 14px; align-items: flex-end; }
+  .cmp-f label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+  .cmp-f input[type=number] { width: 78px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .cmp-f input[type=number]:focus { outline: none; border-color: var(--amber); }
+  .cmp-f input[disabled] { opacity: 0.5; cursor: not-allowed; }
+  .cmp-f.grow { flex: 1; min-width: 0; }
+  .cmp-f .row { display: flex; gap: 8px; align-items: center; }
+  .cmp-f input[type=range] { flex: 1; min-width: 0; accent-color: var(--rose); }
+  .cmp-plots { display: grid; grid-template-columns: 3fr 2fr; grid-template-rows: 1fr 1fr; gap: 10px; height: clamp(400px, calc(100vh - 230px), 620px); }
+  .cmp-cell { display: grid; grid-template-columns: 18px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) 18px; column-gap: 2px; min-height: 0; }
+  .cmp-cell.cmp-th { grid-row: 1 / span 2; }
+  .cmp-plots .plot-host { height: auto; min-height: 0; margin: 0; overflow: hidden; }
+  .dual { position: relative; grid-column: 2; margin: 0 7px 0 51px; height: 18px; }
+  .dual.v { grid-column: 1; grid-row: 1; width: 18px; height: auto; margin: 27px 0 37px 0; }
+  .dual .track, .dual .fill { position: absolute; border-radius: 2px; pointer-events: none; }
+  .dual .track { background: var(--line); left: 0; right: 0; top: 7px; height: 4px; }
+  .dual .fill { background: var(--amber); top: 7px; height: 4px; }
+  .dual.v .track { left: 7px; width: 4px; top: 0; bottom: 0; height: auto; }
+  .dual.v .fill { left: 7px; width: 4px; top: auto; }
+  .dual input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; background: none; pointer-events: none; -webkit-appearance: none; appearance: none; }
+  .dual.v input { writing-mode: vertical-lr; direction: rtl; }
+  .dual input::-webkit-slider-runnable-track { background: none; }
+  .dual input::-moz-range-track { background: none; }
+  .dual input::-webkit-slider-thumb { -webkit-appearance: none; pointer-events: auto; width: 14px; height: 14px; border-radius: 50%; background: var(--amber); border: 2px solid var(--ink); cursor: pointer; }
+  .dual input::-moz-range-thumb { pointer-events: auto; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); border: 2px solid var(--ink); cursor: pointer; }
+  .cmp-ctrl ~ .field-err { min-height: 0; margin: 6px 0 0 0; }
+  .cmp-ctrl ~ .upload-status { margin: 4px 0 6px 0; min-height: 13px; }
   .range-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
   .range-row input { width: 90px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
   .range-row input:focus { outline: none; border-color: var(--amber); }
@@ -248,69 +278,92 @@
       <section id="part-p1" style="display:none;">
         <h3 class="problem-title">Problem 1: Closed-loop transfer functions, steady state error</h3>
         <p class="instructions">
-          Verify the closed loop reference-to-error transfer function E(s)/R(s) from the quiz, and the general form of the steady state error as a function
-          of the control gains. Are there any values of K<sub>P</sub> and K<sub>D</sub> for which the system will yield zero steady state error?
-          Use the app to test your result: change K<sub>P</sub> and K<sub>D</sub> and compare the steady state error in the response.
+          Verify that you each found the correct closed-loop reference to error transfer function E(s)/R(s) from the quiz, as well as the general form of the steady state error as a function
+          of the control gains. Are there any values for K<sub>P</sub> and K<sub>D</sub> for which the system will yield zero steady state error?
         </p>
-        <h4 class="part-title">Derivation</h4>
-        <div class="reflection-box"><textarea id="input-p1-derivation" placeholder="E(s)/R(s) and the FVT derivation of e_ss as a function of K_P, K_D..."></textarea></div>
-        <div class="panel-box" id="app-p1" style="margin-top:14px;"></div>
-        <h4 class="part-title">Discuss</h4>
-        <div class="reflection-box"><textarea id="input-p1-discuss" placeholder="Does e_ss depend on K_P? On K_D? Can e_ss be zero? What does the app show?"></textarea></div>
+        <div class="reflection-box"><textarea id="input-p1-discuss"></textarea></div>
       </section>
 
       <!-- ============== PROBLEM 2 ============== -->
       <section id="part-p2" style="display:none;">
         <h3 class="problem-title">Problem 2: Designing the Derivative (D) gain in a PD controller</h3>
-        <p class="given-line">GIVEN &middot; <b>K<sub>P</sub> = 11</b></p>
-        <p class="instructions">Find the range of K<sub>D</sub> that meets the following criteria:</p>
-        <div class="eq-block" id="eq-p2reqs"></div>
-        <div class="note-box">Hint: turn (a, b) into an acceptable region in the s-plane, then use Eqns (4, 5) to find the range of K<sub>D</sub>.</div>
+        <p class="instructions">Given <span class="ik">K_{\mathrm{P}} = 11</span> for the closed loop system, find the range of <span class="ik">K_{\mathrm{D}}</span> that meets the following criteria:</p>
+        <ul class="crit-list">
+          <li><span class="lbl">a)</span>Closed loop system is under-damped, <span class="ik">0 &lt; \zeta^{\mathrm{CL}} &lt; 1</span></li>
+          <li><span class="lbl">b)</span>Settling time less than 2 seconds, <span class="ik">t_{\mathrm{S}} &lt; 2\ \text{sec}</span></li>
+        </ul>
+        <div class="note-box"><b>Hint</b>: First, consider how (a,b) create an acceptable region in the <i>s</i>-plane based on <span class="ik">(\zeta^{\mathrm{CL}},\omega_n^{\mathrm{CL}})</span> or <span class="ik">(\zeta^{\mathrm{CL}}\cdot\omega_n^{\mathrm{CL}},\omega_d^{\mathrm{CL}})</span>. Then use Eqns (1,2) to relate <span class="ik">(K_{\mathrm{P}},K_{\mathrm{D}})</span> to <span class="ik">(\zeta^{\mathrm{CL}},\omega_n^{\mathrm{CL}})</span> and find the range of <span class="ik">K_{\mathrm{D}}</span>.</div>
         <h4 class="part-title">Derivation</h4>
-        <div class="reflection-box"><textarea id="input-p2-derivation" placeholder="Your derivation of the K_D range..."></textarea></div>
+        <p class="instructions">Show your derivation of the K<sub>D</sub> range.</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-p2-derivation" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-p2-derivation"></div>
+          <p class="upload-status" id="upload-status-p2-derivation"></p>
+          <p class="upload-err" id="upload-err-p2-derivation"></p>
+        </div>
         <p class="instructions" style="margin-top:14px;">Your K<sub>D</sub> range:</p>
         <div class="range-row"><input type="number" id="input-p2-kd-lo" step="any" /> <span>&lt; K<sub>D</sub> &lt;</span> <input type="number" id="input-p2-kd-hi" step="any" /></div>
         <h4 class="part-title">Check with the app</h4>
         <p class="instructions">K<sub>P</sub> is fixed at 11. Enter K<sub>D</sub> values inside and just outside your range and compare the responses.</p>
         <div class="panel-box" id="app-p2"></div>
-        <h4 class="part-title">Optional: negative K<sub>D</sub></h4>
-        <p class="instructions">Suppose a sign error makes the derivative gain negative. How would this affect the system&rsquo;s response? Verify with the app.</p>
-        <div class="reflection-box"><textarea id="input-p2-negkd" placeholder="Describe the effect of a negative derivative gain (try K_D < −1 and −1 < K_D < 0)..."></textarea></div>
+        <h4 class="part-title">c) Optional Problem</h4>
+        <p class="instructions">Suppose that, while implementing a PD controller, a sign error is made such that the derivative gain becomes negative. Describe how this would affect the system&rsquo;s response and verify with the app.</p>
+        <div class="reflection-box"><textarea id="input-p2-negkd"></textarea></div>
       </section>
 
       <!-- ============== PROBLEM 3 ============== -->
       <section id="part-p3" style="display:none;">
         <h3 class="problem-title">Problem 3: Designing the Proportional (P) gain in a PD controller</h3>
-        <p class="given-line">GIVEN &middot; <b>K<sub>D</sub> = 9</b></p>
-        <p class="instructions">Find the range of K<sub>P</sub> that meets the following criteria:</p>
-        <div class="eq-block" id="eq-p3reqs"></div>
-        <div class="note-box">Hint: turn (a, b) into an acceptable region in the s-plane, then use Eqns (4, 5) to find the range of K<sub>P</sub>. For rise time, use the t<sub>R</sub> vs. &omega;<sub>d</sub> chart in the <b>Reference charts</b> tab.</div>
+        <p class="instructions">Given <span class="ik">K_{\mathrm{D}} = 9</span> for the closed loop system, find the range of <span class="ik">K_{\mathrm{P}}</span> that meets the following criteria:</p>
+        <ul class="crit-list">
+          <li><span class="lbl">a)</span>Maximum overshoot is less than 20%, <span class="ik">M_{\mathrm{O}} &lt; 20\%</span></li>
+          <li><span class="lbl">b)</span>Rise time less than 0.25 seconds, <span class="ik">t_{\mathrm{R}} &lt; 0.25\ \text{sec}</span></li>
+        </ul>
+        <p class="instructions">Check if your <span class="ik">K_{\mathrm{P}}</span> range satisfies the design specifications with the app.</p>
+        <div class="note-box"><b>Hint</b>: First, consider how (a,b) create an acceptable region in the <i>s</i>-plane based on <span class="ik">(\zeta^{\mathrm{CL}},\omega_n^{\mathrm{CL}})</span> or <span class="ik">(\zeta^{\mathrm{CL}}\cdot\omega_n^{\mathrm{CL}},\omega_d^{\mathrm{CL}})</span>. Then use Eqns (1,2) to relate <span class="ik">(K_{\mathrm{P}},K_{\mathrm{D}})</span> to <span class="ik">(\zeta^{\mathrm{CL}},\omega_n^{\mathrm{CL}})</span> and find the range of <span class="ik">K_{\mathrm{P}}</span>. Note the upper left figure in the <b>Reference charts</b> tab plotting <span class="ik">t_r</span> as a function of <span class="ik">\omega_d</span> for fixed <span class="ik">\zeta\omega_n = 5</span>.</div>
+        <p class="instructions"><b>Deliverables</b>: <span class="ik">K_{\mathrm{P}}</span> range and plot of response.</p>
         <h4 class="part-title">Derivation</h4>
-        <div class="reflection-box"><textarea id="input-p3-derivation" placeholder="Your derivation of the K_P range..."></textarea></div>
+        <p class="instructions">Show your derivation of the K<sub>P</sub> range.</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-p3-derivation" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-p3-derivation"></div>
+          <p class="upload-status" id="upload-status-p3-derivation"></p>
+          <p class="upload-err" id="upload-err-p3-derivation"></p>
+        </div>
         <p class="instructions" style="margin-top:14px;">Your K<sub>P</sub> range:</p>
         <div class="range-row"><input type="number" id="input-p3-kp-lo" step="any" /> <span>&lt; K<sub>P</sub> &lt;</span> <input type="number" id="input-p3-kp-hi" step="any" /></div>
         <h4 class="part-title">Check with the app</h4>
-        <p class="instructions">K<sub>D</sub> is fixed at 9. Deliverable: the K<sub>P</sub> range and a plot of the response with an acceptable K<sub>P</sub>.</p>
         <div class="panel-box" id="app-p3"></div>
-        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p3-discuss" placeholder="Your chosen K_P and how the response and metrics compare with the requirements..."></textarea></div>
+        <p class="instructions">State your chosen K<sub>P</sub> and how the response and metrics compare with the requirements.</p>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p3-discuss"></textarea></div>
       </section>
 
       <!-- ============== PROBLEM 4 ============== -->
       <section id="part-p4" style="display:none;">
         <h3 class="problem-title">Problem 4: Designing a PD controller</h3>
-        <p class="given-line">GIVEN &middot; <b>R<sub>0</sub> = 20&deg; = 0.349 rad</b></p>
-        <p class="instructions">Find the range of values for both K<sub>P</sub> and K<sub>D</sub> that meets the following criteria:</p>
-        <div class="eq-block" id="eq-p4reqs"></div>
-        <div class="note-box">Hint: turn (a, b, c) into an acceptable region in the s-plane and use Eqns (4, 5). For (b), assume the maximum control effort is at t = 0 and use the Initial Value Theorem, u(0) = lim<sub>s&rarr;&infin;</sub> s&middot;U(s).</div>
+        <p class="instructions">Find the range of values for both <span class="ik">K_{\mathrm{P}}</span>, <span class="ik">K_{\mathrm{D}}</span> that meets the following criteria (<span class="ik">R_0 = 20\ \text{deg} = 0.349\ \text{rad}</span>):</p>
+        <ul class="crit-list">
+          <li><span class="lbl">a)</span>Steady state error less than 20% of <span class="ik">R_0</span>, <span class="ik">e_{ss}/R_0 &lt; 0.2</span></li>
+          <li><span class="lbl">b)</span>Maximum magnitude of control input is less than 50 N-m, <span class="ik">\max|u(t)| &lt; 50</span></li>
+          <li><span class="lbl">c)</span>Maximum overshoot is less than 10%, <span class="ik">M_{\mathrm{O}} &lt; 10\%</span></li>
+        </ul>
+        <p class="instructions">Check if the range for <span class="ik">K_{\mathrm{P}}</span> and <span class="ik">K_{\mathrm{D}}</span> satisfies the design specifications with the app.</p>
+        <div class="note-box"><b>Hint</b>: First, consider how (a,b,c) create an acceptable region in the <i>s</i>-plane based on <span class="ik">(\zeta^{\mathrm{CL}},\omega_n^{\mathrm{CL}})</span> or <span class="ik">(\zeta^{\mathrm{CL}}\cdot\omega_n^{\mathrm{CL}},\omega_d^{\mathrm{CL}})</span>. Then use Eqns (1,2) to relate <span class="ik">(K_{\mathrm{P}},K_{\mathrm{D}})</span> to <span class="ik">(\zeta^{\mathrm{CL}},\omega_n^{\mathrm{CL}})</span> and find the range of <span class="ik">K_{\mathrm{P}}</span>. Note for (b): you can assume the maximum control effort is at <span class="ik">t = 0</span> and then can use the Initial Value Theorem, <span class="ik">u(0) = \displaystyle\lim_{s\to\infty} s\cdot U(s)</span>.</div>
         <h4 class="part-title">Derivation</h4>
-        <div class="reflection-box"><textarea id="input-p4-derivation" placeholder="Your derivation: e_ss (FVT), u(0) (IVT) and overshoot constraints on K_P, K_D..."></textarea></div>
+        <p class="instructions">Show your derivation of the e<sub>ss</sub> (FVT), u(0) (IVT) and overshoot constraints on K<sub>P</sub> and K<sub>D</sub>.</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-p4-derivation" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-p4-derivation"></div>
+          <p class="upload-status" id="upload-status-p4-derivation"></p>
+          <p class="upload-err" id="upload-err-p4-derivation"></p>
+        </div>
         <p class="instructions" style="margin-top:14px;">Your ranges:</p>
         <div class="range-row"><input type="number" id="input-p4-kp-lo" step="any" /> <span>&lt; K<sub>P</sub> &lt;</span> <input type="number" id="input-p4-kp-hi" step="any" /></div>
         <div class="range-row"><input type="number" id="input-p4-kd-lo" step="any" /> <span>&lt; K<sub>D</sub> &lt;</span> <input type="number" id="input-p4-kd-hi" step="any" /></div>
         <h4 class="part-title">Check with the app</h4>
-        <p class="instructions">R<sub>0</sub> is fixed at 0.349 rad. Enter acceptable K<sub>P</sub> and K<sub>D</sub> values and compare against the criteria in the table (e<sub>ss</sub>/R<sub>0</sub>, max |u|, overshoot).</p>
         <div class="panel-box" id="app-p4"></div>
-        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p4-discuss" placeholder="Your chosen K_P, K_D and how the response meets each requirement..."></textarea></div>
+        <p class="instructions">State your chosen K<sub>P</sub> and K<sub>D</sub> and how the response meets each requirement.</p>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p4-discuss"></textarea></div>
       </section>
 
       <!-- ============== SUBMISSION ============== -->
@@ -318,14 +371,14 @@
         <h2 class="section-title">Submission</h2>
 
         <div class="form-grid two">
-          <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid" placeholder="netid" spellcheck="false" /></div>
-          <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids" placeholder="person1, person2, person3, ..." spellcheck="false" /></div>
+          <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid" spellcheck="false" /></div>
+          <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids" spellcheck="false" /></div>
         </div>
 
         <ul class="steps-list" style="margin-top:22px;">
           <li>Enter your NetID and group member NetIDs above and export PDF.</li>
-          <li>Submit: (1) derivation and written discussion of steady state error; (2) the derivation of the K<sub>D</sub> range and a plot of the response with an acceptable K<sub>D</sub>; (3) the derivation of the K<sub>P</sub> range and a plot of the response with an acceptable K<sub>P</sub>; (4) the derivation of the K<sub>P</sub> and K<sub>D</sub> ranges and a plot of the response with acceptable K<sub>P</sub> and K<sub>D</sub>.</li>
-          <li>Attach any handwritten derivations or sketches as a PDF below; they are appended to the end of the exported file.</li>
+          <li>Submit: (1) written discussion of steady state error; (2) the derivation of the K<sub>D</sub> range and a plot of the response with an acceptable K<sub>D</sub>; (3) the derivation of the K<sub>P</sub> range and a plot of the response with an acceptable K<sub>P</sub>; (4) the derivation of the K<sub>P</sub> and K<sub>D</sub> ranges and a plot of the response with acceptable K<sub>P</sub> and K<sub>D</sub>.</li>
+          <li>Upload photos of your derivations in each problem; attach any other handwritten work or sketches as a PDF below; they are appended to the end of the exported file.</li>
         </ul>
 
         <p class="instructions"><b>Captured figures</b> (from CAPTURE FIGURE in each problem):</p>
@@ -373,7 +426,7 @@
       h: (t) => b / (s1 - s2) * (Math.exp(s1 * t) - Math.exp(s2 * t)) };
   }
 
-  function calc(KP, KD, R0) {
+  function calc(KP, KD, R0, tFixed) {
     const a = 1 + KD, b = 25 + KP, wn = Math.sqrt(b), z = a / (2 * wn), sg = a / 2, disc = a * a - 4 * b;
     const F = makeResp(a, b);
     const stable = a > 1e-9;
@@ -388,7 +441,8 @@
     else kind = F.kind === "c" ? "UNSTABLE (growing oscillation)" : "UNSTABLE (exponential growth)";
 
     let tfinal;
-    if (stable) tfinal = Math.min(5 / rate, 400);
+    if (tFixed) tfinal = tFixed;
+    else if (stable) tfinal = Math.min(5 / rate, 400);
     else if (Math.abs(a) <= 1e-9) tfinal = 20 * Math.PI / F.wd;
     else tfinal = Math.min(6 / Math.max(rate, 1e-6), 400);
     const k = R0 * KP / b, NT = 1500, t = new Array(NT), y = new Array(NT), u = new Array(NT);
@@ -425,6 +479,7 @@
   const PO = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
   const CC = ["#5EEAD4", "#FB7185", "#FFB454"];
   const MD = { yss: "dot", peak: "longdash", tp: "dot", ts: "dash", tr: "dashdot" };
+  const MLINES = [["θss", "#E7E9EE", "dot"], ["Peak", "#FB7185", "dot"], ["Peak time", "#FFB454", "dashdot"], ["Settling time", "#7CFC6A", "dashdot"], ["Rise time", "#C4A7FF", "dashdot"]];
   const baseLayout = (extra) => Object.assign({
     paper_bgcolor: "#171A21", plot_bgcolor: "#171A21", font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
     margin: { l: 58, r: 14, t: 34, b: 44 }, showlegend: true,
@@ -434,6 +489,26 @@
   const pstr = (p) => (Math.abs(p[1]) < 1e-9 ? nm(p[0], 4) : `${nm(p[0], 4)} ± ${nm(Math.abs(p[1]), 4)}j`);
   const polesStr = (r) => (r.poles[0][1] !== 0 ? pstr(r.poles[0]) : (Math.abs(r.poles[0][0] - r.poles[1][0]) < 1e-9 ? nm(r.poles[0][0], 4) + " (double)" : `${nm(r.poles[0][0], 4)}, ${nm(r.poles[1][0], 4)}`));
   const panels = {};
+
+  // Two-ended slider that sets one axis's limits; double-click restores the default
+  function dualSlider(host, ax, onChange) {
+    const N = 1000, GAP = 15, [b0, b1] = ax.bounds;
+    const toS = (v) => Math.round((v - b0) / (b1 - b0) * N), toV = (x) => b0 + (b1 - b0) * x / N;
+    host.innerHTML = '<div class="track"></div><div class="fill"></div><input type="range" aria-label="lower limit" /><input type="range" aria-label="upper limit" />';
+    const [a, b] = host.querySelectorAll("input"), fill = host.querySelector(".fill"), vert = host.classList.contains("v");
+    [a, b].forEach((el) => { el.min = 0; el.max = N; el.step = 1; });
+    const paint = () => {
+      const p = Number(a.value) / N, q = Number(b.value) / N, T = 7; // T = half the thumb, the slider's end inset
+      if (vert) { fill.style.bottom = `calc(${T}px + (100% - ${2 * T}px) * ${p})`; fill.style.height = `calc((100% - ${2 * T}px) * ${q - p})`; }
+      else { fill.style.left = `calc(${T}px + (100% - ${2 * T}px) * ${p})`; fill.style.width = `calc((100% - ${2 * T}px) * ${q - p})`; }
+    };
+    const set = (lo, hi) => { a.value = toS(lo); b.value = toS(hi); paint(); };
+    const emit = () => { paint(); onChange([toV(Number(a.value)), toV(Number(b.value))]); };
+    a.addEventListener("input", () => { if (Number(a.value) > Number(b.value) - GAP) a.value = Number(b.value) - GAP; emit(); });
+    b.addEventListener("input", () => { if (Number(b.value) < Number(a.value) + GAP) b.value = Number(a.value) + GAP; emit(); });
+    host.addEventListener("dblclick", () => { set(ax.def[0], ax.def[1]); onChange(ax.def.slice()); });
+    set(ax.def[0], ax.def[1]);
+  }
 
   function buildApp(prefix, o) {
     const host = document.getElementById(`app-${prefix}`);
@@ -447,7 +522,28 @@
         ${sl(i, "kp", "K<sub>P</sub>", 0, 200, 0.5, c.kp, o.lockKP !== undefined)}
         ${sl(i, "kd", "K<sub>D</sub>", -5, 40, 0.1, c.kd, o.lockKD !== undefined)}
       </div>`).join("");
-    host.innerHTML = `
+    const cp = !!o.compact;
+    const gain = (k, lab, mn, mx, st, v, fixed) => (fixed !== undefined
+      ? `<div class="cmp-f"><label>${lab} (fixed)</label><input type="number" id="sim-${prefix}-c0-${k}" value="${fixed}" disabled /></div>`
+      : `<div class="cmp-f grow"><label>${lab}</label><div class="row"><input type="range" id="sim-${prefix}-c0-${k}-s" min="${mn}" max="${mx}" step="${st}" value="${v}" /><input type="number" id="sim-${prefix}-c0-${k}" value="${v}" step="any" /></div></div>`);
+    if (cp) host.innerHTML = `
+      <div class="cmp-ctrl">
+        ${gain("kp", "K<sub>P</sub>", 0, 200, 0.5, o.cases[0].kp, o.lockKP)}
+        ${gain("kd", "K<sub>D</sub>", -5, 40, 0.1, o.cases[0].kd, o.lockKD)}
+        <div class="cmp-f"><label>R<sub>0</sub> [rad]${o.lockR0 ? " (fixed)" : ""}<span id="deg-${prefix}" style="display:none;"></span></label><input type="number" id="sim-${prefix}-r0" value="${o.R0}" step="any" ${o.lockR0 ? "disabled" : ""} /></div>
+        <button class="run-btn small" id="btn-${prefix}-capture">CAPTURE FIGURE</button>
+      </div>
+      <p class="field-err" id="err-${prefix}"></p>
+      <p class="upload-status" id="capstat-${prefix}"></p>
+      <div class="cmp-plots">
+        ${[["th", "th", "thx", "thy", "cmp-th"], ["u", "u", "ux", "uy", ""], ["pole", "pole", "rex", "imy", ""]].map(([p, , kx, ky, c]) => `
+        <div class="cmp-cell ${c}">
+          <div class="dual v" id="dual-${prefix}-${ky}"></div>
+          <div class="plot-host" id="plot-${prefix}-${p}"></div>
+          <div class="dual" id="dual-${prefix}-${kx}" title="Drag either end to set the axis limits; double-click to reset"></div>
+        </div>`).join("")}
+      </div>`;
+    else host.innerHTML = `
       <div class="app-grid">
         <div>
           <div class="card">
@@ -476,41 +572,69 @@
     const E = (id) => document.getElementById(`sim-${prefix}-${id}`);
     let hist = [], lastKey = "", raf = null;
     const num = (el) => (el.value === "" ? NaN : Number(el.value));
+    // Axis limits: y limits of theta and u scale with R0
+    const span = (r) => [r[0] - 0.5 * (r[1] - r[0]), r[1] + 0.5 * (r[1] - r[0])];
+    const AX = cp ? {
+      thx: { plot: "th", axis: "xaxis", def: [0, o.tView], bounds: [0, o.tFixed] }, thy: { plot: "th", axis: "yaxis", def: o.yRange, bounds: span(o.yRange), r0: true },
+      ux: { plot: "u", axis: "xaxis", def: [0, o.tView], bounds: [0, o.tFixed] }, uy: { plot: "u", axis: "yaxis", def: o.uRange, bounds: span(o.uRange), r0: true },
+      rex: { plot: "pole", axis: "xaxis", def: o.reRange, bounds: span(o.reRange) }, imy: { plot: "pole", axis: "yaxis", def: o.imRange, bounds: span(o.imRange) },
+    } : {};
+    const lims = {}; Object.keys(AX).forEach((k) => { lims[k] = AX[k].def.slice(); });
+    // The most recent control wins: zooming in the plot sets view[k], moving that axis's slider clears it
+    const view = {};
+    const rng = (k) => view[k] || lims[k].map((v) => (AX[k].r0 ? v * num(E("r0")) : v));
+    function hookZoom(el) {
+      if (el.__zoomHooked) return;
+      el.__zoomHooked = true;
+      el.on("plotly_relayout", (ev) => {
+        Object.keys(AX).filter((k) => el.id === `plot-${prefix}-${AX[k].plot}`).forEach((k) => {
+          const ax = AX[k].axis;
+          if (ev && (ev[`${ax}.range[0]`] !== undefined || ev[`${ax}.autorange`])) view[k] = el.layout[ax].range.slice();
+        });
+      });
+    }
+    Object.keys(AX).forEach((k) => dualSlider(document.getElementById(`dual-${prefix}-${k}`), AX[k], (v) => {
+      lims[k] = v; delete view[k];
+      const el = document.getElementById(`plot-${prefix}-${AX[k].plot}`);
+      if (el.data) Plotly.relayout(el, { [`${AX[k].axis}.range`]: rng(k) });
+    }));
+    const isOn = (i) => cp || E(`c${i}-on`).checked;
+    const tick = (i) => { if (!cp) E(`c${i}-on`).checked = true; };
 
     function update() {
       const R0 = num(E("r0"));
       const errs = [], res = [];
       E("r0"); document.getElementById(`deg-${prefix}`).textContent = isFinite(R0) ? `= ${nm(R0 * 180 / Math.PI, 4)}°` : "";
       o.cases.forEach((_, i) => {
-        if (!E(`c${i}-on`).checked) return;
+        if (!isOn(i)) return;
         const KP = num(E(`c${i}-kp`)), KD = num(E(`c${i}-kd`));
         if (!isFinite(KP) || !isFinite(KD)) return;
         if (!(R0 > 0)) { errs.push("R0 must be a positive number."); return; }
         if (KP <= -25 + 1e-6) { errs.push(`Case ${i + 1}: need 25 + KP > 0.`); return; }
-        const r = calc(KP, KD, R0); r.idx = i; res.push(r);
+        const r = calc(KP, KD, R0, o.tFixed); r.idx = i; res.push(r);
       });
       document.getElementById(`err-${prefix}`).textContent = errs.filter((e, j) => errs.indexOf(e) === j).join(" ");
       panels[prefix].res = res;
 
       const thEl = document.getElementById(`plot-${prefix}-th`), uEl = document.getElementById(`plot-${prefix}-u`), poleEl = document.getElementById(`plot-${prefix}-pole`);
       if (!res.length) {
-        thEl.innerHTML = '<div class="placeholder">Enter K<sub>P</sub> and K<sub>D</sub> for at least one case (and tick it) to see the response.</div>';
+        thEl.innerHTML = '<div class="placeholder">' + (cp ? "Enter the gains to see the response." : "Enter K<sub>P</sub> and K<sub>D</sub> for at least one case (and tick it) to see the response.") + '</div>';
         uEl.innerHTML = '<div class="placeholder">Control input u(t) appears here.</div>';
-        Plotly.purge(poleEl); poleEl.innerHTML = '<div class="placeholder">Closed loop poles appear here.</div>';
-        document.getElementById(`mt-${prefix}`).innerHTML = "";
+        Plotly.purge(poleEl); poleEl.__zoomHooked = false; poleEl.innerHTML = '<div class="placeholder">Closed loop poles appear here.</div>';
+        if (!cp) document.getElementById(`mt-${prefix}`).innerHTML = "";
         if (window.__scheduleSave) window.__scheduleSave();
         return;
       }
       [thEl, uEl, poleEl].forEach((el) => { if (el.querySelector(".placeholder")) el.innerHTML = ""; });
       const anyUnstable = res.some((r) => !r.stable);
       const tmax = Math.max.apply(null, res.map((r) => r.tfinal));
-      const showLines = E("lines").checked;
+      const showLines = !cp && E("lines").checked;
 
       // theta(t)
-      const tr = [{ x: [0, tmax], y: [R0, R0], mode: "lines", name: "r = R0", line: { color: "#8B92A5", width: 1.2, dash: "dash" }, hoverinfo: "skip" }];
+      const tr = cp ? [] : [{ x: [0, tmax], y: [R0, R0], mode: "lines", name: "r = R0", line: { color: "#8B92A5", width: 1.2, dash: "dash" }, hoverinfo: "skip" }];
       let lo = Math.min(0, R0), hi = R0;
       res.forEach((r) => {
-        const col = CC[r.idx], nmc = `θ(t) case ${r.idx + 1}`;
+        const col = CC[r.idx], nmc = cp ? "θ(t)" : `θ(t) case ${r.idx + 1}`;
         tr.push({ x: r.t, y: r.y, mode: "lines", name: nmc, line: { color: col, width: 2.6 }, hovertemplate: "t=%{x:.3f}s  θ=%{y:.4f}<extra>" + nmc + "</extra>" });
         if (r.stable) { lo = Math.min(lo, Math.min.apply(null, r.y)); hi = Math.max(hi, Math.max.apply(null, r.y)); }
         if (showLines && r.stable) {
@@ -527,9 +651,19 @@
         tr.push({ x: [null], y: [null], mode: "lines", name: n, line: { color: "#B8BECC", width: 1.4, dash: MD[k] } }));
       let yr = [lo - 0.08 * (hi - lo || 1), hi + 0.12 * (hi - lo || 1)];
       if (anyUnstable) yr = [Math.min(yr[0], -3 * R0), Math.max(yr[1], 3.5 * R0)];
+      if (cp) {
+        // fixed axes, and every metric line is always listed in the legend
+        const r = res[0], on = r.stable;
+        yr = rng("thy"); const full = AX.thy.bounds.map((v) => v * R0);
+        const hLine = (v) => (on && v !== null ? { x: [0, tmax], y: [v, v] } : { x: [null], y: [null] });
+        const vLine = (v) => (on && v !== null ? { x: [v, v], y: full } : { x: [null], y: [null] });
+        [hLine(r.yss), hLine(r.m.OS > 0 ? r.m.ymax : null), vLine(r.m.tp), vLine(r.m.ts), vLine(r.m.tR)].forEach((pts, i) =>
+          tr.push(Object.assign(pts, { mode: "lines", name: MLINES[i][0], hoverinfo: "skip", line: { color: MLINES[i][1], width: 2, dash: MLINES[i][2] } })));
+      }
       Plotly.react(thEl, tr, baseLayout({ title: { text: "Step response θ(t)", font: { size: 12 }, x: 0.02 },
-        xaxis: { title: "time (sec)", gridcolor: "#282D3A", range: [0, tmax] }, yaxis: { title: "output θ(t) [rad]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: yr },
-        legend: { orientation: "h", y: -0.22, font: { size: 9 } }, margin: { l: 58, r: 14, t: 34, b: 90 } }), PO);
+        xaxis: { title: "time (sec)", gridcolor: "#282D3A", range: cp ? rng("thx") : [0, tmax] }, yaxis: { title: "output θ(t) [rad]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: yr },
+        legend: cp ? { x: 0.99, y: 0.99, xanchor: "right", yanchor: "top", bgcolor: "rgba(23,26,33,0.85)", bordercolor: "#3a4052", borderwidth: 1, font: { size: 11 } } : { orientation: "h", y: -0.22, font: { size: 9 } },
+        margin: cp ? { l: 58, r: 14, t: 34, b: 44 } : { l: 58, r: 14, t: 34, b: 90 } }), PO);
 
       // u(t)
       let ulo = 0, uhi = 0;
@@ -543,12 +677,13 @@
       ut.push({ x: [null], y: [null], mode: "markers", name: "u(0) = KP·R0 (IVT)", marker: { color: "#B8BECC", size: 8, symbol: "circle-open", line: { width: 2, color: "#B8BECC" } } });
       let ur = [ulo - 0.1 * (uhi - ulo || 1), uhi + 0.1 * (uhi - ulo || 1)];
       if (anyUnstable) { const m = 3 * Math.max.apply(null, res.map((r) => Math.abs(r.m.u0)).concat([1])); ur = [Math.min(ur[0], -m), Math.max(ur[1], m)]; }
-      Plotly.react(uEl, ut, baseLayout({ title: { text: "Control input u(t)", font: { size: 12 }, x: 0.02 },
-        xaxis: { title: "time (sec)", gridcolor: "#282D3A", range: [0, tmax] }, yaxis: { title: "control u(t) [Nm]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: ur },
-        legend: { orientation: "h", y: -0.28, font: { size: 9 } }, margin: { l: 58, r: 14, t: 34, b: 84 } }), PO);
+      if (cp) ur = rng("uy");
+      Plotly.react(uEl, ut, baseLayout({ title: { text: "Control input u(t)", font: { size: 12 }, x: 0.02 }, showlegend: !cp,
+        xaxis: { title: "time (sec)", gridcolor: "#282D3A", range: cp ? rng("ux") : [0, tmax] }, yaxis: { title: "control u(t) [Nm]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: ur },
+        legend: { orientation: "h", y: -0.28, font: { size: 9 } }, margin: cp ? { l: 58, r: 14, t: 34, b: 44 } : { l: 58, r: 14, t: 34, b: 84 } }), PO);
 
       // poles
-      if (!E("collect").checked) hist = [];
+      if (cp || !E("collect").checked) hist = [];
       const key = JSON.stringify(res.map((r) => [r.idx, r.poles]));
       if (key !== lastKey) {
         lastKey = key;
@@ -563,11 +698,13 @@
         const hh = hist.filter((h) => h.c === c);
         return { x: hh.map((h) => h.x), y: hh.map((h) => h.y), mode: "markers", name: `case ${c + 1}`, marker: { symbol: "x", size: 13, color: CC[c], line: { width: 3, color: CC[c] } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>case " + (c + 1) + "</extra>" };
       }).filter((tt) => tt.x.length);
-      Plotly.react(poleEl, ptr, baseLayout({ title: { text: "Closed loop poles", font: { size: 12 }, x: 0.02 }, margin: { l: 52, r: 14, t: 34, b: 84 }, legend: { orientation: "h", y: -0.28, font: { size: 9 } },
-        xaxis: { title: "Re(s)", range: [-lim, lim], gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 },
-        yaxis: { title: "Im(s)", range: [-lim, lim], scaleanchor: "x", gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 } }), PO);
+      Plotly.react(poleEl, ptr, baseLayout({ title: { text: "Closed loop poles", font: { size: 12 }, x: 0.02 }, showlegend: !cp, margin: cp ? { l: 58, r: 14, t: 34, b: 44 } : { l: 52, r: 14, t: 34, b: 84 }, legend: { orientation: "h", y: -0.28, font: { size: 9 } },
+        xaxis: { title: "Re(s)", range: cp ? rng("rex") : [-lim, lim], gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 },
+        yaxis: Object.assign({ title: "Im(s)", gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 }, cp ? { range: rng("imy") } : { range: [-lim, lim], scaleanchor: "x" }) }), PO);
+      if (cp) [thEl, uEl, poleEl].forEach(hookZoom);
 
       // metrics table
+      if (cp) { if (window.__scheduleSave) window.__scheduleSave(); return; }
       const rows = [
         ["K_P", (r) => nm(r.KP)], ["K_D", (r) => nm(r.KD)], ["R_0 [rad]", (r) => nm(r.R0)], ["type", (r) => r.kind],
         ["ω_n^CL = √(25+K_P) [rad/s]", (r) => nm(r.wn)], ["ζ^CL = (1+K_D)/(2ω_n)", (r) => nm(r.z)], ["ζ^CL·ω_n^CL", (r) => nm(r.sg)],
@@ -585,14 +722,17 @@
     function schedule() { if (raf) return; raf = requestAnimationFrame(() => { raf = null; update(); }); }
 
     E("r0").addEventListener("input", schedule);
-    ["lines", "collect"].forEach((k) => E(k).addEventListener("change", schedule));
-    document.getElementById(`btn-${prefix}-clear`).addEventListener("click", () => { hist = []; lastKey = ""; update(); });
+    if (!cp) {
+      ["lines", "collect"].forEach((k) => E(k).addEventListener("change", schedule));
+      document.getElementById(`btn-${prefix}-clear`).addEventListener("click", () => { hist = []; lastKey = ""; update(); });
+    }
     o.cases.forEach((_, i) => {
-      E(`c${i}-on`).addEventListener("change", schedule);
+      if (!cp) E(`c${i}-on`).addEventListener("change", schedule);
       ["kp", "kd"].forEach((k) => {
         const s = E(`c${i}-${k}-s`), n = E(`c${i}-${k}`);
-        s.addEventListener("input", () => { n.value = s.value; E(`c${i}-on`).checked = true; schedule(); });
-        n.addEventListener("input", () => { const v = Number(n.value); if (n.value !== "" && isFinite(v)) s.value = v; if (n.value !== "") E(`c${i}-on`).checked = true; schedule(); });
+        if (!s) return;
+        s.addEventListener("input", () => { n.value = s.value; tick(i); schedule(); });
+        n.addEventListener("input", () => { const v = Number(n.value); if (n.value !== "" && isFinite(v)) s.value = v; if (n.value !== "") tick(i); schedule(); });
       });
     });
 
@@ -624,25 +764,22 @@
   }
 
   const K = (kp, kd, on) => ({ kp, kd, on });
-  buildApp("p1", { R0: 1, cases: [K(25, 5, true), K("", "", false), K("", "", false)] });
-  buildApp("p2", { R0: 1, lockKP: 11, cases: [K(11, "", true), K(11, "", false), K(11, "", false)] });
-  buildApp("p3", { R0: 1, lockKD: 9, cases: [K("", 9, true), K("", 9, false), K("", 9, false)] });
-  buildApp("p4", { R0: 0.349, lockR0: true, cases: [K("", "", true), K("", "", false), K("", "", false)] });
+  buildApp("p2", { R0: 1, lockKP: 11, compact: true, tView: 10, tFixed: 20, yRange: [-0.08, 0.64], uRange: [-2.2, 14.3], reRange: [-45, 8], imRange: [-8, 8], cases: [K(11, 0, true)] });
+  buildApp("p3", { R0: 1, lockKD: 9, compact: true, tView: 2, tFixed: 4, yRange: [-0.1, 1.3], uRange: [-60, 220], reRange: [-12, 4], imRange: [-16, 16], cases: [K(10, 9, true)] });
+  buildApp("p4", { R0: 0.349, lockR0: true, compact: true, tView: 5, tFixed: 10, yRange: [-0.1, 1.8], uRange: [-160, 220], reRange: [-45, 8], imRange: [-16, 16], cases: [K(50, 5, true)] });
 
   // ---------------------------------------------------------------
   // KaTeX
   // ---------------------------------------------------------------
   const kr = (id, tex) => katex.render(tex, document.getElementById(id), { throwOnError: false, displayMode: true });
+  document.querySelectorAll(".ik").forEach((el) => katex.render(el.textContent, el, { throwOnError: false }));
   kr("eq-G", "\\frac{Y(s)}{U(s)}=\\frac{\\Theta(s)}{T(s)}=G(s)=\\frac{1}{s^2+s+25}=\\frac{1}{s^2+2\\zeta\\omega_n s+\\omega_n^2}\\qquad(1)");
   kr("eq-law", "u=K_P\\,(r-y)+K_D\\,(-\\dot y)\\qquad(2)");
   kr("eq-CL", "\\frac{Y(s)}{R(s)}=\\frac{K_P}{s^2+(1+K_D)\\,s+(25+K_P)}\\equiv\\frac{C}{s^2+2\\zeta^{CL}\\omega_n^{CL}s+(\\omega_n^{CL})^2}\\qquad(3)");
-  kr("eq-rel", "1+K_D=2\\zeta^{CL}\\omega_n^{CL}\\quad(4),\\qquad 25+K_P=(\\omega_n^{CL})^2\\quad(5)");
+  kr("eq-rel", "\\begin{gathered}1+K_D=2\\zeta^{CL}\\omega_n^{CL}\\qquad(4)\\\\[6pt] 25+K_P=(\\omega_n^{CL})^2\\qquad(5)\\end{gathered}");
   kr("eq-step", "y(t)=R_0\\,\\frac{C}{(\\omega_n^{CL})^2}\\left[1-\\frac{1}{\\sqrt{1-(\\zeta^{CL})^2}}\\,e^{-\\zeta^{CL}\\omega_n^{CL}t}\\sin\\!\\left(\\omega_d^{CL}t+\\phi^{CL}\\right)\\right]\\qquad(6)");
-  kr("eq-metrics", "t_R=\\frac{\\pi-\\phi}{\\omega_d},\\quad t_S=\\frac{4}{\\zeta\\omega_n},\\quad M_O=100\\%\\times\\exp\\!\\left(\\frac{-\\pi\\zeta}{\\sqrt{1-\\zeta^2}}\\right)");
-  kr("eq-EU", "\\frac{E(s)}{R(s)}=\\frac{s^2+(1+K_D)s+25}{s^2+(1+K_D)s+(25+K_P)},\\qquad \\frac{U(s)}{R(s)}=\\frac{K_P\\,(s^2+s+25)}{s^2+(1+K_D)s+(25+K_P)}\\qquad(7)");
-  kr("eq-p2reqs", "\\text{a) under-damped: } 0<\\zeta^{CL}<1,\\qquad \\text{b) settling time } t_S<2\\ \\text{sec}");
-  kr("eq-p3reqs", "\\text{a) max overshoot } M_O<20\\%,\\qquad \\text{b) rise time } t_R<0.25\\ \\text{sec}");
-  kr("eq-p4reqs", "\\text{a) } \\frac{e_{ss}}{R_0}<0.2,\\qquad \\text{b) } \\max|u(t)|<50\\ \\text{N-m},\\qquad \\text{c) } M_O<10\\%");
+  kr("eq-metrics", "\\begin{gathered}t_R=\\frac{\\pi-\\phi}{\\omega_d}\\\\[6pt] t_S=\\frac{4}{\\zeta\\omega_n}\\\\[6pt] M_O=100\\%\\times\\exp\\!\\left(\\frac{-\\pi\\zeta}{\\sqrt{1-\\zeta^2}}\\right)\\end{gathered}");
+  kr("eq-EU", "\\begin{gathered}\\frac{E(s)}{R(s)}=\\frac{s^2+(1+K_D)s+25}{s^2+(1+K_D)s+(25+K_P)}\\qquad(7)\\\\[6pt] \\frac{U(s)}{R(s)}=\\frac{K_P\\,(s^2+s+25)}{s^2+(1+K_D)s+(25+K_P)}\\qquad(8)\\end{gathered}");
 
   // ---------------------------------------------------------------
   // Reference charts (Figure 3)
@@ -689,6 +826,58 @@
   renderCaptures();
 
   // ---------------------------------------------------------------
+  // Uploaded calculation images
+  // ---------------------------------------------------------------
+  const MAX_IMAGE_DIM = 1200, IMAGE_QUALITY = 0.7, IMG_KEY = "gw11w_work_images_v1";
+  const WORK_IDS = ["p2-derivation", "p3-derivation", "p4-derivation"];
+  const workImages = {}; WORK_IDS.forEach((id) => { workImages[id] = []; });
+  function resizeAndCompressImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Could not read file."));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("Could not load image."));
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > h && w > MAX_IMAGE_DIM) { h = Math.round(h * MAX_IMAGE_DIM / w); w = MAX_IMAGE_DIM; }
+          else if (h >= w && h > MAX_IMAGE_DIM) { w = Math.round(w * MAX_IMAGE_DIM / h); h = MAX_IMAGE_DIM; }
+          const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+          const cx = cv.getContext("2d"); cx.fillStyle = "#FFFFFF"; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
+          resolve({ dataUrl: cv.toDataURL("image/jpeg", IMAGE_QUALITY), width: w, height: h });
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  function saveWorkImages() { try { localStorage.setItem(IMG_KEY, JSON.stringify(workImages)); } catch (e) { /* quota */ } }
+  function renderWorkThumbs(id) {
+    const host = document.getElementById(`upload-thumbs-${id}`); host.innerHTML = "";
+    workImages[id].forEach((entry, i) => {
+      const wrap = document.createElement("div"); wrap.className = "thumb-wrap";
+      wrap.innerHTML = `<img class="thumb-img" src="${entry.dataUrl}" alt="" /><button class="thumb-remove" type="button" title="Remove">&times;</button>`;
+      wrap.querySelector("button").addEventListener("click", () => { workImages[id].splice(i, 1); renderWorkThumbs(id); saveWorkImages(); });
+      host.appendChild(wrap);
+    });
+    const n = workImages[id].length;
+    document.getElementById(`upload-status-${id}`).textContent = n ? `✓ ${n} image${n > 1 ? "s" : ""} uploaded` : "";
+  }
+  try { const raw = localStorage.getItem(IMG_KEY); if (raw) { const s = JSON.parse(raw) || {}; WORK_IDS.forEach((id) => { if (Array.isArray(s[id])) workImages[id] = s[id]; }); } } catch (e) { /* ignore */ }
+  WORK_IDS.forEach((id) => {
+    const inp = document.getElementById(`upload-input-${id}`);
+    inp.addEventListener("change", async () => {
+      const failed = [];
+      for (const f of Array.from(inp.files || [])) {
+        try { workImages[id].push(await resizeAndCompressImage(f)); } catch (e) { console.error(e); failed.push(f.name); }
+      }
+      document.getElementById(`upload-err-${id}`).textContent = failed.length ? `Could not load: ${failed.join(", ")}. The file may be an unsupported format (e.g. HEIC) or corrupted — try re-saving as JPEG/PNG, or take a screenshot instead.` : "";
+      renderWorkThumbs(id); saveWorkImages(); inp.value = "";
+    });
+    renderWorkThumbs(id);
+  });
+
+  // ---------------------------------------------------------------
   // PDF export
   // ---------------------------------------------------------------
   let appendixFiles = [];
@@ -711,6 +900,7 @@
   function blankItems() {
     const out = [];
     document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.value.trim() === "") out.push(e.id.replace(/^input-/, "").replace(/-/g, " ")); });
+    WORK_IDS.forEach((id) => { if (!workImages[id].length) out.push(`${id.replace(/-/g, " ")} (no image uploaded)`); });
     if (!captures.length) out.push("no captured figures");
     return out;
   }
@@ -727,6 +917,14 @@
         .replace(/[−–]/g, "-").replace(/≤/g, "<=").replace(/≥/g, ">=").replace(/√/g, "sqrt").replace(/·/g, "*").replace(/×/g, "x").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/±/g, "+/-").replace(/→/g, "->").replace(/[^\x00-\xFF]/g, "?");
       const heading = (t) => { ensure(30); doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(safe(t), mg, y); y += 22; };
       const text = (t, o) => { const s = (o && o.size) || 10.5; doc.setFont("helvetica", o && o.bold ? "bold" : "normal"); doc.setFontSize(s); const lh = s * 1.35; doc.splitTextToSize(safe(t), mw).forEach((l) => { ensure(lh); doc.text(l, mg, y); y += lh; }); y += 4; };
+      const work = (id) => {
+        if (!workImages[id].length) { text("(No image uploaded.)"); return; }
+        workImages[id].forEach((im) => {
+          let w = mw, h = w * (im.height / im.width); const maxH = H - mg * 2;
+          if (h > maxH) { h = maxH; w = h * (im.width / im.height); }
+          ensure(h + 10); doc.addImage(im.dataUrl, "JPEG", mg, y, w, h); y += h + 14;
+        });
+      };
       const caps = (p) => {
         captures.filter((c) => c.prefix === p).forEach((c) => { const h = mw * (c.height / c.width); ensure(h + 40); c.lines.forEach((l) => text(l, { size: 8 })); ensure(h + 10); doc.addImage(c.dataUrl, "PNG", mg, y, mw, h); y += h + 14; });
       };
@@ -738,14 +936,14 @@
       text(`Your NetID: ${netId}`, { bold: true, size: 11.5 }); text(`Group member NetIDs: ${val("input-group-netids") || "(not entered)"}`, { bold: true, size: 11.5 }); y += 6;
 
       heading("Problem 1: Steady state error");
-      text("Derivation:", { bold: true }); text(reflect("input-p1-derivation")); text("Discussion:", { bold: true }); text(reflect("input-p1-discuss")); cases("p1"); caps("p1");
+      text(reflect("input-p1-discuss"));
       heading("Problem 2: Designing the D gain (KP = 11)");
-      text("Derivation:", { bold: true }); text(reflect("input-p2-derivation")); range("KD", "input-p2-kd-lo", "input-p2-kd-hi"); cases("p2"); caps("p2");
+      text("Derivation:", { bold: true }); work("p2-derivation"); range("KD", "input-p2-kd-lo", "input-p2-kd-hi"); cases("p2"); caps("p2");
       text("Optional - negative KD:", { bold: true }); text(reflect("input-p2-negkd"));
       heading("Problem 3: Designing the P gain (KD = 9)");
-      text("Derivation:", { bold: true }); text(reflect("input-p3-derivation")); range("KP", "input-p3-kp-lo", "input-p3-kp-hi"); text("Discussion:", { bold: true }); text(reflect("input-p3-discuss")); cases("p3"); caps("p3");
+      text("Derivation:", { bold: true }); work("p3-derivation"); range("KP", "input-p3-kp-lo", "input-p3-kp-hi"); text("Discussion:", { bold: true }); text(reflect("input-p3-discuss")); cases("p3"); caps("p3");
       heading("Problem 4: Designing a PD controller (R0 = 0.349 rad)");
-      text("Derivation:", { bold: true }); text(reflect("input-p4-derivation")); range("KP", "input-p4-kp-lo", "input-p4-kp-hi"); range("KD", "input-p4-kd-lo", "input-p4-kd-hi");
+      text("Derivation:", { bold: true }); work("p4-derivation"); range("KP", "input-p4-kp-lo", "input-p4-kp-hi"); range("KD", "input-p4-kd-lo", "input-p4-kd-hi");
       text("Discussion:", { bold: true }); text(reflect("input-p4-discuss")); cases("p4"); caps("p4");
 
       const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");

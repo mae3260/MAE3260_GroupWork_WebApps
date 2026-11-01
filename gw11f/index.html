@@ -161,6 +161,35 @@
   table.mt th.k0 { color: #5EEAD4; } table.mt th.k1 { color: #FB7185; } table.mt th.k2 { color: #FFB454; }
   .ref-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; }
   .plot-host.r { height: 290px; margin-top: 0; }
+  .cmp-ctrl { display: flex; gap: 14px; align-items: flex-end; }
+  .cmp-f label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+  .cmp-f input[type=number] { width: 78px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .cmp-f input[type=number]:focus { outline: none; border-color: var(--amber); }
+  .cmp-f input[disabled] { opacity: 0.5; cursor: not-allowed; }
+  .cmp-f.grow { flex: 1; min-width: 0; }
+  .cmp-f .row { display: flex; gap: 8px; align-items: center; }
+  .cmp-f input[type=range] { flex: 1; min-width: 0; accent-color: var(--rose); }
+  .cmp-plots { display: grid; grid-template-columns: 3fr 2fr; grid-template-rows: 1fr 1fr; gap: 10px; height: clamp(400px, calc(100vh - 250px), 620px); }
+  .cmp-cell { display: grid; grid-template-columns: 18px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) 18px; column-gap: 2px; min-height: 0; }
+  .cmp-cell.cmp-th { grid-row: 1 / span 2; }
+  .cmp-plots .plot-host { height: auto; min-height: 0; margin: 0; overflow: hidden; }
+  .dual { position: relative; grid-column: 2; margin: 0 7px 0 51px; height: 18px; }
+  .dual.v { grid-column: 1; grid-row: 1; width: 18px; height: auto; margin: 27px 0 37px 0; }
+  .dual .track, .dual .fill { position: absolute; border-radius: 2px; pointer-events: none; }
+  .dual .track { background: var(--line); left: 0; right: 0; top: 7px; height: 4px; }
+  .dual .fill { background: var(--amber); top: 7px; height: 4px; }
+  .dual.v .track { left: 7px; width: 4px; top: 0; bottom: 0; height: auto; }
+  .dual.v .fill { left: 7px; width: 4px; top: auto; }
+  .dual input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; background: none; pointer-events: none; -webkit-appearance: none; appearance: none; }
+  .dual.v input { writing-mode: vertical-lr; direction: rtl; }
+  .dual input::-webkit-slider-runnable-track { background: none; }
+  .dual input::-moz-range-track { background: none; }
+  .dual input::-webkit-slider-thumb { -webkit-appearance: none; pointer-events: auto; width: 14px; height: 14px; border-radius: 50%; background: var(--amber); border: 2px solid var(--ink); cursor: pointer; }
+  .dual input::-moz-range-thumb { pointer-events: auto; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); border: 2px solid var(--ink); cursor: pointer; }
+  .cmp-ctrl ~ .field-err { min-height: 0; margin: 6px 0 0 0; }
+  .cmp-ctrl ~ .upload-status { margin: 4px 0 6px 0; min-height: 13px; }
+  .cmp-ctrl.spread { justify-content: space-between; align-items: center; }
+  .cmp-gains { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--fg); margin: 6px 0 0 0; min-height: 15px; }
   .range-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
   .range-row input { width: 90px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
   .range-row input:focus { outline: none; border-color: var(--amber); }
@@ -244,9 +273,12 @@
         </p>
         <div class="panel-box" id="app-p1"></div>
         <h4 class="part-title">Observations</h4>
-        <div class="reflection-box"><textarea id="input-p1-trend1" placeholder="Trend 1..."></textarea></div>
-        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p1-trend2" placeholder="Trend 2..."></textarea></div>
-        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p1-trend3" placeholder="Trend 3..."></textarea></div>
+        <p class="instructions">Trend 1:</p>
+        <div class="reflection-box"><textarea id="input-p1-trend1"></textarea></div>
+        <p class="instructions">Trend 2:</p>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p1-trend2"></textarea></div>
+        <p class="instructions">Trend 3:</p>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p1-trend3"></textarea></div>
       </section>
 
       <!-- ============== PROBLEM 2 ============== -->
@@ -266,10 +298,17 @@
           Tip: design the dominant (low-frequency) poles first to set rise/settling time, then place the remaining pole far to the left.
         </div>
         <h4 class="part-title">Calculations</h4>
-        <div class="reflection-box"><textarea id="input-p2-calc" placeholder="Your calculations: the &zeta; and &omega;n bounds from overshoot and settling time, and your choice of p3..."></textarea></div>
+        <p class="instructions">Show your calculations: the &zeta; and &omega;<sub>n</sub> bounds from overshoot and settling time, and your choice of p<sub>3</sub>.</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-p2-calc" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-p2-calc"></div>
+          <p class="upload-status" id="upload-status-p2-calc"></p>
+          <p class="upload-err" id="upload-err-p2-calc"></p>
+        </div>
         <h4 class="part-title">Verify with System 2</h4>
         <div class="panel-box" id="app-p2"></div>
-        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p2-notes" placeholder="Did your design meet all requirements? What did you adjust and why?"></textarea></div>
+        <p class="instructions">Did your design meet all requirements? What did you adjust and why?</p>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p2-notes"></textarea></div>
       </section>
 
       <!-- ============== PROBLEM 3 ============== -->
@@ -285,10 +324,17 @@
         </p>
         <div class="eq-block" id="eq-rule3"></div>
         <h4 class="part-title">Calculations</h4>
-        <div class="reflection-box"><textarea id="input-p3-calc" placeholder="Your calculations: time constant from the settling time requirement, choice of p3, then zeta and wn..."></textarea></div>
+        <p class="instructions">Show your calculations: the time constant from the settling time requirement, your choice of p<sub>3</sub>, then &zeta; and &omega;<sub>n</sub>.</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-p3-calc" accept="image/*" multiple />
+          <div class="upload-thumbs" id="upload-thumbs-p3-calc"></div>
+          <p class="upload-status" id="upload-status-p3-calc"></p>
+          <p class="upload-err" id="upload-err-p3-calc"></p>
+        </div>
         <h4 class="part-title">Verify with System 3</h4>
         <div class="panel-box" id="app-p3"></div>
-        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p3-notes" placeholder="Did your design meet all requirements? What did you adjust and why?"></textarea></div>
+        <p class="instructions">Did your design meet all requirements? What did you adjust and why?</p>
+        <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p3-notes"></textarea></div>
       </section>
 
       <!-- ============== PROBLEM 4 ============== -->
@@ -298,10 +344,10 @@
         <div class="panel-box" id="app-p4"></div>
         <h4 class="part-title">a) Compare Problems 2 and 3</h4>
         <p class="instructions">Did one method result in a better response or controller? Explain any differences you observe in the gain values, response shape and control input.</p>
-        <div class="reflection-box"><textarea id="input-p4-a" placeholder="Your comparison..."></textarea></div>
+        <div class="reflection-box"><textarea id="input-p4-a"></textarea></div>
         <h4 class="part-title">b) Maximum control effort</h4>
         <p class="instructions">In systems we looked at earlier in the semester, the maximum control occurred at the beginning of the step input (t = 0). Do you observe the same behavior in this system? If not, explain why.</p>
-        <div class="reflection-box"><textarea id="input-p4-b" placeholder="Your explanation..."></textarea></div>
+        <div class="reflection-box"><textarea id="input-p4-b"></textarea></div>
       </section>
 
       <!-- ============== SUBMISSION ============== -->
@@ -309,14 +355,14 @@
         <h2 class="section-title">Submission</h2>
 
         <div class="form-grid two">
-          <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid" placeholder="netid" spellcheck="false" /></div>
-          <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids" placeholder="person1, person2, person3, ..." spellcheck="false" /></div>
+          <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid" spellcheck="false" /></div>
+          <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids" spellcheck="false" /></div>
         </div>
 
         <ul class="steps-list" style="margin-top:22px;">
           <li>Enter your NetID and group member NetIDs above and export PDF.</li>
           <li>Submit: your observations from Problems 1&ndash;4; gain values (K<sub>P</sub>, K<sub>D</sub>, K<sub>I</sub>) for Problems 1&ndash;3; parameter values (&zeta;<sup>CL</sup>, &omega;<sub>n</sub><sup>CL</sup>, p<sub>3</sub>) for Problems 2&ndash;3; and final plots (pole map, step response, control) showing all three systems. The exported PDF lists the values currently entered in each app.</li>
-          <li>Capture the final figures in Problem 4 so they are included, and attach any handwritten work as a PDF below.</li>
+          <li>Capture the final figures in Problem 4 so they are included, upload photos of your calculations in Problems 2 and 3, and attach any other handwritten work as a PDF below.</li>
         </ul>
 
         <p class="instructions"><b>Captured figures</b> (from CAPTURE FIGURE in each problem):</p>
@@ -420,7 +466,7 @@
       const n2 = Ed[8] * s0 + Ed[9] * s1 + Ed[10] * s2 + Ed[11];
       s0 = n0; s1 = n1; s2 = n2;
     }
-    const m = { OS: null, tp: null, tr: null, ts: null, umax: null, tumax: null, u0: u[0], ymax: null, settled: null };
+    const m = { OS: null, tp: null, tr: null, t90: null, ts: null, umax: null, tumax: null, u0: u[0], ymax: null, settled: null };
     if (stable) {
       let im = 0; for (let i = 1; i < NF; i++) if (y[i] > y[im]) im = i;
       m.ymax = y[im]; m.OS = Math.max(0, (y[im] - R0) / R0 * 100); m.tp = im * dt;
@@ -428,7 +474,7 @@
       for (let i = 0; i < NF; i++) { if (i10 < 0 && y[i] >= 0.1 * R0) i10 = i; if (y[i] >= 0.9 * R0) { i90 = i; break; } }
       if (i10 > 0 && i90 > 0) {
         const at = (lvl, i) => (i - 1 + (lvl - y[i - 1]) / (y[i] - y[i - 1])) * dt;
-        m.tr = at(0.9 * R0, i90) - at(0.1 * R0, i10);
+        m.t90 = at(0.9 * R0, i90); m.tr = m.t90 - at(0.1 * R0, i10);
       }
       let last = -1; for (let i = 0; i < NF; i++) if (Math.abs(y[i] - R0) > 0.02 * R0) last = i;
       if (last < 0) { m.ts = 0; m.settled = true; }
@@ -453,79 +499,109 @@
   // Plot helpers
   // ---------------------------------------------------------------
   const PO = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
-  const SC = ["#5EEAD4", "#FB7185", "#FFB454"], GH = ["#8B92A5", "#6E7589", "#565C70"];
+  const SC = ["#5EEAD4", "#FB7185", "#FFB454"];
+  const MLINES = [["θss", "#E7E9EE", "dot"], ["Peak", "#FB7185", "dot"], ["Peak time", "#FFB454", "dashdot"], ["Settling time", "#7CFC6A", "dashdot"], ["Rise time (t at 90%)", "#C4A7FF", "dashdot"]];
   const baseLayout = (extra) => Object.assign({
     paper_bgcolor: "#171A21", plot_bgcolor: "#171A21", font: { color: "#E7E9EE", family: "JetBrains Mono, monospace", size: 10 },
     margin: { l: 58, r: 14, t: 34, b: 44 }, showlegend: true,
     xaxis: { gridcolor: "#282D3A", zerolinecolor: "#3a4052" }, yaxis: { gridcolor: "#282D3A", zerolinecolor: "#3a4052" },
   }, extra || {});
   const TITLES = { p1: "Problem 1 (System 1)", p2: "Problem 2 (System 2)", p3: "Problem 3 (System 3)", p4: "Problem 4 (all systems)" };
-  const pstr = (p) => (Math.abs(p[1]) < 1e-9 * Math.max(1, Math.abs(p[0])) ? nm(p[0], 4) : `${nm(p[0], 4)} ± ${nm(Math.abs(p[1]), 4)}j`);
 
-  // items: [{res, color, name, ghost}]
-  function drawAll(prefix, items, showLines, collectHist) {
-    const thEl = document.getElementById(`plot-${prefix}-th`), uEl = document.getElementById(`plot-${prefix}-u`), poleEl = document.getElementById(`plot-${prefix}-pole`);
-    [thEl, uEl, poleEl].forEach((el) => { if (el.querySelector(".placeholder")) el.innerHTML = ""; });
-    const live = items.filter((it) => !it.ghost);
-    const anyUnstable = items.some((it) => !it.res.stable);
-    const tmax = Math.max.apply(null, items.map((it) => it.res.tf));
-    // theta(t)
-    const tr = [{ x: [0, tmax], y: [R0, R0], mode: "lines", name: "r = 0.349", line: { color: "#B8BECC", width: 1.2, dash: "dash" }, hoverinfo: "skip" }];
-    let hi = R0; items.forEach((it) => { if (it.res.stable) hi = Math.max(hi, Math.max.apply(null, it.res.y)); });
-    items.forEach((it) => {
-      const r = it.res;
-      tr.push({ x: r.t, y: r.y, mode: "lines", name: `θ(t) ${it.name}`, line: { color: it.color, width: it.ghost ? 1.8 : 2.6, dash: it.ghost ? "dot" : "solid" }, hovertemplate: "t=%{x:.4f}s  θ=%{y:.4f}<extra>" + it.name + "</extra>" });
-      if (showLines && !it.ghost && r.stable) {
-        const add = (x, y, dash) => tr.push({ x, y, mode: "lines", showlegend: false, hoverinfo: "skip", opacity: 0.85, line: { color: it.color, width: 1.2, dash } });
-        const top = Math.max(r.m.ymax, R0) * 1.05;
-        if (r.m.OS > 0) add([0, tmax], [r.m.ymax, r.m.ymax], "longdash");
-        if (r.m.tp !== null && r.m.OS > 0) add([r.m.tp, r.m.tp], [0, top], "dot");
-        if (r.m.ts !== null) add([r.m.ts, r.m.ts], [0, top], "dash");
-      }
+  // Two-ended slider that sets one axis's limits; double-click restores the default
+  function dualSlider(host, ax, onChange) {
+    const N = 1000, GAP = 15, [b0, b1] = ax.bounds;
+    const toS = (v) => Math.round((v - b0) / (b1 - b0) * N), toV = (x) => b0 + (b1 - b0) * x / N;
+    host.innerHTML = '<div class="track"></div><div class="fill"></div><input type="range" aria-label="lower limit" /><input type="range" aria-label="upper limit" />';
+    const [a, b] = host.querySelectorAll("input"), fill = host.querySelector(".fill"), vert = host.classList.contains("v");
+    [a, b].forEach((el) => { el.min = 0; el.max = N; el.step = 1; });
+    const paint = () => {
+      const p = Number(a.value) / N, q = Number(b.value) / N, T = 7; // T = half the thumb, the slider's end inset
+      if (vert) { fill.style.bottom = `calc(${T}px + (100% - ${2 * T}px) * ${p})`; fill.style.height = `calc((100% - ${2 * T}px) * ${q - p})`; }
+      else { fill.style.left = `calc(${T}px + (100% - ${2 * T}px) * ${p})`; fill.style.width = `calc((100% - ${2 * T}px) * ${q - p})`; }
+    };
+    const set = (lo, hi) => { a.value = toS(lo); b.value = toS(hi); paint(); };
+    const emit = () => { paint(); onChange([toV(Number(a.value)), toV(Number(b.value))]); };
+    a.addEventListener("input", () => { if (Number(a.value) > Number(b.value) - GAP) a.value = Number(b.value) - GAP; emit(); });
+    b.addEventListener("input", () => { if (Number(b.value) < Number(a.value) + GAP) b.value = Number(a.value) + GAP; emit(); });
+    host.addEventListener("dblclick", () => { set(ax.def[0], ax.def[1]); onChange(ax.def.slice()); });
+    set(ax.def[0], ax.def[1]);
+  }
+
+  // Axis limits (slider and plot toolbar): the most recent control wins.
+  // Zooming in the plot sets view[k]; moving that axis's slider clears it.
+  const T_VIEW = 1, T_MAX = 8;
+  const span = (r) => [r[0] - (r[1] - r[0]), r[1] + (r[1] - r[0])];
+  const THY = [-0.04, 0.6], UY = [-100, 200], REX = [-200, 20], IMY = [-150, 150];
+  function axisControls(prefix) {
+    const AX = {
+      thx: { plot: "th", axis: "xaxis", def: [0, T_VIEW], bounds: [0, T_MAX] }, thy: { plot: "th", axis: "yaxis", def: THY, bounds: span(THY) },
+      ux: { plot: "u", axis: "xaxis", def: [0, T_VIEW], bounds: [0, T_MAX] }, uy: { plot: "u", axis: "yaxis", def: UY, bounds: span(UY) },
+      rex: { plot: "pole", axis: "xaxis", def: REX, bounds: span(REX) }, imy: { plot: "pole", axis: "yaxis", def: IMY, bounds: span(IMY) },
+    };
+    const lims = {}, view = {};
+    Object.keys(AX).forEach((k) => {
+      lims[k] = AX[k].def.slice();
+      dualSlider(document.getElementById(`dual-${prefix}-${k}`), AX[k], (v) => {
+        lims[k] = v; delete view[k];
+        const el = document.getElementById(`plot-${prefix}-${AX[k].plot}`);
+        if (el.data) Plotly.relayout(el, { [`${AX[k].axis}.range`]: v });
+      });
     });
-    if (showLines) [["Peak", "longdash"], ["Peak time", "dot"], ["Settling time (2%)", "dash"]].forEach(([n, d]) => tr.push({ x: [null], y: [null], mode: "lines", name: n, line: { color: "#B8BECC", width: 1.4, dash: d } }));
-    let yr = [-0.04 * hi, hi * 1.12];
-    if (anyUnstable) yr = [-3 * R0, 3.5 * R0];
+    const hook = (el) => {
+      if (el.__zoomHooked) return;
+      el.__zoomHooked = true;
+      el.on("plotly_relayout", (ev) => {
+        Object.keys(AX).filter((k) => el.id === `plot-${prefix}-${AX[k].plot}`).forEach((k) => {
+          const ax = AX[k].axis;
+          if (ev && (ev[`${ax}.range[0]`] !== undefined || ev[`${ax}.autorange`])) view[k] = el.layout[ax].range.slice();
+        });
+      });
+    };
+    return { rng: (k) => view[k] || lims[k], hook };
+  }
+  const plotCells = (prefix) => `
+      <div class="cmp-plots">${[["th", "thx", "thy", "cmp-th"], ["u", "ux", "uy", ""], ["pole", "rex", "imy", ""]].map(([p, kx, ky, c]) => `
+        <div class="cmp-cell ${c}">
+          <div class="dual v" id="dual-${prefix}-${ky}"></div>
+          <div class="plot-host" id="plot-${prefix}-${p}"></div>
+          <div class="dual" id="dual-${prefix}-${kx}" title="Drag either end to set the axis limits; double-click to reset"></div>
+        </div>`).join("")}
+      </div>`;
+
+  // items: [{res, color, name, label}]; showLines: metric lines for each system
+  function drawAll(prefix, items, showLines, ax) {
+    const thEl = document.getElementById(`plot-${prefix}-th`), uEl = document.getElementById(`plot-${prefix}-u`), poleEl = document.getElementById(`plot-${prefix}-pole`);
+    const single = items.length === 1, nameOf = (it, sym) => (single ? sym : it.label || it.name);
+    // theta(t), with every metric line always listed in the legend
+    const tr = items.map((it) => ({ x: it.res.t, y: it.res.y, mode: "lines", name: nameOf(it, "θ(t)"), line: { color: it.color, width: 2.6 }, hovertemplate: "t=%{x:.4f}s  θ=%{y:.4f}<extra>" + it.name + "</extra>" }));
+    if (showLines) {
+      const full = span(THY), none = { x: [null], y: [null] };
+      items.forEach((it) => {
+        const r = it.res, on = r.stable, peak = r.m.OS > 0;
+        const hLine = (v) => (on && v !== null ? { x: [0, T_MAX], y: [v, v] } : { x: [null], y: [null] });
+        const vLine = (v) => (on && v !== null ? { x: [v, v], y: full } : { x: [null], y: [null] });
+        [hLine(R0), hLine(peak ? r.m.ymax : null), vLine(peak ? r.m.tp : null), vLine(r.m.ts), vLine(r.m.t90)].forEach((pts, i) =>
+          tr.push(Object.assign(pts, { mode: "lines", name: MLINES[i][0], showlegend: single, hoverinfo: "skip", line: { color: single ? MLINES[i][1] : it.color, width: single ? 2 : 1.2, dash: MLINES[i][2] } })));
+      });
+      if (!single) MLINES.forEach(([n, , d]) => tr.push(Object.assign({ mode: "lines", name: n, line: { color: "#B8BECC", width: 1.4, dash: d } }, none)));
+    }
     Plotly.react(thEl, tr, baseLayout({ title: { text: "Step response θ(t)", font: { size: 12 }, x: 0.02 },
-      xaxis: { title: "time [sec]", gridcolor: "#282D3A", range: [0, tmax] }, yaxis: { title: "output θ(t) [rad]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: yr },
-      legend: { orientation: "h", y: -0.22, font: { size: 9 } }, margin: { l: 58, r: 14, t: 34, b: 90 } }), PO);
+      xaxis: { title: "time [sec]", gridcolor: "#282D3A", range: ax.rng("thx") }, yaxis: { title: "output θ(t) [rad]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: ax.rng("thy") },
+      legend: { x: 0.99, y: 0.99, xanchor: "right", yanchor: "top", bgcolor: "rgba(23,26,33,0.85)", bordercolor: "#3a4052", borderwidth: 1, font: { size: single ? 11 : 10 } } }), PO);
     // u(t)
-    let umax = 0, umin = 0; items.forEach((it) => { if (it.res.stable) { umax = Math.max(umax, Math.max.apply(null, it.res.u)); umin = Math.min(umin, Math.min.apply(null, it.res.u)); } });
-    const ut = items.map((it) => ({ x: it.res.t, y: it.res.u, mode: "lines", name: `u(t) ${it.name}`, line: { color: it.color, width: it.ghost ? 1.8 : 2.4, dash: it.ghost ? "dot" : "solid" }, hovertemplate: "t=%{x:.4f}s  u=%{y:.3f}<extra>" + it.name + "</extra>" }));
-    let ur = [umin - 0.1 * (umax - umin || 1), umax + 0.1 * (umax - umin || 1)];
-    if (anyUnstable) { const m = 3 * Math.max(Math.abs(umax), Math.abs(umin), 50); ur = [-m, m]; }
-    Plotly.react(uEl, ut, baseLayout({ title: { text: "Control input u(t)", font: { size: 12 }, x: 0.02 },
-      xaxis: { title: "time [sec]", gridcolor: "#282D3A", range: [0, tmax] }, yaxis: { title: "control u(t) [Nm]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: ur },
-      legend: { orientation: "h", y: -0.3, font: { size: 9 } }, margin: { l: 58, r: 14, t: 34, b: 84 } }), PO);
+    const ut = items.map((it) => ({ x: it.res.t, y: it.res.u, mode: "lines", name: nameOf(it, "u(t)"), line: { color: it.color, width: 2.4 }, hovertemplate: "t=%{x:.4f}s  u=%{y:.3f}<extra>" + it.name + "</extra>" }));
+    Plotly.react(uEl, ut, baseLayout({ title: { text: "Control input u(t)", font: { size: 12 }, x: 0.02 }, showlegend: false,
+      xaxis: { title: "time [sec]", gridcolor: "#282D3A", range: ax.rng("ux") }, yaxis: { title: "control u(t) [Nm]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: ax.rng("uy") } }), PO);
     // poles
-    let lim = 0;
-    const pts = [];
-    items.forEach((it) => it.res.roots.forEach((p) => { lim = Math.max(lim, Math.abs(p[0]), Math.abs(p[1])); }));
-    (collectHist || []).forEach((h) => { lim = Math.max(lim, Math.abs(h.x), Math.abs(h.y)); });
-    lim = (lim || 10) * 1.2;
-    const ptr = [];
-    (collectHist || []).forEach((h) => { if (!h.cur) ptr.push({ x: [h.x], y: [h.y], mode: "markers", showlegend: false, marker: { symbol: "x", size: 9, color: h.color, opacity: 0.45, line: { width: 2, color: h.color } }, hoverinfo: "skip" }); });
-    live.forEach((it) => ptr.push({ x: it.res.roots.map((p) => p[0]), y: it.res.roots.map((p) => p[1]), mode: "markers", name: it.name,
+    const ptr = items.map((it) => ({ x: it.res.roots.map((p) => p[0]), y: it.res.roots.map((p) => p[1]), mode: "markers", name: it.name,
       marker: { symbol: "x", size: 13, color: it.color, line: { width: 3, color: it.color } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>" + it.name + "</extra>" }));
-    Plotly.react(poleEl, ptr, baseLayout({ title: { text: "Closed loop poles", font: { size: 12 }, x: 0.02 }, margin: { l: 52, r: 14, t: 34, b: 84 }, legend: { orientation: "h", y: -0.3, font: { size: 9 } },
-      xaxis: { title: "Re(s)", range: [-lim, lim * 0.35], gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 },
-      yaxis: { title: "Im(s)", range: [-lim * 0.675, lim * 0.675], gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 } }), PO);
+    Plotly.react(poleEl, ptr, baseLayout({ title: { text: "Closed loop poles", font: { size: 12 }, x: 0.02 }, showlegend: false,
+      xaxis: { title: "Re(s)", range: ax.rng("rex"), gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 },
+      yaxis: { title: "Im(s)", range: ax.rng("imy"), gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 } }), PO);
+    [thEl, uEl, poleEl].forEach(ax.hook);
   }
 
-  const ROWS = [
-    ["K_P", (r) => nm(r.KP)], ["K_I", (r) => nm(r.KI)], ["K_D", (r) => nm(r.KD)], ["stability", (r) => r.kind],
-    ["closed loop poles", (r) => r.roots[1][1] !== 0 ? `${pstr(r.roots[1])}; ${nm(r.roots[0][0], 4)}` : r.roots.map((p) => nm(p[0], 4)).join("; ")],
-    ["equivalent ζ^CL", (r) => (r.eq ? nm(r.eq.z) : "—")], ["equivalent ω_n^CL [rad/s]", (r) => (r.eq ? nm(r.eq.wn) : "—")], ["equivalent p_3", (r) => (r.eq ? nm(r.eq.p3) : "—")],
-    ["p_3 / (ζ ω_n)", (r) => (r.eq ? nm(r.eq.p3 / (r.eq.z * r.eq.wn)) : "—")],
-    ["max overshoot M_O [%]", (r) => (r.stable ? nm(r.m.OS) : "n/a")], ["peak time [s]", (r) => (r.stable && r.m.OS > 0 ? fmtT(r.m.tp) : "—")],
-    ["10–90% rise time [s]", (r) => (r.stable ? fmtT(r.m.tr) : "n/a")], ["2% settling time [s]", (r) => (r.stable ? (r.m.settled ? fmtT(r.m.ts) : "not settled") : "n/a")],
-    ["max |u(t)| [Nm]", (r) => (r.stable ? nm(r.m.umax) : "n/a")], ["time of max |u| [s]", (r) => (r.stable ? fmtT(r.m.tumax) : "n/a")], ["u(0) [Nm]", (r) => nm(r.m.u0)],
-  ];
-  function drawTable(prefix, items) {
-    const cls = (it, i) => (it.ghost ? "" : `k${it.k}`);
-    document.getElementById(`mt-${prefix}`).innerHTML = `<table class="mt"><tr><th>metric</th>${items.map((it) => `<th class="${it.ghost ? "" : "k" + it.k}">${it.name}</th>`).join("")}</tr>` +
-      ROWS.map(([lab, f]) => `<tr><td>${lab}</td>${items.map((it) => `<td class="${it.ghost ? "" : "k" + it.k}">${f(it.res)}</td>`).join("")}</tr>`).join("") + "</table>";
-  }
   function caseLine(name, r) {
     return `${name}: KP=${nm(r.KP)}, KI=${nm(r.KI)}, KD=${nm(r.KD)} | ${r.kind}` + (r.eq ? ` | zeta=${nm(r.eq.z)}, wn=${nm(r.eq.wn)}, p3=${nm(r.eq.p3)}` : "") +
       (r.stable ? ` | MO=${nm(r.m.OS)}%, rise(10-90)=${fmtT(r.m.tr)} s, tS(2%)=${r.m.settled ? fmtT(r.m.ts) : "not settled"} s, max|u|=${nm(r.m.umax)} Nm at t=${fmtT(r.m.tumax)} s` : "");
@@ -553,46 +629,23 @@
   function buildApp(prefix, o) {
     const host = document.getElementById(`app-${prefix}`);
     const sl = (k, lab, mn, mx, st, v) => `
-      <div class="sl"><label>${lab}</label><div class="row">
-        <input type="range" id="sim-${prefix}-${k}-s" min="${mn}" max="${mx}" step="${st}" value="${v === "" ? mn : v}" />
-        <input type="number" id="sim-${prefix}-${k}" value="${v}" step="any" /></div></div>`;
+        <div class="cmp-f grow"><label>${lab}</label><div class="row"><input type="range" id="sim-${prefix}-${k}-s" min="${mn}" max="${mx}" step="${st}" value="${v}" /><input type="number" id="sim-${prefix}-${k}" value="${v}" step="any" /></div></div>`;
     const inputs = o.type === "gains"
       ? sl("kp", "K<sub>P</sub>", 0, 10000, 10, o.kp) + sl("ki", "K<sub>I</sub>", 0, 100000, 100, o.ki) + sl("kd", "K<sub>D</sub>", 0, 500, 1, o.kd)
-      : sl("z", "&zeta;<sup>CL</sup>", 0.05, 1.5, 0.01, "") + sl("wn", "&omega;<sub>n</sub><sup>CL</sup> [rad/s]", 1, 300, 0.5, "") + sl("p3", "p<sub>3</sub> [1/s]", 1, 300, 0.5, "");
+      : sl("z", "&zeta;<sup>CL</sup>", 0.05, 1.5, 0.01, o.z) + sl("wn", "&omega;<sub>n</sub><sup>CL</sup> [rad/s]", 1, 300, 0.5, o.wn) + sl("p3", "p<sub>3</sub> [1/s]", 1, 300, 0.5, o.p3);
     host.innerHTML = `
-      <div class="app-grid">
-        <div>
-          <div class="case-card c${o.k}">
-            <div class="hd">SYSTEM ${o.k + 1}</div>
-            ${inputs}
-            ${o.type === "poles" ? '<div class="gains-out" id="gout-' + prefix + '"></div>' : ""}
-            <div class="sl"><label>Reference step R<sub>0</sub> = 0.349 rad (20&deg;) <span class="lock">(fixed)</span></label></div>
-            <div class="sl"><label>t<sub>final</sub> [s] (optional; blank = automatic)</label><div class="row"><input type="number" id="sim-${prefix}-tf" value="" step="any" placeholder="auto" /></div></div>
-          </div>
-          <div class="tools">
-            <label><input type="checkbox" id="sim-${prefix}-lines" checked /> Metric lines</label>
-            <label><input type="checkbox" id="sim-${prefix}-collect" /> Collect poles</label>
-          </div>
-          <div class="btn-row">
-            <button class="run-btn secondary small" id="btn-${prefix}-hold">Hold response</button>
-            <button class="run-btn secondary small" id="btn-${prefix}-unhold">Clear held</button>
-            <button class="run-btn secondary small" id="btn-${prefix}-clear">Clear pole trail</button>
-            <button class="run-btn small" id="btn-${prefix}-capture">CAPTURE FIGURE</button>
-          </div>
-          <p class="field-err" id="err-${prefix}"></p>
-          <p class="upload-status" id="capstat-${prefix}"></p>
-        </div>
-        <div class="plot-host t" id="plot-${prefix}-th"><div class="placeholder">Enter the ${o.type === "gains" ? "gains" : "design parameters"} to see the response.</div></div>
+      <div class="cmp-ctrl">${inputs}
+        <div class="cmp-f"><label>R<sub>0</sub> [rad] (fixed)</label><input type="number" value="${R0}" disabled /></div>
+        <button class="run-btn small" id="btn-${prefix}-capture">CAPTURE FIGURE</button>
       </div>
-      <div class="app-bottom">
-        <div class="plot-host u" id="plot-${prefix}-u"><div class="placeholder">Control input u(t) appears here.</div></div>
-        <div class="plot-host u" id="plot-${prefix}-pole"><div class="placeholder">Closed loop poles appear here.</div></div>
-      </div>
-      <div class="app-below" id="mt-${prefix}"></div>`;
+      ${o.type === "poles" ? `<p class="cmp-gains" id="gout-${prefix}"></p>` : ""}
+      <p class="field-err" id="err-${prefix}"></p>
+      <p class="upload-status" id="capstat-${prefix}"></p>${plotCells(prefix)}`;
     const E = (id) => document.getElementById(`sim-${prefix}-${id}`);
     const num = (el) => (el.value === "" ? NaN : Number(el.value));
     const keys = o.type === "gains" ? ["kp", "ki", "kd"] : ["z", "wn", "p3"];
-    let held = [], hist = [], lastKey = "", raf = null;
+    const ax = axisControls(prefix);
+    let raf = null;
 
     function current() {
       const v = keys.map((k) => num(E(k)));
@@ -606,27 +659,20 @@
         const [z, wn, p3] = v;
         if (!(z > 0 && wn > 0 && p3 > 0)) { err.textContent = "ζ, ω_n and p_3 must be positive."; return null; }
         ({ KP, KI, KD } = gainsFromPoles(z, wn, p3));
-        document.getElementById(`gout-${prefix}`).innerHTML = `K<sub>P</sub> = ${nm(KP, 5)}<br>K<sub>I</sub> = ${nm(KI, 5)}<br>K<sub>D</sub> = ${nm(KD, 5)}`;
+        document.getElementById(`gout-${prefix}`).innerHTML = `K<sub>P</sub> = ${nm(KP, 5)}, &nbsp;K<sub>I</sub> = ${nm(KI, 5)}, &nbsp;K<sub>D</sub> = ${nm(KD, 5)}`;
       }
       if (!(25 + KP > -1e9)) return null;
-      const tfv = num(E("tf"));
-      return simulate(KP, KI, KD, tfv > 0 ? tfv : 0);
+      // plots use the fixed time span; metrics use a span long enough for slow systems to settle
+      const res = simulate(KP, KI, KD, T_MAX);
+      res.m = simulate(KP, KI, KD, 0).m;
+      return res;
     }
     function update() {
       const cur = current();
       panels[prefix].cur = cur;
       if (o.type === "poles" && !cur) document.getElementById(`gout-${prefix}`).innerHTML = "";
-      const items = held.map((h, i) => ({ res: h.res, color: GH[i % 3], name: h.name, ghost: true, k: o.k }));
-      if (cur) items.push({ res: cur, color: SC[o.k], name: `System ${o.k + 1}`, ghost: false, k: o.k });
-      panels[prefix].items = items;
-      if (!items.length) { if (window.__scheduleSave) window.__scheduleSave(); return; }
-      if (!E("collect").checked) hist = [];
-      else if (cur) {
-        const key = JSON.stringify(cur.roots);
-        if (key !== lastKey) { lastKey = key; hist.forEach((h) => (h.cur = false)); cur.roots.forEach((p) => { hist.push({ x: p[0], y: p[1], color: SC[o.k] }); }); if (hist.length > 600) hist = hist.slice(-600); }
-      }
-      drawAll(prefix, items, E("lines").checked, E("collect").checked ? hist : []);
-      drawTable(prefix, items);
+      panels[prefix].items = cur ? [{ res: cur, color: SC[o.k], name: `System ${o.k + 1}` }] : [];
+      if (cur) drawAll(prefix, panels[prefix].items, true, ax);
       if (window.__scheduleSave) window.__scheduleSave();
     }
     function schedule() { if (raf) return; raf = requestAnimationFrame(() => { raf = null; update(); }); }
@@ -636,14 +682,6 @@
       s.addEventListener("input", () => { n.value = s.value; schedule(); });
       n.addEventListener("input", () => { const v = Number(n.value); if (n.value !== "" && isFinite(v)) s.value = v; schedule(); });
     });
-    ["tf"].forEach((k) => E(k).addEventListener("input", schedule));
-    ["lines", "collect"].forEach((k) => E(k).addEventListener("change", schedule));
-    document.getElementById(`btn-${prefix}-hold`).addEventListener("click", () => {
-      const cur = panels[prefix].cur; if (!cur) return;
-      held.push({ res: cur, name: `held (KP=${nm(cur.KP, 3)}, KI=${nm(cur.KI, 3)}, KD=${nm(cur.KD, 3)})` }); if (held.length > 3) held.shift(); update();
-    });
-    document.getElementById(`btn-${prefix}-unhold`).addEventListener("click", () => { held = []; update(); });
-    document.getElementById(`btn-${prefix}-clear`).addEventListener("click", () => { hist = []; lastKey = ""; update(); });
     document.getElementById(`btn-${prefix}-capture`).addEventListener("click", () => {
       const it = panels[prefix].items, st = document.getElementById(`capstat-${prefix}`);
       if (!it || !it.length) { st.style.color = "#FB7185"; st.textContent = "Enter a system first."; return; }
@@ -653,8 +691,8 @@
     update();
   }
   buildApp("p1", { type: "gains", k: 0, kp: 100, ki: 9559, kd: 19 });
-  buildApp("p2", { type: "poles", k: 1 });
-  buildApp("p3", { type: "poles", k: 2 });
+  buildApp("p2", { type: "poles", k: 1, z: 0.7, wn: 10, p3: 20 });
+  buildApp("p3", { type: "poles", k: 2, z: 0.7, wn: 40, p3: 5 });
 
   // ---------------------------------------------------------------
   // Problem 4: overlay of all three systems
@@ -662,21 +700,15 @@
   (function () {
     const host = document.getElementById("app-p4");
     host.innerHTML = `
-      <div class="tools"><label><input type="checkbox" id="sim-p4-lines" /> Metric lines</label>
+      <div class="cmp-ctrl spread tools"><label><input type="checkbox" id="sim-p4-lines" /> Metric lines</label>
         <button class="run-btn small" id="btn-p4-capture">CAPTURE FIGURE</button></div>
-      <p class="upload-status" id="capstat-p4"></p>
-      <div class="plot-host t" id="plot-p4-th"><div class="placeholder">Enter the systems in Problems 1&ndash;3 to see them here.</div></div>
-      <div class="app-bottom">
-        <div class="plot-host u" id="plot-p4-u"></div>
-        <div class="plot-host u" id="plot-p4-pole"></div>
-      </div>
-      <div class="app-below" id="mt-p4"></div>`;
+      <p class="upload-status" id="capstat-p4"></p>${plotCells("p4")}`;
+    const ax = axisControls("p4");
     let items = [];
     function render() {
-      items = ["p1", "p2", "p3"].map((p, i) => ({ res: panels[p].cur, color: SC[i], name: `System ${i + 1}`, ghost: false, k: i })).filter((it) => it.res);
-      if (!items.length) { document.getElementById("mt-p4").innerHTML = ""; return; }
-      drawAll("p4", items, document.getElementById("sim-p4-lines").checked, []);
-      drawTable("p4", items);
+      items = ["p1", "p2", "p3"].map((p, i) => ({ res: panels[p].cur, color: SC[i], name: `System ${i + 1}` })).filter((it) => it.res);
+      items.forEach((it) => { it.label = `${it.name} (KP=${nm(it.res.KP)}, KI=${nm(it.res.KI)}, KD=${nm(it.res.KD)})`; });
+      if (items.length) drawAll("p4", items, document.getElementById("sim-p4-lines").checked, ax);
     }
     panels.p4 = { update: render, get items() { return items; } };
     document.getElementById("sim-p4-lines").addEventListener("change", render);
@@ -693,8 +725,8 @@
   const kr = (id, tex) => katex.render(tex, document.getElementById(id), { throwOnError: false, displayMode: true });
   kr("eq-eom", "\\ddot\\theta+\\dot\\theta+25\\,\\theta=T(t)\\qquad(1)");
   kr("eq-law", "u(t)=T(t)=K_P\\,(0-y)+K_I\\!\\int_0^t\\!\\big(r(\\tau)-y(\\tau)\\big)d\\tau+K_D\\!\\left(0-\\frac{dy}{dt}\\right)\\qquad(2)");
-  kr("eq-CL", "\\frac{Y(s)}{R(s)}=\\frac{K_I}{s^3+(1+K_D)s^2+(25+K_P)s+K_I}\\equiv\\frac{C}{\\big(s^2+2\\zeta^{CL}\\omega_n^{CL}s+(\\omega_n^{CL})^2\\big)(s+p_3)}\\qquad(3)\\qquad\\frac{U(s)}{R(s)}=\\frac{K_I\\,(s^2+s+25)}{s^3+(1+K_D)s^2+(25+K_P)s+K_I}\\qquad(4)");
-  kr("eq-match", "1+K_D=2\\zeta^{CL}\\omega_n^{CL}+p_3,\\qquad 25+K_P=(\\omega_n^{CL})^2+2\\zeta^{CL}\\omega_n^{CL}p_3,\\qquad K_I=(\\omega_n^{CL})^2p_3");
+  kr("eq-CL", "\\begin{gathered}\\frac{Y(s)}{R(s)}=\\frac{K_I}{s^3+(1+K_D)s^2+(25+K_P)s+K_I}\\equiv\\frac{C}{\\big(s^2+2\\zeta^{CL}\\omega_n^{CL}s+(\\omega_n^{CL})^2\\big)(s+p_3)}\\qquad(3)\\\\[6pt] \\frac{U(s)}{R(s)}=\\frac{K_I\\,(s^2+s+25)}{s^3+(1+K_D)s^2+(25+K_P)s+K_I}\\qquad(4)\\end{gathered}");
+  kr("eq-match", "\\begin{gathered}1+K_D=2\\zeta^{CL}\\omega_n^{CL}+p_3\\\\[6pt] 25+K_P=(\\omega_n^{CL})^2+2\\zeta^{CL}\\omega_n^{CL}p_3\\\\[6pt] K_I=(\\omega_n^{CL})^2p_3\\end{gathered}");
   kr("eq-reqs", "\\begin{aligned}&\\text{1) 2\\% settling time } t_S<0.25\\ \\text{[sec]}\\\\&\\text{2) percent overshoot } M_O<5\\%\\\\&\\text{3) } \\max|u(t)|<100\\ \\text{[N-m]}\\end{aligned}");
   kr("eq-2nd", "\\frac{Y(s)}{R(s)}\\approx\\frac{(\\omega_n^{CL})^2}{s^2+(2\\zeta^{CL}\\omega_n^{CL})s+(\\omega_n^{CL})^2}\\qquad(5)");
   kr("eq-rule2", "5\\cdot\\frac{1}{p_3}<\\frac{1}{\\zeta^{CL}\\omega_n^{CL}}\\qquad(6)");
@@ -742,6 +774,58 @@
   renderCaptures();
 
   // ---------------------------------------------------------------
+  // Uploaded calculation images
+  // ---------------------------------------------------------------
+  const MAX_IMAGE_DIM = 1200, IMAGE_QUALITY = 0.7, IMG_KEY = "gw11f_work_images_v1";
+  const WORK_IDS = ["p2-calc", "p3-calc"];
+  const workImages = {}; WORK_IDS.forEach((id) => { workImages[id] = []; });
+  function resizeAndCompressImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Could not read file."));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("Could not load image."));
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > h && w > MAX_IMAGE_DIM) { h = Math.round(h * MAX_IMAGE_DIM / w); w = MAX_IMAGE_DIM; }
+          else if (h >= w && h > MAX_IMAGE_DIM) { w = Math.round(w * MAX_IMAGE_DIM / h); h = MAX_IMAGE_DIM; }
+          const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+          const cx = cv.getContext("2d"); cx.fillStyle = "#FFFFFF"; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
+          resolve({ dataUrl: cv.toDataURL("image/jpeg", IMAGE_QUALITY), width: w, height: h });
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  function saveWorkImages() { try { localStorage.setItem(IMG_KEY, JSON.stringify(workImages)); } catch (e) { /* quota */ } }
+  function renderWorkThumbs(id) {
+    const host = document.getElementById(`upload-thumbs-${id}`); host.innerHTML = "";
+    workImages[id].forEach((entry, i) => {
+      const wrap = document.createElement("div"); wrap.className = "thumb-wrap";
+      wrap.innerHTML = `<img class="thumb-img" src="${entry.dataUrl}" alt="" /><button class="thumb-remove" type="button" title="Remove">&times;</button>`;
+      wrap.querySelector("button").addEventListener("click", () => { workImages[id].splice(i, 1); renderWorkThumbs(id); saveWorkImages(); });
+      host.appendChild(wrap);
+    });
+    const n = workImages[id].length;
+    document.getElementById(`upload-status-${id}`).textContent = n ? `✓ ${n} image${n > 1 ? "s" : ""} uploaded` : "";
+  }
+  try { const raw = localStorage.getItem(IMG_KEY); if (raw) { const s = JSON.parse(raw) || {}; WORK_IDS.forEach((id) => { if (Array.isArray(s[id])) workImages[id] = s[id]; }); } } catch (e) { /* ignore */ }
+  WORK_IDS.forEach((id) => {
+    const inp = document.getElementById(`upload-input-${id}`);
+    inp.addEventListener("change", async () => {
+      const failed = [];
+      for (const f of Array.from(inp.files || [])) {
+        try { workImages[id].push(await resizeAndCompressImage(f)); } catch (e) { console.error(e); failed.push(f.name); }
+      }
+      document.getElementById(`upload-err-${id}`).textContent = failed.length ? `Could not load: ${failed.join(", ")}. The file may be an unsupported format (e.g. HEIC) or corrupted — try re-saving as JPEG/PNG, or take a screenshot instead.` : "";
+      renderWorkThumbs(id); saveWorkImages(); inp.value = "";
+    });
+    renderWorkThumbs(id);
+  });
+
+  // ---------------------------------------------------------------
   // PDF export
   // ---------------------------------------------------------------
   let appendixFiles = [];
@@ -764,6 +848,7 @@
   function blankItems() {
     const out = [];
     document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.value.trim() === "") out.push(e.id.replace(/^input-/, "").replace(/-/g, " ")); });
+    WORK_IDS.forEach((id) => { if (!workImages[id].length) out.push(`${id.replace(/-/g, " ")} (no image uploaded)`); });
     ["p1", "p2", "p3"].forEach((p) => { if (!panels[p].cur) out.push(`${p}: no system entered in the app`); });
     if (!captures.length) out.push("no captured figures");
     return out;
@@ -781,6 +866,14 @@
         .replace(/[−–]/g, "-").replace(/≤/g, "<=").replace(/≥/g, ">=").replace(/√/g, "sqrt").replace(/·/g, "*").replace(/×/g, "x").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/±/g, "+/-").replace(/→/g, "->").replace(/[^\x00-\xFF]/g, "?");
       const heading = (t) => { ensure(30); doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(safe(t), mg, y); y += 22; };
       const text = (t, o) => { const s = (o && o.size) || 10.5; doc.setFont("helvetica", o && o.bold ? "bold" : "normal"); doc.setFontSize(s); const lh = s * 1.35; doc.splitTextToSize(safe(t), mw).forEach((l) => { ensure(lh); doc.text(l, mg, y); y += lh; }); y += 4; };
+      const work = (id) => {
+        if (!workImages[id].length) { text("(No image uploaded.)"); return; }
+        workImages[id].forEach((im) => {
+          let w = mw, h = w * (im.height / im.width); const maxH = H - mg * 2;
+          if (h > maxH) { h = maxH; w = h * (im.width / im.height); }
+          ensure(h + 10); doc.addImage(im.dataUrl, "JPEG", mg, y, w, h); y += h + 14;
+        });
+      };
       const caps = (p) => { captures.filter((c) => c.prefix === p).forEach((c) => { const h = mw * (c.height / c.width); ensure(h + 40); c.lines.forEach((l) => text(l, { size: 8 })); ensure(h + 10); doc.addImage(c.dataUrl, "PNG", mg, y, mw, h); y += h + 14; }); };
       const sysLine = (p, name) => { const r = panels[p].cur; text(r ? caseLine(name, r) : `${name}: (not entered)`, { size: 9 }); };
       doc.setFont("helvetica", "bold"); doc.setFontSize(16);
@@ -792,9 +885,9 @@
       sysLine("p1", "System 1"); text("Observed trends:", { bold: true });
       ["1", "2", "3"].forEach((n) => text(`${n}. ${reflect("input-p1-trend" + n)}`)); caps("p1");
       heading("Problem 2: Second-order analogue");
-      text("Calculations:", { bold: true }); text(reflect("input-p2-calc")); sysLine("p2", "System 2"); text("Notes:", { bold: true }); text(reflect("input-p2-notes")); caps("p2");
+      text("Calculations:", { bold: true }); work("p2-calc"); sysLine("p2", "System 2"); text("Notes:", { bold: true }); text(reflect("input-p2-notes")); caps("p2");
       heading("Problem 3: First-order analogue");
-      text("Calculations:", { bold: true }); text(reflect("input-p3-calc")); sysLine("p3", "System 3"); text("Notes:", { bold: true }); text(reflect("input-p3-notes")); caps("p3");
+      text("Calculations:", { bold: true }); work("p3-calc"); sysLine("p3", "System 3"); text("Notes:", { bold: true }); text(reflect("input-p3-notes")); caps("p3");
       heading("Problem 4: Analysis");
       text("a) Comparison of Problems 2 and 3:", { bold: true }); text(reflect("input-p4-a"));
       text("b) Maximum control effort:", { bold: true }); text(reflect("input-p4-b")); caps("p4");
