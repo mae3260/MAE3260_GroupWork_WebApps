@@ -1734,9 +1734,9 @@
           <div class="range-row"><span>K<sub>P</sub> =</span> <input type="number" id="input-p1-kp" step="any" />
             <span>K<sub>I</sub> =</span> <input type="number" id="input-p1-ki" step="any" /></div>
           <h4 class="part-title">Summary of design choices</h4>
-          <div class="reflection-box"><textarea id="input-p1-discuss"
-              placeholder="Summarize your group's discussion of the design choices and the agreed gain values..."></textarea>
-          </div>
+          <p class="instructions">Summarize your group&rsquo;s discussion of the design choices and the agreed gain
+            values.</p>
+          <div class="reflection-box"><textarea id="input-p1-discuss"></textarea></div>
         </section>
 
         <!-- ============== PROBLEM 2 ============== -->
@@ -1759,12 +1759,12 @@
           <h4 class="part-title">a) Control signal u = u<sub>P</sub></h4>
           <p class="instructions">What is its shape and at what time does u<sub>max</sub> occur? Consider your answers
             in the context of the proportional control law u<sub>P</sub> = K<sub>P</sub>e.</p>
-          <div class="reflection-box"><textarea id="input-p2-a" placeholder="Your discussion..."></textarea></div>
+          <div class="reflection-box"><textarea id="input-p2-a"></textarea></div>
           <h4 class="part-title">b) Zero steady state error with K<sub>P</sub> only?</h4>
           <p class="instructions">Can we achieve e<sub>ss</sub> = 0 in this system using only K<sub>P</sub>? Why, or why
             not? To support your answer, apply the Final Value Theorem (FVT) to Eqn (4) with P control only, K(s) =
             K<sub>P</sub>.</p>
-          <div class="reflection-box"><textarea id="input-p2-b" placeholder="Your discussion..."></textarea></div>
+          <div class="reflection-box"><textarea id="input-p2-b"></textarea></div>
           <p class="instructions" style="margin-top:12px;">Upload your FVT calculation:</p>
           <div class="upload-block">
             <input type="file" id="upload-input-p2-fvt" accept="image/*" multiple />
@@ -1787,15 +1787,15 @@
           <h4 class="part-title">a) Control signal u = u<sub>I</sub></h4>
           <p class="instructions">What is its shape and at what time does u<sub>max</sub> occur? Consider why, in the
             context of the integral control law u<sub>I</sub> = K<sub>I</sub>&int;e(t)dt.</p>
-          <div class="reflection-box"><textarea id="input-p3-a" placeholder="Your discussion..."></textarea></div>
+          <div class="reflection-box"><textarea id="input-p3-a"></textarea></div>
           <h4 class="part-title">b) Overshoot</h4>
           <p class="instructions">Why do you think the system overshoots the reference?</p>
-          <div class="reflection-box"><textarea id="input-p3-b" placeholder="Your discussion..."></textarea></div>
+          <div class="reflection-box"><textarea id="input-p3-b"></textarea></div>
           <h4 class="part-title">c) Zero steady state error with K<sub>I</sub> only?</h4>
           <p class="instructions">Can we achieve e<sub>ss</sub> = 0 using only K<sub>I</sub>? Why, or why not? To
             support your answer, apply the FVT to Eqn (4) with I control only, K(s) = K<sub>I</sub>/s. You can also
             verify by increasing the Stop Time in Simulink.</p>
-          <div class="reflection-box"><textarea id="input-p3-c" placeholder="Your discussion..."></textarea></div>
+          <div class="reflection-box"><textarea id="input-p3-c"></textarea></div>
           <p class="instructions" style="margin-top:12px;">Upload your FVT calculation:</p>
           <div class="upload-block">
             <input type="file" id="upload-input-p3-fvt" accept="image/*" multiple />
@@ -1816,12 +1816,12 @@
           <div class="sim-slot" id="slot-p4"></div>
           <h4 class="part-title">a) Design specifications</h4>
           <p class="instructions">Are all of the design specifications met?</p>
-          <div class="reflection-box"><textarea id="input-p4-a" placeholder="Your discussion..."></textarea></div>
+          <div class="reflection-box"><textarea id="input-p4-a"></textarea></div>
           <h4 class="part-title">b) Contribution of each controller</h4>
           <p class="instructions">How does each controller (P vs I) contribute to the system response over time? Compare
             to the responses from Problems 2 and 3, particularly when one component of the control is much larger than
             the other, i.e. u<sub>P</sub> &#8811; u<sub>I</sub> or u<sub>I</sub> &#8811; u<sub>P</sub>.</p>
-          <div class="reflection-box"><textarea id="input-p4-b" placeholder="Your discussion..."></textarea></div>
+          <div class="reflection-box"><textarea id="input-p4-b"></textarea></div>
           <p class="instructions" style="margin-top:12px;">c) Use CAPTURE FIGURE above to include images of the Control
             Effort and Input/Output windows.</p>
         </section>
@@ -1849,16 +1849,11 @@
           </ul>
           <div class="sim-slot" id="slot-p5"></div>
           <h4 class="part-title">b) Saturation</h4>
-          <div class="reflection-box"><textarea id="input-p5-b"
-              placeholder="What happens to the control and response with saturation?"></textarea></div>
-          <h4 class="part-title">Changing the reference</h4>
-          <p class="instructions">What would happen if we change the reference to r = 0 after a few seconds? (In the
-            Simulink model you can edit the reference step block; here, double-click the &lsquo;reference&rsquo; block.)
-          </p>
-          <div class="reflection-box"><textarea id="input-p5-c" placeholder="Your discussion..."></textarea></div>
+          <p class="instructions">What happens to the control and response with saturation?</p>
+          <div class="reflection-box"><textarea id="input-p5-b"></textarea></div>
           <h4 class="part-title">d) Anti-windup</h4>
-          <div class="reflection-box"><textarea id="input-p5-d"
-              placeholder="What happens to the control and response with anti-windup (clamping)?"></textarea></div>
+          <p class="instructions">What happens to the control and response with anti-windup (clamping)?</p>
+          <div class="reflection-box"><textarea id="input-p5-d"></textarea></div>
           <p class="instructions" style="margin-top:12px;">e) Use CAPTURE FIGURE above to include images of the Control
             Effort and Input/Output windows for (b) and (d).</p>
         </section>
@@ -1954,9 +1949,9 @@
 
           <div class="form-grid two">
             <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid"
-                placeholder="netid" spellcheck="false" /></div>
+                spellcheck="false" /></div>
             <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids"
-                placeholder="person1, person2, person3, ..." spellcheck="false" /></div>
+                spellcheck="false" /></div>
           </div>
 
           <ul class="steps-list" style="margin-top:22px;">
@@ -2994,7 +2989,7 @@
           heading("Problem 4: Proportional and integral control");
           text("a) Design specifications:", { bold: true }); text(reflect("input-p4-a")); text("b) Contribution of each controller:", { bold: true }); text(reflect("input-p4-b")); caps("p4");
           heading("Problem 5: Saturation and anti-windup");
-          text("b) Saturation:", { bold: true }); text(reflect("input-p5-b")); text("Changing the reference:", { bold: true }); text(reflect("input-p5-c")); text("d) Anti-windup:", { bold: true }); text(reflect("input-p5-d")); caps("p5");
+          text("b) Saturation:", { bold: true }); text(reflect("input-p5-b")); text("d) Anti-windup:", { bold: true }); text(reflect("input-p5-d")); caps("p5");
 
           const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
           if (appendixFiles.length) {

@@ -161,6 +161,9 @@
   table.mt th.k0 { color: #5EEAD4; } table.mt th.k1 { color: #FB7185; } table.mt th.k2 { color: #FFB454; }
   .ref-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; }
   .plot-host.r { height: 290px; margin-top: 0; }
+  .req-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 18px; margin: 0 0 18px 0; }
+  .req-box p { margin: 4px 0; font-size: 14.5px; line-height: 1.6; color: var(--fg); }
+  .req-box .req-note { margin-top: 10px; color: var(--muted); font-size: 13.5px; }
   .cmp-ctrl { display: flex; gap: 14px; align-items: flex-end; }
   .cmp-f label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
   .cmp-f input[type=number] { width: 78px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
@@ -248,8 +251,12 @@
         <p class="instructions">Including integral control makes the closed loop system <b>third order</b>, so the 2nd order step response metrics cannot be applied directly. Instead we design using <b>dominant poles</b>. The closed loop characteristic polynomial is matched to a complex pair and one simple pole:</p>
         <div class="eq-block" id="eq-match"></div>
         <p class="instructions">The reference is a 20&deg; step, R(s) = 0.349/s rad. Requirements:</p>
-        <div class="eq-block req-list" id="eq-reqs"></div>
-        <p class="instructions">Note that max |u(t)| does not necessarily occur at t = 0, so it must be checked in the simulation.</p>
+        <div class="req-box">
+          <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
+          <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 100\ [\text{N-m}]</span></p>
+          <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
+        </div>
 
       </section>
 
@@ -271,6 +278,12 @@
           while varying the gains (how do the poles and the response change?). This is hard to do &mdash; it is okay if you cannot meet the requirements this way.
           Record your observations and move on to Problem 2 after 5&ndash;10 minutes.
         </p>
+        <div class="req-box">
+          <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
+          <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 100\ [\text{N-m}]</span></p>
+          <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
+        </div>
         <div class="panel-box" id="app-p1"></div>
         <h4 class="part-title">Observations</h4>
         <p class="instructions">Trend 1:</p>
@@ -295,7 +308,15 @@
         <div class="eq-block" id="eq-rule2"></div>
         <div class="note-box">
           Avoid setting &zeta; = 1 exactly; use &zeta; &asymp; 0.9&ndash;0.99 for a nearly critically damped response, since critically damped responses sometimes have undefined metrics.
+        </div>
+        <div class="note-box">
           Tip: design the dominant (low-frequency) poles first to set rise/settling time, then place the remaining pole far to the left.
+        </div>
+        <div class="req-box">
+          <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
+          <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 100\ [\text{N-m}]</span></p>
+          <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
         </div>
         <h4 class="part-title">Calculations</h4>
         <p class="instructions">Show your calculations: the &zeta; and &omega;<sub>n</sub> bounds from overshoot and settling time, and your choice of p<sub>3</sub>.</p>
@@ -323,6 +344,12 @@
           (again, make their time constant 5&times; smaller):
         </p>
         <div class="eq-block" id="eq-rule3"></div>
+        <div class="req-box">
+          <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
+          <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 100\ [\text{N-m}]</span></p>
+          <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
+        </div>
         <h4 class="part-title">Calculations</h4>
         <p class="instructions">Show your calculations: the time constant from the settling time requirement, your choice of p<sub>3</sub>, then &zeta; and &omega;<sub>n</sub>.</p>
         <div class="upload-block">
@@ -579,10 +606,17 @@
       const full = span(THY), none = { x: [null], y: [null] };
       items.forEach((it) => {
         const r = it.res, on = r.stable, peak = r.m.OS > 0;
-        const hLine = (v) => (on && v !== null ? { x: [0, T_MAX], y: [v, v] } : { x: [null], y: [null] });
-        const vLine = (v) => (on && v !== null ? { x: [v, v], y: full } : { x: [null], y: [null] });
-        [hLine(R0), hLine(peak ? r.m.ymax : null), vLine(peak ? r.m.tp : null), vLine(r.m.ts), vLine(r.m.t90)].forEach((pts, i) =>
-          tr.push(Object.assign(pts, { mode: "lines", name: MLINES[i][0], showlegend: single, hoverinfo: "skip", line: { color: single ? MLINES[i][1] : it.color, width: single ? 2 : 1.2, dash: MLINES[i][2] } })));
+        // lines are sampled densely so hovering anywhere along them shows the value
+        const NPT = 80, along = (lo, hi) => Array.from({ length: NPT }, (_, j) => lo + (hi - lo) * j / (NPT - 1));
+        const hLine = (v) => (on && v !== null ? { x: along(0, T_MAX), y: Array(NPT).fill(v) } : { x: [null], y: [null] });
+        const vLine = (v) => (on && v !== null ? { x: Array(NPT).fill(v), y: along(full[0], full[1]) } : { x: [null], y: [null] });
+        const vals = [R0, peak ? r.m.ymax : null, peak ? r.m.tp : null, r.m.ts, r.m.t90];
+        const units = [" rad", " rad", " s", " s", " s"];
+        [hLine(vals[0]), hLine(vals[1]), vLine(vals[2]), vLine(vals[3]), vLine(vals[4])].forEach((pts, i) => {
+          const txt = on && vals[i] !== null ? `${MLINES[i][0]} = ${nm(vals[i], 4)}${units[i]}` : `${MLINES[i][0]} (none)`;
+          tr.push(Object.assign(pts, { mode: "lines", name: txt, showlegend: single, hovertemplate: (single ? "" : it.name + " ") + txt + "<extra></extra>",
+            line: { color: single ? MLINES[i][1] : it.color, width: single ? 2 : 1.2, dash: MLINES[i][2] } }));
+        });
       });
       if (!single) MLINES.forEach(([n, , d]) => tr.push(Object.assign({ mode: "lines", name: n, line: { color: "#B8BECC", width: 1.4, dash: d } }, none)));
     }
@@ -723,11 +757,11 @@
   // KaTeX
   // ---------------------------------------------------------------
   const kr = (id, tex) => katex.render(tex, document.getElementById(id), { throwOnError: false, displayMode: true });
+  document.querySelectorAll(".ik").forEach((el) => katex.render(el.textContent, el, { throwOnError: false }));
   kr("eq-eom", "\\ddot\\theta+\\dot\\theta+25\\,\\theta=T(t)\\qquad(1)");
   kr("eq-law", "u(t)=T(t)=K_P\\,(0-y)+K_I\\!\\int_0^t\\!\\big(r(\\tau)-y(\\tau)\\big)d\\tau+K_D\\!\\left(0-\\frac{dy}{dt}\\right)\\qquad(2)");
   kr("eq-CL", "\\begin{gathered}\\frac{Y(s)}{R(s)}=\\frac{K_I}{s^3+(1+K_D)s^2+(25+K_P)s+K_I}\\equiv\\frac{C}{\\big(s^2+2\\zeta^{CL}\\omega_n^{CL}s+(\\omega_n^{CL})^2\\big)(s+p_3)}\\qquad(3)\\\\[6pt] \\frac{U(s)}{R(s)}=\\frac{K_I\\,(s^2+s+25)}{s^3+(1+K_D)s^2+(25+K_P)s+K_I}\\qquad(4)\\end{gathered}");
   kr("eq-match", "\\begin{gathered}1+K_D=2\\zeta^{CL}\\omega_n^{CL}+p_3\\\\[6pt] 25+K_P=(\\omega_n^{CL})^2+2\\zeta^{CL}\\omega_n^{CL}p_3\\\\[6pt] K_I=(\\omega_n^{CL})^2p_3\\end{gathered}");
-  kr("eq-reqs", "\\begin{aligned}&\\text{1) 2\\% settling time } t_S<0.25\\ \\text{[sec]}\\\\&\\text{2) percent overshoot } M_O<5\\%\\\\&\\text{3) } \\max|u(t)|<100\\ \\text{[N-m]}\\end{aligned}");
   kr("eq-2nd", "\\frac{Y(s)}{R(s)}\\approx\\frac{(\\omega_n^{CL})^2}{s^2+(2\\zeta^{CL}\\omega_n^{CL})s+(\\omega_n^{CL})^2}\\qquad(5)");
   kr("eq-rule2", "5\\cdot\\frac{1}{p_3}<\\frac{1}{\\zeta^{CL}\\omega_n^{CL}}\\qquad(6)");
   kr("eq-1st", "\\frac{Y(s)}{R(s)}\\approx\\frac{p_3}{s+p_3}\\qquad(7)");
