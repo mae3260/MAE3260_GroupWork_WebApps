@@ -452,6 +452,10 @@
       margin: 0 0 16px 0;
     }
 
+    .submit-list { padding-left: 22px; margin: 6px 0 0 0; }
+
+    .submit-list li { margin-bottom: 4px; }
+
     .steps-list li {
       margin-bottom: 6px;
       font-size: 13.5px;
@@ -1410,6 +1414,16 @@
         <section id="part-p1" style="display:none;">
           <h3 class="problem-title">Problem 4: Steady state error</h3>
           <p class="instructions">Using 2<sup>nd</sup> order formulas derive, as a function of the control gains, the general form of the steady state error. Are there any values for <span class="ik">K_{\mathrm{P}}</span> and <span class="ik">K_{\mathrm{D}}</span> for which the system will yield zero steady state error?</p>
+          <h4 class="part-title">Derivation</h4>
+          <p class="instructions">Upload your derivation of the general form of the steady state error as a function of the control gains.</p>
+          <div class="upload-block">
+            <input type="file" id="upload-input-p1-derivation" accept="image/*" multiple />
+            <div class="upload-thumbs" id="upload-thumbs-p1-derivation"></div>
+            <p class="upload-status" id="upload-status-p1-derivation"></p>
+            <p class="upload-err" id="upload-err-p1-derivation"></p>
+          </div>
+          <h4 class="part-title">Discussion</h4>
+          <p class="instructions">Are there any values for <span class="ik">K_{\mathrm{P}}</span> and <span class="ik">K_{\mathrm{D}}</span> for which the system will yield zero steady state error?</p>
           <div class="reflection-box"><textarea id="input-p1-discuss"></textarea></div>
         </section>
 
@@ -1426,12 +1440,17 @@
 
           <ul class="steps-list" style="margin-top:22px;">
             <li>Enter your NetID and group member NetIDs above and export PDF.</li>
-            <li>Submit: (1) the derivation of the K<sub>D</sub> range and
-              a plot of the response with an acceptable K<sub>D</sub>; (2) the derivation of the K<sub>P</sub> range and
-              a plot of the response with an acceptable K<sub>P</sub>; (3) the derivation of the K<sub>P</sub> and
-              K<sub>D</sub> ranges and a plot of the response with acceptable K<sub>P</sub> and K<sub>D</sub>; (4) written discussion of steady state error.</li>
+            <li>Submit:
+              <ol class="submit-list">
+                <li>The derivation of the K<sub>D</sub> range, a plot of the system response with an acceptable K<sub>D</sub> value, and discussion for the case with the changed derivative gain.</li>
+                <li>The derivation of the K<sub>P</sub> range and a plot of the system response with an acceptable K<sub>P</sub> value.</li>
+                <li>The derivation of the K<sub>P</sub> and K<sub>D</sub> range and a plot of the system response with acceptable K<sub>P</sub> and K<sub>D</sub> values.</li>
+                <li>Derivation and written discussion of steady state error.</li>
+              </ol>
+            </li>
             <li>Upload photos of your derivations in each problem; attach any other handwritten work or sketches as a
               PDF below; they are appended to the end of the exported file.</li>
+            <li><b>Additional problems (optional!):</b> Here are some additional, related problems if you would like more practice: Palm 10.39, 10.40, 10.41, 10.43, 10.47, 10.57, 10.58</li>
           </ul>
 
           <p class="instructions"><b>Captured figures</b> (from CAPTURE FIGURE in each problem):</p>
@@ -1901,7 +1920,7 @@
       // Uploaded calculation images
       // ---------------------------------------------------------------
       const MAX_IMAGE_DIM = 1200, IMAGE_QUALITY = 0.7, IMG_KEY = "gw11w_work_images_v1";
-      const WORK_IDS = ["p2-derivation", "p3-derivation", "p4-derivation"];
+      const WORK_IDS = ["p2-derivation", "p3-derivation", "p4-derivation", "p1-derivation"];
       const workImages = {}; WORK_IDS.forEach((id) => { workImages[id] = []; });
       function resizeAndCompressImage(file) {
         return new Promise((resolve, reject) => {
@@ -2018,7 +2037,7 @@
           text("Derivation:", { bold: true }); work("p4-derivation"); range("KP", "input-p4-kp-lo", "input-p4-kp-hi"); range("KD", "input-p4-kd-lo", "input-p4-kd-hi");
           text("Discussion:", { bold: true }); text(reflect("input-p4-discuss")); cases("p4"); caps("p4");
           heading("Problem 4: Steady state error");
-          text(reflect("input-p1-discuss"));
+          text("Derivation:", { bold: true }); work("p1-derivation"); text("Discussion:", { bold: true }); text(reflect("input-p1-discuss"));
 
           const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
           if (appendixFiles.length) {
