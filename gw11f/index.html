@@ -161,6 +161,12 @@
   table.mt th.k0 { color: #5EEAD4; } table.mt th.k1 { color: #FB7185; } table.mt th.k2 { color: #FFB454; }
   .ref-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; }
   .plot-host.r { height: 290px; margin-top: 0; }
+  .remind-back { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+  .remind-back.open { display: flex; }
+  .remind { background: var(--panel2); border: 1px solid var(--line); border-left: 4px solid var(--amber); border-radius: 8px; padding: 20px 22px; max-width: 420px; width: 100%; }
+  .remind h3 { margin: 0 0 8px 0; font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--amber); }
+  .remind p { margin: 0 0 16px 0; font-size: 14px; line-height: 1.6; color: var(--fg); }
+  .remind-btns { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
   .req-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 18px; margin: 0 0 18px 0; }
   .req-box p { margin: 4px 0; font-size: 14.5px; line-height: 1.6; color: var(--fg); }
   .req-box .req-note { margin-top: 10px; color: var(--muted); font-size: 13.5px; }
@@ -254,7 +260,7 @@
         <div class="req-box">
           <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
           <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
-          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 100\ [\text{N-m}]</span></p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 150\ [\text{N-m}]</span></p>
           <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
         </div>
 
@@ -274,14 +280,14 @@
       <section id="part-p1" style="display:none;">
         <h3 class="problem-title">Problem 1: Tuning by hand</h3>
         <p class="instructions">
-          Using System 1, try to find values of K<sub>P</sub>, K<sub>I</sub> and K<sub>D</sub> that satisfy the step-response requirements. Record at least three trends you observe
-          while varying the gains (how do the poles and the response change?). This is hard to do &mdash; it is okay if you cannot meet the requirements this way.
-          Record your observations and move on to Problem 2 after 5&ndash;10 minutes.
+          Using System 1 in the app, try to find values for <span class="ik">K_{\mathrm{P}}</span>, <span class="ik">K_{\mathrm{I}}</span>, and <span class="ik">K_{\mathrm{D}}</span> that satisfy the listed step-response requirements. Record at least three trends that you observe while varying the gains (i.e. how do the poles and response change?).
+          Note that this is hard to do! It is okay if you can&rsquo;t meet the requirements using this approach &ndash; we use more systematic approaches in the next problems.
+          Record your observations and <b>move on to Problem 2 after 5 minutes.</b>
         </p>
         <div class="req-box">
           <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
           <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
-          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 100\ [\text{N-m}]</span></p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 150\ [\text{N-m}]</span></p>
           <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
         </div>
         <div class="panel-box" id="app-p1"></div>
@@ -298,28 +304,30 @@
       <section id="part-p2" style="display:none;">
         <h3 class="problem-title">Problem 2: Second-order analogue</h3>
         <p class="instructions">
-          To guide the design, choose where the closed loop poles go, then compute the gains that give those poles. If 1/p<sub>3</sub> &ll; 1/(&zeta;&omega;<sub>n</sub>), the system behaves approximately as
+          In order to better guide our design, we can directly choose where we place the poles of the closed-loop system, then compute the gains that give these pole locations. Using dominant pole approximations, we can pick the pole locations to satisfy 1st- and 2nd-order system metrics. If <span class="ik">\frac{{1}}{{p_3}} \ll \frac{{1}}{{\zeta\omega_n}}</span>, then the system behaves approximately as
         </p>
         <div class="eq-block" id="eq-2nd"></div>
         <p class="instructions">
-          Using this approximation, choose &zeta;<sup>CL</sup> and &omega;<sub>n</sub><sup>CL</sup> to satisfy the design requirements, then choose p<sub>3</sub> so that the associated pole is non-dominant.
-          A good rule is to make the non-dominant time constant 5&times; smaller (faster):
+          Using this approximation, choose <span class="ik">\zeta^{\mathrm{CL}}</span> and <span class="ik">\omega_n^{\mathrm{CL}}</span> to satisfy the design requirements, then choose <span class="ik">p_3</span> such that the associated pole is non-dominant. A good rule to ensure non-dominance is to make the non-dominant time constant 5&times; smaller (faster):
         </p>
         <div class="eq-block" id="eq-rule2"></div>
+        <p class="instructions">
+          where, <span class="ik">\tau_f = 1/p_3</span> is the time constant for the first-order system and <span class="ik">\tau_s = 1/\left(\zeta^{\mathrm{CL}}\omega_n^{\mathrm{CL}}\right)</span> is the time constant for the second-order system. Sketch the <i>s</i>-plane, including regions where the poles are valid, and the locations of your proposed closed-loop poles.
+        </p>
         <div class="note-box">
-          Avoid setting &zeta; = 1 exactly; use &zeta; &asymp; 0.9&ndash;0.99 for a nearly critically damped response, since critically damped responses sometimes have undefined metrics.
+          Avoid setting <span class="ik">\zeta = 1</span> exactly. Use <span class="ik">\zeta \approx 0.9 - 0.99</span> if you want a nearly critically damped response. Because critically damped responses sometimes have undefined metrics.
         </div>
         <div class="note-box">
-          Tip: design the dominant (low-frequency) poles first to set rise/settling time, then place the remaining pole far to the left.
+          <b>Tip:</b> Design your dominant (low-frequency) poles first to set rise/settling time, then place the remaining pole far left to ensure it is non-dominant.
         </div>
         <div class="req-box">
           <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
           <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
-          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 100\ [\text{N-m}]</span></p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 150\ [\text{N-m}]</span></p>
           <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
         </div>
-        <h4 class="part-title">Calculations</h4>
-        <p class="instructions">Show your calculations: the &zeta; and &omega;<sub>n</sub> bounds from overshoot and settling time, and your choice of p<sub>3</sub>.</p>
+        <h4 class="part-title">Calculations and <i>s</i>-plane sketch</h4>
+        <p class="instructions">Upload your calculations and your sketch of the <i>s</i>-plane (the regions where the poles are valid and your proposed closed-loop poles).</p>
         <div class="upload-block">
           <input type="file" id="upload-input-p2-calc" accept="image/*" multiple />
           <div class="upload-thumbs" id="upload-thumbs-p2-calc"></div>
@@ -327,6 +335,7 @@
           <p class="upload-err" id="upload-err-p2-calc"></p>
         </div>
         <h4 class="part-title">Verify with System 2</h4>
+        <p class="instructions">Verify your design using System 2 in the app. <b>Note:</b> For your convenience, the app computes gains <span class="ik">K_{\mathrm{P}}</span>, <span class="ik">K_{\mathrm{I}}</span>, and <span class="ik">K_{\mathrm{D}}</span> from your specified <span class="ik">\zeta^{\mathrm{CL}}</span>, <span class="ik">\omega_n^{\mathrm{CL}}</span>, and <span class="ik">p_3</span> using Equation 3.</p>
         <div class="panel-box" id="app-p2"></div>
         <p class="instructions">Did your design meet all requirements? What did you adjust and why?</p>
         <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p2-notes"></textarea></div>
@@ -336,22 +345,22 @@
       <section id="part-p3" style="display:none;">
         <h3 class="problem-title">Problem 3: First-order analogue</h3>
         <p class="instructions">
-          Repeat the process of Problem 2, but now choose the simple pole to be dominant. If 1/(&zeta;&omega;<sub>n</sub>) &ll; 1/p<sub>3</sub>, the system behaves approximately as
+          Repeat the same process as Problem 2, but this time choose the simple pole to be dominant. If <span class="ik">\frac{{1}}{{\zeta\omega_n}} \ll \frac{{1}}{{p_3}}</span>, then the system behaves approximately as
         </p>
         <div class="eq-block" id="eq-1st"></div>
         <p class="instructions">
-          Using this approximation, choose p<sub>3</sub> to satisfy the design requirements, then choose &zeta;<sup>CL</sup> and &omega;<sub>n</sub><sup>CL</sup> so that their poles are non-dominant
-          (again, make their time constant 5&times; smaller):
+          Using this approximation, choose <span class="ik">p_3</span> to satisfy the design requirements, then choose <span class="ik">\zeta^{\mathrm{CL}}</span> and <span class="ik">\omega_n^{\mathrm{CL}}</span> such that their associated poles are non-dominant. A good rule to ensure non-dominance is to make the non-dominant time constant 5&times; smaller (faster):
         </p>
         <div class="eq-block" id="eq-rule3"></div>
+        <p class="instructions">Sketch the <i>s</i>-plane, including regions where the poles are valid, and the locations of your proposed closed-loop poles.</p>
         <div class="req-box">
           <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
           <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
-          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 100\ [\text{N-m}]</span></p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 150\ [\text{N-m}]</span></p>
           <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
         </div>
-        <h4 class="part-title">Calculations</h4>
-        <p class="instructions">Show your calculations: the time constant from the settling time requirement, your choice of p<sub>3</sub>, then &zeta; and &omega;<sub>n</sub>.</p>
+        <h4 class="part-title">Calculations and <i>s</i>-plane sketch</h4>
+        <p class="instructions">Upload your calculations and your sketch of the <i>s</i>-plane (the regions where the poles are valid and your proposed closed-loop poles).</p>
         <div class="upload-block">
           <input type="file" id="upload-input-p3-calc" accept="image/*" multiple />
           <div class="upload-thumbs" id="upload-thumbs-p3-calc"></div>
@@ -359,6 +368,7 @@
           <p class="upload-err" id="upload-err-p3-calc"></p>
         </div>
         <h4 class="part-title">Verify with System 3</h4>
+        <p class="instructions">Verify your design using System 3 in the app.</p>
         <div class="panel-box" id="app-p3"></div>
         <p class="instructions">Did your design meet all requirements? What did you adjust and why?</p>
         <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p3-notes"></textarea></div>
@@ -370,10 +380,10 @@
         <p class="instructions">The plots below overlay the three systems as currently entered in Problems 1&ndash;3 (pole map, step response and control input).</p>
         <div class="panel-box" id="app-p4"></div>
         <h4 class="part-title">a) Compare Problems 2 and 3</h4>
-        <p class="instructions">Did one method result in a better response or controller? Explain any differences you observe in the gain values, response shape and control input.</p>
+        <p class="instructions">Compare the results of Problems 2 and 3. Did one method result in a better response/controller? Discuss with your group and explain any differences you observe in the gain values, response shape, and control input.</p>
         <div class="reflection-box"><textarea id="input-p4-a"></textarea></div>
         <h4 class="part-title">b) Maximum control effort</h4>
-        <p class="instructions">In systems we looked at earlier in the semester, the maximum control occurred at the beginning of the step input (t = 0). Do you observe the same behavior in this system? If not, explain why.</p>
+        <p class="instructions">In systems we&rsquo;ve looked at previously in the semester, the maximum control occurred at the beginning of the step input (<span class="ik">t = 0</span>). Do you observe the same behavior in the system from this exercise? If not, explain why.</p>
         <div class="reflection-box"><textarea id="input-p4-b"></textarea></div>
       </section>
 
@@ -388,8 +398,9 @@
 
         <ul class="steps-list" style="margin-top:22px;">
           <li>Enter your NetID and group member NetIDs above and export PDF.</li>
-          <li>Submit: your observations from Problems 1&ndash;4; gain values (K<sub>P</sub>, K<sub>D</sub>, K<sub>I</sub>) for Problems 1&ndash;3; parameter values (&zeta;<sup>CL</sup>, &omega;<sub>n</sub><sup>CL</sup>, p<sub>3</sub>) for Problems 2&ndash;3; and final plots (pole map, step response, control) showing all three systems. The exported PDF lists the values currently entered in each app.</li>
-          <li>Capture the final figures in Problem 4 so they are included, upload photos of your calculations in Problems 2 and 3, and attach any other handwritten work as a PDF below.</li>
+          <li>Submissions should include: your observations from Problems 1&ndash;4; gain values (K<sub>P</sub>, K<sub>D</sub>, K<sub>I</sub>) for Problems 1&ndash;3; parameter values (&zeta;<sup>CL</sup>, &omega;<sub>n</sub><sup>CL</sup>, p<sub>3</sub>) for Problems 2&ndash;3; and final plots (pole map, step response, and control) showing all three systems. The exported PDF lists the values currently entered in each app.</li>
+          <li>Capture the final figures in Problem 4 so they are included, upload photos of your calculations and <i>s</i>-plane sketches in Problems 2 and 3, and attach any other handwritten work as a PDF below.</li>
+          <li><b>Additional problems (optional!):</b> 11.6, 11.21</li>
         </ul>
 
         <p class="instructions"><b>Captured figures</b> (from CAPTURE FIGURE in each problem):</p>
@@ -409,6 +420,17 @@
     </div>
   </div>
 </main>
+
+<div class="remind-back" id="remind-back" role="dialog" aria-modal="true" aria-labelledby="remind-title">
+  <div class="remind">
+    <h3 id="remind-title">Time to move on</h3>
+    <p>You&rsquo;ve spent 5 minutes on Problem 1. Record your observations and move on to Problem 2.</p>
+    <div class="remind-btns">
+      <button class="run-btn secondary small" id="remind-stay" type="button">Stay on Problem 1</button>
+      <button class="run-btn small" id="remind-go" type="button">Go to Problem 2</button>
+    </div>
+  </div>
+</div>
 <script>
 (function () {
   "use strict";
@@ -629,7 +651,7 @@
       xaxis: { title: "time [sec]", gridcolor: "#282D3A", range: ax.rng("ux") }, yaxis: { title: "control u(t) [Nm]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: ax.rng("uy") } }), PO);
     // poles
     const ptr = items.map((it) => ({ x: it.res.roots.map((p) => p[0]), y: it.res.roots.map((p) => p[1]), mode: "markers", name: it.name,
-      marker: { symbol: "x", size: 13, color: it.color, line: { width: 3, color: it.color } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>" + it.name + "</extra>" }));
+      marker: { symbol: "x", size: 13, color: it.color, line: { width: 2, color: it.color } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>" + it.name + "</extra>" }));
     Plotly.react(poleEl, ptr, baseLayout({ title: { text: "Closed loop poles", font: { size: 12 }, x: 0.02 }, showlegend: false,
       xaxis: { title: "Re(s)", range: ax.rng("rex"), gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 },
       yaxis: { title: "Im(s)", range: ax.rng("imy"), gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 } }), PO);
@@ -664,8 +686,10 @@
     const host = document.getElementById(`app-${prefix}`);
     const sl = (k, lab, mn, mx, st, v) => `
         <div class="cmp-f grow"><label>${lab}</label><div class="row"><input type="range" id="sim-${prefix}-${k}-s" min="${mn}" max="${mx}" step="${st}" value="${v}" /><input type="number" id="sim-${prefix}-${k}" value="${v}" step="any" /></div></div>`;
+    const box = (k, lab, v) => `
+        <div class="cmp-f"><label>${lab}</label><input type="number" id="sim-${prefix}-${k}" value="${v}" step="any" style="width:120px;" /></div>`;
     const inputs = o.type === "gains"
-      ? sl("kp", "K<sub>P</sub>", 0, 10000, 10, o.kp) + sl("ki", "K<sub>I</sub>", 0, 100000, 100, o.ki) + sl("kd", "K<sub>D</sub>", 0, 500, 1, o.kd)
+      ? box("kp", "K<sub>P</sub>", o.kp) + box("ki", "K<sub>I</sub>", o.ki) + box("kd", "K<sub>D</sub>", o.kd) + '<div style="flex:1"></div>'
       : sl("z", "&zeta;<sup>CL</sup>", 0.05, 1.5, 0.01, o.z) + sl("wn", "&omega;<sub>n</sub><sup>CL</sup> [rad/s]", 1, 300, 0.5, o.wn) + sl("p3", "p<sub>3</sub> [1/s]", 1, 300, 0.5, o.p3);
     host.innerHTML = `
       <div class="cmp-ctrl">${inputs}
@@ -713,8 +737,8 @@
 
     keys.forEach((k) => {
       const s = E(`${k}-s`), n = E(k);
-      s.addEventListener("input", () => { n.value = s.value; schedule(); });
-      n.addEventListener("input", () => { const v = Number(n.value); if (n.value !== "" && isFinite(v)) s.value = v; schedule(); });
+      if (s) s.addEventListener("input", () => { n.value = s.value; schedule(); });
+      n.addEventListener("input", () => { const v = Number(n.value); if (s && n.value !== "" && isFinite(v)) s.value = v; schedule(); });
     });
     document.getElementById(`btn-${prefix}-capture`).addEventListener("click", () => {
       const it = panels[prefix].items, st = document.getElementById(`capstat-${prefix}`);
@@ -762,10 +786,10 @@
   kr("eq-law", "u(t)=T(t)=K_P\\,(0-y)+K_I\\!\\int_0^t\\!\\big(r(\\tau)-y(\\tau)\\big)d\\tau+K_D\\!\\left(0-\\frac{dy}{dt}\\right)\\qquad(2)");
   kr("eq-CL", "\\begin{gathered}\\frac{Y(s)}{R(s)}=\\frac{K_I}{s^3+(1+K_D)s^2+(25+K_P)s+K_I}\\equiv\\frac{C}{\\big(s^2+2\\zeta^{CL}\\omega_n^{CL}s+(\\omega_n^{CL})^2\\big)(s+p_3)}\\qquad(3)\\\\[6pt] \\frac{U(s)}{R(s)}=\\frac{K_I\\,(s^2+s+25)}{s^3+(1+K_D)s^2+(25+K_P)s+K_I}\\qquad(4)\\end{gathered}");
   kr("eq-match", "\\begin{gathered}1+K_D=2\\zeta^{CL}\\omega_n^{CL}+p_3\\\\[6pt] 25+K_P=(\\omega_n^{CL})^2+2\\zeta^{CL}\\omega_n^{CL}p_3\\\\[6pt] K_I=(\\omega_n^{CL})^2p_3\\end{gathered}");
-  kr("eq-2nd", "\\frac{Y(s)}{R(s)}\\approx\\frac{(\\omega_n^{CL})^2}{s^2+(2\\zeta^{CL}\\omega_n^{CL})s+(\\omega_n^{CL})^2}\\qquad(5)");
-  kr("eq-rule2", "5\\cdot\\frac{1}{p_3}<\\frac{1}{\\zeta^{CL}\\omega_n^{CL}}\\qquad(6)");
-  kr("eq-1st", "\\frac{Y(s)}{R(s)}\\approx\\frac{p_3}{s+p_3}\\qquad(7)");
-  kr("eq-rule3", "5\\cdot\\frac{1}{\\zeta^{CL}\\omega_n^{CL}}<\\frac{1}{p_3}\\qquad(8)");
+  kr("eq-2nd", "\\frac{Y(s)}{R(s)}=\\frac{(\\omega_n^{CL})^2}{s^2+(2\\zeta^{CL}\\omega_n^{CL})s+(\\omega_n^{CL})^2}\\left(\\frac{p_3}{s+p_3}\\right)\\approx\\frac{(\\omega_n^{CL})^2}{s^2+(2\\zeta^{CL}\\omega_n^{CL})s+(\\omega_n^{CL})^2}\\qquad(5)");
+  kr("eq-rule2", "5\\cdot\\tau_f<\\tau_s\\qquad(6)");
+  kr("eq-1st", "\\frac{Y(s)}{R(s)}=\\frac{(\\omega_n^{CL})^2}{s^2+(2\\zeta^{CL}\\omega_n^{CL})s+(\\omega_n^{CL})^2}\\left(\\frac{p_3}{s+p_3}\\right)\\approx\\frac{p_3}{s+p_3}\\qquad(7)");
+  kr("eq-rule3", "5\\cdot\\tau_s<\\tau_f\\qquad(8)");
 
   // ---------------------------------------------------------------
   // Reference charts
@@ -783,7 +807,9 @@
   // Navigation
   // ---------------------------------------------------------------
   const SECTION_IDS = { intro: "part-intro", ref: "part-ref", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
+  let activePart = "intro";
   function activate(part) {
+    activePart = part;
     document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
     Object.values(SECTION_IDS).forEach((id) => { document.getElementById(id).style.display = "none"; });
     const sec = document.getElementById(SECTION_IDS[part]); sec.style.display = "block";
@@ -791,6 +817,18 @@
     sec.querySelectorAll(".js-plotly-plot").forEach((p) => { try { Plotly.Plots.resize(p); } catch (e) { /* ignore */ } });
   }
   document.querySelectorAll(".nav-btn").forEach((b) => b.addEventListener("click", () => activate(b.dataset.part)));
+
+  // Reminder after 5 minutes on Problem 1 (counts only while the tab is visible and Problem 1 is open)
+  const P1_LIMIT_S = 300;
+  let p1Seconds = 0, p1Reminded = false;
+  const p1Timer = setInterval(() => {
+    if (activePart !== "p1" || document.hidden) return;
+    p1Seconds++;
+    if (p1Seconds >= P1_LIMIT_S && !p1Reminded) { p1Reminded = true; clearInterval(p1Timer); document.getElementById("remind-back").classList.add("open"); }
+  }, 1000);
+  const closeRemind = () => document.getElementById("remind-back").classList.remove("open");
+  document.getElementById("remind-stay").addEventListener("click", closeRemind);
+  document.getElementById("remind-go").addEventListener("click", () => { closeRemind(); activate("p2"); document.querySelector(".content").scrollTop = 0; });
 
   // ---------------------------------------------------------------
   // Captured figures
@@ -919,9 +957,9 @@
       sysLine("p1", "System 1"); text("Observed trends:", { bold: true });
       ["1", "2", "3"].forEach((n) => text(`${n}. ${reflect("input-p1-trend" + n)}`)); caps("p1");
       heading("Problem 2: Second-order analogue");
-      text("Calculations:", { bold: true }); work("p2-calc"); sysLine("p2", "System 2"); text("Notes:", { bold: true }); text(reflect("input-p2-notes")); caps("p2");
+      text("Calculations and s-plane sketch:", { bold: true }); work("p2-calc"); sysLine("p2", "System 2"); text("Notes:", { bold: true }); text(reflect("input-p2-notes")); caps("p2");
       heading("Problem 3: First-order analogue");
-      text("Calculations:", { bold: true }); work("p3-calc"); sysLine("p3", "System 3"); text("Notes:", { bold: true }); text(reflect("input-p3-notes")); caps("p3");
+      text("Calculations and s-plane sketch:", { bold: true }); work("p3-calc"); sysLine("p3", "System 3"); text("Notes:", { bold: true }); text(reflect("input-p3-notes")); caps("p3");
       heading("Problem 4: Analysis");
       text("a) Comparison of Problems 2 and 3:", { bold: true }); text(reflect("input-p4-a"));
       text("b) Maximum control effort:", { bold: true }); text(reflect("input-p4-b")); caps("p4");

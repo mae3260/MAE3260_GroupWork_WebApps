@@ -1205,17 +1205,17 @@
       <button class="nav-btn" data-part="ref">Reference charts<small>Figure 3 (lookup curves)</small></button>
 
       <p class="label">PROBLEM 1</p>
-      <button class="nav-btn" data-part="p1">Steady state error<small>E(s)/R(s), FVT</small></button>
-
-      <p class="label">PROBLEM 2</p>
       <button class="nav-btn" data-part="p2">Design K<sub>D</sub><small>K<sub>P</sub> = 11</small></button>
 
-      <p class="label">PROBLEM 3</p>
+      <p class="label">PROBLEM 2</p>
       <button class="nav-btn" data-part="p3">Design K<sub>P</sub><small>K<sub>D</sub> = 9</small></button>
 
-      <p class="label">PROBLEM 4</p>
+      <p class="label">PROBLEM 3</p>
       <button class="nav-btn" data-part="p4">Design K<sub>P</sub> and K<sub>D</sub><small>e<sub>ss</sub>,
           u<sub>max</sub>, MO</small></button>
+
+      <p class="label">PROBLEM 4</p>
+      <button class="nav-btn" data-part="p1">Steady state error<small>e<sub>ss</sub> vs. gains</small></button>
 
       <p class="label">SUBMIT</p>
       <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
@@ -1271,7 +1271,7 @@
         <section id="part-ref" style="display:none;">
           <h2 class="section-title">Reference charts (Figure 3)</h2>
           <p class="instructions">Underdamped second order system. Upper left: rise time t<sub>R</sub> versus
-            &omega;<sub>d</sub> with &zeta;&omega;<sub>n</sub> = 5 held fixed (use for Problem 3). Others: normalized
+            &omega;<sub>d</sub> with &zeta;&omega;<sub>n</sub> = 5 held fixed (use for Problem 2). Others: normalized
             rise time &omega;<sub>d</sub>t<sub>R</sub> and maximum overshoot M<sub>O</sub> versus damping ratio, and
             settling time t<sub>S</sub> versus &zeta;&omega;<sub>n</sub>. Hover over a curve to read values.</p>
           <div class="ref-grid">
@@ -1282,21 +1282,9 @@
           </div>
         </section>
 
-        <!-- ============== PROBLEM 1 ============== -->
-        <section id="part-p1" style="display:none;">
-          <h3 class="problem-title">Problem 1: Closed-loop transfer functions, steady state error</h3>
-          <p class="instructions">
-            Verify that you each found the correct closed-loop reference to error transfer function E(s)/R(s) from the
-            quiz, as well as the general form of the steady state error as a function
-            of the control gains. Are there any values for K<sub>P</sub> and K<sub>D</sub> for which the system will
-            yield zero steady state error?
-          </p>
-          <div class="reflection-box"><textarea id="input-p1-discuss"></textarea></div>
-        </section>
-
-        <!-- ============== PROBLEM 2 ============== -->
+        <!-- ============== PROBLEM 1 (id p2) ============== -->
         <section id="part-p2" style="display:none;">
-          <h3 class="problem-title">Problem 2: Designing the Derivative (D) gain in a PD controller</h3>
+          <h3 class="problem-title">Problem 1: Designing the Derivative (D) gain in a PD controller</h3>
           <p class="instructions">Given <span class="ik">K_{\mathrm{P}} = 11</span> for the closed loop system, find the
             range of <span class="ik">K_{\mathrm{D}}</span> that meets the following criteria:</p>
           <ul class="crit-list">
@@ -1305,6 +1293,7 @@
             <li><span class="lbl">b)</span>Settling time less than 2 seconds, <span class="ik">t_{\mathrm{S}} &lt; 2\
                 \text{sec}</span></li>
           </ul>
+          <p class="instructions">Check if your <span class="ik">K_{\mathrm{D}}</span> range satisfies the design specifications with the app.</p>
           <div class="note-box"><b>Hint</b>: First, consider how (a,b) create an acceptable region in the <i>s</i>-plane
             based on <span class="ik">(\zeta^{\mathrm{CL}},\omega_n^{\mathrm{CL}})</span> or <span
               class="ik">(\zeta^{\mathrm{CL}}\cdot\omega_n^{\mathrm{CL}},\omega_d^{\mathrm{CL}})</span>. Then use Eqns
@@ -1326,16 +1315,16 @@
           <p class="instructions">K<sub>P</sub> is fixed at 11. Enter K<sub>D</sub> values inside and just outside your
             range and compare the responses.</p>
           <div class="panel-box" id="app-p2"></div>
-          <h4 class="part-title">c) Optional Problem</h4>
+          <h4 class="part-title">Negative derivative gain</h4>
           <p class="instructions">Suppose that, while implementing a PD controller, a sign error is made such that the
-            derivative gain becomes negative. Describe how this would affect the system&rsquo;s response and verify with
-            the app.</p>
+            derivative gain becomes negative. Discuss with your group and describe how this would affect the system&rsquo;s
+            response and verify with the app.</p>
           <div class="reflection-box"><textarea id="input-p2-negkd"></textarea></div>
         </section>
 
-        <!-- ============== PROBLEM 3 ============== -->
+        <!-- ============== PROBLEM 2 (id p3) ============== -->
         <section id="part-p3" style="display:none;">
-          <h3 class="problem-title">Problem 3: Designing the Proportional (P) gain in a PD controller</h3>
+          <h3 class="problem-title">Problem 2: Designing the Proportional (P) gain in a PD controller</h3>
           <p class="instructions">Given <span class="ik">K_{\mathrm{D}} = 9</span> for the closed loop system, find the
             range of <span class="ik">K_{\mathrm{P}}</span> that meets the following criteria:</p>
           <ul class="crit-list">
@@ -1354,8 +1343,6 @@
               class="ik">K_{\mathrm{P}}</span>. Note the upper left figure in the <b>Reference charts</b> tab plotting
             <span class="ik">t_r</span> as a function of <span class="ik">\omega_d</span> for fixed <span
               class="ik">\zeta\omega_n = 5</span>.</div>
-          <p class="instructions"><b>Deliverables</b>: <span class="ik">K_{\mathrm{P}}</span> range and plot of
-            response.</p>
           <h4 class="part-title">Derivation</h4>
           <p class="instructions">Show your derivation of the K<sub>P</sub> range.</p>
           <div class="upload-block">
@@ -1374,10 +1361,10 @@
           <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p3-discuss"></textarea></div>
         </section>
 
-        <!-- ============== PROBLEM 4 ============== -->
+        <!-- ============== PROBLEM 3 (id p4) ============== -->
         <section id="part-p4" style="display:none;">
-          <h3 class="problem-title">Problem 4: Designing a PD controller</h3>
-          <p class="instructions">Find the range of values for both <span class="ik">K_{\mathrm{P}}</span>, <span
+          <h3 class="problem-title">Problem 3: Designing a PD controller</h3>
+          <p class="instructions">Verify that you each found the correct closed-loop reference to error <span class="ik">E(s)/R(s)</span> transfer function from the quiz. Find the range of values for both <span class="ik">K_{\mathrm{P}}</span>, <span
               class="ik">K_{\mathrm{D}}</span> that meets the following criteria (<span class="ik">R_0 = 20\ \text{deg}
               = 0.349\ \text{rad}</span>):</p>
           <ul class="crit-list">
@@ -1419,6 +1406,13 @@
           <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p4-discuss"></textarea></div>
         </section>
 
+        <!-- ============== PROBLEM 4 (id p1) ============== -->
+        <section id="part-p1" style="display:none;">
+          <h3 class="problem-title">Problem 4: Steady state error</h3>
+          <p class="instructions">Using 2<sup>nd</sup> order formulas derive, as a function of the control gains, the general form of the steady state error. Are there any values for <span class="ik">K_{\mathrm{P}}</span> and <span class="ik">K_{\mathrm{D}}</span> for which the system will yield zero steady state error?</p>
+          <div class="reflection-box"><textarea id="input-p1-discuss"></textarea></div>
+        </section>
+
         <!-- ============== SUBMISSION ============== -->
         <section id="part-submission" style="display:none;">
           <h2 class="section-title">Submission</h2>
@@ -1432,10 +1426,10 @@
 
           <ul class="steps-list" style="margin-top:22px;">
             <li>Enter your NetID and group member NetIDs above and export PDF.</li>
-            <li>Submit: (1) written discussion of steady state error; (2) the derivation of the K<sub>D</sub> range and
-              a plot of the response with an acceptable K<sub>D</sub>; (3) the derivation of the K<sub>P</sub> range and
-              a plot of the response with an acceptable K<sub>P</sub>; (4) the derivation of the K<sub>P</sub> and
-              K<sub>D</sub> ranges and a plot of the response with acceptable K<sub>P</sub> and K<sub>D</sub>.</li>
+            <li>Submit: (1) the derivation of the K<sub>D</sub> range and
+              a plot of the response with an acceptable K<sub>D</sub>; (2) the derivation of the K<sub>P</sub> range and
+              a plot of the response with an acceptable K<sub>P</sub>; (3) the derivation of the K<sub>P</sub> and
+              K<sub>D</sub> ranges and a plot of the response with acceptable K<sub>P</sub> and K<sub>D</sub>; (4) written discussion of steady state error.</li>
             <li>Upload photos of your derivations in each problem; attach any other handwritten work or sketches as a
               PDF below; they are appended to the end of the exported file.</li>
           </ul>
@@ -1550,7 +1544,7 @@
         margin: { l: 58, r: 14, t: 34, b: 44 }, showlegend: true,
         xaxis: { gridcolor: "#282D3A", zerolinecolor: "#3a4052" }, yaxis: { gridcolor: "#282D3A", zerolinecolor: "#3a4052" },
       }, extra || {});
-      const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p4: "Problem 4" };
+      const TITLES = { p2: "Problem 1", p3: "Problem 2", p4: "Problem 3", p1: "Problem 4" };
       const pstr = (p) => (Math.abs(p[1]) < 1e-9 ? nm(p[0], 4) : `${nm(p[0], 4)} ± ${nm(Math.abs(p[1]), 4)}j`);
       const polesStr = (r) => (r.poles[0][1] !== 0 ? pstr(r.poles[0]) : (Math.abs(r.poles[0][0] - r.poles[1][0]) < 1e-9 ? nm(r.poles[0][0], 4) + " (double)" : `${nm(r.poles[0][0], 4)}, ${nm(r.poles[1][0], 4)}`));
       const panels = {};
@@ -1638,7 +1632,7 @@
         let hist = [], lastKey = "", raf = null;
         const num = (el) => (el.value === "" ? NaN : Number(el.value));
         // Axis limits: y limits of theta and u scale with R0
-        const span = (r) => [r[0] - 0.5 * (r[1] - r[0]), r[1] + 0.5 * (r[1] - r[0])];
+        const span = (r) => [r[0] - (r[1] - r[0]), r[1] + (r[1] - r[0])];
         const AX = cp ? {
           thx: { plot: "th", axis: "xaxis", def: [0, o.tView], bounds: [0, o.tFixed] }, thy: { plot: "th", axis: "yaxis", def: o.yRange, bounds: span(o.yRange), r0: true },
           ux: { plot: "u", axis: "xaxis", def: [0, o.tView], bounds: [0, o.tFixed] }, uy: { plot: "u", axis: "yaxis", def: o.uRange, bounds: span(o.uRange), r0: true },
@@ -1720,10 +1714,15 @@
             // fixed axes, and every metric line is always listed in the legend
             const r = res[0], on = r.stable;
             yr = rng("thy"); const full = AX.thy.bounds.map((v) => v * R0);
-            const hLine = (v) => (on && v !== null ? { x: [0, tmax], y: [v, v] } : { x: [null], y: [null] });
-            const vLine = (v) => (on && v !== null ? { x: [v, v], y: full } : { x: [null], y: [null] });
-            [hLine(r.yss), hLine(r.m.OS > 0 ? r.m.ymax : null), vLine(r.m.tp), vLine(r.m.ts), vLine(r.m.tR)].forEach((pts, i) =>
-              tr.push(Object.assign(pts, { mode: "lines", name: MLINES[i][0], hoverinfo: "skip", line: { color: MLINES[i][1], width: 2, dash: MLINES[i][2] } })));
+            // lines are sampled densely so hovering anywhere along them shows the value
+            const NPT = 80, along = (lo, hi) => Array.from({ length: NPT }, (_, j) => lo + (hi - lo) * j / (NPT - 1));
+            const hLine = (v) => (on && v !== null ? { x: along(0, tmax), y: Array(NPT).fill(v) } : { x: [null], y: [null] });
+            const vLine = (v) => (on && v !== null ? { x: Array(NPT).fill(v), y: along(full[0], full[1]) } : { x: [null], y: [null] });
+            const vals = [r.yss, r.m.OS > 0 ? r.m.ymax : null, r.m.tp, r.m.ts, r.m.tR], units = [" rad", " rad", " s", " s", " s"];
+            [hLine(vals[0]), hLine(vals[1]), vLine(vals[2]), vLine(vals[3]), vLine(vals[4])].forEach((pts, i) => {
+              const txt = on && vals[i] !== null ? `${MLINES[i][0]} = ${nm(vals[i], 4)}${units[i]}` : `${MLINES[i][0]} (none)`;
+              tr.push(Object.assign(pts, { mode: "lines", name: txt, hovertemplate: txt + "<extra></extra>", line: { color: MLINES[i][1], width: 2, dash: MLINES[i][2] } }));
+            });
           }
           Plotly.react(thEl, tr, baseLayout({
             title: { text: "Step response θ(t)", font: { size: 12 }, x: 0.02 },
@@ -1765,7 +1764,7 @@
           lim = (lim || 10) * 1.2;
           const ptr = [0, 1, 2].map((c) => {
             const hh = hist.filter((h) => h.c === c);
-            return { x: hh.map((h) => h.x), y: hh.map((h) => h.y), mode: "markers", name: `case ${c + 1}`, marker: { symbol: "x", size: 13, color: CC[c], line: { width: 3, color: CC[c] } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>case " + (c + 1) + "</extra>" };
+            return { x: hh.map((h) => h.x), y: hh.map((h) => h.y), mode: "markers", name: `case ${c + 1}`, marker: { symbol: "x", size: 13, color: CC[c], line: { width: 2, color: CC[c] } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>case " + (c + 1) + "</extra>" };
           }).filter((tt) => tt.x.length);
           Plotly.react(poleEl, ptr, baseLayout({
             title: { text: "Closed loop poles", font: { size: 12 }, x: 0.02 }, showlegend: !cp, margin: cp ? { l: 58, r: 14, t: 34, b: 44 } : { l: 52, r: 14, t: 34, b: 84 }, legend: { orientation: "h", y: -0.28, font: { size: 9 } },
@@ -1835,9 +1834,9 @@
       }
 
       const K = (kp, kd, on) => ({ kp, kd, on });
-      buildApp("p2", { R0: 1, lockKP: 11, compact: true, tView: 10, tFixed: 20, yRange: [-0.08, 0.64], uRange: [-2.2, 14.3], reRange: [-45, 8], imRange: [-8, 8], cases: [K(11, 0, true)] });
-      buildApp("p3", { R0: 1, lockKD: 9, compact: true, tView: 2, tFixed: 4, yRange: [-0.1, 1.3], uRange: [-60, 220], reRange: [-12, 4], imRange: [-16, 16], cases: [K(10, 9, true)] });
-      buildApp("p4", { R0: 0.349, lockR0: true, compact: true, tView: 5, tFixed: 10, yRange: [-0.1, 1.8], uRange: [-160, 220], reRange: [-45, 8], imRange: [-16, 16], cases: [K(50, 5, true)] });
+      buildApp("p2", { R0: 1, lockKP: 11, compact: true, tView: 10, tFixed: 30, yRange: [-0.08, 0.64], uRange: [-2.2, 14.3], reRange: [-45, 8], imRange: [-8, 8], cases: [K(11, 0, true)] });
+      buildApp("p3", { R0: 1, lockKD: 9, compact: true, tView: 2, tFixed: 6, yRange: [-0.1, 1.3], uRange: [-60, 220], reRange: [-12, 4], imRange: [-16, 16], cases: [K(10, 9, true)] });
+      buildApp("p4", { R0: 0.349, lockR0: true, compact: true, tView: 5, tFixed: 15, yRange: [-0.1, 1.8], uRange: [-160, 220], reRange: [-45, 8], imRange: [-16, 16], cases: [K(50, 5, true)] });
 
       // ---------------------------------------------------------------
       // KaTeX
@@ -1970,10 +1969,12 @@
       const setStatus = (t, err) => { const e = document.getElementById("exportStatus"); e.textContent = t; e.style.color = err ? "#FB7185" : "#8B92A5"; };
       const val = (id) => document.getElementById(id).value.trim();
       const reflect = (id) => val(id) || "(No response entered.)";
+      // internal ids keep their old numbers (p2 is now Problem 1, ..., p1 is now Problem 4)
+      const label = (id) => id.replace(/^(p\d)-/, (m, p) => (TITLES[p] || p) + " ").replace(/-/g, " ");
       function blankItems() {
         const out = [];
-        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.value.trim() === "") out.push(e.id.replace(/^input-/, "").replace(/-/g, " ")); });
-        WORK_IDS.forEach((id) => { if (!workImages[id].length) out.push(`${id.replace(/-/g, " ")} (no image uploaded)`); });
+        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.value.trim() === "") out.push(label(e.id.replace(/^input-/, ""))); });
+        WORK_IDS.forEach((id) => { if (!workImages[id].length) out.push(`${label(id)} (no image uploaded)`); });
         if (!captures.length) out.push("no captured figures");
         return out;
       }
@@ -2008,16 +2009,16 @@
           const netId = val("input-netid") || "(not entered)";
           text(`Your NetID: ${netId}`, { bold: true, size: 11.5 }); text(`Group member NetIDs: ${val("input-group-netids") || "(not entered)"}`, { bold: true, size: 11.5 }); y += 6;
 
-          heading("Problem 1: Steady state error");
-          text(reflect("input-p1-discuss"));
-          heading("Problem 2: Designing the D gain (KP = 11)");
+          heading("Problem 1: Designing the D gain (KP = 11)");
           text("Derivation:", { bold: true }); work("p2-derivation"); range("KD", "input-p2-kd-lo", "input-p2-kd-hi"); cases("p2"); caps("p2");
-          text("Optional - negative KD:", { bold: true }); text(reflect("input-p2-negkd"));
-          heading("Problem 3: Designing the P gain (KD = 9)");
+          text("Negative derivative gain:", { bold: true }); text(reflect("input-p2-negkd"));
+          heading("Problem 2: Designing the P gain (KD = 9)");
           text("Derivation:", { bold: true }); work("p3-derivation"); range("KP", "input-p3-kp-lo", "input-p3-kp-hi"); text("Discussion:", { bold: true }); text(reflect("input-p3-discuss")); cases("p3"); caps("p3");
-          heading("Problem 4: Designing a PD controller (R0 = 0.349 rad)");
+          heading("Problem 3: Designing a PD controller (R0 = 0.349 rad)");
           text("Derivation:", { bold: true }); work("p4-derivation"); range("KP", "input-p4-kp-lo", "input-p4-kp-hi"); range("KD", "input-p4-kd-lo", "input-p4-kd-hi");
           text("Discussion:", { bold: true }); text(reflect("input-p4-discuss")); cases("p4"); caps("p4");
+          heading("Problem 4: Steady state error");
+          text(reflect("input-p1-discuss"));
 
           const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
           if (appendixFiles.length) {
