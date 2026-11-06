@@ -1,0 +1,3388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GroupWork 12F &mdash; Lab 4 Preparation</title>
+
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink: #0F1115;
+      --panel: #171A21;
+      --panel2: #1D212B;
+      --line: #282D3A;
+      --amber: #FFB454;
+      --cyan: #5EEAD4;
+      --rose: #FB7185;
+      --pink: #F472B6;
+      --fg: #E7E9EE;
+      --muted: #8B92A5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--ink);
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+
+    header h1 {
+      font-size: 14px;
+      margin: 0;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    header h1 span {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    nav {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      order: 2;
+      padding: 16px 14px;
+      overflow-y: auto;
+    }
+
+    nav p.label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin: 14px 0 8px 0;
+    }
+
+    nav p.label:first-child {
+      margin-top: 0;
+    }
+
+    .nav-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 9px 12px;
+      margin-bottom: 6px;
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--fg);
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .nav-btn small {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .content {
+      flex: 1;
+      order: 1;
+      overflow-y: auto;
+      padding: 28px 40px;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    h2.section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      color: var(--amber);
+      margin: 0 0 14px 0;
+    }
+
+    h3.problem-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: var(--cyan);
+      margin: 0 0 10px 0;
+    }
+
+    h4.part-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--fg);
+      margin: 22px 0 8px 0;
+    }
+
+    p.instructions {
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: var(--fg);
+      margin: 0 0 16px 0;
+    }
+
+    ul.goals {
+      padding-left: 20px;
+      margin: 0 0 16px 0;
+    }
+
+    ul.goals li {
+      margin-bottom: 6px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--fg);
+    }
+
+    .eq-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .given-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 18px 0;
+      line-height: 1.8;
+    }
+
+    .given-line b {
+      color: var(--fg);
+      font-weight: 600;
+    }
+
+    .note-box {
+      background: var(--panel2);
+      border-left: 3px solid var(--amber);
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 0 0 18px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--fg);
+    }
+
+    .note-box code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--cyan);
+      background: var(--ink);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .panel-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .form-grid.one {
+      grid-template-columns: 1fr;
+    }
+
+    .form-grid.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .form-grid.five {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .field {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .field label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"] {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .field select {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 8px 10px;
+    }
+
+    .field select:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .reflection-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .reflection-box textarea {
+      width: 100%;
+      min-height: 90px;
+      resize: vertical;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 10px 12px;
+      line-height: 1.5;
+    }
+
+    .reflection-box textarea:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .run-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 6px;
+      border: none;
+      background: var(--amber);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .run-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .run-btn:active {
+      transform: scale(0.98);
+    }
+
+    .run-btn.secondary {
+      background: none;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .run-btn.secondary:hover {
+      color: var(--rose);
+      border-color: var(--rose);
+    }
+
+    .run-btn.small {
+      font-size: 11.5px;
+      padding: 8px 14px;
+    }
+
+    .match-banner {
+      display: none;
+      margin-top: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+    }
+
+    .match-banner.match {
+      display: block;
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .match-banner.no-match {
+      display: block;
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+
+    .field-err {
+      font-size: 11px;
+      color: var(--rose);
+      margin: 8px 0 0 0;
+      min-height: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .plot-host {
+      height: 300px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 14px;
+    }
+
+    .placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      max-width: 320px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .steps-list {
+      padding-left: 20px;
+      margin: 0 0 16px 0;
+    }
+
+    .steps-list li {
+      margin-bottom: 6px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--fg);
+    }
+
+    .upload-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 0 0 18px 0;
+    }
+
+    .upload-block input[type="file"] {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      color: var(--fg);
+    }
+
+    .upload-thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .thumb-wrap {
+      position: relative;
+      width: 90px;
+      height: 120px;
+    }
+
+    .thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    .thumb-remove {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: var(--ink);
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .upload-status {
+      font-size: 11px;
+      color: var(--cyan);
+      margin: 8px 0 0 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .upload-err {
+      font-size: 11px;
+      color: var(--rose);
+      margin: 8px 0 0 0;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.5;
+    }
+
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin: 4px 6px 4px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .file-chip .chip-remove {
+      background: none;
+      border: none;
+      color: var(--rose);
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0;
+    }
+
+    .vib-top-row {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      margin-top: 14px;
+    }
+
+    .vib-svg-host {
+      flex: 1.3;
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .vib-output {
+      flex: 1;
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .vib-output h5 {
+      margin: 0 0 10px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .vib-output .out-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      margin-bottom: 7px;
+      color: var(--fg);
+      gap: 8px;
+    }
+
+    .vib-output .out-row span.k {
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .vib-output .out-row span.v {
+      color: var(--cyan);
+      text-align: right;
+    }
+
+    .vib-presets {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .katex {
+      color: var(--fg);
+    }
+
+    .submit-list {
+      padding-left: 22px;
+      margin: 6px 0 6px 0;
+    }
+
+    .submit-list li {
+      margin-bottom: 4px;
+    }
+
+    /* ---- handout figures ---- */
+    .fig-wrap {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 14px 0 0;
+    }
+
+    .fig-wrap svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .fig-cap {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      margin: 10px 0 18px;
+    }
+
+    /* ---- two-ended axis sliders around each plot ---- */
+    .ax-cell {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr);
+      grid-template-rows: auto 18px;
+      column-gap: 2px;
+    }
+
+    .ax-cell>.plot-host {
+      grid-column: 2;
+      grid-row: 1;
+      margin-top: 0 !important;
+    }
+
+    .dual {
+      position: relative;
+      grid-column: 2;
+      grid-row: 2;
+      height: 18px;
+    }
+
+    .dual.v {
+      grid-column: 1;
+      grid-row: 1;
+      width: 18px;
+      height: auto;
+    }
+
+    .dual .track,
+    .dual .fill {
+      position: absolute;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+
+    .dual .track {
+      background: var(--line);
+      left: 0;
+      right: 0;
+      top: 7px;
+      height: 4px;
+    }
+
+    .dual .fill {
+      background: var(--amber);
+      top: 7px;
+      height: 4px;
+    }
+
+    .dual.v .track {
+      left: 7px;
+      width: 4px;
+      top: 0;
+      bottom: 0;
+      height: auto;
+    }
+
+    .dual.v .fill {
+      left: 7px;
+      width: 4px;
+      top: auto;
+    }
+
+    .dual input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: none;
+      pointer-events: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .dual.v input {
+      writing-mode: vertical-lr;
+      direction: rtl;
+    }
+
+    .dual input::-webkit-slider-runnable-track {
+      background: none;
+    }
+
+    .dual input::-moz-range-track {
+      background: none;
+    }
+
+    .dual input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      pointer-events: auto;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--amber);
+      border: 2px solid var(--ink);
+      cursor: pointer;
+    }
+
+    .dual input::-moz-range-thumb {
+      pointer-events: auto;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+      border: 2px solid var(--ink);
+      cursor: pointer;
+    }
+  </style>
+  <style>
+    .app-grid {
+      display: grid;
+      grid-template-columns: 330px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .app-grid .card {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+
+    .card h5 {
+      margin: 0 0 10px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      font-weight: 500;
+    }
+
+    .num-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .num-row label,
+    .sl label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .num-row input,
+    .sl input[type=number] {
+      width: 100%;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 6px 8px;
+    }
+
+    .num-row input:focus,
+    .sl input[type=number]:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .sl {
+      margin-bottom: 10px;
+    }
+
+    .sl .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .sl input[type=range] {
+      flex: 1;
+      min-width: 0;
+      accent-color: var(--rose);
+    }
+
+    .sl input[type=number] {
+      width: 74px;
+    }
+
+    .tools {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .tools label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tools input {
+      accent-color: var(--amber);
+    }
+
+    .app-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+      align-items: start;
+    }
+
+    .plot-host.t {
+      height: 400px;
+      margin-top: 0;
+    }
+
+    .plot-host.p {
+      height: 340px;
+      margin-top: 0;
+    }
+
+    table.mt {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    table.mt th,
+    table.mt td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+    }
+
+    table.mt th:first-child,
+    table.mt td:first-child {
+      text-align: left;
+      color: var(--muted);
+    }
+
+    table.mt th {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    table.mt td.b {
+      color: var(--cyan);
+    }
+
+    table.mt td.c {
+      color: var(--rose);
+    }
+
+    table.sum {
+      border-collapse: collapse;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      margin: 8px 0 16px;
+    }
+
+    table.sum th,
+    table.sum td {
+      border: 1px solid var(--line);
+      padding: 6px 8px;
+    }
+
+    table.sum th {
+      color: var(--muted);
+      font-weight: 500;
+      background: var(--panel);
+    }
+
+    table.sum select {
+      background: var(--ink);
+      color: var(--fg);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 12px;
+      padding: 4px;
+    }
+
+    .cap-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 10px 0 18px;
+    }
+
+    .cap-item {
+      width: 250px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      position: relative;
+    }
+
+    .cap-item img {
+      width: 100%;
+      border-radius: 4px;
+      display: block;
+    }
+
+    .cap-item .cap-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+
+    .cap-item .cap-x {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: var(--ink);
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    @media (max-width: 1000px) {
+
+      .app-grid,
+      .app-bottom {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <style>
+    .case-card {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 14px 6px;
+      margin-bottom: 12px;
+      border-left-width: 4px;
+    }
+
+    .case-card.c0 {
+      border-left-color: #5EEAD4;
+    }
+
+    .case-card.c1 {
+      border-left-color: #FB7185;
+    }
+
+    .case-card.c2 {
+      border-left-color: #FFB454;
+    }
+
+    .case-card .hd {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .case-card .hd input {
+      accent-color: var(--amber);
+    }
+
+    .sl.locked input[type=number] {
+      opacity: 0.65;
+      border-style: dashed;
+    }
+
+    .sl .lock {
+      font-size: 10px;
+      color: var(--amber);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .r0-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .r0-row input[type=number] {
+      width: 90px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 6px 8px;
+    }
+
+    .r0-row .deg {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    .plot-host.t {
+      height: 400px;
+    }
+
+    .plot-host.u {
+      height: 320px;
+      margin-top: 0;
+    }
+
+    .app-below {
+      margin-top: 14px;
+    }
+
+    table.mt td.k0 {
+      color: #5EEAD4;
+    }
+
+    table.mt td.k1 {
+      color: #FB7185;
+    }
+
+    table.mt td.k2 {
+      color: #FFB454;
+    }
+
+    table.mt th.k0 {
+      color: #5EEAD4;
+    }
+
+    table.mt th.k1 {
+      color: #FB7185;
+    }
+
+    table.mt th.k2 {
+      color: #FFB454;
+    }
+
+    .ref-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .plot-host.r {
+      height: 290px;
+      margin-top: 0;
+    }
+
+    .range-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 8px 0 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+    }
+
+    .range-row input {
+      width: 90px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 6px 8px;
+    }
+
+    .range-row input:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    @media (max-width: 1000px) {
+      .ref-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <style>
+    /* ---- Simulink / MATLAB look-alike windows ---- */
+    .xwin {
+      background: #f3f3f3;
+      color: #1b1b1b;
+      border: 1px solid #7a7a7a;
+      border-radius: 3px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .45);
+      margin: 0 0 16px 0;
+      font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+      font-size: 12px;
+      overflow: hidden;
+    }
+
+    .xwin .xt {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      padding: 6px 10px;
+      border-bottom: 1px solid #d0d0d0;
+      font-size: 12px;
+    }
+
+    .xwin .xt .ico {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      background: linear-gradient(135deg, #e8742c, #0f5ba8);
+      flex-shrink: 0;
+    }
+
+    .xwin .xt .ttl {
+      flex: 1;
+    }
+
+    .xwin .xt .wb {
+      display: flex;
+      gap: 14px;
+      color: #444;
+      font-size: 13px;
+    }
+
+    .xwin .menu {
+      display: flex;
+      gap: 14px;
+      padding: 4px 10px;
+      background: #fff;
+      border-bottom: 1px solid #e1e1e1;
+      font-size: 12px;
+    }
+
+    .xwin .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 10px;
+      background: #f3f3f3;
+      border-top: 1px solid #cfcfcf;
+      font-size: 11px;
+      color: #333;
+    }
+
+    .xwin .stat .box {
+      border: 1px solid #bbb;
+      padding: 0 6px;
+      margin-left: 6px;
+      background: #fafafa;
+    }
+
+    .ml-editor textarea {
+      width: 100%;
+      min-height: 250px;
+      resize: vertical;
+      background: #fff;
+      color: #1b1b1b;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      padding: 8px 10px;
+      box-sizing: border-box;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    .ml-editor textarea:focus {
+      outline: none;
+    }
+
+    .ml-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 10px;
+      background: #f3f3f3;
+      border-bottom: 1px solid #d0d0d0;
+    }
+
+    .ml-btn {
+      background: #fff;
+      border: 1px solid #9a9a9a;
+      border-radius: 3px;
+      padding: 4px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #1b1b1b;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ml-btn:hover {
+      background: #eaf3fb;
+      border-color: #2b78c2;
+    }
+
+    .ml-btn.run .tri {
+      width: 0;
+      height: 0;
+      border-left: 9px solid #1e9d3a;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+    }
+
+    .ml-btn[disabled] {
+      opacity: .45;
+      cursor: default;
+    }
+
+    .ml-cmd {
+      background: #fff;
+      border-top: 1px solid #ccc;
+      padding: 6px 10px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 11.5px;
+      color: #222;
+      min-height: 44px;
+      white-space: pre-wrap;
+    }
+
+    .ml-cmd .err {
+      color: #c00;
+    }
+
+    .ml-hint {
+      padding: 4px 10px;
+      font-size: 11px;
+      color: #555;
+      background: #f9f9f9;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .rb-tabs {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid #ccc;
+      font-size: 11.5px;
+    }
+
+    .rb-tabs span {
+      padding: 6px 14px;
+      color: #555;
+    }
+
+    .rb-tabs span.on {
+      color: #1b1b1b;
+      border-bottom: 3px solid #2b78c2;
+      font-weight: 600;
+    }
+
+    .rb {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      padding: 6px 14px;
+      background: #f8f8f8;
+      border-bottom: 1px solid #d6d6d6;
+    }
+
+    .rb .grp {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .rb .grp .lab {
+      font-size: 10.5px;
+      color: #444;
+    }
+
+    .rb .bigbtn {
+      width: 42px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .rb .bigbtn:hover {
+      background: #e6f0fa;
+      border-color: #9cc3e8;
+    }
+
+    .rb .bigbtn[disabled] {
+      opacity: .4;
+      cursor: default;
+    }
+
+    .rb .bigbtn .play {
+      width: 0;
+      height: 0;
+      border-left: 16px solid #1e9d3a;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+    }
+
+    .rb .bigbtn .stop {
+      width: 14px;
+      height: 14px;
+      background: #c02a2a;
+    }
+
+    .rb input {
+      width: 78px;
+      border: 1px solid #999;
+      padding: 3px 6px;
+      font-size: 12px;
+      background: #fff;
+      color: #1b1b1b;
+    }
+
+    .sl-canvas {
+      background: #fff;
+      position: relative;
+    }
+
+    .sl-canvas svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .sl-canvas .blk {
+      cursor: pointer;
+    }
+
+    .sl-canvas .blk:hover rect.hl {
+      stroke: #2b78c2;
+      stroke-width: 2.2;
+    }
+
+    .sl-canvas text {
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    .scope {
+      background: #f3f3f3;
+    }
+
+    .scope .tbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      background: #f7f7f7;
+      border-bottom: 1px solid #cfcfcf;
+    }
+
+    .scope .tbar button {
+      width: 28px;
+      height: 24px;
+      border: 1px solid transparent;
+      background: transparent;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .scope .tbar button:hover {
+      background: #e6f0fa;
+      border-color: #9cc3e8;
+    }
+
+    .scope .tbar button.on {
+      background: #cfe3f6;
+      border-color: #6aa6dc;
+    }
+
+    .scope .tbar button[disabled] {
+      opacity: .35;
+      cursor: default;
+    }
+
+    .scope .sbody {
+      display: flex;
+      background: #000;
+    }
+
+    .scope .splot {
+      flex: 1;
+      min-width: 0;
+      height: 340px;
+      background: #000;
+    }
+
+    .scope .side {
+      width: 262px;
+      flex-shrink: 0;
+      background: #f3f3f3;
+      padding: 6px 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .scope .side .pn {
+      background: #fff;
+      border: 1px solid #c9c9c9;
+    }
+
+    .scope .side .pn h6 {
+      margin: 0;
+      padding: 4px 8px;
+      font-size: 11.5px;
+      background: #e9e9e9;
+      border-bottom: 1px solid #c9c9c9;
+      font-weight: 600;
+    }
+
+    .scope .side .pn .pb {
+      padding: 6px 8px;
+      font-size: 11.5px;
+    }
+
+    .scope .side select {
+      width: 100%;
+      font-size: 11.5px;
+      padding: 2px;
+    }
+
+    .scope table.cm {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      border: 1px solid #ccc;
+    }
+
+    .scope table.cm td,
+    .scope table.cm th {
+      padding: 2px 5px;
+      text-align: center;
+      font-weight: 400;
+    }
+
+    .scope table.cm input {
+      width: 68px;
+      text-align: center;
+      font-size: 11.5px;
+      border: 1px solid #bbb;
+      padding: 1px 2px;
+      background: #fafafa;
+      color: #1b1b1b;
+    }
+
+    .scope .cm2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 6px;
+      font-size: 11.5px;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid #ccc;
+    }
+
+    .scope .cm2 span.v {
+      text-align: right;
+    }
+
+    .sw-line {
+      display: inline-block;
+      width: 60px;
+      height: 0;
+      border-top: 3px solid #0a0;
+      vertical-align: middle;
+    }
+
+    .dlg-back {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .dlg-back.open {
+      display: flex;
+    }
+
+    .dlg {
+      width: 620px;
+      max-width: 94vw;
+      max-height: 92vh;
+      overflow: auto;
+      background: #f0f0f0;
+      color: #1b1b1b;
+      border: 1px solid #666;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .6);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 12px;
+    }
+
+    .dlg .dt {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 6px 10px;
+      border-bottom: 1px solid #ccc;
+      font-size: 12px;
+    }
+
+    .dlg .dt .x {
+      cursor: pointer;
+      padding: 0 6px;
+      font-size: 15px;
+    }
+
+    .dlg .db {
+      padding: 10px 12px;
+    }
+
+    .dlg .db p {
+      margin: 0 0 8px;
+      line-height: 1.4;
+    }
+
+    .dlg .db .hd {
+      font-weight: 700;
+    }
+
+    .dlg label.row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .dlg label.row span.l {
+      width: 150px;
+      flex-shrink: 0;
+    }
+
+    .dlg input[type=text],
+    .dlg select {
+      background: #fff;
+      border: 1px solid #888;
+      padding: 3px 6px;
+      font-size: 12px;
+      color: #1b1b1b;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .dlg input[disabled],
+    .dlg select[disabled] {
+      background: #e4e4e4;
+      color: #888;
+      border-color: #bbb;
+    }
+
+    .dlg .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #999;
+      margin-top: 10px;
+    }
+
+    .dlg .tabs button {
+      background: #e4e4e4;
+      border: 1px solid #aaa;
+      border-bottom: none;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #1b1b1b;
+      margin-right: 2px;
+    }
+
+    .dlg .tabs button.on {
+      background: #fff;
+      font-weight: 600;
+    }
+
+    .dlg .tp {
+      background: #fff;
+      border: 1px solid #aaa;
+      border-top: none;
+      padding: 10px;
+      min-height: 150px;
+    }
+
+    .dlg .tp .sec {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .dlg .tp .dim {
+      color: #888;
+    }
+
+    .dlg .btns {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .dlg .btns button {
+      min-width: 76px;
+      padding: 4px 10px;
+      font-size: 12px;
+      border: 1px solid #888;
+      background: #e8e8e8;
+      cursor: pointer;
+      color: #1b1b1b;
+    }
+
+    .dlg .btns button.def {
+      border: 2px solid #2b78c2;
+    }
+
+    .dlg .btns button[disabled] {
+      color: #999;
+      border-color: #bbb;
+      cursor: default;
+    }
+
+    .dlg .err {
+      color: #b00;
+      font-size: 11.5px;
+      min-height: 16px;
+      margin-top: 6px;
+    }
+
+    .dlg .formula {
+      text-align: center;
+      margin: 4px 0;
+    }
+
+    .sim-note {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 0 0 12px;
+      line-height: 1.55;
+    }
+  </style>
+  <style>
+    /* ---- 12F additions ---- */
+    .console {
+      background: var(--panel);
+      color: var(--fg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      min-height: 60px;
+      max-height: 380px;
+      overflow: auto;
+      margin-top: 10px;
+    }
+
+    .console .err {
+      color: #FB7185;
+    }
+
+    .layout-with-sidebar {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .layout-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .syntax-ref {
+      width: 200px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .syntax-ref h4 {
+      margin: 0 0 10px 0;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+    }
+
+    .syntax-ref .syn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+      gap: 8px;
+    }
+
+    .syntax-ref .syn-row span {
+      color: var(--muted);
+    }
+
+    .syntax-ref .syn-row code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--cyan);
+      background: var(--ink);
+      padding: 1px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 760px) {
+      .layout-with-sidebar {
+        flex-direction: column;
+      }
+
+      .syntax-ref {
+        width: auto;
+        align-self: stretch;
+      }
+    }
+
+    .p3-fields .field {
+      margin-bottom: 14px;
+    }
+
+    .p3-out {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+
+    .p3-out .src {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 12px;
+    }
+
+    .p3-out .cols {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 760px) {
+      .p3-out .cols {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .p3-out .res {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .p3-out .res div {
+      background: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    .p3-out .res .lab {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .p3-out .res .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      color: var(--cyan);
+    }
+
+    .p3-out .res .unit {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .p3-out .conv {
+      font-size: 13px;
+      color: var(--fg);
+      margin: 0;
+    }
+
+    .p3-out details summary {
+      cursor: pointer;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .p3-out table {
+      border-collapse: collapse;
+      margin-top: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .p3-out th,
+    .p3-out td {
+      text-align: right;
+      padding: 3px 16px 3px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .p3-out th {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .p3-out .tbl {
+      max-height: 420px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .p3-out .err {
+      color: #FB7185;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      white-space: pre-wrap;
+      margin: 0;
+    }
+
+    .p3-fields .field input[type="text"] {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .p3-fields p.instructions {
+      margin: 0 0 6px;
+    }
+
+    .fn-box {
+      white-space: pre;
+      background: #fff;
+      color: #1b1b1b;
+      border: 1px solid #888;
+      border-radius: 3px;
+      padding: 10px 14px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 2;
+      overflow-x: auto;
+    }
+
+    .fn-box .cm {
+      color: #2a7f2a;
+    }
+
+    .fn-box .kw {
+      color: #0000ff;
+    }
+
+    .fn-box input {
+      font-family: inherit;
+      font-size: 12.5px;
+      background: #fffbe8;
+      color: #1b1b1b;
+      border: 1px solid #c9a100;
+      border-radius: 3px;
+      padding: 2px 6px;
+      min-width: 80px;
+    }
+
+    .fn-box input.w1 {
+      width: 170px;
+    }
+
+    .fn-box input.w2 {
+      width: 96px;
+    }
+
+    .fn-box input.w3 {
+      width: 420px;
+      max-width: 100%;
+    }
+
+    .fn-box input.w4 {
+      width: 260px;
+    }
+
+    .fn-box input:focus {
+      outline: none;
+      border-color: #2b78c2;
+      background: #fff;
+    }
+
+    .bd-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 920 / 250;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .bd-wrap svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .bd-wrap input {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 11.5%;
+      background: var(--ink);
+      border: 1px solid var(--amber);
+      border-radius: 4px;
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 5px 6px;
+      text-align: center;
+    }
+
+    .bd-wrap input:focus {
+      outline: none;
+      border-color: var(--cyan);
+    }
+
+    .bd-wrap .sw {
+      cursor: pointer;
+    }
+
+    .seg {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .seg button {
+      background: var(--panel2);
+      color: var(--muted);
+      border: none;
+      padding: 7px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      cursor: pointer;
+    }
+
+    .seg button.on {
+      background: var(--amber);
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .pre-out {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+    }
+
+    .pre-out .k {
+      color: var(--muted);
+    }
+
+    .pre-out .v {
+      color: var(--cyan);
+    }
+
+    .scope .splot.tall {
+      height: 430px;
+    }
+
+    .xwin.scope.small .splot {
+      height: 260px;
+    }
+
+    @media (max-width: 1000px) {
+      .scope .sbody {
+        flex-direction: column;
+      }
+
+      .scope .side {
+        width: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="dot"></div>
+    <h1>GROUPWORK 12F <span>&mdash; Lab 4 Preparation: Rotor Angle Control (M&amp;AE 3260)</span></h1>
+  </header>
+
+  <main>
+    <nav>
+      <p class="label">BACKGROUND</p>
+      <button class="nav-btn active" data-part="intro">Intro<small>The Lab 1 and Lab 4 systems</small></button>
+
+      <p class="label">PROBLEM 1</p>
+      <button class="nav-btn" data-part="p1">Lab 1 vs Lab 4<small>Comparing the two ODEs</small></button>
+
+      <p class="label">PROBLEM 2</p>
+      <button class="nav-btn" data-part="p2">Open vs closed loop<small>Block diagram and transfer
+          functions</small></button>
+
+      <p class="label">PROBLEM 3</p>
+      <button class="nav-btn" data-part="p3">Characterize the system<small>Estimate a and K from data</small></button>
+
+      <p class="label">PROBLEM 4 (OPTIONAL)</p>
+      <button class="nav-btn" data-part="p4">Filter time T<sub>f</sub><small>Simulink model, in the
+          browser</small></button>
+
+      <p class="label">SUBMIT</p>
+      <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+    </nav>
+
+    <div class="content">
+      <div class="wrap">
+
+        <!-- ============== INTRO ============== -->
+        <section id="part-intro">
+          <h2 class="section-title">Lab 4 Preparation: Rotor Angle Control</h2>
+          <p class="instructions"><b>Learning Goals:</b></p>
+          <ul class="goals">
+            <li>Modify a system model to account for a change in sensor</li>
+            <li>Analyze open loop vs closed loop behavior</li>
+            <li>Use an iterative method to estimate parameters of a system model from data</li>
+            <li>Use Simulink to analyze how the filter time affects system behavior</li>
+          </ul>
+          <p class="instructions">
+            In preparation for Lab 4 which focuses on PID control design, our activity today will help build
+            understanding of the underlying system dynamics and prepare for the lab itself. Lab 4 uses the same
+            motor/rotor/amplifier as Lab 1, i.e. the same &lsquo;system dynamics&rsquo;. However, the sensor is
+            different. In Lab 1, a tachometer was used (measuring angular speed, <span class="ik">y_{\mathrm{lab1}} =
+              \omega</span>); in Lab 4, a potentiometer (also called a pot) will be used to measure angle <span
+              class="ik">y_{\mathrm{lab4}} = \theta</span>. The system and sensors are shown below.
+          </p>
+          <div class="fig-wrap">
+            <div class="fig1-host"></div>
+          </div>
+          <p class="fig-cap">Figure 1: Block diagram of open-loop motor/rotor/amplifier system with sensors used in both
+            Lab 1
+            and Lab 4.</p>
+        </section>
+
+        <!-- ============== PROBLEM 1 ============== -->
+        <section id="part-p1" style="display:none;">
+          <h3 class="problem-title">Problem 1: Comparing Systems from Lab 1 and Lab 4</h3>
+          <p class="instructions">
+            The overall governing equation of the motor/rotor (open loop system) including a disturbance caused by
+            friction in the motor and bearings can be written in <b><i>two ways</i></b> (Lab 1, Lab 4) for the
+            <b><i>same system</i></b>:
+          </p>
+          <div class="eq-block" id="eq-two"></div>
+          <p class="instructions">
+            where <span class="ik">T_u = Ku</span> and is the motor torque, <span class="ik">u</span> is the voltage
+            input to the motor power amplifier, <span class="ik">T_d</span> is a disturbance torque, usually due to
+            friction, and the model parameters <span class="ik">K</span> and <span class="ik">a</span> are a combination
+            of several physical parameters (such as rotor moment of inertia, potentiometer gain, armature resistance,
+            etc.). This ODE is more fully developed in the Lab 4 manual.
+          </p>
+          <p class="instructions">
+            Discuss the similarities and differences between the two ODEs in your group. In particular, what do the
+            outputs look like for a constant motor voltage input?
+          </p>
+          <div class="reflection-box"><textarea id="input-p1-sim"></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 2 ============== -->
+        <section id="part-p2" style="display:none;">
+          <h3 class="problem-title">Problem 2: Comparing Open Loop vs Closed Loop for Lab 4</h3>
+          <div class="fig-wrap">
+            <div class="fig1-host"></div>
+          </div>
+          <p class="fig-cap">Figure 1: Block diagram of open-loop motor/rotor/amplifier system with sensors used in both
+            Lab 1
+            and Lab 4.</p>
+          <h4 class="part-title">a) Fill in the blank boxes</h4>
+          <p class="instructions">
+            Consider the system from Lab 4 (Fig. 1). For simplicity, define <span class="ik">y = y_{\mathrm{lab4}} =
+              \theta</span> and <span class="ik">r = r_{\mathrm{lab4}}</span>. Consider a proportional feedback
+            control law
+          </p>
+          <div class="eq-block" id="eq-law"></div>
+          <p class="instructions">
+            where <span class="ik">K_{\mathrm{P}}</span> is a constant. Using this control law and equation (1), fill in
+            the transfer functions of the blank boxes in figure 2.
+          </p>
+          <p class="sim-note">Type each transfer function in its box (for example <span class="mono">K/(s+a)</span>).
+            Click the switch to open or close the loop.</p>
+          <div class="bd-wrap" id="bd-wrap">
+            <svg viewBox="0 0 920 250" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="bda" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+                  orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#E7E9EE" />
+                </marker>
+                <marker id="bdp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+                  orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#FFB454" />
+                </marker>
+              </defs>
+              <g stroke="#E7E9EE" stroke-width="2" fill="none">
+                <path d="M30,118 H116" marker-end="url(#bda)" />
+                <path d="M162,118 H214" marker-end="url(#bda)" />
+                <path d="M352,118 H418" marker-end="url(#bda)" />
+                <path d="M570,118 H620" marker-end="url(#bda)" />
+                <path d="M666,118 H704" marker-end="url(#bda)" />
+                <path d="M826,118 H900" marker-end="url(#bda)" />
+                <path d="M862,118 V222 H690" id="bd-fb1" />
+                <path d="M450,222 H139 V142" id="bd-fb2" marker-end="url(#bda)" />
+                <path d="M643,28 V92" stroke="#FFB454" marker-end="url(#bdp)" />
+              </g>
+              <circle cx="139" cy="118" r="23" fill="none" stroke="#E7E9EE" stroke-width="2" />
+              <circle cx="643" cy="118" r="23" fill="none" stroke="#E7E9EE" stroke-width="2" />
+              <rect x="214" y="78" width="138" height="80" rx="3" fill="none" stroke="#E7E9EE" stroke-width="2" />
+              <rect x="418" y="78" width="152" height="80" rx="3" fill="none" stroke="#E7E9EE" stroke-width="2" />
+              <rect x="704" y="78" width="122" height="80" rx="3" fill="none" stroke="#E7E9EE" stroke-width="2" />
+              <g font-family="JetBrains Mono, monospace" font-size="15" fill="#E7E9EE">
+                <text x="12" y="106" font-size="22" font-style="italic" fill="#F472B6">r</text>
+                <text x="115" y="108" font-size="15">+</text><text x="124" y="140" font-size="18">&#8722;</text>
+                <text x="618" y="108">+</text><text x="654" y="82" font-size="18">&#8722;</text>
+                <text x="248" y="70" font-size="12" fill="#8B92A5">controller</text>
+                <text x="426" y="70" font-size="12" fill="#8B92A5">power amp and motor</text>
+                <text x="726" y="70" font-size="12" fill="#8B92A5">rotating mass</text>
+                <text x="380" y="108" font-size="22" font-style="italic" fill="#C4B5FD">u</text>
+                <text x="578" y="108" font-size="22" font-style="italic" fill="#C4B5FD">T<tspan font-size="14" dy="4">u
+                  </tspan></text>
+                <text x="654" y="30" font-size="22" font-style="italic" fill="#FFB454">T<tspan font-size="14" dy="4">d
+                  </tspan></text>
+                <text x="868" y="106" font-size="22" font-style="italic" fill="#5EEAD4">y</text>
+              </g>
+              <g class="sw" id="bd-sw">
+                <rect x="440" y="196" width="260" height="52" fill="transparent" />
+                <circle cx="450" cy="222" r="4" fill="#E7E9EE" />
+                <circle cx="690" cy="222" r="4" fill="#E7E9EE" />
+                <line id="bd-lever" x1="450" y1="222" x2="690" y2="222" stroke="#E7E9EE" stroke-width="3" />
+                <text id="bd-swtxt" x="570" y="244" font-family="JetBrains Mono, monospace" font-size="11"
+                  fill="#5EEAD4" text-anchor="middle">switch closed (click to open)</text>
+              </g>
+            </svg>
+            <input type="text" id="input-p2-ctrl" spellcheck="false" style="left:30.8%; top:47.2%;" />
+            <input type="text" id="input-p2-motor" spellcheck="false" style="left:53.7%; top:47.2%;" />
+            <input type="text" id="input-p2-mass" spellcheck="false" style="left:83.2%; top:47.2%;" />
+          </div>
+          <p class="fig-cap">Figure 2: Block diagram of open or closed loop system for lab 4.
+            <span class="ik">y = \theta</span>
+          </p>
+
+          <h4 class="part-title">b) Open-loop transfer function</h4>
+          <p class="instructions">With the switch in Fig. 2 open, find the transfer function from <span
+              class="ik">R(s)</span> to <span class="ik">Y(s)</span>. How is the open-loop response different from the
+            closed-loop response?</p>
+          <p class="instructions">Upload your work for the transfer function from <span class="ik">R(s)</span> to
+            <span class="ik">Y(s)</span>:
+          </p>
+          <div class="upload-block">
+            <input type="file" id="upload-input-p2-tf" accept="image/*" multiple />
+            <div class="upload-thumbs" id="upload-thumbs-p2-tf"></div>
+            <p class="upload-status" id="upload-status-p2-tf"></p>
+            <p class="upload-err" id="upload-err-p2-tf"></p>
+          </div>
+          <p class="instructions">How is the open-loop response different from the closed-loop response?</p>
+          <div class="reflection-box"><textarea id="input-p2-b"></textarea></div>
+
+          <h4 class="part-title">c) Step reference, and sketches</h4>
+          <p class="instructions">
+            Consider a step reference input <span class="ik">r(t) = r_0 * \mathbf{1}(t)</span> for the open-loop case.
+            Look at the Laplace transform tables (you can find these in groupwork 3) and find the appropriate pair to
+            solve for y(t). You do <b>not</b> have to solve for y(t), but you should discuss as a group the key elements
+            of the solution (i.e. constant, sinusoid, etc.). Does y(t) make sense in terms of the actual physical
+            system, as shown in Fig. 1?
+          </p>
+          <p class="instructions" style="margin-top:14px;">Upload your work for the Laplace transform pair for y(t):</p>
+          <div class="upload-block">
+            <input type="file" id="upload-input-p2-laplace" accept="image/*" multiple />
+            <div class="upload-thumbs" id="upload-thumbs-p2-laplace"></div>
+            <p class="upload-status" id="upload-status-p2-laplace"></p>
+            <p class="upload-err" id="upload-err-p2-laplace"></p>
+          </div>
+          <p class="instructions">Discuss the key elements of the solution (i.e. constant, sinusoid, etc.). Does y(t)
+            make sense in terms of the actual physical system, as shown in Fig. 1?</p>
+          <div class="reflection-box"><textarea id="input-p2-c"></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 3 ============== -->
+        <section id="part-p3" style="display:none;">
+          <h3 class="problem-title">Problem 3: Characterize the open loop system</h3>
+          <p class="instructions">
+            When the switch in figure 2 is closed and the reference is a step input at a value <span
+              class="ik">r_0</span>, the response <span class="ik">y(t)</span> is that of a &lsquo;typical&rsquo; closed
+            loop system, i.e. <span class="ik">y(t)</span> rises to the reference, there is little overshoot, and
+            settles to a final value with little steady state error.
+          </p>
+          <p class="instructions">
+            Now consider the same system, but the feedback loop is not closed; this results in the same open loop
+            system in Fig. 2 with the switch open as shown. This &lsquo;open loop&rsquo; system starts from rest, the
+            sign of <span class="ik">\dot y</span> matches the sign of <span class="ik">u</span>, and the time domain
+            solution of Eqn. 1 for a step reference input <span class="ik">r(t) = r_0 * \mathbf{1}(t)</span> is:
+          </p>
+          <div class="eq-block" id="eq-sol"></div>
+          <p class="instructions">Consider the open loop response shown in Fig. 3.</p>
+          <div class="fig-wrap">
+            <div class="plot-host" id="p3-fig3" style="height:320px;margin-top:0;border:none;"></div>
+          </div>
+          <p class="fig-cap">Figure 3: Open loop position response to a step input voltage.</p>
+          <p class="instructions">
+            By measuring the output <span class="ik">\Delta y_i = y(t_i) - y_0</span> at two times <span
+              class="ik">t_1</span> and <span class="ik">t_2</span>, you can characterize the open loop system (i.e.
+            estimate values for <span class="ik">K</span> and <span class="ik">a</span> in Eqn. 2). Note that this
+            process is also described in
+            the Lab 4 manual theory section.
+          </p>
+          <p class="instructions"><b>Show</b> that Eqn. 2 can be rearranged to:</p>
+          <div class="eq-block" id="eq-a"></div>
+          <p class="instructions">Hint: start with using Eqn. 2 to write <span class="ik">\frac{\Delta y_2}{\Delta
+              y_1}</span> and rearrange from there.</p>
+          <h4 class="part-title">Derivation of Eqn (3)</h4>
+          <div class="upload-block">
+            <input type="file" id="upload-input-p3-derivation" accept="image/*" multiple />
+            <div class="upload-thumbs" id="upload-thumbs-p3-derivation"></div>
+            <p class="upload-status" id="upload-status-p3-derivation"></p>
+            <p class="upload-err" id="upload-err-p3-derivation"></p>
+          </div>
+
+          <h4 class="part-title">Estimate a and K</h4>
+          <ol class="steps-list" type="a">
+            <li>Assuming that your two times are far enough to the right that the exponential terms have completely
+              decayed away, Eqn. 3 can be used to find an initial guess for <span class="ik">a</span> (call it <span
+                class="ik">a_0</span>). Implement an iterative method to find <span class="ik">a</span>, starting with
+              <span class="ik">a_0</span> and using it in the right hand side of Eqn. 3 to find a new estimate of <span
+                class="ik">a = a_1</span>. Continue iterating until you have a converged estimate of <span
+                class="ik">a</span>.
+            </li>
+            <li>Having found <span class="ik">a</span>, use Eqn. 2 to find <span class="ik">K</span>.</li>
+          </ol>
+          <p class="sim-note">Type each answer below as an expression in the variables <span class="mono">Kpr0, TdoverK,
+              t1, t2, dy1, dy2, a</span>, using the syntax in the table.</p>
+          <div class="layout-with-sidebar">
+            <div class="syntax-ref">
+              <h4>Syntax</h4>
+              <div class="syn-row"><span>multiply</span><code>a*b</code></div>
+              <div class="syn-row"><span>divide</span><code>a/b</code></div>
+              <div class="syn-row"><span>add</span><code>a+b</code></div>
+              <div class="syn-row"><span>subtract</span><code>a-b</code></div>
+              <div class="syn-row"><span>power</span><code>a^b</code></div>
+              <div class="syn-row"><span>e<sup>x</sup></span><code>exp(x)</code></div>
+              <div class="syn-row"><span>absolute value</span><code>abs(x)</code></div>
+              <div class="syn-row"><span>square root</span><code>sqrt(x)</code></div>
+              <div class="syn-row"><span>natural log</span><code>log(x)</code></div>
+              <div class="syn-row"><span>10<sup>&minus;6</sup></span><code>1e-6</code></div>
+              <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
+            </div>
+            <div class="layout-main p3-fields">
+              <div class="field">
+                <p class="instructions">Initial guess <span class="ik">a_0</span> (Eqn. 3 with the
+                  exponential terms dropped):</p><input type="text" id="input-p3-a0" spellcheck="false" />
+              </div>
+              <div class="field">
+                <p class="instructions">Right hand side of Eqn. 3 as a function of <span class="ik">a</span>. Each
+                  iteration replaces <span class="ik">a</span> with this value:</p><input type="text" id="input-p3-f"
+                  spellcheck="false" />
+              </div>
+              <div class="field">
+                <p class="instructions">Convergence check: keep iterating while this quantity is greater
+                  than the tolerance (you can write <span class="mono">f(a)</span> for the expression above):</p><input
+                  type="text" id="input-p3-cond" spellcheck="false" />
+              </div>
+              <div class="field">
+                <p class="instructions">Tolerance:</p><input type="text" id="input-p3-tol" spellcheck="false" />
+              </div>
+              <div class="field">
+                <p class="instructions"><span class="ik">K</span> from Eqn. 2, using the converged <span
+                    class="ik">a</span>:</p><input type="text" id="input-p3-K" spellcheck="false" />
+              </div>
+            </div>
+          </div>
+          <h4 class="part-title">Test values</h4>
+          <div class="seg" id="p3-mode" style="margin-bottom:12px;"><button type="button" data-m="handout"
+              class="on">Handout
+              test values</button><button type="button" data-m="custom">Enter my own values</button></div>
+          <input type="hidden" id="sim-p3-mode" value="handout" />
+          <div id="p3-handout-vals">
+            <p class="instructions">Use the following values while testing:</p>
+            <div class="pre-out"
+              style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px 14px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:14px;">
+              <div><span class="k">Kpr0</span> <span class="v">3.0</span></div>
+              <div><span class="k">TdoverK</span> <span class="v">0.8</span></div>
+              <div><span class="k">t1</span> <span class="v">0.99</span></div>
+              <div><span class="k">t2</span> <span class="v">1.70</span></div>
+              <div><span class="k">dy1</span> <span class="v">6.6</span></div>
+              <div><span class="k">dy2</span> <span class="v">14.6</span></div>
+            </div>
+          </div>
+          <div id="p3-custom-vals" style="display:none;">
+            <p class="instructions">Enter your own measured values:</p>
+            <div class="form-grid five" style="grid-template-columns: repeat(6, minmax(0,1fr));">
+              <div class="field"><label class="mono">Kpr0</label><input type="text" id="input-p3-kpr0" value="3.0"
+                  spellcheck="false" /></div>
+              <div class="field"><label class="mono">TdoverK</label><input type="text" id="input-p3-tdk" value="0.8"
+                  spellcheck="false" /></div>
+              <div class="field"><label class="mono">t1</label><input type="text" id="input-p3-t1" value="0.99"
+                  spellcheck="false" /></div>
+              <div class="field"><label class="mono">t2</label><input type="text" id="input-p3-t2" value="1.70"
+                  spellcheck="false" /></div>
+              <div class="field"><label class="mono">dy1</label><input type="text" id="input-p3-dy1" value="6.6"
+                  spellcheck="false" /></div>
+              <div class="field"><label class="mono">dy2</label><input type="text" id="input-p3-dy2" value="14.6"
+                  spellcheck="false" /></div>
+            </div>
+          </div>
+          <div class="tools">
+            <button class="run-btn" id="p3-run" type="button">&#9654; RUN</button>
+            <button class="run-btn secondary small" id="p3-clear" type="button">Clear output</button>
+          </div>
+          <div id="p3-console" class="p3-out" style="display:none;"></div>
+        </section>
+
+        <!-- ============== PROBLEM 4 ============== -->
+        <section id="part-p4" style="display:none;">
+          <h3 class="problem-title">Problem 4 (optional): Observe the effect of filter time using Simulink</h3>
+          <p class="instructions">
+            Use the Simulink model below to explore the effects of the filter time constant, <span
+              class="ik">T_f</span>. As you&rsquo;ll see in the lab, the filter averages the measured angle signal for a
+            short period of time before using in the control law; this has the effect of averaging out some sensor
+            noise. The existence of the filter with parameter <span class="ik">T_f</span> adds one zero and one pole
+            to the closed loop transfer function. If <span class="ik">T_f</span> is very small, the filter reacts
+            quickly and the zero and pole can be ignored; if <span class="ik">T_f</span> is large, they cannot be
+            ignored.
+          </p>
+          <ol class="steps-list" type="a">
+            <li>Double click on the <b>Filter</b> block to open a dialogue box to edit the filter time; the default
+              value is 0.015. Make sure that value is set and run the model. Notice the magnitude of the noise in the
+              reference and input voltage signals (double-click the <b>Scope</b> to see them).</li>
+            <li>Now change the filter time to <span class="ik">t_f = 0.15</span> and rerun the model. Comment on the
+              behavior you observe in both the command signal V and the output y. Why is that the behavior?</li>
+            <li>Now change the filter time to <span class="ik">t_f = 0.0015</span> and rerun the model. Comment on the
+              behavior you observe in both the command signal V and the output y. Why is that the behavior?</li>
+          </ol>
+          <p class="sim-note">The controller is the PID block of the lab: u = K<sub>P</sub>[ (1/T<sub>i</sub>)&int;e dt
+            &minus; y<sub>f</sub> &minus; T<sub>d</sub> dy<sub>f</sub>/dt ] saturated at the upper and lower limits,
+            with the power amplifier (gain 2), the motor with Coulomb friction, the potentiometer, and sensor noise.
+            Double-click any block to open its parameters, or double-click a switch to flip it.</p>
+
+          <div id="sim4-root">
+            <div class="xwin" id="sl4-win">
+              <div class="xt"><span class="ico"></span><span class="ttl">gpwk_12F_Lab4_prep &mdash; Simulink</span><span
+                  class="wb"><span>&#8211;</span><span>&#9633;</span><span>&times;</span></span></div>
+              <div class="rb-tabs"><span
+                  class="on">SIMULATION</span><span>DEBUG</span><span>MODELING</span><span>FORMAT</span><span>APPS</span>
+              </div>
+              <div class="rb">
+                <div class="grp"><input id="sl4-stop" type="text" value="5" spellcheck="false" /><span class="lab">Stop
+                    Time</span></div>
+                <div class="grp"><button class="bigbtn" id="sl4-run" type="button" title="Run"><span
+                      class="play"></span></button><span class="lab">Run</span></div>
+                <div class="grp"><button class="bigbtn" type="button" disabled><span class="stop"></span></button><span
+                    class="lab">Stop</span></div>
+                <div class="grp"><button class="ml-btn" id="sl4-defaults" type="button" style="font-size:11px;">Restore
+                    model defaults</button><span class="lab">&nbsp;</span></div>
+                <span style="flex:1"></span><span style="font-size:11.5px;color:#555;">Double-click a block to open
+                  it</span>
+              </div>
+              <div class="sl-canvas" id="sl4-canvas"></div>
+              <div class="stat"><span id="sl4-status">Ready</span><span class="box">FixedStepDiscrete</span></div>
+            </div>
+            <div id="scopes4"></div>
+            <div class="tools">
+              <button class="run-btn small" id="sl4-capture" type="button">CAPTURE FIGURE</button>
+              <span class="mono" id="sl4-capstat" style="font-size:11px;color:var(--cyan);"></span>
+            </div>
+          </div>
+
+          <h4 class="part-title">a) Default filter time (T<sub>f</sub> = 0.015)</h4>
+          <p class="instructions">Notice the magnitude of the noise in the reference and input voltage signals. What do
+            you observe?</p>
+          <div class="reflection-box"><textarea id="input-p4-a"></textarea></div>
+          <h4 class="part-title">b) T<sub>f</sub> = 0.15</h4>
+          <p class="instructions">Comment on the behavior you observe in both the command signal V and the output y. Why
+            is that the behavior?</p>
+          <div class="reflection-box"><textarea id="input-p4-b"></textarea></div>
+          <h4 class="part-title">c) T<sub>f</sub> = 0.0015</h4>
+          <p class="instructions">Comment on the behavior you observe in both the command signal V and the output y. Why
+            is that the behavior?</p>
+          <div class="reflection-box"><textarea id="input-p4-c"></textarea></div>
+        </section>
+
+        <!-- ============== SUBMISSION ============== -->
+        <section id="part-submission" style="display:none;">
+          <h2 class="section-title">Submission</h2>
+          <div class="form-grid two">
+            <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid"
+                spellcheck="false" /></div>
+            <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids"
+                spellcheck="false" /></div>
+          </div>
+          <ul class="steps-list" style="margin-top:22px;">
+            <li>Enter your NetID and group member NetIDs above and export the PDF.</li>
+            <li>Submit:
+              <ol class="submit-list">
+                <li>Discussion</li>
+                <li>Transfer functions, sketches, and discussion</li>
+                <li>Your derivation of eqn 3 and your method (the expressions above) along with its output for the
+                  provided input</li>
+              </ol>
+              The exported PDF contains each of these from the pages of this app.
+            </li>
+            <li>Upload photos of your calculations and sketches in Problems 2 and 3, and capture
+              the scope in Problem 4 so they are included. Attach any other handwritten work as a PDF below.</li>
+            <li><b>Additional problems (optional!):</b> Here are some additional, related problems if you would like
+              more
+              practice: Palm Examples 10.1.2, 10.3.1, Problem 10.8</li>
+          </ul>
+          <p class="instructions"><b>Captured figures</b> (from CAPTURE FIGURE in each problem):</p>
+          <div class="cap-list" id="cap-list"></div>
+          <p class="instructions">Append an existing PDF to the end of your export (optional):</p>
+          <div class="upload-block">
+            <input type="file" id="upload-input-appendix" accept="application/pdf" multiple />
+            <div id="upload-thumbs-appendix" style="display:flex; flex-wrap:wrap; margin-top:10px;"></div>
+            <p class="upload-err" id="upload-err-appendix"></p>
+          </div>
+          <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+          <p class="field-err" id="exportStatus" style="color:var(--muted);"></p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <div class="dlg-back" id="dlg4-back">
+    <div class="dlg" id="dlg4"></div>
+  </div>
+  <script>
+    (function () {
+      "use strict";
+      const $ = (id) => document.getElementById(id);
+      const nm = (v, d) => String(Number(Number(v).toPrecision(d || 4)));
+      const kr = (id, tex, disp) => katex.render(tex, $(id), { throwOnError: false, displayMode: disp !== false });
+      const sched = () => { if (window.__scheduleSave) window.__scheduleSave(); };
+
+      // ---------------------------------------------------------------
+      // Equations
+      // ---------------------------------------------------------------
+      kr("eq-two", "\\begin{aligned}\\dot y_{\\mathrm{lab1}}+a\\,y_{\\mathrm{lab1}}&=Ku-T_d\\\\ \\dot\\omega+a\\,\\omega&=Ku-T_d\\\\[10pt] \\ddot y_{\\mathrm{lab4}}+a\\,\\dot y_{\\mathrm{lab4}}&=Ku-T_d\\\\ \\ddot\\theta+a\\,\\dot\\theta&=Ku-T_d\\end{aligned}\\qquad(1)");
+      kr("eq-sol", "y(t)=y_0+\\frac{K}{a}\\left(t-\\frac{1}{a}\\left(1-e^{-at}\\right)\\right)\\left(K_p r_0-\\frac{T_d}{K}\\right)\\qquad(2)");
+      kr("eq-a", "a=\\frac{\\Delta y_2-\\Delta y_1-\\left(\\Delta y_2\\,e^{-at_1}-\\Delta y_1\\,e^{-at_2}\\right)}{\\Delta y_2\\,t_1-\\Delta y_1\\,t_2}\\qquad(3)");
+      kr("eq-law", "u=K_{\\mathrm{P}}(r-y)", true);
+      const FIG1_SVG = `<svg viewBox="0 0 900 362" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <defs>
+    <marker id="f1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#E7E9EE"/></marker>
+    <marker id="f1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#60A5FA"/></marker>
+  </defs>
+  <g stroke="#E7E9EE" stroke-width="2" fill="none">
+    <path d="M118,175 H168" marker-end="url(#f1a)"/>
+    <path d="M268,175 H336" marker-end="url(#f1a)"/>
+    <path d="M384,175 H428" marker-end="url(#f1a)"/>
+    <path d="M360,98 V149" marker-end="url(#f1a)"/>
+    <path d="M630,175 H700" marker-end="url(#f1a)"/>
+    <rect x="168" y="130" width="100" height="90" rx="2"/>
+    <circle cx="360" cy="175" r="24"/>
+    <rect x="428" y="120" width="202" height="110" rx="2"/>
+  </g>
+  <g stroke="#60A5FA" stroke-width="2" fill="none">
+    <rect x="700" y="145" width="72" height="60" rx="2"/>
+    <path d="M772,175 H842" marker-end="url(#f1b)"/>
+  </g>
+  <!-- rotor: inertia I with a damper b to ground -->
+  <g stroke="#B8BECC" stroke-width="1.6" fill="none">
+    <ellipse cx="470" cy="175" rx="12" ry="30"/>
+    <path d="M470,145 H530 M470,205 H530"/>
+    <ellipse cx="530" cy="175" rx="12" ry="30"/>
+    <path d="M542,175 H560 M560,166 V184 M560,166 H574 M560,184 H574 M568,170 V180 M568,175 H590"/>
+    <path d="M590,158 V192" stroke-width="2.4"/>
+    <path d="M590,160 l8,-6 M590,170 l8,-6 M590,180 l8,-6 M590,190 l8,-6" stroke-width="1.2"/>
+  </g>
+  <text x="497" y="181" fill="#E7E9EE" font-size="15" font-style="italic" font-family="serif">I</text>
+  <text x="563" y="160" fill="#E7E9EE" font-size="13" font-style="italic" font-family="serif">b</text>
+  <g stroke-dasharray="3 4" stroke-width="2" fill="none">
+    <path d="M664,175 V262" stroke="#E7E9EE"/>
+    <path d="M806,175 V292" stroke="#60A5FA"/>
+  </g>
+  <g font-family="serif" font-style="italic">
+    <text x="58" y="186" font-size="30" fill="#C4B5FD">u</text>
+    <text x="282" y="160" font-size="28" fill="#C4B5FD">T<tspan font-size="17" dy="6">u</tspan></text>
+    <text x="345" y="84" font-size="28" fill="#FFB454">T<tspan font-size="17" dy="6">d</tspan></text>
+    <text x="643" y="160" font-size="26" fill="#E7E9EE">&#969;</text>
+    <text x="850" y="186" font-size="28" fill="#60A5FA">&#952;</text>
+    <text x="590" y="294" font-size="28" fill="#E7E9EE">y<tspan font-size="16" dy="6" font-style="normal">lab1</tspan><tspan dy="-6" font-style="normal"> = &#969;</tspan></text>
+    <text x="742" y="324" font-size="28" fill="#60A5FA">y<tspan font-size="16" dy="6" font-style="normal">lab4</tspan><tspan dy="-6" font-style="normal"> = &#952;</tspan></text>
+  </g>
+  <text x="736" y="187" font-size="30" fill="#60A5FA" text-anchor="middle" font-family="serif">&#8747;</text>
+  <g font-size="14" font-weight="700" text-anchor="middle">
+    <text x="64" y="128" fill="#C4B5FD">voltage</text><text x="64" y="146" fill="#C4B5FD" text-decoration="underline">input</text>
+    <text x="360" y="28" fill="#FFB454">disturbance</text><text x="360" y="46" fill="#FFB454" text-decoration="underline">input</text>
+    <text x="218" y="162" fill="#E7E9EE">power</text><text x="218" y="180" fill="#E7E9EE">amp and</text><text x="218" y="198" fill="#E7E9EE">motor</text>
+    <text x="529" y="110" fill="#8B92A5">OL system</text>
+  </g>
+  <g font-size="16" fill="#E7E9EE"><text x="338" y="208">+</text><text x="368" y="144">&#8722;</text></g>
+  <g font-size="13" font-weight="700" text-anchor="middle" fill="#60A5FA">
+    <text x="806" y="356">measurement <tspan text-decoration="underline">output</tspan></text>
+  </g>
+</svg>`;
+      document.querySelectorAll(".fig1-host").forEach((h, i) => { h.innerHTML = FIG1_SVG.replace(/f1([ab])/g, `f1$1_${i}`); });
+      document.querySelectorAll(".ik").forEach((el) => katex.render(el.textContent, el, { throwOnError: false }));
+
+      // ---------------------------------------------------------------
+      // Shared helpers: dark Plotly layout, sliders
+      // ---------------------------------------------------------------
+
+      // ---------------------------------------------------------------
+      // Axis scaling: two-ended sliders under the x-axis and left of the y-axis, plus the Plotly toolbar.
+      // The most recent control wins: zooming in the plot overrides the slider until that slider is moved.
+      // Double-click a slider (or the plot) to return to the default range, which follows the data.
+      // ---------------------------------------------------------------
+      const PCFG_AX = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+      function dualSlider(host, onChange, onReset) {
+        const N = 1000, GAP = 15; let b0 = 0, b1 = 1;
+        const toS = (v) => Math.round((v - b0) / (b1 - b0) * N), toV = (x) => b0 + (b1 - b0) * x / N;
+        host.innerHTML = '<div class="track"></div><div class="fill"></div><input type="range" aria-label="lower limit" /><input type="range" aria-label="upper limit" />';
+        host.title = "Drag either end to set the axis limits; double-click to reset";
+        const [a, b] = host.querySelectorAll("input"), fill = host.querySelector(".fill"), vert = host.classList.contains("v");
+        [a, b].forEach((el) => { el.min = 0; el.max = N; el.step = 1; });
+        const paint = () => {
+          const p = Number(a.value) / N, q = Number(b.value) / N, T = 7;
+          if (vert) { fill.style.bottom = `calc(${T}px + (100% - ${2 * T}px) * ${p})`; fill.style.height = `calc((100% - ${2 * T}px) * ${q - p})`; }
+          else { fill.style.left = `calc(${T}px + (100% - ${2 * T}px) * ${p})`; fill.style.width = `calc((100% - ${2 * T}px) * ${q - p})`; }
+        };
+        const emit = () => { paint(); onChange([toV(Number(a.value)), toV(Number(b.value))]); };
+        a.addEventListener("input", () => { if (Number(a.value) > Number(b.value) - GAP) a.value = Number(b.value) - GAP; emit(); });
+        b.addEventListener("input", () => { if (Number(b.value) < Number(a.value) + GAP) b.value = Number(a.value) + GAP; emit(); });
+        host.addEventListener("dblclick", onReset);
+        return { set(lo, hi, bounds) { if (bounds) { b0 = bounds[0]; b1 = bounds[1]; } a.value = toS(lo); b.value = toS(hi); paint(); } };
+      }
+      const AXS = {};
+      function axisState(id) {
+        if (AXS[id]) return AXS[id];
+        const el = $(id), cell = document.createElement("div"); cell.className = "ax-cell";
+        cell.style.marginTop = el.style.marginTop || getComputedStyle(el).marginTop;
+        el.parentNode.insertBefore(cell, el);
+        const vy = document.createElement("div"); vy.className = "dual v";
+        const hx = document.createElement("div"); hx.className = "dual";
+        cell.appendChild(vy); cell.appendChild(el); cell.appendChild(hx);
+        const st = { el, def: {}, user: {}, sl: {}, hooked: false };
+        const apply = (k, v) => { if (el.data) Plotly.relayout(el, { [`${k}axis.range`]: v }); };
+        ["x", "y"].forEach((k) => {
+          st.sl[k] = dualSlider(k === "x" ? hx : vy, (v) => { st.user[k] = v; apply(k, v); sched(); }, () => {
+            st.user[k] = null; const d = st.def[k]; if (d) { st.sl[k].set(d[0], d[1], st.bounds(k, d)); apply(k, d); }
+          });
+        });
+        st.bounds = (k, d) => (k === "x" ? [d[0], d[1] + (d[1] - d[0])] : [d[0] - (d[1] - d[0]), d[1] + (d[1] - d[0])]);
+        return (AXS[id] = st);
+      }
+      // line the sliders up with the plot area Plotly actually drew (the legend can shrink it)
+      function alignSliders(el) {
+        const z = el._fullLayout && el._fullLayout._size; if (!z) return;
+        const H = el.clientHeight, W = el.clientWidth, vy = el.previousSibling, hx = el.nextSibling;
+        vy.style.margin = `${Math.max(0, z.t - 7)}px 0 ${Math.max(0, H - z.t - z.h - 7)}px 0`;
+        hx.style.margin = `0 ${Math.max(0, W - z.l - z.w - 7)}px 0 ${Math.max(0, z.l - 7)}px`;
+      }
+      window.addEventListener("resize", () => Object.values(AXS).forEach((st) => setTimeout(() => alignSliders(st.el), 50)));
+      // Plotly.react with axis sliders. def = { x: [lo, hi], y: [lo, hi] } are fixed default ranges (no autoscaling).
+      function scaledPlot(id, traces, layout, def) {
+        const st = axisState(id), el = st.el;
+        ["x", "y"].forEach((k) => {
+          const ax = layout[`${k}axis`] = Object.assign({}, layout[`${k}axis`]);
+          const d = def[k].slice();
+          st.def[k] = d;
+          if (!st.user[k]) st.sl[k].set(d[0], d[1], st.bounds(k, d));
+          ax.range = st.user[k] || d; ax.autorange = false;
+        });
+        Plotly.react(el, traces, layout, PCFG_AX).then(() => alignSliders(el));
+        if (!st.hooked) {
+          st.hooked = true;
+          el.on("plotly_relayout", (ev) => {
+            ["x", "y"].forEach((k) => {
+              if (!ev) return;
+              if (ev[`${k}axis.autorange`]) { st.user[k] = null; const d = st.def[k]; st.sl[k].set(d[0], d[1], st.bounds(k, d)); Plotly.relayout(el, { [`${k}axis.range`]: d }); }
+              else if (ev[`${k}axis.range[0]`] !== undefined) st.user[k] = el.layout[`${k}axis`].range.slice();
+            });
+          });
+        }
+      }
+      function lay(title, xt, yt, extra) {
+        return Object.assign({
+          paper_bgcolor: "#171A21", plot_bgcolor: "#171A21", font: { color: "#cfd3da", family: "Inter, sans-serif", size: 11 },
+          margin: { l: 60, r: 16, t: 34, b: 46 }, title: { text: title, font: { size: 12, color: "#E7E9EE" }, x: 0.02, xanchor: "left" },
+          xaxis: { title: { text: xt }, gridcolor: "#282D3A", zerolinecolor: "#3a4152" }, yaxis: { title: { text: yt }, gridcolor: "#282D3A", zerolinecolor: "#3a4152" },
+          legend: { orientation: "h", y: -0.25, font: { size: 10 } }, hovermode: "x",
+        }, extra || {});
+      }
+      function mkSliders(hostId, prefix, defs, onChange) {
+        const host = $(hostId); host.innerHTML = "";
+        defs.forEach((d) => {
+          const div = document.createElement("div"); div.className = "sl";
+          div.innerHTML = `<label>${d.label}</label><div class="row"><input type="range" id="simr-${prefix}-${d.id}" min="${d.min}" max="${d.max}" step="${d.step}" value="${d.val}"/><input type="number" id="sim-${prefix}-${d.id}" step="${d.step}" value="${d.val}"/></div>`;
+          host.appendChild(div);
+          const r = div.querySelector("input[type=range]"), n = div.querySelector("input[type=number]");
+          r.addEventListener("input", () => { n.value = r.value; onChange(); });
+          n.addEventListener("input", () => { if (n.value !== "" && isFinite(Number(n.value))) r.value = n.value; onChange(); });
+        });
+      }
+      const gv = (p, id) => { const v = parseFloat($(`sim-${p}-${id}`).value); return isFinite(v) ? v : 0; };
+      const fmt = (v, d) => (isFinite(v) ? nm(v, d || 4) : "n/a");
+
+      // Generic capture of one or more Plotly plots into one dark image
+      async function capturePlots(divs, lines, prefix, statId) {
+        const st = $(statId); st.style.color = "#5EEAD4"; st.textContent = "Capturing…";
+        try {
+          const imgs = [];
+          for (const d of divs) {
+            const w = Math.max(600, Math.round($(d).clientWidth)), h = Math.max(240, Math.round($(d).clientHeight));
+            const src = await Plotly.toImage($(d), { format: "png", width: w, height: h });
+            imgs.push(await new Promise((rs, rj) => { const i = new Image(); i.onload = () => rs(i); i.onerror = rj; i.src = src; }));
+          }
+          const W = Math.max(...imgs.map((i) => i.width)), H = imgs.reduce((s, i) => s + i.height + 8, 0);
+          const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const c = cv.getContext("2d");
+          c.fillStyle = "#171A21"; c.fillRect(0, 0, W, H); let y = 0;
+          imgs.forEach((i) => { c.drawImage(i, 0, y); y += i.height + 8; });
+          window.__addCapture({ prefix, lines: lines.filter(Boolean), dataUrl: cv.toDataURL("image/png"), width: W, height: H });
+          st.textContent = "Figure captured — see Submission.";
+        } catch (e) { console.error(e); st.style.color = "#FB7185"; st.textContent = "Could not capture figure."; }
+      }
+
+      // ---------------------------------------------------------------
+      // PROBLEM 2: open vs closed loop
+      // ---------------------------------------------------------------
+      let p2Mode = "closed";
+      function drawSwitch() {
+        const lev = $("bd-lever"), txt = $("bd-swtxt");
+        if (p2Mode === "open") { lev.setAttribute("x2", "675"); lev.setAttribute("y2", "190"); txt.textContent = "switch open (click to close)"; txt.setAttribute("fill", "#FFB454"); }
+        else { lev.setAttribute("x2", "690"); lev.setAttribute("y2", "222"); txt.textContent = "switch closed (click to open)"; txt.setAttribute("fill", "#5EEAD4"); }
+      }
+      $("bd-sw").addEventListener("click", () => { p2Mode = p2Mode === "open" ? "closed" : "open"; drawSwitch(); sched(); });
+
+      // ---------------------------------------------------------------
+      // PROBLEM 3: MATLAB-expression runner
+      // ---------------------------------------------------------------
+      const ML_FUNCS = { exp: Math.exp, abs: Math.abs, sqrt: Math.sqrt, log: Math.log };
+      function mlEval(src, vars, userFuncs) {
+        const s = String(src).trim();
+        if (!s) throw new Error("Empty expression: fill in each blank.");
+        if (s.indexOf("?") >= 0) throw new Error("Invalid expression: remove the ? character.");
+        const re = /\s*(\d+\.?\d*(?:[eE][+-]?\d+)?|\.\d+(?:[eE][+-]?\d+)?|[A-Za-z_]\w*|\.\*|\.\/|\.\^|[-+*/^(),])/y;
+        const tk = []; let pos = 0;
+        while (pos < s.length) { re.lastIndex = pos; const m = re.exec(s); if (!m) { if (!s.slice(pos).trim()) break; throw new Error(`Invalid expression. Unexpected text near '${s.slice(pos).trim().slice(0, 12)}'.`); } tk.push(m[1]); pos = re.lastIndex; }
+        let i = 0;
+        const peek = () => tk[i], next = () => tk[i++];
+        const isNum = (t) => /^[\d.]/.test(t), isId = (t) => /^[A-Za-z_]/.test(t);
+        function primary() {
+          const t = next();
+          if (t === undefined) throw new Error("Invalid expression. Check for missing values or operators.");
+          if (t === "(") { const v = expr(); if (next() !== ")") throw new Error("Invalid expression. Check for missing or extra parentheses."); return v; }
+          if (isNum(t)) return parseFloat(t);
+          if (isId(t)) {
+            if (peek() === "(") {
+              next(); const args = [];
+              if (peek() !== ")") { args.push(expr()); while (peek() === ",") { next(); args.push(expr()); } }
+              if (next() !== ")") throw new Error("Invalid expression. Check for missing or extra parentheses.");
+              const fn = (userFuncs && userFuncs[t]) || ML_FUNCS[t];
+              if (!fn) { if (Object.prototype.hasOwnProperty.call(vars, t)) throw new Error(`Array indices must be positive integers or logical values (the variable '${t}' is not a function). Use * for multiplication.`); throw new Error(`Unrecognized function or variable '${t}'.`); }
+              if (args.length !== 1) throw new Error(`Incorrect number of arguments to '${t}'.`);
+              return fn(args[0]);
+            }
+            if (t === "pi") return Math.PI; if (t === "Inf") return Infinity; if (t === "eps") return 2.220446049250313e-16;
+            if (Object.prototype.hasOwnProperty.call(vars, t)) return vars[t];
+            throw new Error(`Unrecognized function or variable '${t}'.`);
+          }
+          throw new Error(`Invalid expression. Unexpected '${t}'.`);
+        }
+        function powop() { // MATLAB: ^ binds tighter than unary minus; left-associative
+          let v = primary();
+          while (peek() === "^" || peek() === ".^") { next(); let sg = 1; while (peek() === "-" || peek() === "+") { if (next() === "-") sg = -sg; } const e = primary(); v = Math.pow(v, sg * e); }
+          return v;
+        }
+        function unary() { if (peek() === "-") { next(); return -unary(); } if (peek() === "+") { next(); return unary(); } return powop(); }
+        function term() { let v = unary(); while (["*", "/", ".*", "./"].includes(peek())) { const op = next(); const r = unary(); v = (op === "*" || op === ".*") ? v * r : v / r; } return v; }
+        function expr() { let v = term(); while (peek() === "+" || peek() === "-") { const op = next(); const r = term(); v = op === "+" ? v + r : v - r; } return v; }
+        const v = expr();
+        if (i < tk.length) throw new Error("Invalid expression. Check for missing operators, parentheses or commas.");
+        return v;
+      }
+      const mlFmt = (v) => (Math.abs(v) < 1000 && Math.abs(v) >= 1e-3 || v === 0 ? v.toFixed(4) : v.toExponential(4)).padStart(10);
+      let p3State = { fnText: "", outText: "", ok: false, run: null };
+      function p3FnText() {
+        const g = (id, d) => ($(id).value.trim() || d);
+        return `Initial guess a0 = ${g("input-p3-a0", "(blank)")}\nUpdate f(a) = ${g("input-p3-f", "(blank)")}\n` +
+          `Iterate while ${g("input-p3-cond", "(blank)")} > tol, tol = ${g("input-p3-tol", "(blank)")}\nK = ${g("input-p3-K", "(blank)")}`;
+      }
+      function p3Run(silent) {
+        const con = $("p3-console"), gi = (id) => $(id).value.trim();
+        const HANDOUT = { "input-p3-kpr0": "3.0", "input-p3-tdk": "0.8", "input-p3-t1": "0.99", "input-p3-t2": "1.70", "input-p3-dy1": "6.6", "input-p3-dy2": "14.6" };
+        const gin = (id) => ($("sim-p3-mode").value === "custom" ? gi(id) : HANDOUT[id]);
+        const givens = { Kpr0: "input-p3-kpr0", TdoverK: "input-p3-tdk", t1: "input-p3-t1", t2: "input-p3-t2", dy1: "input-p3-dy1", dy2: "input-p3-dy2" };
+        const custom = $("sim-p3-mode").value === "custom", esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+        const inputs = `Kpr0 = ${gin("input-p3-kpr0")}, TdoverK = ${gin("input-p3-tdk")}, t1 = ${gin("input-p3-t1")}, t2 = ${gin("input-p3-t2")}, dy1 = ${gin("input-p3-dy1")}, dy2 = ${gin("input-p3-dy2")}`;
+        const src = `${custom ? "Your values" : "Handout test values"}: ${inputs}`;
+        let out = src + "\n\n", html = `<p class="src">${esc(src)}</p>`, ok = false, run = null;
+        const f7 = (v) => (isFinite(v) ? v.toFixed(7) : (isNaN(v) ? "NaN" : (v > 0 ? "Inf" : "-Inf")));
+        try {
+          const vars = {};
+          Object.keys(givens).forEach((k) => { vars[k] = mlEval(gin(givens[k]), {}); if (!isFinite(vars[k])) throw new Error(`Invalid value for ${k}.`); });
+          vars.K_pr_0 = vars.Kpr0;
+          let a = mlEval(gi("input-p3-a0"), vars);
+          const tol = mlEval(gi("input-p3-tol"), vars);
+          const f = (x) => mlEval(gi("input-p3-f"), Object.assign({}, vars, { a: x }));
+          const cond = () => mlEval(gi("input-p3-cond"), Object.assign({}, vars, { a, tol }), { f });
+          let it = 0; const iters = [a];
+          if (!isFinite(a)) throw new Error("The initial guess a0 is not a finite number.");
+          while (cond() > tol) {
+            a = f(a); iters.push(a);
+            if (!isFinite(a)) throw new Error("The estimate for a is not finite (the iteration diverged).");
+            if (++it >= 10000) throw new Error("Stopped after 10000 iterations without converging (check your update rule and tolerance).");
+          }
+          const K = mlEval(gi("input-p3-K"), Object.assign({}, vars, { a }));
+          if (!isFinite(K)) throw new Error("K is not a finite number (check your expression for K).");
+          const n = iters.length - 1, conv = `Converged after ${n} iteration${n === 1 ? "" : "s"} (tolerance ${gi("input-p3-tol")}).`;
+          out += iters.map((v, i) => `a${i} = ${f7(v)}`).join("\n") + `\n\n${conv}\na = ${nm(a, 6)} 1/s\nK = ${nm(K, 6)}`;
+          html += `<div class="cols"><div class="res"><div><span class="lab">a</span><span class="num">${nm(a, 6)}</span><span class="unit">1/s</span></div>` +
+            `<div><span class="lab">K</span><span class="num">${nm(K, 6)}</span></div><p class="conv">${esc(conv)}</p></div>` +
+            `<div class="tbl"><table><tr><th>iteration</th><th>a</th></tr>` +
+            iters.map((v, i) => `<tr><td>${i === 0 ? "a<sub>0</sub> (initial guess)" : i}</td><td>${f7(v)}</td></tr>`).join("") + `</table></div></div>`;
+          ok = true; run = { a, K, vars, iters };
+        } catch (e) {
+          out += `Error: ${e.message}`; html += `<p class="err">Error: ${esc(e.message)}</p>`;
+        }
+        p3State = { fnText: p3FnText(), outText: out, ok, run };
+        if (!silent || ok) { con.style.display = ""; con.innerHTML = html; }
+      }
+      // Figure 3 of the handout: open loop response for the test values (a, K from the iteration), y0 = -8
+      function drawFig3() {
+        const a = 1.8231, K = 10.2862, Kpr0 = 3.0, TdK = 0.8, y0 = -8, t1 = 0.99, t2 = 1.70, g = (K / a) * (Kpr0 - TdK);
+        const y = (t) => y0 + g * (t - (1 - Math.exp(-a * t)) / a), T = [], Y = [], AS = [];
+        for (let i = 0; i <= 300; i++) { const t = 1.8 * i / 300; T.push(t); Y.push(y(t)); }
+        const ta = [1 / a, 1.8]; ta.forEach((t) => AS.push(y0 + g * (t - 1 / a)));
+        const Y1 = y(t1), Y2 = y(t2), dot = { color: "#8B92A5", width: 1, dash: "dot" }, gold = "#FFB454";
+        Plotly.react("p3-fig3", [
+          { x: [-0.1, 0, 0, 1.8], y: [0, 0, 2.4, 2.4], mode: "lines", name: "u(t)", line: { color: "#C4B5FD", width: 2, dash: "dashdot" } },
+          { x: T, y: Y, mode: "lines", name: "y(t)", line: { color: "#5EEAD4", width: 2.5 } },
+          { x: ta, y: AS, mode: "lines", name: "final y(t) asymptote", line: { color: "#8B92A5", width: 1.5, dash: "dash" } },
+          { x: [t1, t2], y: [Y1, Y2], mode: "markers", name: "measurements", marker: { color: gold, size: 9 } },
+        ], lay("", "Time (sec)", "Signal (volts)", {
+          margin: { l: 60, r: 16, t: 16, b: 46 }, hovermode: "closest",
+          shapes: [{ type: "line", x0: 0, x1: 1.8, y0: y0, y1: y0, line: dot },
+          { type: "line", x0: t1, x1: t1, y0: y0, y1: Y1, line: { color: gold, width: 1.2 } }, { type: "line", x0: t2, x1: t2, y0: y0, y1: Y2, line: { color: gold, width: 1.2 } }],
+          annotations: [
+            { x: t1, y: (y0 + Y1) / 2, text: "Δy<sub>1</sub>", showarrow: false, xanchor: "left", xshift: 6, font: { color: gold, size: 12 } },
+            { x: t2, y: (y0 + Y2) / 2, text: "Δy<sub>2</sub>", showarrow: false, xanchor: "right", xshift: -6, font: { color: gold, size: 12 } },
+            ...[[t1, Y1 + 0.7, "t<sub>1</sub>"], [t2, Y2 + 0.7, "t<sub>2</sub>"], [1 / a, -6.4, "1/a"]].flatMap(([tt, yy, lab]) => [
+              { x: tt, y: yy, ax: 0, ay: yy, axref: "x", ayref: "y", showarrow: true, arrowside: "end+start", arrowhead: 2, arrowsize: 1, arrowwidth: 1.2, arrowcolor: "#E7E9EE", text: "" },
+              { x: tt / 2, y: yy, text: lab, showarrow: false, bgcolor: "#171A21", font: { color: "#E7E9EE", size: 12 } }]),
+            { x: 0.3, y: 2.4, text: "u(t)", showarrow: true, arrowcolor: "#C4B5FD", ax: 20, ay: 24, font: { color: "#C4B5FD", size: 11 } },
+            { x: 1.3, y: y(1.3), text: "y(t)", showarrow: true, arrowcolor: "#5EEAD4", ax: -40, ay: -28, font: { color: "#5EEAD4", size: 11 } },
+            { x: 1.2, y: y0 + g * (1.2 - 1 / a), text: "final y(t) asymptote", showarrow: true, arrowcolor: "#8B92A5", ax: 50, ay: 36, font: { color: "#B8BECC", size: 11 } }],
+          legend: { orientation: "h", y: -0.22, font: { size: 10 } },
+          xaxis: { title: { text: "Time (sec)" }, gridcolor: "#282D3A", zerolinecolor: "#3a4152", range: [-0.1, 1.8] },
+          yaxis: { title: { text: "Signal (volts)" }, gridcolor: "#282D3A", zerolinecolor: "#3a4152", range: [-8, 8] },
+        }), PCFG_AX);
+      }
+      function setP3Mode(m) {
+        $("sim-p3-mode").value = m;
+        $("p3-mode").querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.m === m));
+        $("p3-handout-vals").style.display = m === "custom" ? "none" : "";
+        $("p3-custom-vals").style.display = m === "custom" ? "" : "none";
+      }
+      $("p3-mode").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { setP3Mode(b.dataset.m); sched(); }));
+      $("p3-run").addEventListener("click", () => p3Run(false));
+      $("p3-clear").addEventListener("click", () => { $("p3-console").textContent = ""; $("p3-console").style.display = "none"; p3State = { fnText: p3FnText(), outText: "", ok: false, run: null }; });
+      ["input-p3-a0", "input-p3-tol", "input-p3-f", "input-p3-cond", "input-p3-K"].forEach((id) => $(id).addEventListener("input", () => { p3State.fnText = p3FnText(); }));
+      window.GW12F = { mlEval, p3Run: () => { p3Run(false); return p3State; }, p3State: () => p3State };
+
+      // ---------------------------------------------------------------
+      // PROBLEM 4: the Simulink model
+      // ---------------------------------------------------------------
+      function evalNum(str) {
+        let s = String(str).trim(); if (!s) throw new Error("Empty value.");
+        s = s.replace(/\binf\b/gi, "Infinity").replace(/\bpi\b/g, "(" + Math.PI + ")");
+        if (!/^[\d+\-*/().eE\sInfinity]+$/.test(s)) throw new Error("Invalid expression.");
+        let v; try { v = Function('"use strict";return (' + s + ")")(); } catch (e) { throw new Error("Invalid expression."); }
+        if (typeof v !== "number" || isNaN(v)) throw new Error("Value must be a number.");
+        return v;
+      }
+      const MODEL_DEFAULT = () => ({
+        Tf: "0.015", ctrl: { mode: "PID", Kp: "40", Ti: "0.1", Td: ".08", umax: "10", umin: "-10", aw: true },
+        inp: { Vm: "0", Vf: "1", Ts: "0" }, motor: { R: "200.63631", I: "0.029876806", Km: "3.0070859", Kpot: "11.517887", Tfr: "0.024085071" },
+        dist: { I: "0.029876806", Kpot: "11.517887", Tdist: "-0.098180343", td: "0" }, closed: true, distOn: false,
+      });
+      let model = MODEL_DEFAULT(), lastRun = null, lastSettings = "";
+
+      function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+      function noiseArr(seed, cov, n) {
+        const rng = mulberry32(seed), sg = Math.sqrt(cov / 1e-3), o = new Float64Array(n);
+        for (let i = 0; i < n; i += 2) { const u1 = rng() || 1e-12, u2 = rng(), r = Math.sqrt(-2 * Math.log(u1)); o[i] = sg * r * Math.cos(2 * Math.PI * u2); if (i + 1 < n) o[i + 1] = sg * r * Math.sin(2 * Math.PI * u2); }
+        return o;
+      }
+      // Band-limited white noise: sample time 1 ms, variance = Cov/Ts, held between samples.
+      function simulate4(p) {
+        const { Tf, mode, Kp, Ti, Td, umax, umin, aw, closed, distOn, mo, dp, inp, tsim } = p;
+        const K = mo.Km * mo.Kpot / (mo.R * mo.I), a = mo.Km * mo.Km / (mo.R * mo.I), fmax = mo.Tfr * mo.Kpot / mo.I, Kd = dp.Kpot / dp.I * dp.Tdist;
+        const k = Math.max(10, Math.min(1000, Math.ceil(1e-2 / Tf))), dt = 1e-3 / k, ns = Math.round(tsim / 1e-3), N = ns * k;
+        if (N > 3e6) throw new Error("Too many steps for this stop time and filter time. Use a shorter stop time or a larger Tf.");
+        const ny = noiseArr(23194, 1e-8, ns + 2), nr = noiseArr(15467, 1e-9, ns + 2), nu = noiseArr(98852, 1e-9, ns + 2), nv = noiseArr(54657, 1e-9, ns + 2);
+        if (p.noNoise) { ny.fill(0); }
+        const hasI = mode === "PI" || mode === "PID";
+        const d = new Float64Array(4); let uo = 0;
+        function deriv(t, y, w, yf, Ii, n) {
+          const dyf = (y + n - yf) / Tf, yfb = closed ? yf : 0, dyfb = closed ? dyf : 0;
+          const r = t >= inp.Ts - 1e-12 ? inp.Vf : inp.Vm, E = r - yfb;
+          let v;
+          if (mode === "P") v = Kp * E; else if (mode === "PD") v = Kp * (E - Td * dyfb); else if (mode === "PI") v = Kp * (Ii - yfb); else v = Kp * (Ii - yfb - Td * dyfb);
+          const us = v > umax ? umax : (v < umin ? umin : v);
+          const x = 2 * K * us + ((distOn && t >= dp.td - 1e-12) ? Kd : 0);
+          let F = w > 0 ? -x : x; if (F > fmax) F = fmax; else if (F < -fmax) F = -fmax;
+          d[0] = w; d[1] = x + F - a * w; d[2] = dyf; d[3] = hasI ? (E + (aw ? us - v : 0)) / Ti : 0; uo = us;
+        }
+        const T = new Float64Array(ns + 1), R = new Float64Array(ns + 1), V = new Float64Array(ns + 1), U = new Float64Array(ns + 1), Y = new Float64Array(ns + 1), UC = new Float64Array(ns + 1);
+        let y = 0, w = 0, yf = 0, Ii = 0;
+        for (let i = 0; i <= N; i++) {
+          const t = i * dt, idx = Math.floor(i / k), n = ny[idx];
+          deriv(t, y, w, yf, Ii, n); const a0 = d[0], a1 = d[1], a2 = d[2], a3 = d[3], u0 = uo;
+          if (i % k === 0) {
+            T[idx] = t; R[idx] = (t >= inp.Ts - 1e-12 ? inp.Vf : inp.Vm) + nr[idx]; UC[idx] = u0; U[idx] = u0 + nu[idx]; V[idx] = 2 * u0 + nv[idx]; Y[idx] = y + n;
+          }
+          if (i === N) break;
+          deriv(t + dt / 2, y + dt / 2 * a0, w + dt / 2 * a1, yf + dt / 2 * a2, Ii + dt / 2 * a3, n); const b0 = d[0], b1 = d[1], b2 = d[2], b3 = d[3];
+          deriv(t + dt / 2, y + dt / 2 * b0, w + dt / 2 * b1, yf + dt / 2 * b2, Ii + dt / 2 * b3, n); const c0 = d[0], c1 = d[1], c2 = d[2], c3 = d[3];
+          deriv(t + dt, y + dt * c0, w + dt * c1, yf + dt * c2, Ii + dt * c3, n);
+          y += dt / 6 * (a0 + 2 * b0 + 2 * c0 + d[0]); w += dt / 6 * (a1 + 2 * b1 + 2 * c1 + d[1]); yf += dt / 6 * (a2 + 2 * b2 + 2 * c2 + d[2]); Ii += dt / 6 * (a3 + 2 * b3 + 2 * c3 + d[3]);
+        }
+        return { t: Array.from(T), r: Array.from(R), vamp: Array.from(V), u: Array.from(U), y: Array.from(Y), uc: Array.from(UC), K, a, fmax, tsim };
+      }
+      window.GW12F.simulate4 = simulate4;
+
+      function gatherModel() {
+        const m = model, c = m.ctrl, Tf = evalNum(m.Tf);
+        const p = {
+          Tf, mode: c.mode, Kp: evalNum(c.Kp), Ti: evalNum(c.Ti), Td: evalNum(c.Td), umax: evalNum(c.umax), umin: evalNum(c.umin), aw: !!c.aw, closed: m.closed, distOn: m.distOn,
+          mo: { R: evalNum(m.motor.R), I: evalNum(m.motor.I), Km: evalNum(m.motor.Km), Kpot: evalNum(m.motor.Kpot), Tfr: evalNum(m.motor.Tfr) },
+          dp: { I: evalNum(m.dist.I), Kpot: evalNum(m.dist.Kpot), Tdist: evalNum(m.dist.Tdist), td: evalNum(m.dist.td) },
+          inp: { Vm: evalNum(m.inp.Vm), Vf: evalNum(m.inp.Vf), Ts: evalNum(m.inp.Ts) }
+        };
+        return p;
+      }
+
+      // ---- Model diagram
+      function buildDiagram() {
+        const c = model.ctrl, G = "#222";
+        const ground = (x, y) => `<path d="M${x},${y} V${y + 8}" stroke="#222" stroke-width="1.5" fill="none"/><path d="M${x - 8},${y + 8} H${x + 8} M${x - 5},${y + 12} H${x + 5} M${x - 2},${y + 16} H${x + 2}" stroke="#222" stroke-width="1.5" fill="none"/>`;
+        $("sl4-canvas").innerHTML = `
+<svg viewBox="0 0 940 560" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="m4a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#222"/></marker></defs>
+  <g stroke="${G}" stroke-width="1.8" fill="none">
+    <path d="M92,322 H158" marker-end="url(#m4a)"/><path d="M122,322 V196"/>
+    <path d="M182,322 H232" marker-end="url(#m4a)"/>
+    <path d="M342,322 H422" marker-end="url(#m4a)"/><path d="M382,322 V392"/>
+    <path d="M492,322 H562" marker-end="url(#m4a)"/><path d="M526,322 V222"/>
+    <path d="M722,322 H830 V486 H760"/><path d="M772,322 V250"/>
+    <path d="M566,486 H170 V334" marker-end="url(#m4a)"/>
+    <path d="M200,486 V348 H232" marker-end="url(#m4a)"/>
+    <path d="M510,430 H530"/><path d="M556,415 V360 H562" marker-end="url(#m4a)"/>
+    <path d="M640,486 H620 V470 H600"/>
+  </g>
+  <g fill="${G}"><circle cx="122" cy="322" r="3"/><circle cx="382" cy="322" r="3"/><circle cx="526" cy="322" r="3"/><circle cx="772" cy="322" r="3"/><circle cx="200" cy="486" r="3"/></g>
+
+  <!-- Scope group -->
+  <rect x="300" y="26" width="360" height="120" rx="3" fill="#f2f2f2" stroke="#999"/>
+  <g font-size="10.5" fill="#222">
+    <rect x="316" y="44" width="46" height="20" fill="#fff" stroke="#222"/><text x="339" y="58" text-anchor="middle">r</text>
+    <rect x="316" y="72" width="46" height="20" fill="#fff" stroke="#222"/><text x="339" y="86" text-anchor="middle">Vamp</text>
+    <rect x="316" y="100" width="46" height="20" fill="#fff" stroke="#222"/><text x="339" y="114" text-anchor="middle">y</text>
+  </g>
+  <g stroke="${G}" stroke-width="1.5"><path d="M362,54 H540" marker-end="url(#m4a)"/><path d="M362,82 H540" marker-end="url(#m4a)"/><path d="M362,110 H540" marker-end="url(#m4a)"/></g>
+  <g class="blk" data-blk="scm"><rect class="hl" x="540" y="42" width="66" height="84" fill="#fff" stroke="#222" stroke-width="1.8"/><rect x="552" y="52" width="42" height="64" fill="#fff" stroke="#999"/><text x="573" y="142" font-size="11" text-anchor="middle" fill="#222" font-weight="600">Scope</text></g>
+
+  <!-- r output -->
+  <g class="blk" data-blk="scr"><rect class="hl" x="97" y="150" width="50" height="46" fill="#fff" stroke="#222" stroke-width="1.8"/><rect x="105" y="158" width="34" height="30" fill="#fff" stroke="#999"/><text x="122" y="144" font-size="10.5" text-anchor="middle" fill="#555">r (reference)</text></g>
+  <!-- Input signal -->
+  <g class="blk" data-blk="inp"><rect class="hl" x="20" y="288" width="72" height="68" fill="#fff" stroke="#222" stroke-width="1.8"/><path d="M30,336 H48 V304 H80" stroke="#222" stroke-width="1.6" fill="none"/><text x="56" y="372" font-size="11" text-anchor="middle" fill="#222">Input Signal</text></g>
+  <!-- Sum -->
+  <circle cx="170" cy="322" r="12" fill="#fff" stroke="#222" stroke-width="1.6"/><text x="161" y="320" font-size="10">+</text><text x="167" y="337" font-size="12">&#8722;</text>
+  <text x="194" y="314" font-size="10.5" fill="#222">e</text>
+  <!-- controller -->
+  <g class="blk" data-blk="ctrl"><rect class="hl" x="232" y="288" width="110" height="68" fill="#fff" stroke="#222" stroke-width="1.8"/>
+    <text x="287" y="316" font-size="14" text-anchor="middle" fill="#222" font-weight="600">${c.mode}</text><text x="287" y="334" font-size="9.5" text-anchor="middle" fill="#666">E(s)</text>
+    <text x="237" y="352" font-size="9" fill="#666">Yf(s)</text><text x="287" y="374" font-size="11" text-anchor="middle" fill="#222">controller</text></g>
+  <!-- u output -->
+  <g class="blk" data-blk="scu"><rect class="hl" x="357" y="392" width="50" height="46" fill="#fff" stroke="#222" stroke-width="1.8"/><rect x="365" y="400" width="34" height="30" fill="#fff" stroke="#999"/><text x="382" y="454" font-size="10.5" text-anchor="middle" fill="#555">u (control input)</text></g>
+  <text x="386" y="314" font-size="10.5" fill="#222">u</text>
+  <!-- power amp -->
+  <g class="blk" data-blk="amp"><rect class="hl" x="422" y="302" width="70" height="40" fill="#fff" stroke="#222" stroke-width="1.8"/><path d="M438,334 V310 L470,322 Z" fill="none" stroke="#555"/><text x="457" y="360" font-size="11" text-anchor="middle" fill="#222">Power Amp</text></g>
+  <!-- Vamp output -->
+  <g class="blk" data-blk="scv"><rect class="hl" x="501" y="176" width="50" height="46" fill="#fff" stroke="#222" stroke-width="1.8"/><rect x="509" y="184" width="34" height="30" fill="#fff" stroke="#999"/><text x="526" y="170" font-size="10.5" text-anchor="middle" fill="#555">Vamp</text></g>
+  <text x="530" y="314" font-size="10.5" fill="#222">Vamp</text>
+  <!-- motor -->
+  <g class="blk" data-blk="motor"><rect class="hl" x="562" y="270" width="160" height="112" fill="#fff" stroke="#222" stroke-width="1.8"/>
+    <text x="642" y="310" font-size="12" text-anchor="middle" fill="#222" font-weight="600">DC Motor +</text><text x="642" y="326" font-size="12" text-anchor="middle" fill="#222" font-weight="600">Potentiometer</text>
+    <text x="566" y="318" font-size="9" fill="#666">Vamp</text><text x="566" y="364" font-size="9" fill="#666">Kd*Tdist</text><text x="716" y="318" font-size="9" fill="#666" text-anchor="end">y</text></g>
+  <!-- y output -->
+  <g class="blk" data-blk="scy"><rect class="hl" x="747" y="204" width="50" height="46" fill="#fff" stroke="#222" stroke-width="1.8"/><rect x="755" y="212" width="34" height="30" fill="#fff" stroke="#999"/><text x="772" y="198" font-size="10.5" text-anchor="middle" fill="#555">y (output)</text></g>
+  <text x="780" y="314" font-size="10.5" fill="#222">y</text>
+
+  <!-- disturbance + its manual switch -->
+  <g class="blk" data-blk="dist"><rect class="hl" x="420" y="410" width="90" height="40" fill="#fff" stroke="#222" stroke-width="1.8"/><text x="465" y="434" font-size="10.5" text-anchor="middle" fill="#222">Kd*Tdist</text><text x="465" y="466" font-size="10.5" text-anchor="middle" fill="#222">Disturbance Torque</text></g>
+  <g class="blk" data-blk="swd"><rect class="hl" x="522" y="380" width="46" height="62" fill="#fff" stroke="none" opacity="0.001"/>
+    ${ground(530, 380).replace(/<path d="M530,380 V388"[^>]*>/, '<path d="M530,380 V388" stroke="#222" stroke-width="1.5" fill="none"/>')}
+    <circle cx="530" cy="400" r="3" fill="#222"/><circle cx="530" cy="430" r="3" fill="#222"/><circle cx="556" cy="415" r="3" fill="#222"/>
+    <path d="M530,388 V400" stroke="#222" stroke-width="1.5" fill="none"/>
+    <line x1="556" y1="415" x2="530" y2="${model.distOn ? 430 : 400}" stroke="#222" stroke-width="2"/>
+    <text x="545" y="456" font-size="9.5" text-anchor="middle" fill="#555">${model.distOn ? "on" : "off"}</text></g>
+
+  <!-- filter + feedback switch -->
+  <g class="blk" data-blk="filter"><rect class="hl" x="640" y="454" width="120" height="64" fill="#fff" stroke="#222" stroke-width="1.8"/><text x="700" y="476" font-size="13" text-anchor="middle" fill="#222" font-weight="600">Filter</text><text x="700" y="493" font-size="10.5" text-anchor="middle" fill="#555">1/(Tf s + 1)</text><text x="700" y="508" font-size="10.5" text-anchor="middle" fill="#1a3a8a">Tf = ${model.Tf}</text></g>
+  <g class="blk" data-blk="swf"><rect class="hl" x="556" y="456" width="52" height="58" fill="#fff" stroke="none" opacity="0.001"/>
+    <circle cx="566" cy="486" r="3" fill="#222"/><circle cx="600" cy="470" r="3" fill="#222"/><circle cx="600" cy="504" r="3" fill="#222"/>
+    <path d="M600,504 V512" stroke="#222" stroke-width="1.5" fill="none"/><path d="M592,512 H608 M595,516 H605 M598,520 H602" stroke="#222" stroke-width="1.5" fill="none"/>
+    <line x1="566" y1="486" x2="600" y2="${model.closed ? 470 : 504}" stroke="#222" stroke-width="2"/>
+    <text x="583" y="540" font-size="10" text-anchor="middle" fill="#555">${model.closed ? "feedback closed" : "open loop (ground)"}</text></g>
+</svg>`;
+        $("sl4-canvas").querySelectorAll(".blk").forEach((g) => g.addEventListener("dblclick", () => blockAction(g.dataset.blk)));
+      }
+
+      // ---- Block dialogs
+      function openDialog(cfg) {
+        const dlg = $("dlg4"), back = $("dlg4-back");
+        const fld = cfg.fields.map((f) => {
+          const v = cfg.values[f.key];
+          if (f.type === "select") return `<label class="row"><span class="l">${f.label}</span><select id="d4f-${f.key}">${f.options.map((o) => `<option${o === v ? " selected" : ""}>${o}</option>`).join("")}</select></label>`;
+          if (f.type === "check") return `<label class="row"><span class="l">${f.label}</span><input type="checkbox" id="d4f-${f.key}"${v ? " checked" : ""} /></label>`;
+          return `<label class="row"><span class="l">${f.label}</span><input type="text" id="d4f-${f.key}" value="${String(v).replace(/"/g, "&quot;")}" spellcheck="false" /></label>`;
+        }).join("");
+        dlg.innerHTML = `<div class="dt"><span>Block Parameters: ${cfg.title}</span><span class="x" id="d4x">&times;</span></div><div class="db"><p><span class="hd">${cfg.title}</span><br>${cfg.desc || ""}</p><div style="border-top:1px solid #bbb;margin:8px 0;"></div><p class="hd">Parameters</p>${fld}<div class="err" id="d4err"></div><div class="btns"><button class="def" id="d4ok" type="button">OK</button><button id="d4cancel" type="button">Cancel</button><button id="d4help" type="button" disabled>Help</button><button id="d4apply" type="button" disabled>Apply</button></div></div>`;
+        back.classList.add("open");
+        const collect = () => { const o = {}; cfg.fields.forEach((f) => { const el = $("d4f-" + f.key); o[f.key] = f.type === "check" ? el.checked : el.value.trim(); }); return o; };
+        const apply = () => { const err = cfg.apply(collect()); $("d4err").textContent = err || ""; if (!err) { $("d4apply").disabled = true; buildDiagram(); sched(); } return !err; };
+        cfg.fields.forEach((f) => { const el = $("d4f-" + f.key); const on = () => { $("d4apply").disabled = false; }; el.addEventListener("input", on); el.addEventListener("change", on); });
+        const close = () => back.classList.remove("open");
+        $("d4ok").addEventListener("click", () => { if (apply()) close(); });
+        $("d4apply").addEventListener("click", apply); $("d4cancel").addEventListener("click", close); $("d4x").addEventListener("click", close);
+      }
+      const numChk = (label, v, test, msg) => { let x; try { x = evalNum(v); } catch (e) { return `Error evaluating parameter '${label}': ${e.message}`; } if (!isFinite(x) || (test && !test(x))) return `Parameter '${label}' ${msg || "is out of range."}`; return null; };
+      function blockAction(b) {
+        if (b === "filter") openDialog({
+          title: "Filter", desc: "First-order low-pass filter on the measured angle: Yf(s)/Y(s) = 1/(Tf s + 1).", values: { Tf: model.Tf }, fields: [{ key: "Tf", label: "Filter time, Tf" }],
+          apply: (v) => { const e = numChk("Filter time, Tf", v.Tf, (x) => x >= 1e-5 && x <= 10, "must be between 1e-5 and 10 s."); if (e) return e; model.Tf = v.Tf; return null; }
+        });
+        else if (b === "ctrl") openDialog({
+          title: "controller", desc: "PID controller with internal feedback and saturation. u = Kp[ (1/Ti)&int;e dt &minus; yf &minus; Td dyf/dt ] (terms that do not apply to the selected control mode are dropped).",
+          values: { mode: model.ctrl.mode, Kp: model.ctrl.Kp, Ti: model.ctrl.Ti, Td: model.ctrl.Td, umax: model.ctrl.umax, umin: model.ctrl.umin, aw: model.ctrl.aw },
+          fields: [{ key: "mode", label: "Control Mode", type: "select", options: ["P", "PD", "PI", "PID"] }, { key: "Kp", label: "Kp" }, { key: "Ti", label: "Ti" }, { key: "Td", label: "Td" }, { key: "umax", label: "Upper limit" }, { key: "umin", label: "Lower limit" }, { key: "aw", label: "Anti-Windup Logic", type: "check" }],
+          apply: (v) => { let e = numChk("Kp", v.Kp) || numChk("Ti", v.Ti, (x) => x > 0, "must be positive.") || numChk("Td", v.Td, (x) => x >= 0, "must be non-negative.") || numChk("Upper limit", v.umax) || numChk("Lower limit", v.umin); if (e) return e; if (!(evalNum(v.umax) > evalNum(v.umin))) return "Upper limit must be greater than the lower limit."; model.ctrl = { mode: v.mode, Kp: v.Kp, Ti: v.Ti, Td: v.Td, umax: v.umax, umin: v.umin, aw: v.aw }; return null; }
+        });
+        else if (b === "inp") openDialog({
+          title: "Input Signal", desc: "Reference r(t): a step from the initial voltage to the final voltage.", values: model.inp, fields: [{ key: "Vm", label: "Initial/Mean Voltage (V)" }, { key: "Vf", label: "Final Voltage (V)" }, { key: "Ts", label: "Step/Ramp Time (s)" }],
+          apply: (v) => { const e = numChk("Initial/Mean Voltage", v.Vm) || numChk("Final Voltage", v.Vf) || numChk("Step/Ramp Time", v.Ts, (x) => x >= 0, "must be non-negative."); if (e) return e; model.inp = { Vm: v.Vm, Vf: v.Vf, Ts: v.Ts }; return null; }
+        });
+        else if (b === "motor") openDialog({
+          title: "DC Motor", desc: "Motor, rotor and potentiometer, with Coulomb friction. K = Km Kpot/(R I) and a = Km&sup2;/(R I).", values: model.motor,
+          fields: [{ key: "R", label: "Armature Resistance (Ω)" }, { key: "I", label: "Rotor Inertia (Kgm^2)" }, { key: "Km", label: "Motor Transduction Constant" }, { key: "Kpot", label: "Potentiometer Constant (V/r)" }, { key: "Tfr", label: "Friction Torque" }],
+          apply: (v) => { const e = numChk("Armature Resistance", v.R, (x) => x > 0, "must be positive.") || numChk("Rotor Inertia", v.I, (x) => x > 0, "must be positive.") || numChk("Motor Transduction Constant", v.Km, (x) => x > 0, "must be positive.") || numChk("Potentiometer Constant", v.Kpot, (x) => x > 0, "must be positive.") || numChk("Friction Torque", v.Tfr, (x) => x >= 0, "must be non-negative."); if (e) return e; model.motor = { R: v.R, I: v.I, Km: v.Km, Kpot: v.Kpot, Tfr: v.Tfr }; return null; }
+        });
+        else if (b === "dist") openDialog({
+          title: "Disturbance Torque", desc: "A step torque disturbance, applied when the disturbance switch is on (double-click the switch to turn it on).", values: model.dist,
+          fields: [{ key: "I", label: "Rotor Inertia (Kgm^2)" }, { key: "Kpot", label: "Potentiometer Constant (V/r)" }, { key: "Tdist", label: "Disturbance Torque Magnitude (Nm)" }, { key: "td", label: "Disturbance start (s)" }],
+          apply: (v) => { const e = numChk("Rotor Inertia", v.I, (x) => x > 0, "must be positive.") || numChk("Potentiometer Constant", v.Kpot, (x) => x > 0, "must be positive.") || numChk("Disturbance Torque Magnitude", v.Tdist) || numChk("Disturbance start", v.td, (x) => x >= 0, "must be non-negative."); if (e) return e; model.dist = { I: v.I, Kpot: v.Kpot, Tdist: v.Tdist, td: v.td }; return null; }
+        });
+        else if (b === "amp") openDialog({ title: "Power Amp", desc: "Power amplifier: Vamp = 2 u (a gain of 2 from the control signal to the motor voltage).", values: {}, fields: [], apply: () => null });
+        else if (b === "swf") { model.closed = !model.closed; buildDiagram(); $("sl4-status").textContent = model.closed ? "Feedback switch closed: the filtered output is fed back." : "Feedback switch open: ground is fed back (open loop)."; sched(); }
+        else if (b === "swd") { model.distOn = !model.distOn; buildDiagram(); $("sl4-status").textContent = model.distOn ? "Disturbance switch on." : "Disturbance switch off."; sched(); }
+        else if (b === "scm") openScope(scM); else if (b === "scr") openScope(scR); else if (b === "scu") openScope(scU4); else if (b === "scv") openScope(scV); else if (b === "scy") openScope(scY);
+      }
+      $("dlg4-back").addEventListener("mousedown", (e) => { if (e.target === $("dlg4-back")) $("dlg4-back").classList.remove("open"); });
+
+      // ---- Scope windows (stacked axes)
+      const icon = {
+        gear: '<svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3" fill="none" stroke="#444" stroke-width="1.6"/><circle cx="8" cy="8" r="6" fill="none" stroke="#444" stroke-width="1.6" stroke-dasharray="2.2 1.6"/></svg>',
+        run: '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M4 2 L13 8 L4 14 z" fill="#1e9d3a"/></svg>',
+        stop: '<svg width="16" height="16" viewBox="0 0 16 16"><rect x="3.5" y="3.5" width="9" height="9" fill="#999"/></svg>',
+        zoom: '<svg width="16" height="16" viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4" fill="none" stroke="#444" stroke-width="1.6"/><path d="M9.5 9.5 L14 14" stroke="#444" stroke-width="1.8"/></svg>',
+        fit: '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 5 V2 H5 M11 2 H14 V5 M14 11 V14 H11 M5 14 H2 V11" fill="none" stroke="#444" stroke-width="1.6"/><rect x="5.5" y="5.5" width="5" height="5" fill="#bbb" stroke="#555"/></svg>',
+        meas: '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 13 L3 3 M13 13 L13 3 M3 8 H13" stroke="#1c5aa6" stroke-width="1.7" fill="none"/></svg>',
+      };
+      const sci = (v) => (isFinite(v) ? v.toExponential(3).replace(/e([+-])(\d)$/, "e$10$2") : "NaN");
+      const freq = (dt) => { if (dt === 0) return "Inf Hz"; const f = 1 / Math.abs(dt); if (f < 1) return (f * 1000).toFixed(3) + " mHz"; if (f < 1000) return f.toFixed(3) + " Hz"; return (f / 1000).toFixed(3) + " kHz"; };
+      function interp(t, y, tc) {
+        if (tc <= t[0]) return y[0]; if (tc >= t[t.length - 1]) return y[y.length - 1];
+        let lo = 0, hi = t.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (t[m] <= tc) lo = m; else hi = m; }
+        return y[lo] + (y[hi] - y[lo]) * (tc - t[lo]) / (t[hi] - t[lo] || 1);
+      }
+      const scopeEls = [];
+      function makeScope(id, cfg) {
+        const el = document.createElement("div"); el.id = id; el.className = "xwin scope" + (cfg.axes.length === 1 ? " small" : ""); el.style.display = "none"; $("scopes4").appendChild(el);
+        el.innerHTML = `
+      <div class="xt"><span class="ico"></span><span class="ttl">${cfg.title}</span><span class="wb"><span>&#8211;</span><span>&#9633;</span><span class="sc-close" style="cursor:pointer;">&times;</span></span></div>
+      <div class="menu"><span>File</span><span>Tools</span><span>View</span><span>Simulation</span><span>Help</span></div>
+      <div class="tbar"><button type="button" disabled>${icon.gear}</button><button type="button" title="Run" data-a="run">${icon.run}</button><button type="button" disabled>${icon.stop}</button>
+        <span style="width:10px"></span><button type="button" title="Zoom (drag to zoom)" data-a="zoom" class="on">${icon.zoom}</button><button type="button" title="Scale axes limits" data-a="fit">${icon.fit}</button>
+        <span style="width:10px"></span><button type="button" title="Cursor measurements" data-a="meas" class="on">${icon.meas}</button></div>
+      <div class="sbody"><div class="splot${cfg.axes.length > 1 ? " tall" : ""}" id="${id}-plot"></div>
+        <div class="side" id="${id}-side">
+          <div class="pn"><h6>Trace Selection</h6><div class="pb"><select id="${id}-trace">${cfg.axes.map((a, i) => `<option value="${i}">${a.name}</option>`).join("")}</select><div style="margin-top:6px;"><span class="sw-line" id="${id}-sw"></span></div></div></div>
+          <div class="pn"><h6>Cursor Measurements</h6><div class="pb">
+            <table class="cm"><tr><th></th><th>Time (seconds)</th><th>Value</th></tr>
+              <tr><td>1</td><td><input type="text" id="${id}-c1" /></td><td id="${id}-v1"></td></tr>
+              <tr><td>2</td><td><input type="text" id="${id}-c2" /></td><td id="${id}-v2"></td></tr></table>
+            <div class="cm2"><span>&Delta;T &nbsp;<b id="${id}-dT"></b></span><span class="v">&Delta;Y &nbsp;<b id="${id}-dY"></b></span><span>1/&Delta;T</span><span class="v"><b id="${id}-fT"></b></span><span>&Delta;Y/&Delta;T</span><span class="v"><b id="${id}-sl"></b></span></div></div></div>
+        </div></div>
+      <div class="stat"><span>Ready</span><span><span class="box">Sample based</span><span class="box" id="${id}-T">T=--</span></span></div>`;
+        const sc = { id, cfg, el, cur: [0.25, 0.75], sel: 0, data: null, tsim: 5, zoom: true, meas: true, ylim: cfg.axes.map(() => null), xlim: null, auto: true, vals: null };
+        el.querySelector(".sc-close").addEventListener("click", () => { el.style.display = "none"; });
+        el.querySelector('[data-a="run"]').addEventListener("click", runSim);
+        el.querySelector('[data-a="fit"]').addEventListener("click", () => { sc.auto = true; sc.xlim = null; drawScope(sc); });
+        el.querySelector('[data-a="zoom"]').addEventListener("click", (e) => { sc.zoom = !sc.zoom; e.currentTarget.classList.toggle("on", sc.zoom); Plotly.relayout($(`${id}-plot`), { dragmode: sc.zoom ? "zoom" : "pan" }); });
+        el.querySelector('[data-a="meas"]').addEventListener("click", (e) => { sc.meas = !sc.meas; e.currentTarget.classList.toggle("on", sc.meas); $(`${id}-side`).style.display = sc.meas ? "flex" : "none"; setTimeout(() => Plotly.Plots.resize($(`${id}-plot`)), 30); });
+        $(`${id}-trace`).addEventListener("change", (e) => { sc.sel = Number(e.target.value); drawScope(sc); });
+        ["c1", "c2"].forEach((k, i) => $(`${id}-${k}`).addEventListener("change", (e) => { const v = Number(e.target.value); if (isFinite(v)) sc.cur[i] = Math.min(Math.max(v, 0), sc.tsim); drawScope(sc); }));
+        scopeEls.push(sc); return sc;
+      }
+      function scopeLayout(sc) {
+        const N = sc.cfg.axes.length, gap = N > 1 ? 0.07 : 0, h = (1 - gap * (N - 1)) / N, L = {
+          paper_bgcolor: "#000", plot_bgcolor: "#000", font: { color: "#cfd3da", family: "Segoe UI, Arial, sans-serif", size: 10 }, margin: { l: 62, r: 12, t: 24, b: 44 }, showlegend: false, hovermode: "x", dragmode: sc.zoom ? "zoom" : "pan", shapes: [], annotations: [],
+        };
+        sc.cfg.axes.forEach((ax, i) => {
+          const sfx = i ? String(i + 1) : "", dom = [1 - (i + 1) * h - i * gap, 1 - i * (h + gap)];
+          L["xaxis" + sfx] = { anchor: "y" + sfx, range: sc.xlim || [0, sc.tsim], gridcolor: "rgba(255,255,255,0.28)", zerolinecolor: "rgba(255,255,255,0.28)", showline: true, linecolor: "#777", mirror: true, showticklabels: i === N - 1, title: i === N - 1 ? { text: "Time (seconds)", font: { family: "Georgia, serif", size: 12 } } : undefined };
+          if (i) L["xaxis" + sfx].matches = "x";
+          L["yaxis" + sfx] = { anchor: "x" + sfx, domain: dom, range: sc.ylim[i] || undefined, gridcolor: "rgba(255,255,255,0.28)", zerolinecolor: "rgba(255,255,255,0.28)", showline: true, linecolor: "#777", mirror: true, title: { text: ax.ylabel, font: { family: "Georgia, serif", size: 12 } } };
+          L.annotations.push({ x: 0.006, xref: "paper", y: dom[1], yref: "paper", xanchor: "left", yanchor: "top", text: ax.name, showarrow: false, font: { color: ax.color, size: 11 }, bgcolor: "rgba(0,0,0,0.55)" });
+        });
+        [0, 1].forEach((i) => {
+          L.shapes.push({ type: "line", xref: "x", yref: "paper", x0: sc.cur[i], x1: sc.cur[i], y0: 0, y1: 1, line: { color: "#ffffff", width: 1.6, dash: i ? "dash" : "solid" }, editable: true });
+          L.annotations.push({ x: sc.cur[i], xref: "x", y: 1, yref: "paper", yanchor: "bottom", text: String(i + 1), showarrow: false, bordercolor: "#fff", borderwidth: 1, bgcolor: "#000", font: { color: "#fff", size: 10 }, borderpad: 2 });
+        });
+        return L;
+      }
+      function drawScope(sc) {
+        const plotEl = $(`${sc.id}-plot`), d = sc.data, axes = sc.cfg.axes;
+        if (sc.auto && d) {
+          sc.ylim = axes.map((ax) => { let lo = Infinity, hi = -Infinity; d[ax.key].forEach((v) => { if (v < lo) lo = v; if (v > hi) hi = v; }); const pad = (hi - lo || Math.abs(hi) * 0.1 || 1) * 0.1; return [lo - pad, hi + pad]; }); sc.auto = false;
+        }
+        const big = d && d.t.length > 20000, traces = axes.map((ax, i) => ({ type: big ? "scattergl" : "scatter", x: d ? d.t : [], y: d ? d[ax.key] : [], xaxis: "x" + (i ? i + 1 : ""), yaxis: "y" + (i ? i + 1 : ""), mode: "lines", name: ax.name, line: { color: ax.color, width: 1.2 }, hovertemplate: "t=%{x:.3f} s<br>" + ax.name + "=%{y:.4g}<extra></extra>" }));
+        Plotly.react(plotEl, traces, scopeLayout(sc), { displayModeBar: false, displaylogo: false, responsive: true, doubleClick: false, edits: { shapePosition: true } });
+        if (!plotEl.__hooked) {
+          plotEl.__hooked = true;
+          plotEl.on("plotly_relayout", (ev) => {
+            if (!ev) return; let ch = false;
+            [0, 1].forEach((i) => { const k = `shapes[${i}].x0`; if (ev[k] !== undefined) { sc.cur[i] = Math.min(Math.max(Number(ev[k]), 0), sc.tsim); ch = true; } });
+            if (ev["xaxis.range[0]"] !== undefined) sc.xlim = [ev["xaxis.range[0]"], ev["xaxis.range[1]"]];
+            if (ev["xaxis.autorange"]) sc.xlim = null;
+            axes.forEach((ax, i) => { const key = "yaxis" + (i ? i + 1 : ""); if (ev[key + ".range[0]"] !== undefined) sc.ylim[i] = [ev[key + ".range[0]"], ev[key + ".range[1]"]]; });
+            if (ch) drawScope(sc);
+          });
+        }
+        const ax = axes[sc.sel]; $(`${sc.id}-sw`).style.borderTopColor = ax.color;
+        $(`${sc.id}-c1`).value = sc.cur[0].toFixed(3); $(`${sc.id}-c2`).value = sc.cur[1].toFixed(3);
+        if (d) {
+          const y1 = interp(d.t, d[ax.key], sc.cur[0]), y2 = interp(d.t, d[ax.key], sc.cur[1]), dT = sc.cur[1] - sc.cur[0], dY = y2 - y1;
+          $(`${sc.id}-v1`).textContent = sci(y1); $(`${sc.id}-v2`).textContent = sci(y2); $(`${sc.id}-dT`).textContent = Math.abs(dT).toFixed(3) + " s"; $(`${sc.id}-dY`).textContent = sci(dY);
+          $(`${sc.id}-fT`).textContent = freq(dT); $(`${sc.id}-sl`).textContent = (dT === 0 ? "NaN" : (dY / Math.abs(dT)).toFixed(3)) + " (/s)"; $(`${sc.id}-T`).textContent = "T=" + sc.tsim.toFixed(3);
+          sc.vals = { y1, y2, dT, dY };
+        } else["v1", "v2", "dT", "dY", "fT", "sl"].forEach((k) => { $(`${sc.id}-${k}`).textContent = ""; });
+      }
+      const C = { r: "#00e5ff", v: "#39ff14", y: "#ff3df2", u: "#ffe100" };
+      const scM = makeScope("sc4-main", { title: "Scope", axes: [{ key: "r", name: "r (reference)", color: C.r, ylabel: "V" }, { key: "vamp", name: "Vamp", color: C.v, ylabel: "V" }, { key: "y", name: "y (output)", color: C.y, ylabel: "V" }] });
+      const scR = makeScope("sc4-r", { title: "r (reference)", axes: [{ key: "r", name: "r (reference)", color: C.r, ylabel: "V" }] });
+      const scU4 = makeScope("sc4-u", { title: "u (control input)", axes: [{ key: "u", name: "u (control input)", color: C.u, ylabel: "V" }] });
+      const scV = makeScope("sc4-v", { title: "Vamp", axes: [{ key: "vamp", name: "Vamp", color: C.v, ylabel: "V" }] });
+      const scY = makeScope("sc4-y", { title: "y (output)", axes: [{ key: "y", name: "y (output)", color: C.y, ylabel: "V" }] });
+      function openScope(sc) { sc.el.style.display = "block"; drawScope(sc); setTimeout(() => { try { Plotly.Plots.resize($(`${sc.id}-plot`)); } catch (e) { /* hidden */ } }, 30); }
+
+      // ---- Run
+      function settingsText(p, stop) {
+        const c = p.mode; const g = (x) => nm(x, 4);
+        return `Tf=${g(p.Tf)} s; controller ${c}: Kp=${g(p.Kp)}` + (c === "PI" || c === "PID" ? `, Ti=${g(p.Ti)}` : "") + (c === "PD" || c === "PID" ? `, Td=${g(p.Td)}` : "") + `, limits [${g(p.umin)}, ${g(p.umax)}] V, anti-windup ${p.aw ? "on" : "off"}; ` +
+          `r: ${g(p.inp.Vm)} -> ${g(p.inp.Vf)} V at ${g(p.inp.Ts)} s; ` + (p.closed ? "loop closed" : "OPEN LOOP") + (p.distOn ? "; disturbance on" : "") + `; stop time ${g(stop)} s`;
+      }
+      function runSim() {
+        const st = $("sl4-status"); let stop, p;
+        try { stop = evalNum($("sl4-stop").value); if (!(stop > 0) || stop > 120) throw new Error("Stop time must be between 0 and 120 s."); p = gatherModel(); p.tsim = stop; } catch (e) { st.textContent = "Error: " + e.message; return; }
+        st.textContent = "Running…";
+        setTimeout(() => {
+          let res; try { res = simulate4(p); } catch (e) { st.textContent = "Error: " + e.message; return; }
+          lastRun = res; lastSettings = settingsText(p, stop);
+          scopeEls.forEach((sc) => { sc.data = res; sc.tsim = stop; sc.xlim = null; sc.auto = true; sc.cur = [Math.min(0.25 * stop, stop), Math.min(0.75 * stop, stop)]; if (sc.el.style.display !== "none") drawScope(sc); });
+          openScope(scM); st.textContent = "Ready"; sched();
+        }, 30);
+      }
+      $("sl4-run").addEventListener("click", runSim);
+      $("sl4-defaults").addEventListener("click", () => { model = MODEL_DEFAULT(); $("sl4-stop").value = "5"; buildDiagram(); $("sl4-status").textContent = "Model parameters restored to their defaults."; sched(); });
+
+      // ---- Capture of the main scope
+      async function scopeCanvas(sc, W) {
+        const plotW = W - 290, plotH = 440, top = 30 + 22 + 30, H = top + plotH + 22;
+        const img = await Plotly.toImage($(`${sc.id}-plot`), { format: "png", width: plotW, height: plotH });
+        const im = await new Promise((rs, rj) => { const i = new Image(); i.onload = () => rs(i); i.onerror = rj; i.src = img; });
+        const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const c = cv.getContext("2d");
+        c.fillStyle = "#f3f3f3"; c.fillRect(0, 0, W, H);
+        c.fillStyle = "#fff"; c.fillRect(0, 0, W, 30); c.fillStyle = "#222"; c.font = "13px Arial"; c.fillText(sc.cfg.title, 30, 20);
+        c.fillStyle = "#e8742c"; c.fillRect(8, 9, 12, 12); c.strokeStyle = "#999"; c.beginPath(); c.moveTo(0, 30.5); c.lineTo(W, 30.5); c.stroke();
+        c.fillStyle = "#fff"; c.fillRect(0, 31, W, 22); c.fillStyle = "#222"; c.font = "12px Arial";["File", "Tools", "View", "Simulation", "Help"].forEach((t, i) => c.fillText(t, 10 + i * 56, 46));
+        c.fillStyle = "#f7f7f7"; c.fillRect(0, 53, W, 30); c.fillStyle = "#1e9d3a"; c.beginPath(); c.moveTo(40, 60); c.lineTo(52, 68); c.lineTo(40, 76); c.fill();
+        c.drawImage(im, 0, top, plotW, plotH);
+        const x0 = plotW + 8, ax = sc.cfg.axes[sc.sel]; c.fillStyle = "#fff"; c.strokeStyle = "#c9c9c9";
+        c.fillRect(x0, top + 6, W - x0 - 6, 70); c.strokeRect(x0 + .5, top + 6.5, W - x0 - 7, 70);
+        c.fillStyle = "#e9e9e9"; c.fillRect(x0, top + 6, W - x0 - 6, 20); c.fillStyle = "#222"; c.font = "bold 12px Arial"; c.fillText("Trace Selection", x0 + 8, top + 20);
+        c.font = "12px Arial"; c.fillText(ax.name, x0 + 8, top + 44); c.strokeStyle = ax.color; c.lineWidth = 3; c.beginPath(); c.moveTo(x0 + 8, top + 60); c.lineTo(x0 + 70, top + 60); c.stroke(); c.lineWidth = 1;
+        const y2 = top + 86; c.fillStyle = "#fff"; c.strokeStyle = "#c9c9c9"; c.fillRect(x0, y2, W - x0 - 6, 150); c.strokeRect(x0 + .5, y2 + .5, W - x0 - 7, 150);
+        c.fillStyle = "#e9e9e9"; c.fillRect(x0, y2, W - x0 - 6, 20); c.fillStyle = "#222"; c.font = "bold 12px Arial"; c.fillText("Cursor Measurements", x0 + 8, y2 + 14);
+        c.font = "12px Arial"; const v = sc.vals || { y1: NaN, y2: NaN, dT: 0, dY: NaN };
+        c.fillText("Time (seconds)", x0 + 40, y2 + 38); c.fillText("Value", x0 + 175, y2 + 38);
+        c.fillText("1", x0 + 12, y2 + 58); c.fillText(sc.cur[0].toFixed(3), x0 + 60, y2 + 58); c.fillText(sci(v.y1), x0 + 170, y2 + 58);
+        c.fillText("2", x0 + 12, y2 + 78); c.fillText(sc.cur[1].toFixed(3), x0 + 60, y2 + 78); c.fillText(sci(v.y2), x0 + 170, y2 + 78);
+        c.fillText("ΔT  " + Math.abs(v.dT).toFixed(3) + " s", x0 + 10, y2 + 102); c.fillText("ΔY  " + sci(v.dY), x0 + 150, y2 + 102);
+        c.fillText("1/ΔT   " + freq(v.dT), x0 + 10, y2 + 124); c.fillText("ΔY/ΔT   " + (v.dT === 0 ? "NaN" : (v.dY / Math.abs(v.dT)).toFixed(3)) + " (/s)", x0 + 10, y2 + 142);
+        c.fillStyle = "#333"; c.font = "11px Arial"; c.fillText("Ready", 10, H - 7); c.fillText("Sample based    T=" + sc.tsim.toFixed(3), W - 160, H - 7);
+        return cv;
+      }
+      $("sl4-capture").addEventListener("click", async () => {
+        const st = $("sl4-capstat");
+        if (!lastRun) { st.style.color = "#FB7185"; st.textContent = "Run the simulation first."; return; }
+        st.style.color = "#5EEAD4"; st.textContent = "Capturing…";
+        try {
+          if (scM.el.style.display === "none") openScope(scM);
+          await new Promise((r) => setTimeout(r, 120));
+          const cv = await scopeCanvas(scM, 1100);
+          window.__addCapture({ prefix: "p4", lines: [lastSettings], dataUrl: cv.toDataURL("image/png"), width: cv.width, height: cv.height }); st.textContent = "Figure captured — see Submission.";
+        } catch (e) { console.error(e); st.style.color = "#FB7185"; st.textContent = "Could not capture figure."; }
+      });
+      window.GW12F.model = () => model; window.GW12F.runSim = runSim; window.GW12F.last = () => lastRun;
+
+      // ---------------------------------------------------------------
+      // Captures
+      // ---------------------------------------------------------------
+      const TITLES = { p1: "Problem 1", p2: "Problem 2", p3: "Problem 3", p4: "Problem 4" };
+      let captures = []; const CAP_KEY = "gw12f_captures_v1";
+      function renderCaptures() {
+        const host = $("cap-list");
+        if (!captures.length) { host.innerHTML = '<span class="mono" style="font-size:11.5px;color:var(--muted);">No figures captured yet.</span>'; return; }
+        host.innerHTML = captures.map((c, i) => `<div class="cap-item"><button class="cap-x" data-i="${i}" type="button">✕</button><img src="${c.dataUrl}" alt="" /><div class="cap-text"><b>${TITLES[c.prefix]}</b><br>${c.lines.filter(Boolean).join("<br>")}</div></div>`).join("");
+        host.querySelectorAll(".cap-x").forEach((b) => b.addEventListener("click", () => { captures.splice(Number(b.dataset.i), 1); renderCaptures(); saveCaps(); }));
+      }
+      function saveCaps() { try { localStorage.setItem(CAP_KEY, JSON.stringify(captures)); } catch (e) { /* quota */ } }
+      window.__addCapture = (c) => { captures.push(c); renderCaptures(); saveCaps(); };
+      try { const raw = localStorage.getItem(CAP_KEY); if (raw) captures = JSON.parse(raw) || []; } catch (e) { captures = []; }
+      renderCaptures();
+
+      // ---------------------------------------------------------------
+      // Navigation
+      // ---------------------------------------------------------------
+      const SECTION_IDS = { intro: "part-intro", p1: "part-p1", p2: "part-p2", p3: "part-p3", p4: "part-p4", submission: "part-submission" };
+      function activate(part) {
+        document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
+        Object.values(SECTION_IDS).forEach((id) => { $(id).style.display = "none"; });
+        $(SECTION_IDS[part]).style.display = "block";
+        if (part === "p3") drawFig3();
+        else if (part === "p4") { if (!$("sl4-canvas").firstChild) buildDiagram(); scopeEls.forEach((sc) => { if (sc.el.style.display !== "none") openScope(sc); }); }
+        $("part-" + part).scrollIntoView && document.querySelector(".content").scrollTo({ top: 0 });
+      }
+      document.querySelectorAll(".nav-btn").forEach((b) => b.addEventListener("click", () => activate(b.dataset.part)));
+
+      // ---------------------------------------------------------------
+      // Uploaded calculation images
+      // ---------------------------------------------------------------
+      const MAX_IMAGE_DIM = 1200, IMAGE_QUALITY = 0.7, IMG_KEY = "gw12f_work_images_v1";
+      const WORK_IDS = ["p2-tf", "p2-laplace", "p3-derivation"];
+      const WORK_LABELS = { "p2-tf": "Problem 2b open-loop transfer function", "p2-laplace": "Problem 2c Laplace transform pair", "p3-derivation": "Problem 3 derivation of Eqn (3)" };
+      const workImages = {}; WORK_IDS.forEach((id) => { workImages[id] = []; });
+      function resizeAndCompressImage(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => reject(new Error("Could not read file."));
+          reader.onload = () => {
+            const img = new Image();
+            img.onerror = () => reject(new Error("Could not load image."));
+            img.onload = () => {
+              let w = img.width, h = img.height;
+              if (w > h && w > MAX_IMAGE_DIM) { h = Math.round(h * MAX_IMAGE_DIM / w); w = MAX_IMAGE_DIM; }
+              else if (h >= w && h > MAX_IMAGE_DIM) { w = Math.round(w * MAX_IMAGE_DIM / h); h = MAX_IMAGE_DIM; }
+              const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+              const cx = cv.getContext("2d"); cx.fillStyle = "#FFFFFF"; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
+              resolve({ dataUrl: cv.toDataURL("image/jpeg", IMAGE_QUALITY), width: w, height: h });
+            };
+            img.src = reader.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+      function saveWorkImages() { try { localStorage.setItem(IMG_KEY, JSON.stringify(workImages)); } catch (e) { /* quota */ } }
+      function renderWorkThumbs(id) {
+        const host = $(`upload-thumbs-${id}`); host.innerHTML = "";
+        workImages[id].forEach((entry, i) => {
+          const wrap = document.createElement("div"); wrap.className = "thumb-wrap";
+          wrap.innerHTML = `<img class="thumb-img" src="${entry.dataUrl}" alt="" /><button class="thumb-remove" type="button" title="Remove">&times;</button>`;
+          wrap.querySelector("button").addEventListener("click", () => { workImages[id].splice(i, 1); renderWorkThumbs(id); saveWorkImages(); });
+          host.appendChild(wrap);
+        });
+        const n = workImages[id].length;
+        $(`upload-status-${id}`).textContent = n ? `✓ ${n} image${n > 1 ? "s" : ""} uploaded` : "";
+      }
+      try { const raw = localStorage.getItem(IMG_KEY); if (raw) { const s = JSON.parse(raw) || {}; WORK_IDS.forEach((id) => { if (Array.isArray(s[id])) workImages[id] = s[id]; }); } } catch (e) { /* ignore */ }
+      WORK_IDS.forEach((id) => {
+        const inp = $(`upload-input-${id}`);
+        inp.addEventListener("change", async () => {
+          const failed = [];
+          for (const f of Array.from(inp.files || [])) {
+            try { workImages[id].push(await resizeAndCompressImage(f)); } catch (e) { console.error(e); failed.push(f.name); }
+          }
+          $(`upload-err-${id}`).textContent = failed.length ? `Could not load: ${failed.join(", ")}. The file may be an unsupported format (e.g. HEIC) or corrupted — try re-saving as JPEG/PNG, or take a screenshot instead.` : "";
+          renderWorkThumbs(id); saveWorkImages(); inp.value = "";
+        });
+        renderWorkThumbs(id);
+      });
+
+      // ---------------------------------------------------------------
+      // PDF export
+      // ---------------------------------------------------------------
+      let appendixFiles = [];
+      function renderChips() {
+        const host = $("upload-thumbs-appendix"); host.innerHTML = "";
+        appendixFiles.forEach((f, i) => { const d = document.createElement("div"); d.className = "file-chip"; d.innerHTML = `<span>${f.name}</span><button class="chip-remove" data-i="${i}" type="button">✕</button>`; host.appendChild(d); });
+        host.querySelectorAll(".chip-remove").forEach((b) => b.addEventListener("click", () => { appendixFiles.splice(Number(b.dataset.i), 1); renderChips(); }));
+      }
+      const appIn = $("upload-input-appendix");
+      appIn.addEventListener("change", () => {
+        const chosen = Array.from(appIn.files || []), bad = chosen.filter((f) => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+        appendixFiles = appendixFiles.concat(chosen.filter((f) => !bad.includes(f)));
+        $("upload-err-appendix").textContent = bad.length ? `Skipped (not a PDF): ${bad.map((f) => f.name).join(", ")}` : ""; renderChips(); appIn.value = "";
+      });
+      const setStatus = (t, err) => { const e = $("exportStatus"); e.textContent = t; e.style.color = err ? "#FB7185" : "#8B92A5"; };
+      const val = (id) => $(id).value.trim();
+      const reflect = (id) => val(id) || "(No response entered.)";
+      function blankItems() {
+        const out = [];
+        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.id.indexOf("input-p4-") === 0) return; if (e.value.trim() === "") out.push(e.id.replace(/^input-/, "").replace(/-/g, " ")); });
+        WORK_IDS.forEach((id) => { if (!workImages[id].length) out.push(`${WORK_LABELS[id]} (no image uploaded)`); });
+        if (!captures.length) out.push("no captured figures");
+        return out;
+      }
+      async function exportPdf() {
+        const blanks = blankItems();
+        if (blanks.length && !confirm(`The following are still blank:\n\n${blanks.map((b) => "• " + b).join("\n")}\n\nDo you want to export the PDF anyway?`)) return;
+        const btn = $("exportPdfBtn"), label = btn.textContent; btn.disabled = true; btn.textContent = "EXPORTING…"; setStatus("");
+        try {
+          p3State.fnText = p3FnText();
+          const { jsPDF } = window.jspdf, doc = new jsPDF({ unit: "pt", format: "letter" });
+          const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), mg = 48, mw = W - mg * 2; let y = mg;
+          const ensure = (h) => { if (y + h > H - mg) { doc.addPage(); y = mg; } };
+          const safe = (t) => String(t).replace(/ω_?n/g, "omega_n").replace(/ω/g, "omega").replace(/ζ/g, "zeta").replace(/θ/g, "theta").replace(/Δ/g, "Delta").replace(/₀/g, "0").replace(/[−–]/g, "-").replace(/≤/g, "<=").replace(/≥/g, ">=")
+            .replace(/√/g, "sqrt").replace(/·/g, "*").replace(/×/g, "x").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/±/g, "+/-").replace(/→/g, "->").replace(/[^\x00-\xFF]/g, "?");
+          const heading = (t) => { ensure(80); doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(safe(t), mg, y); y += 22; };
+          const text = (t, o) => { const s = (o && o.size) || 10.5; doc.setFont((o && o.mono) ? "courier" : "helvetica", o && o.bold ? "bold" : "normal"); doc.setFontSize(s); const lh = s * 1.35; (o && o.mono ? safe(t).split("\n").flatMap((ln) => doc.splitTextToSize(ln || " ", mw)) : doc.splitTextToSize(safe(t), mw)).forEach((l) => { ensure(lh); doc.text(l, mg, y); y += lh; }); y += 4; };
+          const work = (id) => {
+            if (!workImages[id].length) { text("(No image uploaded.)"); return; }
+            workImages[id].forEach((im) => {
+              let w = mw, h = w * (im.height / im.width); const maxH = H - mg * 2;
+              if (h > maxH) { h = maxH; w = h * (im.width / im.height); }
+              ensure(h + 10); doc.addImage(im.dataUrl, "JPEG", mg, y, w, h); y += h + 14;
+            });
+          };
+          const caps = (p) => { captures.filter((c) => c.prefix === p).forEach((c) => { const h = mw * (c.height / c.width); ensure(Math.min(h, 340) + 40); c.lines.filter(Boolean).forEach((l) => text(l, { size: 8 })); const hh = Math.min(h, 340), ww = hh === h ? mw : mw * hh / h; ensure(hh + 10); doc.addImage(c.dataUrl, "PNG", mg, y, ww, hh); y += hh + 14; }); };
+          doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+          doc.splitTextToSize("GroupWork 12F - Lab 4 Preparation: Rotor Angle Control", mw).forEach((l) => { doc.text(l, mg, y); y += 20; }); y += 6;
+          const netId = val("input-netid") || "(not entered)";
+          text(`Your NetID: ${netId}`, { bold: true, size: 11.5 }); text(`Group member NetIDs: ${val("input-group-netids") || "(not entered)"}`, { bold: true, size: 11.5 }); y += 6;
+
+          heading("Problem 1: Comparing Systems from Lab 1 and Lab 4");
+          text("Discussion:", { bold: true }); text(reflect("input-p1-sim"));
+          heading("Problem 2: Comparing Open Loop vs Closed Loop for Lab 4");
+          text("a) Transfer functions in the block diagram:", { bold: true });
+          text(`controller: ${val("input-p2-ctrl") || "(blank)"}\npower amp and motor: ${val("input-p2-motor") || "(blank)"}\nrotating mass: ${val("input-p2-mass") || "(blank)"}`, { mono: true, size: 9.5 });
+          text("b) Open-loop transfer function:", { bold: true }); work("p2-tf");
+          text("Open loop vs. closed loop:", { bold: true }); text(reflect("input-p2-b"));
+          text("c) Laplace transform pair, open loop step:", { bold: true }); work("p2-laplace");
+          text("Key elements of the solution:", { bold: true }); text(reflect("input-p2-c")); caps("p2");
+          heading("Problem 3: Characterize the open loop system");
+          text("Derivation of Eqn (3):", { bold: true }); work("p3-derivation");
+          text("Method (expressions entered):", { bold: true }); text(p3State.fnText, { mono: true, size: 8.5 });
+          text("Output:", { bold: true }); text(p3State.outText ? p3State.outText : "(Not run yet.)", { mono: true, size: 8.5 }); caps("p3");
+          if (val("input-p4-a") || val("input-p4-b") || val("input-p4-c") || captures.some((c) => c.prefix === "p4")) {
+            heading("Problem 4 (optional): Effect of filter time");
+            text("a) Tf = 0.015:", { bold: true }); text(reflect("input-p4-a")); text("b) Tf = 0.15:", { bold: true }); text(reflect("input-p4-b")); text("c) Tf = 0.0015:", { bold: true }); text(reflect("input-p4-c")); caps("p4");
+          }
+          const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+          if (appendixFiles.length) {
+            const { PDFDocument } = window.PDFLib, merged = await PDFDocument.load(doc.output("arraybuffer")), failed = [];
+            for (const f of appendixFiles) { try { const ap = await PDFDocument.load(await f.arrayBuffer()); (await merged.copyPages(ap, ap.getPageIndices())).forEach((pg) => merged.addPage(pg)); } catch (e) { console.error(e); failed.push(f.name); } }
+            const url = URL.createObjectURL(new Blob([await merged.save()], { type: "application/pdf" }));
+            const a = document.createElement("a"); a.href = url; a.download = `GroupWork12F_${safeId}.pdf`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+            setStatus(failed.length ? `PDF downloaded, but could not append: ${failed.join(", ")}` : "PDF downloaded (with appendix attached).");
+          } else { doc.save(`GroupWork12F_${safeId}.pdf`); setStatus("PDF downloaded."); }
+        } catch (e) { console.error(e); setStatus(`Could not export PDF: ${e.message}`, true); }
+        finally { btn.disabled = false; btn.textContent = label; }
+      }
+      $("exportPdfBtn").addEventListener("click", exportPdf);
+
+      // ---------------------------------------------------------------
+      // Autosave
+      // ---------------------------------------------------------------
+      const KEY = "gw12f_progress_v1";
+      function save() {
+        try {
+          const f = {}; document.querySelectorAll('input[id^="input-"], textarea[id^="input-"], input[id^="sim-"]').forEach((e) => { f[e.id] = e.value; });
+          const a = document.querySelector(".nav-btn.active");
+          localStorage.setItem(KEY, JSON.stringify({ tab: a ? a.dataset.part : "intro", f, model, p2Mode, stop: $("sl4-stop").value }));
+        } catch (e) { /* ignore */ }
+      }
+      let st = null; window.__scheduleSave = () => { clearTimeout(st); st = setTimeout(save, 250); };
+      document.addEventListener("input", sched); document.addEventListener("change", sched); document.addEventListener("click", sched);
+      window.addEventListener("pagehide", save); window.addEventListener("beforeunload", save);
+      (function load() {
+        let s; try { const raw = localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
+        if (s) {
+          Object.keys(s.f || {}).forEach((id) => { const e = $(id); if (e) e.value = s.f[id]; });
+          document.querySelectorAll('input[id^="sim-"]').forEach((n) => { const r = $("simr-" + n.id.slice(4)); if (r) r.value = n.value; });
+          if (s.model) { const d = MODEL_DEFAULT(); model = Object.assign(d, s.model, { ctrl: Object.assign(d.ctrl, s.model.ctrl || {}), inp: Object.assign(d.inp, s.model.inp || {}), motor: Object.assign(d.motor, s.model.motor || {}), dist: Object.assign(d.dist, s.model.dist || {}) }); }
+          if (s.p2Mode) p2Mode = s.p2Mode === "open" ? "open" : "closed";
+          if (s.stop) $("sl4-stop").value = s.stop;
+        }
+        buildDiagram(); drawSwitch(); setP3Mode($("sim-p3-mode").value === "custom" ? "custom" : "handout"); p3State.fnText = p3FnText();
+        const ready = ["input-p3-a0", "input-p3-tol", "input-p3-f", "input-p3-cond", "input-p3-K"].every((id) => $(id).value.trim());
+        if (ready) p3Run(true);
+        activate(s && s.tab && SECTION_IDS[s.tab] ? s.tab : "intro");
+      })();
+    })();
+  </script>
+
+</body>
+
+</html>
