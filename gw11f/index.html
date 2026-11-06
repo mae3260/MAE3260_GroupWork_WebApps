@@ -260,7 +260,7 @@
         <div class="req-box">
           <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
           <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
-          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 150\ [\text{N-m}]</span></p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 300\ [\text{N-m}]</span></p>
           <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
         </div>
 
@@ -287,7 +287,7 @@
         <div class="req-box">
           <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
           <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
-          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 150\ [\text{N-m}]</span></p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 300\ [\text{N-m}]</span></p>
           <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
         </div>
         <div class="panel-box" id="app-p1"></div>
@@ -323,7 +323,7 @@
         <div class="req-box">
           <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
           <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
-          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 150\ [\text{N-m}]</span></p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 300\ [\text{N-m}]</span></p>
           <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
         </div>
         <h4 class="part-title">Calculations and <i>s</i>-plane sketch</h4>
@@ -356,7 +356,7 @@
         <div class="req-box">
           <p><b>Requirement #1:</b> 2% Settling time <span class="ik">t_{\mathrm{S}} &lt; 0.25\ [\text{sec}]</span></p>
           <p><b>Requirement #2:</b> Percent overshoot <span class="ik">M_{\mathrm{O}} &lt; 5\%</span>.</p>
-          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 150\ [\text{N-m}]</span></p>
+          <p><b>Requirement #3:</b> <span class="ik">\max|u(t)| &lt; 300\ [\text{N-m}]</span></p>
           <p class="req-note">Note that the <span class="ik">\max|u(t)|</span> does not necessarily occur at <span class="ik">t = 0</span>; thus we have to simulate to verify.</p>
         </div>
         <h4 class="part-title">Calculations and <i>s</i>-plane sketch</h4>
@@ -651,7 +651,7 @@
       xaxis: { title: "time [sec]", gridcolor: "#282D3A", range: ax.rng("ux") }, yaxis: { title: "control u(t) [Nm]", gridcolor: "#282D3A", zerolinecolor: "#3a4052", range: ax.rng("uy") } }), PO);
     // poles
     const ptr = items.map((it) => ({ x: it.res.roots.map((p) => p[0]), y: it.res.roots.map((p) => p[1]), mode: "markers", name: it.name,
-      marker: { symbol: "x", size: 13, color: it.color, line: { width: 2, color: it.color } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>" + it.name + "</extra>" }));
+      marker: { symbol: "x-thin", size: 12, color: it.color, line: { width: 3, color: it.color } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>" + it.name + "</extra>" }));
     Plotly.react(poleEl, ptr, baseLayout({ title: { text: "Closed loop poles", font: { size: 12 }, x: 0.02 }, showlegend: false,
       xaxis: { title: "Re(s)", range: ax.rng("rex"), gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 },
       yaxis: { title: "Im(s)", range: ax.rng("imy"), gridcolor: "#282D3A", zerolinecolor: "#8B92A5", zerolinewidth: 1.5 } }), PO);
@@ -758,7 +758,7 @@
   (function () {
     const host = document.getElementById("app-p4");
     host.innerHTML = `
-      <div class="cmp-ctrl spread tools"><label><input type="checkbox" id="sim-p4-lines" /> Metric lines</label>
+      <div class="cmp-ctrl spread tools">
         <button class="run-btn small" id="btn-p4-capture">CAPTURE FIGURE</button></div>
       <p class="upload-status" id="capstat-p4"></p>${plotCells("p4")}`;
     const ax = axisControls("p4");
@@ -766,10 +766,9 @@
     function render() {
       items = ["p1", "p2", "p3"].map((p, i) => ({ res: panels[p].cur, color: SC[i], name: `System ${i + 1}` })).filter((it) => it.res);
       items.forEach((it) => { it.label = `${it.name} (KP=${nm(it.res.KP)}, KI=${nm(it.res.KI)}, KD=${nm(it.res.KD)})`; });
-      if (items.length) drawAll("p4", items, document.getElementById("sim-p4-lines").checked, ax);
+      if (items.length) drawAll("p4", items, false, ax);
     }
     panels.p4 = { update: render, get items() { return items; } };
-    document.getElementById("sim-p4-lines").addEventListener("change", render);
     document.getElementById("btn-p4-capture").addEventListener("click", () => {
       const st = document.getElementById("capstat-p4");
       if (!items.length) { st.style.color = "#FB7185"; st.textContent = "Enter at least one system first."; return; }
