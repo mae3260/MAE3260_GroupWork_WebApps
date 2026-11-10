@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MAE 3260 Lab 4 &mdash; Position Control Workbench</title>
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0F1115; --panel: #171A21; --panel2: #1D212B; --line: #282D3A;
+    --amber: #FFB454; --cyan: #5EEAD4; --rose: #FB7185; --pink: #F472B6;
+    --fg: #E7E9EE; --muted: #8B92A5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--ink); color: var(--fg); font-family: 'Inter', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  header h1 { font-size: 14px; margin: 0; font-weight: 600; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+
+  main { flex: 1; display: flex; overflow: hidden; }
+  nav { width: 220px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line); order: 2; padding: 16px 14px; overflow-y: auto; }
+  nav p.label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; margin: 14px 0 8px 0; }
+  nav p.label:first-child { margin-top: 0; }
+  .nav-btn { display: block; width: 100%; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 9px 12px; margin-bottom: 6px; background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; color: var(--fg); cursor: pointer; }
+  .nav-btn.active { border-color: var(--amber); color: var(--amber); }
+  .nav-btn small { display: block; font-family: 'Inter', sans-serif; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .content { flex: 1; order: 1; overflow-y: auto; padding: 28px 40px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  h2.section-title { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--amber); margin: 0 0 14px 0; }
+  h3.problem-title { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--cyan); margin: 0 0 10px 0; }
+  h4.part-title { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--fg); margin: 22px 0 8px 0; }
+  p.instructions { font-size: 14.5px; line-height: 1.65; color: var(--fg); margin: 0 0 16px 0; }
+  ul.goals { padding-left: 20px; margin: 0 0 16px 0; }
+  ul.goals li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .eq-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; margin: 14px 0; text-align: center; font-size: 16px; }
+  .given-line { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin: 0 0 18px 0; line-height: 1.8; }
+  .given-line b { color: var(--fg); font-weight: 600; }
+  .note-box { background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 4px; padding: 12px 16px; margin: 0 0 18px 0; font-size: 13px; line-height: 1.6; color: var(--fg); }
+  .note-box code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan); background: var(--ink); padding: 1px 5px; border-radius: 3px; }
+
+  .panel-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
+  .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  .form-grid.one { grid-template-columns: 1fr; }
+  .form-grid.two { grid-template-columns: 1fr 1fr; }
+  .form-grid.five { grid-template-columns: repeat(5, 1fr); }
+  .field { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .field label { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .field input[type="text"], .field input[type="number"] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 8px 10px; }
+  .field input:focus { outline: none; border-color: var(--amber); }
+  .field select { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 8px 10px; }
+  .field select:focus { outline: none; border-color: var(--amber); }
+
+  .reflection-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  .reflection-box textarea { width: 100%; min-height: 90px; resize: vertical; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'Inter', sans-serif; font-size: 14px; padding: 10px 12px; line-height: 1.5; }
+  .reflection-box textarea:focus { outline: none; border-color: var(--amber); }
+
+  .run-btn { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; padding: 10px 22px; border-radius: 6px; border: none; background: var(--amber); color: var(--ink); cursor: pointer; }
+  .run-btn:hover { filter: brightness(1.08); }
+  .run-btn:active { transform: scale(0.98); }
+  .run-btn.secondary { background: none; color: var(--muted); border: 1px solid var(--line); }
+  .run-btn.secondary:hover { color: var(--rose); border-color: var(--rose); }
+  .run-btn.small { font-size: 11.5px; padding: 8px 14px; }
+
+  .match-banner { display: none; margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line); }
+  .match-banner.match { display: block; border-color: var(--cyan); color: var(--cyan); }
+  .match-banner.no-match { display: block; border-color: var(--rose); color: var(--rose); }
+  .field-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; min-height: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .plot-host { height: 300px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin-top: 14px; }
+  .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 13px; text-align: center; max-width: 320px; margin: 0 auto; padding: 0 20px; }
+
+  .steps-list { padding-left: 20px; margin: 0 0 16px 0; }
+  .steps-list li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .upload-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 0 0 18px 0; }
+  .upload-block input[type="file"] { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--fg); }
+  .upload-thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .thumb-wrap { position: relative; width: 90px; height: 120px; }
+  .thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); display: block; }
+  .thumb-remove { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+  .upload-status { font-size: 11px; color: var(--cyan); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; }
+  .upload-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+  .file-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; margin: 4px 6px 4px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .file-chip .chip-remove { background: none; border: none; color: var(--rose); cursor: pointer; font-size: 13px; line-height: 1; font-family: 'JetBrains Mono', monospace; padding: 0; }
+
+  .vib-top-row { display: flex; gap: 18px; align-items: flex-start; margin-top: 14px; }
+  .vib-svg-host { flex: 1.3; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .vib-output { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .vib-output h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .vib-output .out-row { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; margin-bottom: 7px; color: var(--fg); gap: 8px; }
+  .vib-output .out-row span.k { color: var(--muted); flex-shrink: 0; }
+  .vib-output .out-row span.v { color: var(--cyan); text-align: right; }
+  .vib-presets { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+  .katex { color: var(--fg); }
+</style>
+<style>
+  .app-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 14px; align-items: start; }
+  .app-grid .card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+  .card h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em; font-weight: 500; }
+  .num-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .num-row label, .sl label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+  .num-row input, .sl input[type=number] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .num-row input:focus, .sl input[type=number]:focus { outline: none; border-color: var(--amber); }
+  .sl { margin-bottom: 10px; }
+  .sl .row { display: flex; gap: 8px; align-items: center; }
+  .sl input[type=range] { flex: 1; min-width: 0; accent-color: var(--rose); }
+  .sl input[type=number] { width: 74px; }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .tools label { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--fg); display: flex; align-items: center; gap: 6px; }
+  .tools input { accent-color: var(--amber); }
+  .app-bottom { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; align-items: start; }
+  .plot-host.t { height: 400px; margin-top: 0; }
+  .plot-host.p { height: 340px; margin-top: 0; }
+  table.mt { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  table.mt th, table.mt td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: right; }
+  table.mt th:first-child, table.mt td:first-child { text-align: left; color: var(--muted); }
+  table.mt th { color: var(--muted); font-weight: 500; }
+  table.mt td.b { color: var(--cyan); } table.mt td.c { color: var(--rose); }
+  table.sum { border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; margin: 8px 0 16px; }
+  table.sum th, table.sum td { border: 1px solid var(--line); padding: 6px 8px; }
+  table.sum th { color: var(--muted); font-weight: 500; background: var(--panel); }
+  table.sum select { background: var(--ink); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 12px; padding: 4px; }
+  .cap-list { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 18px; }
+  .cap-item { width: 250px; background: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px; position: relative; }
+  .cap-item img { width: 100%; border-radius: 4px; display: block; }
+  .cap-item .cap-text { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+  .cap-item .cap-x { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px; line-height: 1; }
+  @media (max-width: 1000px) { .app-grid, .app-bottom { grid-template-columns: 1fr; } }
+</style>
+<style>
+  .case-card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px 6px; margin-bottom: 12px; border-left-width: 4px; }
+  .case-card.c0 { border-left-color: #5EEAD4; } .case-card.c1 { border-left-color: #FB7185; } .case-card.c2 { border-left-color: #FFB454; }
+  .case-card .hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+  .case-card .hd input { accent-color: var(--amber); }
+  .sl.locked input[type=number] { opacity: 0.65; border-style: dashed; }
+  .sl .lock { font-size: 10px; color: var(--amber); font-family: 'JetBrains Mono', monospace; }
+  .r0-row { display: flex; align-items: center; gap: 10px; }
+  .r0-row input[type=number] { width: 90px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .r0-row .deg { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); }
+  .plot-host.t { height: 400px; }
+  .plot-host.u { height: 320px; margin-top: 0; }
+  .app-below { margin-top: 14px; }
+  table.mt td.k0 { color: #5EEAD4; } table.mt td.k1 { color: #FB7185; } table.mt td.k2 { color: #FFB454; }
+  table.mt th.k0 { color: #5EEAD4; } table.mt th.k1 { color: #FB7185; } table.mt th.k2 { color: #FFB454; }
+  .ref-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; }
+  .plot-host.r { height: 290px; margin-top: 0; }
+  .range-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+  .range-row input { width: 90px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .range-row input:focus { outline: none; border-color: var(--amber); }
+  @media (max-width: 1000px) { .ref-grid { grid-template-columns: 1fr; } }
+</style>
+<style>
+  /* ---- Simulink / MATLAB look-alike windows ---- */
+  .xwin { background:#f3f3f3; color:#1b1b1b; border:1px solid #7a7a7a; border-radius:3px; box-shadow:0 4px 16px rgba(0,0,0,.45); margin: 0 0 16px 0; font-family: 'Segoe UI','Inter',Arial,sans-serif; font-size:12px; overflow:hidden; }
+  .xwin .xt { display:flex; align-items:center; gap:8px; background:#fff; padding:6px 10px; border-bottom:1px solid #d0d0d0; font-size:12px; }
+  .xwin .xt .ico { width:14px; height:14px; border-radius:2px; background:linear-gradient(135deg,#e8742c,#0f5ba8); flex-shrink:0; }
+  .xwin .xt .ttl { flex:1; }
+  .xwin .xt .wb { display:flex; gap:14px; color:#444; font-size:13px; }
+  .xwin .menu { display:flex; gap:14px; padding:4px 10px; background:#fff; border-bottom:1px solid #e1e1e1; font-size:12px; }
+  .xwin .stat { display:flex; justify-content:space-between; padding:3px 10px; background:#f3f3f3; border-top:1px solid #cfcfcf; font-size:11px; color:#333; }
+  .xwin .stat .box { border:1px solid #bbb; padding:0 6px; margin-left:6px; background:#fafafa; }
+  .ml-editor textarea { width:100%; min-height:250px; resize:vertical; background:#fff; color:#1b1b1b; border:none; border-bottom:1px solid #ccc; font-family:'JetBrains Mono',Consolas,monospace; font-size:12px; line-height:1.5; padding:8px 10px; box-sizing:border-box; white-space:pre; overflow:auto; }
+  .ml-editor textarea:focus { outline:none; }
+  .ml-tools { display:flex; align-items:center; gap:10px; padding:6px 10px; background:#f3f3f3; border-bottom:1px solid #d0d0d0; }
+  .ml-btn { background:#fff; border:1px solid #9a9a9a; border-radius:3px; padding:4px 14px; font-size:12px; cursor:pointer; color:#1b1b1b; display:inline-flex; align-items:center; gap:6px; }
+  .ml-btn:hover { background:#eaf3fb; border-color:#2b78c2; }
+  .ml-btn.run .tri { width:0; height:0; border-left:9px solid #1e9d3a; border-top:6px solid transparent; border-bottom:6px solid transparent; }
+  .ml-btn[disabled] { opacity:.45; cursor:default; }
+  .ml-cmd { background:#fff; border-top:1px solid #ccc; padding:6px 10px; font-family:'JetBrains Mono',Consolas,monospace; font-size:11.5px; color:#222; min-height:44px; white-space:pre-wrap; }
+  .ml-cmd .err { color:#c00; }
+  .ml-hint { padding:4px 10px; font-size:11px; color:#555; background:#f9f9f9; border-bottom:1px solid #e5e5e5; }
+  .rb-tabs { display:flex; background:#fff; border-bottom:1px solid #ccc; font-size:11.5px; }
+  .rb-tabs span { padding:6px 14px; color:#555; }
+  .rb-tabs span.on { color:#1b1b1b; border-bottom:3px solid #2b78c2; font-weight:600; }
+  .rb { display:flex; align-items:center; gap:26px; padding:6px 14px; background:#f8f8f8; border-bottom:1px solid #d6d6d6; }
+  .rb .grp { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .rb .grp .lab { font-size:10.5px; color:#444; }
+  .rb .bigbtn { width:42px; height:36px; display:flex; align-items:center; justify-content:center; border:1px solid transparent; border-radius:3px; cursor:pointer; background:transparent; }
+  .rb .bigbtn:hover { background:#e6f0fa; border-color:#9cc3e8; }
+  .rb .bigbtn[disabled] { opacity:.4; cursor:default; }
+  .rb .bigbtn .play { width:0; height:0; border-left:16px solid #1e9d3a; border-top:10px solid transparent; border-bottom:10px solid transparent; }
+  .rb .bigbtn .stop { width:14px; height:14px; background:#c02a2a; }
+  .rb input { width:78px; border:1px solid #999; padding:3px 6px; font-size:12px; background:#fff; color:#1b1b1b; }
+  .sl-canvas { background:#fff; position:relative; }
+  .sl-canvas svg { width:100%; height:auto; display:block; }
+  .sl-canvas .blk { cursor:pointer; }
+  .sl-canvas .blk:hover rect.hl { stroke:#2b78c2; stroke-width:2.2; }
+  .sl-canvas text { font-family:'Segoe UI',Arial,sans-serif; }
+  .scope { background:#f3f3f3; }
+  .scope .tbar { display:flex; align-items:center; gap:6px; padding:4px 8px; background:#f7f7f7; border-bottom:1px solid #cfcfcf; }
+  .scope .tbar button { width:28px; height:24px; border:1px solid transparent; background:transparent; border-radius:3px; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; }
+  .scope .tbar button:hover { background:#e6f0fa; border-color:#9cc3e8; }
+  .scope .tbar button.on { background:#cfe3f6; border-color:#6aa6dc; }
+  .scope .tbar button[disabled] { opacity:.35; cursor:default; }
+  .scope .sbody { display:flex; background:#000; }
+  .scope .splot { flex:1; min-width:0; height:340px; background:#000; }
+  .scope .side { width:262px; flex-shrink:0; background:#f3f3f3; padding:6px 6px 8px; display:flex; flex-direction:column; gap:6px; }
+  .scope .side .pn { background:#fff; border:1px solid #c9c9c9; }
+  .scope .side .pn h6 { margin:0; padding:4px 8px; font-size:11.5px; background:#e9e9e9; border-bottom:1px solid #c9c9c9; font-weight:600; }
+  .scope .side .pn .pb { padding:6px 8px; font-size:11.5px; }
+  .scope .side select { width:100%; font-size:11.5px; padding:2px; }
+  .scope table.cm { width:100%; border-collapse:collapse; font-size:11.5px; border:1px solid #ccc; }
+  .scope table.cm td, .scope table.cm th { padding:2px 5px; text-align:center; font-weight:400; }
+  .scope table.cm input { width:68px; text-align:center; font-size:11.5px; border:1px solid #bbb; padding:1px 2px; background:#fafafa; color:#1b1b1b; }
+  .scope .cm2 { display:grid; grid-template-columns:1fr 1fr; gap:2px 6px; font-size:11.5px; margin-top:6px; padding-top:6px; border-top:1px solid #ccc; }
+  .scope .cm2 span.v { text-align:right; }
+  .sw-line { display:inline-block; width:60px; height:0; border-top:3px solid #0a0; vertical-align:middle; }
+  .dlg-back { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:50; }
+  .dlg-back.open { display:flex; }
+  .dlg { width:620px; max-width:94vw; max-height:92vh; overflow:auto; background:#f0f0f0; color:#1b1b1b; border:1px solid #666; box-shadow:0 8px 30px rgba(0,0,0,.6); font-family:'Segoe UI',Arial,sans-serif; font-size:12px; }
+  .dlg .dt { display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border-bottom:1px solid #ccc; font-size:12px; }
+  .dlg .dt .x { cursor:pointer; padding:0 6px; font-size:15px; }
+  .dlg .db { padding:10px 12px; }
+  .dlg .db p { margin:0 0 8px; line-height:1.4; }
+  .dlg .db .hd { font-weight:700; }
+  .dlg label.row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .dlg label.row span.l { width:150px; flex-shrink:0; }
+  .dlg input[type=text], .dlg select { background:#fff; border:1px solid #888; padding:3px 6px; font-size:12px; color:#1b1b1b; flex:1; min-width:0; }
+  .dlg input[disabled], .dlg select[disabled] { background:#e4e4e4; color:#888; border-color:#bbb; }
+  .dlg .tabs { display:flex; gap:0; border-bottom:1px solid #999; margin-top:10px; }
+  .dlg .tabs button { background:#e4e4e4; border:1px solid #aaa; border-bottom:none; padding:4px 10px; font-size:12px; cursor:pointer; color:#1b1b1b; margin-right:2px; }
+  .dlg .tabs button.on { background:#fff; font-weight:600; }
+  .dlg .tp { background:#fff; border:1px solid #aaa; border-top:none; padding:10px; min-height:150px; }
+  .dlg .tp .sec { font-weight:600; margin-bottom:6px; }
+  .dlg .tp .dim { color:#888; }
+  .dlg .btns { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+  .dlg .btns button { min-width:76px; padding:4px 10px; font-size:12px; border:1px solid #888; background:#e8e8e8; cursor:pointer; color:#1b1b1b; }
+  .dlg .btns button.def { border:2px solid #2b78c2; }
+  .dlg .btns button[disabled] { color:#999; border-color:#bbb; cursor:default; }
+  .dlg .err { color:#b00; font-size:11.5px; min-height:16px; margin-top:6px; }
+  .dlg .formula { text-align:center; margin: 4px 0; }
+  .sim-note { font-size:12.5px; color:var(--muted); margin:0 0 12px; line-height:1.55; }
+</style>
+<style>
+  /* ---- 12F additions ---- */
+  .console { background:#fff; color:#1b1b1b; border:1px solid #888; border-radius:3px; padding:8px 12px; font-family:'JetBrains Mono',Consolas,monospace; font-size:12px; line-height:1.5; white-space:pre-wrap; min-height:60px; max-height:380px; overflow:auto; margin-top:10px; }
+  .console .err { color:#c00; }
+  .fn-box { white-space:pre; background:#fff; color:#1b1b1b; border:1px solid #888; border-radius:3px; padding:10px 14px; font-family:'JetBrains Mono',Consolas,monospace; font-size:12.5px; line-height:2; overflow-x:auto; }
+  .fn-box .cm { color:#2a7f2a; }
+  .fn-box .kw { color:#0000ff; }
+  .fn-box input { font-family:inherit; font-size:12.5px; background:#fffbe8; color:#1b1b1b; border:1px solid #c9a100; border-radius:3px; padding:2px 6px; min-width:80px; }
+  .fn-box input.w1 { width:170px; } .fn-box input.w2 { width:96px; } .fn-box input.w3 { width:420px; max-width:100%; } .fn-box input.w4 { width:260px; }
+  .fn-box input:focus { outline:none; border-color:#2b78c2; background:#fff; }
+  .bd-wrap { position:relative; width:100%; aspect-ratio: 920 / 250; background:var(--panel); border:1px solid var(--line); border-radius:8px; }
+  .bd-wrap svg { position:absolute; inset:0; width:100%; height:100%; }
+  .bd-wrap input { position:absolute; transform:translate(-50%,-50%); width:11.5%; background:var(--ink); border:1px solid var(--amber); border-radius:4px; color:var(--fg); font-family:'JetBrains Mono',monospace; font-size:12px; padding:5px 6px; text-align:center; }
+  .bd-wrap input:focus { outline:none; border-color:var(--cyan); }
+  .bd-wrap .sw { cursor:pointer; }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  .seg button { background:var(--panel2); color:var(--muted); border:none; padding:7px 12px; font-family:'JetBrains Mono',monospace; font-size:11.5px; cursor:pointer; }
+  .seg button.on { background:var(--amber); color:var(--ink); font-weight:600; }
+  .pre-out { font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.7; }
+  .pre-out .k { color:var(--muted); } .pre-out .v { color:var(--cyan); }
+  .scope .splot.tall { height:430px; }
+  .xwin.scope.small .splot { height:260px; }
+  @media (max-width: 1000px) { .scope .sbody { flex-direction:column; } .scope .side { width:auto; } }
+</style>
+<style>
+  /* ---- Lab 4 workbench additions ---- */
+  .kv { background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:12px; }
+  .kv h5 { margin:0 0 10px 0; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.1em; font-weight:500; }
+  .kv .row { display:flex; justify-content:space-between; gap:10px; font-family:'JetBrains Mono',monospace; font-size:12.5px; margin-bottom:6px; align-items:baseline; }
+  .kv .row .k { color:var(--muted); } .kv .row .v { color:var(--cyan); text-align:right; word-break:break-all; }
+  .kv .row .v.bad { color:var(--rose); } .kv .row .v.ok { color:var(--cyan); }
+  .kv .row.wide { display:block; } .kv .row.wide .v { display:block; text-align:left; margin-top:2px; }
+  .inl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:10px; }
+  .inl.two { grid-template-columns:repeat(2,minmax(0,1fr)); } .inl.four { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .inl label { display:block; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted); margin-bottom:4px; }
+  .inl input { width:100%; background:var(--ink); border:1px solid var(--line); border-radius:5px; color:var(--fg); font-family:'JetBrains Mono',monospace; font-size:13px; padding:7px 9px; }
+  .inl input:focus { outline:none; border-color:var(--amber); }
+  .ctl-sel { margin-bottom:12px; } .ctl-sel label { display:block; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted); margin-bottom:4px; }
+  .ctl-sel select { width:100%; background:var(--ink); border:1px solid var(--line); border-radius:5px; color:var(--fg); font-family:'JetBrains Mono',monospace; font-size:13px; padding:7px 8px; }
+  table.it { border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:12px; width:100%; }
+  table.it th, table.it td { border-bottom:1px solid var(--line); padding:4px 8px; text-align:right; } table.it th { color:var(--muted); font-weight:500; }
+  .eqn-note { font-size:12.5px; color:var(--muted); line-height:1.55; margin:0 0 12px; }
+  .flag { font-family:'JetBrains Mono',monospace; font-size:12px; padding:8px 12px; border-radius:6px; border:1px solid var(--line); margin-bottom:12px; }
+  .flag.warn { border-color:var(--rose); color:var(--rose); } .flag.good { border-color:var(--cyan); color:var(--cyan); }
+  .plot-host.s { height:300px; margin-top:0; } .plot-host.sm { height:240px; margin-top:12px; }
+  @media (max-width:1000px){ .inl, .inl.four { grid-template-columns:1fr 1fr; } }
+    /* ---- two-ended axis sliders around each plot ---- */
+    .ax-cell {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr);
+      grid-template-rows: auto 18px;
+      column-gap: 2px;
+    }
+
+    .ax-cell>.plot-host {
+      grid-column: 2;
+      grid-row: 1;
+      margin-top: 0 !important;
+    }
+
+    .dual {
+      position: relative;
+      grid-column: 2;
+      grid-row: 2;
+      height: 18px;
+    }
+
+    .dual.v {
+      grid-column: 1;
+      grid-row: 1;
+      width: 18px;
+      height: auto;
+    }
+
+    .dual .track,
+    .dual .fill {
+      position: absolute;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+
+    .dual .track {
+      background: var(--line);
+      left: 0;
+      right: 0;
+      top: 7px;
+      height: 4px;
+    }
+
+    .dual .fill {
+      background: var(--amber);
+      top: 7px;
+      height: 4px;
+    }
+
+    .dual.v .track {
+      left: 7px;
+      width: 4px;
+      top: 0;
+      bottom: 0;
+      height: auto;
+    }
+
+    .dual.v .fill {
+      left: 7px;
+      width: 4px;
+      top: auto;
+    }
+
+    .dual input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: none;
+      pointer-events: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .dual.v input {
+      writing-mode: vertical-lr;
+      direction: rtl;
+    }
+
+    .dual input::-webkit-slider-runnable-track {
+      background: none;
+    }
+
+    .dual input::-moz-range-track {
+      background: none;
+    }
+
+    .dual input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      pointer-events: auto;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--amber);
+      border: 2px solid var(--ink);
+      cursor: pointer;
+    }
+
+    .dual input::-moz-range-thumb {
+      pointer-events: auto;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+      border: 2px solid var(--ink);
+      cursor: pointer;
+    }
+    .ax-cell.empty>.dual { visibility: hidden; }
+    .ax-auto { display: flex; justify-content: flex-end; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 4px; cursor: pointer; user-select: none; }
+    .ax-auto input { accent-color: var(--amber); margin: 0; cursor: pointer; }
+    .ax-auto + .ax-cell { margin-top: 0 !important; }
+    .ax-auto.empty { visibility: hidden; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>MAE 3260 LAB 4 <span>&mdash; Digital Angular Position Control: calculation workbench</span></h1>
+</header>
+
+<main>
+  <nav>
+    <p class="label">BACKGROUND</p>
+    <button class="nav-btn active" data-part="intro">Intro<small>What each page replaces</small></button>
+
+    <p class="label">STEPS 7 &ndash; 9a</p>
+    <button class="nav-btn" data-part="cal">Calibration &amp; friction<small>k<sub>cal</sub>, K<sub>frict</sub>/K, volts &harr; degrees</small></button>
+
+    <p class="label">STEP 9</p>
+    <button class="nav-btn" data-part="ol">Open loop: K and a<small>The 12F calculation, with data</small></button>
+
+    <p class="label">STEPS 10 &ndash; 13</p>
+    <button class="nav-btn" data-part="cl">Closed-loop response<small>P, PD, PID transfer functions</small></button>
+
+    <p class="label">STEP 16</p>
+    <button class="nav-btn" data-part="tf">Filter time T<sub>f</sub><small>Characteristic roots</small></button>
+
+    <p class="label">SUBMIT</p>
+    <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+  </nav>
+
+  <div class="content">
+    <div class="wrap">
+
+      <!-- ============== INTRO ============== -->
+      <section id="part-intro">
+        <h2 class="section-title">Lab 4: Position Control Workbench</h2>
+        <p class="instructions">
+          The Lab 4 manual uses MATLAB for a few calculations: the open-loop parameters from Step 9 (the function you wrote in group work 12F), the exact theoretical step response of the PID design in Step 13, and the characteristic roots in Step 16.
+          This page does those calculations in the browser, with the same equations as the manual, plus the calibration and friction arithmetic from the data sheet.
+        </p>
+        <div class="eq-block" id="eq-ol"></div>
+        <div class="eq-block" id="eq-cl"></div>
+        <table class="sum">
+          <tr><th>Page</th><th>Lab step</th><th>What it computes</th></tr>
+          <tr><td>Calibration &amp; friction</td><td>7, 8, 9a</td><td class="mono">k<sub>cal</sub> (&deg;/V), K<sub>frict</sub>/K and &sigma; in volts and degrees, volts &harr; degrees, the r<sub>ss</sub> for Step 9</td></tr>
+          <tr><td>Open loop: K and a</td><td>9, report 9</td><td>a by the iteration of Eq. (18), K from a point on the response, comparison with 1/&tau;</td></tr>
+          <tr><td>Closed-loop response</td><td>10&ndash;13, report 13</td><td>Eq. (24), (27), (30): numerator and denominator coefficients, roots, step response, t<sub>r</sub> and M<sub>p</sub></td></tr>
+          <tr><td>Filter time T<sub>f</sub></td><td>16, report 16</td><td>Roots of the PID characteristic equation for T<sub>f</sub> = 0.015 s and your destabilizing T<sub>f</sub></td></tr>
+        </table>
+      </section>
+
+      <!-- ============== CALIBRATION & FRICTION ============== -->
+      <section id="part-cal" style="display:none;">
+        <h3 class="problem-title">Steps 7&ndash;9a: Calibration and friction torque</h3>
+        <div class="panel-box">
+          <div class="app-grid">
+            <div>
+              <div class="kv"><h5>STEP 7: POTENTIOMETER CALIBRATION</h5>
+                <p class="eqn-note">Voltage change measured on the scope for 720&deg; of rotation, three times.</p>
+                <div class="inl">
+                  <div><label>&Delta;V<sub>cal,1</sub> (V)</label><input type="text" id="input-cal-dv1" spellcheck="false" /></div>
+                  <div><label>&Delta;V<sub>cal,2</sub> (V)</label><input type="text" id="input-cal-dv2" spellcheck="false" /></div>
+                  <div><label>&Delta;V<sub>cal,3</sub> (V)</label><input type="text" id="input-cal-dv3" spellcheck="false" /></div>
+                </div>
+              </div>
+              <div class="kv"><h5>STEP 8: FRICTION TORQUE</h5>
+                <p class="eqn-note">8b: highest reference that does not make the rotor spin. 8c: reference that gives a slow but sustained rotation.</p>
+                <div class="inl two">
+                  <div><label>8b: r (degrees)</label><input type="text" id="input-cal-r1" spellcheck="false" /></div>
+                  <div><label>8c: 2nd r (degrees)</label><input type="text" id="input-cal-r2" spellcheck="false" /></div>
+                </div>
+              </div>
+              <div class="kv"><h5>CONVERTER</h5>
+                <div class="inl two">
+                  <div><label>degrees</label><input type="text" id="input-cal-deg" spellcheck="false" /></div>
+                  <div><label>volts</label><input type="text" id="input-cal-volt" spellcheck="false" /></div>
+                </div>
+                <p class="eqn-note" style="margin:0;">Type in either box; the other one fills in using k<sub>cal</sub>.</p>
+              </div>
+              <div class="kv"><h5>FOR LATER STEPS</h5>
+                <div class="inl two"><div><label>K<sub>p</sub> (Step 11)</label><input type="text" id="input-cal-kp" spellcheck="false" /></div><div></div></div>
+              </div>
+            </div>
+            <div>
+              <div class="kv" id="cal-out7"></div>
+              <div class="kv" id="cal-out8"></div>
+              <div class="kv" id="cal-out9"></div>
+              <div class="tools"><button class="run-btn small" id="cal-to-ol" type="button">USE K<sub>frict</sub>/K IN STEP 9</button><span class="mono" id="cal-stat" style="font-size:11px;color:var(--cyan);"></span></div>
+            </div>
+          </div>
+        </div>
+        <h4 class="part-title">Notes</h4>
+        <p class="instructions">What did you observe when calibrating the potentiometer (Step 7) and measuring the friction torque (Step 8)?</p>
+        <div class="reflection-box"><textarea id="input-notes-cal"></textarea></div>
+      </section>
+
+      <!-- ============== OPEN LOOP ============== -->
+      <section id="part-ol" style="display:none;">
+        <h3 class="problem-title">Step 9: Open-loop parameters K and a</h3>
+        <p class="instructions">Enter the measurements from your Step 9 scope display (Figure 13 in the manual). This is the calculation your 12F function does: iterate Eq. (18) for <i>a</i>, then find <i>K</i>.</p>
+        <div class="eq-block" id="eq-a"></div>
+        <div class="panel-box">
+          <div class="app-grid">
+            <div>
+              <div class="kv"><h5>MEASUREMENTS</h5>
+                <div class="inl two">
+                  <div><label>u<sub>ss</sub> (V)</label><input type="text" id="input-ol-uss" spellcheck="false" /></div>
+                  <div><label>K<sub>frict</sub>/K (V)</label><input type="text" id="input-ol-kfk" spellcheck="false" /></div>
+                  <div><label>t<sub>1</sub> (s)</label><input type="text" id="input-ol-t1" spellcheck="false" /></div>
+                  <div><label>&Delta;y<sub>1</sub> (V)</label><input type="text" id="input-ol-dy1" spellcheck="false" /></div>
+                  <div><label>t<sub>2</sub> (s)</label><input type="text" id="input-ol-t2" spellcheck="false" /></div>
+                  <div><label>&Delta;y<sub>2</sub> (V)</label><input type="text" id="input-ol-dy2" spellcheck="false" /></div>
+                </div>
+              </div>
+              <div class="kv"><h5>OPTIONS</h5>
+                <div class="inl two">
+                  <div><label>tolerance on a (1/s)</label><input type="text" id="input-ol-tol" value="1e-10" spellcheck="false" /></div>
+                  <div><label>&tau; from Step 1 (s)</label><input type="text" id="input-ol-tau" spellcheck="false" /></div>
+                </div>
+              </div>
+              <div class="tools">
+                <button class="run-btn small" id="ol-capture" type="button">CAPTURE FIGURE</button>
+                <button class="run-btn small secondary" id="ol-to-cl" type="button">USE K, a IN STEP 10&ndash;13</button>
+              </div>
+              <div class="mono" id="ol-stat" style="font-size:11px;color:var(--cyan);min-height:14px;"></div>
+            </div>
+            <div>
+              <div class="kv" id="ol-out"></div>
+              <div class="kv"><h5>ITERATION (like the a=... lines in MATLAB)</h5><div id="ol-iter"></div></div>
+              <div class="plot-host s" id="ol-plot"></div>
+            </div>
+          </div>
+        </div>
+        <h4 class="part-title">Notes</h4>
+        <p class="instructions">How does a compare with 1/&tau; from Step 1? Explain any difference.</p>
+        <div class="reflection-box"><textarea id="input-notes-ol"></textarea></div>
+      </section>
+
+      <!-- ============== CLOSED LOOP ============== -->
+      <section id="part-cl" style="display:none;">
+        <h3 class="problem-title">Steps 10&ndash;13: Closed-loop step response</h3>
+        <p class="instructions">Choose the controller and enter K and a from Step 9 (or use the example values), then read t<sub>r</sub>, M<sub>p</sub> and the exact transfer function. This is the theoretical response the Step 13 report question asks for.</p>
+        <div class="panel-box">
+          <div class="app-grid">
+            <div>
+              <div class="card"><h5>CONTROLLER</h5>
+                <div class="ctl-sel"><label for="sel-mode">Control mode</label>
+                  <select id="sel-mode"><option value="P">P &mdash; Eq. (24)</option><option value="PD">PD &mdash; Eq. (27)</option><option value="PID" selected>PID &mdash; Eq. (30)</option></select></div>
+                <div id="cl-sliders"></div>
+              </div>
+              <div class="card"><h5>STEP INPUT</h5><div id="cl-step"></div>
+                <div class="inl two"><div><label>plot time (s), 0 = auto</label><input type="text" id="input-cl-tmax" value="0" spellcheck="false" /></div><div></div></div>
+              </div>
+              <div class="card"><h5>YOUR EXPERIMENT (OPTIONAL)</h5>
+                <div class="inl two">
+                  <div><label>measured t<sub>r</sub> (s)</label><input type="text" id="input-cl-trx" spellcheck="false" /></div>
+                  <div><label>measured M<sub>p</sub> (%)</label><input type="text" id="input-cl-mpx" spellcheck="false" /></div>
+                </div>
+              </div>
+              <div class="tools"><button class="run-btn small" id="cl-capture" type="button">CAPTURE FIGURES</button><button class="run-btn small secondary" id="cl-reset" type="button">RESET</button></div>
+              <div class="mono" id="cl-stat" style="font-size:11px;color:var(--cyan);min-height:14px;"></div>
+            </div>
+            <div>
+              <div id="cl-flag"></div>
+              <div class="plot-host s" id="cl-plot-y"></div>
+              <div class="plot-host sm" id="cl-plot-u"></div>
+            </div>
+          </div>
+          <div class="app-bottom">
+            <div class="kv" id="cl-out"></div>
+            <div class="kv" id="cl-tf"></div>
+          </div>
+        </div>
+        <h4 class="part-title">Notes</h4>
+        <p class="instructions">How do the theoretical and measured step responses compare? Give the percent differences in t<sub>r</sub> and M<sub>p</sub> and explain them.</p>
+        <div class="reflection-box"><textarea id="input-notes-cl"></textarea></div>
+      </section>
+
+      <!-- ============== FILTER TIME ============== -->
+      <section id="part-tf" style="display:none;">
+        <h3 class="problem-title">Step 16: Characteristic roots versus T<sub>f</sub></h3>
+        <p class="instructions">The characteristic values are the roots of the denominator of G<sub>CL,PID</sub>(s), Eq. (30). Enter the controller from Step 13a, T<sub>f</sub> = 0.015 s, and the smallest T<sub>f</sub> that gave a sustained oscillation in the lab.</p>
+        <div class="panel-box">
+          <div class="app-grid">
+            <div>
+              <div class="kv"><h5>SYSTEM AND CONTROLLER (STEP 13a)</h5>
+                <div class="inl two">
+                  <div><label>K</label><input type="text" id="input-tf-K" spellcheck="false" /></div>
+                  <div><label>a (1/s)</label><input type="text" id="input-tf-a" spellcheck="false" /></div>
+                  <div><label>K<sub>p</sub></label><input type="text" id="input-tf-Kp" value="40" spellcheck="false" /></div>
+                  <div><label>T<sub>d</sub> (s)</label><input type="text" id="input-tf-Td" value="0.08" spellcheck="false" /></div>
+                  <div><label>T<sub>i</sub> (s)</label><input type="text" id="input-tf-Ti" spellcheck="false" /></div>
+                  <div></div>
+                </div>
+                <div class="tools" style="margin-bottom:0;"><button class="run-btn small secondary" id="tf-from-cl" type="button">COPY FROM CLOSED-LOOP PAGE</button></div>
+              </div>
+              <div class="kv"><h5>FILTER TIME CONSTANTS</h5>
+                <div class="inl two">
+                  <div><label>T<sub>f</sub> default (s)</label><input type="text" id="input-tf-tf0" value="0.015" spellcheck="false" /></div>
+                  <div><label>T<sub>f</sub> destabilizing (s)</label><input type="text" id="input-tf-tf1" spellcheck="false" /></div>
+                </div>
+              </div>
+              <div class="tools"><button class="run-btn small" id="tf-capture" type="button">CAPTURE FIGURE</button></div>
+              <div class="mono" id="tf-stat" style="font-size:11px;color:var(--cyan);min-height:14px;"></div>
+            </div>
+            <div>
+              <div class="kv" id="tf-out"></div>
+              <div class="plot-host s" id="tf-plot"></div>
+              <div class="plot-host sm" id="tf-plot2"></div>
+            </div>
+          </div>
+        </div>
+        <h4 class="part-title">Notes</h4>
+        <p class="instructions">Were any roots unstable at your destabilizing T<sub>f</sub>? How do they compare with the roots at T<sub>f</sub> = 0.015 s?</p>
+        <div class="reflection-box"><textarea id="input-notes-tf"></textarea></div>
+      </section>
+
+      <!-- ============== SUBMISSION ============== -->
+      <section id="part-submission" style="display:none;">
+        <h2 class="section-title">Submission</h2>
+        <div class="form-grid two">
+          <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid" spellcheck="false" /></div>
+          <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids" spellcheck="false" /></div>
+        </div>
+        <ul class="steps-list" style="margin-top:22px;">
+          <li>Enter your NetID and group member NetIDs above and export the PDF.</li>
+          <li>The PDF lists your calculations from each page (calibration, friction, K and a, the closed-loop transfer function with its coefficients, t<sub>r</sub> and M<sub>p</sub>, the Step 16 roots), your notes, and every figure you captured.</li>
+          <li>Your lab data sheet and scope screenshots still go with the report, as the manual says. Attach them below as a PDF if you want them in the same file.</li>
+        </ul>
+        <p class="instructions"><b>Captured figures</b> (from CAPTURE FIGURE on each page):</p>
+        <div class="cap-list" id="cap-list"></div>
+        <p class="instructions">Append an existing PDF to the end of your export (optional):</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-appendix" accept="application/pdf" multiple />
+          <div id="upload-thumbs-appendix" style="display:flex; flex-wrap:wrap; margin-top:10px;"></div>
+          <p class="upload-err" id="upload-err-appendix"></p>
+        </div>
+        <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+        <p class="field-err" id="exportStatus" style="color:var(--muted);"></p>
+      </section>
+
+    </div>
+  </div>
+</main>
+<script>
+// ---- numerical core for Lab 4 (polynomials, roots, step response) ----
+const L4 = (function () {
+  const trim = (p) => { let i = 0; while (i < p.length - 1 && p[i] === 0) i++; return p.slice(i); };
+  const pmul = (a, b) => { const r = new Array(a.length + b.length - 1).fill(0); for (let i = 0; i < a.length; i++) for (let j = 0; j < b.length; j++) r[i + j] += a[i] * b[j]; return r; };
+  const pad = (p, n) => new Array(Math.max(0, n - p.length)).fill(0).concat(p);
+  const padd = (a, b) => { const n = Math.max(a.length, b.length), x = pad(a, n), y = pad(b, n); return x.map((v, i) => v + y[i]); };
+  const pscale = (p, c) => p.map((v) => v * c);
+  // closed-loop transfer functions, Eq. (24), (27), (30); returns {num, den} as MATLAB-style vectors (equal length)
+  function closedLoop(mode, K, a, Kp, Td, Ti, Tf) {
+    const KK = K * Kp;
+    let num, den;
+    if (mode === "PID") {
+      num = pscale([Tf, 1], KK);
+      den = padd(pscale(pmul([1, 0, 0], pmul([1, a], [Tf, 1])), Ti), pscale([Td * Ti, Ti, 1], KK));
+    } else {
+      const Tdd = mode === "PD" ? Td : 0;
+      num = pscale([Tf, 1], KK);
+      den = padd(pmul([1, 0], pmul([1, a], [Tf, 1])), pscale([Tdd, 1], KK));
+    }
+    den = trim(den); num = trim(num); const n = Math.max(num.length, den.length);
+    return { num: pad(num, n), den: pad(den, n) };
+  }
+  // roots of a real polynomial (Aberth iteration + Newton polish). returns [{re,im}]
+  function roots(p) {
+    p = trim(p.slice()); const n = p.length - 1; if (n < 1) return [];
+    const lead = p[0], c = p.map((v) => v / lead);
+    const R = 1 + Math.max(...c.slice(1).map(Math.abs));
+    let z = []; for (let k = 0; k < n; k++) { const ang = 2 * Math.PI * k / n + 0.4; z.push([R * 0.5 * Math.cos(ang), R * 0.5 * Math.sin(ang)]); }
+    const cm = (a, b) => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]];
+    const cd = (a, b) => { const d = b[0] * b[0] + b[1] * b[1]; return [(a[0] * b[0] + a[1] * b[1]) / d, (a[1] * b[0] - a[0] * b[1]) / d]; };
+    const ev = (x) => { let f = [1, 0], d = [0, 0]; for (let i = 1; i <= n; i++) { d = [d[0] * x[0] - d[1] * x[1] + f[0], d[0] * x[1] + d[1] * x[0] + f[1]]; f = [f[0] * x[0] - f[1] * x[1] + c[i], f[0] * x[1] + f[1] * x[0]]; } return [f, d]; };
+    for (let it = 0; it < 500; it++) {
+      let mx = 0;
+      for (let i = 0; i < n; i++) {
+        const [f, d] = ev(z[i]); if (f[0] === 0 && f[1] === 0) continue;
+        const nw = cd(f, d); let s = [0, 0];
+        for (let j = 0; j < n; j++) if (j !== i) { const df = [z[i][0] - z[j][0], z[i][1] - z[j][1]]; const q = cd([1, 0], df.every((x) => x === 0) ? [1e-30, 0] : df); s = [s[0] + q[0], s[1] + q[1]]; }
+        const den = [1 - cm(nw, s)[0], -cm(nw, s)[1]], step = cd(nw, den);
+        z[i] = [z[i][0] - step[0], z[i][1] - step[1]]; mx = Math.max(mx, Math.hypot(step[0], step[1]));
+      }
+      if (mx < 1e-14 * R) break;
+    }
+    // Newton polish
+    z = z.map((x) => { for (let k = 0; k < 3; k++) { const [f, d] = ev(x); if (d[0] === 0 && d[1] === 0) break; const s = cd(f, d); x = [x[0] - s[0], x[1] - s[1]]; } return x; });
+    return z.map((x) => ({ re: Math.abs(x[1]) < 1e-9 * Math.max(1, Math.abs(x[0])) ? x[0] : x[0], im: Math.abs(x[1]) < 1e-9 * Math.max(1, Math.abs(x[0])) ? 0 : x[1] }))
+      .sort((u, v) => v.re - u.re || v.im - u.im);
+  }
+  // state space (controllable canonical) for num/den of equal length (proper)
+  function tf2ss(num, den) {
+    num = pad(num, den.length); const a0 = den[0], n = den.length - 1;
+    const d = den.map((v) => v / a0), b = num.map((v) => v / a0), D = b[0];
+    const A = Array.from({ length: n }, () => new Array(n).fill(0));
+    for (let i = 0; i < n - 1; i++) A[i][i + 1] = 1;
+    for (let j = 0; j < n; j++) A[n - 1][j] = -d[n - j];
+    const C = []; for (let j = 0; j < n; j++) C.push(b[n - j] - D * d[n - j]);
+    return { A, C, D, n };
+  }
+  const mm = (A, B) => A.map((r, i) => B[0].map((_, j) => r.reduce((s, v, k) => s + v * B[k][j], 0)));
+  function expm(A) {
+    const n = A.length; let nrm = 0; A.forEach((r) => { nrm = Math.max(nrm, r.reduce((s, v) => s + Math.abs(v), 0)); });
+    if (!isFinite(nrm)) throw new Error('bad matrix'); let sq = Math.max(0, Math.ceil(Math.log2(nrm + 1e-300)) + 1); const sc = A.map((r) => r.map((v) => v / 2 ** sq));
+    let E = A.map((r, i) => r.map((_, j) => (i === j ? 1 : 0))), T = E.map((r) => r.slice());
+    for (let k = 1; k <= 20; k++) { T = mm(T, sc).map((r) => r.map((v) => v / k)); E = E.map((r, i) => r.map((v, j) => v + T[i][j])); }
+    for (let k = 0; k < sq; k++) E = mm(E, E);
+    return E;
+  }
+  // exact step response of num/den at uniformly spaced times t[0..N] (t[0]=0, constant dt). Zero-order-hold exact for a step input.
+  function stepResp(num, den, tmax, N) {
+    const { A, C, D, n } = tf2ss(num, den), dt = tmax / N;
+    const Phi = expm(A.map((r) => r.map((v) => v * dt)));
+    // x' = Ax + Bu, B=e_n ; for constant u=1: x(t+dt) = Phi x + Gam, Gam = A^{-1}(Phi - I) B  -> solve (Phi-I)... use series for robustness
+    // Gam = integral_0^dt e^{As} ds B ; compute by solving A*Gam = (Phi-I)B via Gaussian elimination
+    const rhs = Phi.map((r, i) => r[n - 1] - (i === n - 1 ? 1 : 0));
+    const M = A.map((r) => r.slice()); const g = rhs.slice();
+    for (let i = 0; i < n; i++) { let p = i; for (let r = i + 1; r < n; r++) if (Math.abs(M[r][i]) > Math.abs(M[p][i])) p = r; [M[i], M[p]] = [M[p], M[i]]; [g[i], g[p]] = [g[p], g[i]]; for (let r = i + 1; r < n; r++) { const f = M[r][i] / M[i][i]; for (let c = i; c < n; c++) M[r][c] -= f * M[i][c]; g[r] -= f * g[i]; } }
+    const Gam = new Array(n).fill(0); for (let i = n - 1; i >= 0; i--) { let s = g[i]; for (let c = i + 1; c < n; c++) s -= M[i][c] * Gam[c]; Gam[i] = s / M[i][i]; }
+    const t = new Float64Array(N + 1), y = new Float64Array(N + 1); let x = new Array(n).fill(0);
+    for (let k = 0; k <= N; k++) { t[k] = k * dt; y[k] = C.reduce((s, c, j) => s + c * x[j], 0) + D; const nx = new Array(n); for (let i = 0; i < n; i++) { let s = Gam[i]; for (let j = 0; j < n; j++) s += Phi[i][j] * x[j]; nx[i] = s; } x = nx; }
+    return { t, y };
+  }
+  // 10%-90% rise time and overshoot (%) of a unit step response with final value yss
+  function stepInfo(t, y, yss) {
+    let mx = -Infinity; for (let i = 0; i < y.length; i++) if (y[i] > mx) mx = y[i];
+    const cross = (lvl) => { for (let i = 1; i < y.length; i++) if (y[i - 1] < lvl && y[i] >= lvl) return t[i - 1] + (lvl - y[i - 1]) / (y[i] - y[i - 1]) * (t[i] - t[i - 1]); return NaN; };
+    const t10 = cross(0.1 * yss), t90 = cross(0.9 * yss);
+    return { tr: t90 - t10, t10, t90, Mp: Math.max(0, (mx - yss) / yss * 100), ymax: mx };
+  }
+  // Open-loop identification (Eq. 17/18 iteration, K from a point). Returns iteration list.
+  function identify(uss, kfk, t1, dy1, t2, dy2, tol, maxIt) {
+    const a1 = (dy2 - dy1) / (dy2 * t1 - dy1 * t2), its = [{ n: 1, a: a1, d: NaN }];
+    let a = a1;
+    for (let i = 2; i <= (maxIt || 200); i++) {
+      const an = ((dy2 - dy1) + (dy1 * Math.exp(-a * t2) - dy2 * Math.exp(-a * t1))) / (dy2 * t1 - dy1 * t2);
+      its.push({ n: i, a: an, d: Math.abs(an - a) }); const done = Math.abs(an - a) <= tol; a = an; if (done || !isFinite(an)) break;
+    }
+    const K = a * dy1 / ((t1 - (1 - Math.exp(-a * t1)) / a) * (uss - kfk));
+    return { its, a, K, K2: a * dy2 / ((t2 - (1 - Math.exp(-a * t2)) / a) * (uss - kfk)) };
+  }
+  return { trim, pmul, padd, pscale, pad, closedLoop, roots, tf2ss, stepResp, stepInfo, identify };
+})();
+
+
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const kr = (id, tex) => katex.render(tex, $(id), { throwOnError: false, displayMode: true });
+  const sched = () => { if (window.__scheduleSave) window.__scheduleSave(); };
+  const nm = (v, d) => (isFinite(v) ? String(Number(Number(v).toPrecision(d || 5))) : "n/a");
+  kr("eq-ol", "\\begin{gathered}\\ddot y+a\\dot y=Ku-K_{frict}\\,\\mathrm{sign}(\\dot y)+K_dT_{dist}\\qquad(12)\\\\[6pt] G_{OL}(s)=\\frac{K}{s(s+a)}\\qquad(14)\\end{gathered}");
+  kr("eq-cl", "G_{CL,PID}(s)=\\frac{KK_p(T_fs+1)}{T_i s^2(s+a)(T_fs+1)+KK_p\\left(T_dT_is^2+T_is+1\\right)}\\qquad(30)");
+  kr("eq-a", "\\begin{gathered}a=\\frac{(\\Delta y_2-\\Delta y_1)+(\\Delta y_1e^{-at_2}-\\Delta y_2e^{-at_1})}{\\Delta y_2t_1-\\Delta y_1t_2}\\qquad(18)\\\\[10pt] K=\\frac{a\\,\\Delta y_1}{\\left[t_1-\\frac{1-e^{-at_1}}{a}\\right]\\left(u_{ss}-K_{frict}/K\\right)}\\end{gathered}");
+
+  function evalNum(str) {
+    let s = String(str).trim(); if (!s) return NaN;
+    s = s.replace(/\binf\b/gi, "Infinity").replace(/\bpi\b/g, "(" + Math.PI + ")");
+    if (!/^[\d+\-*/().eE\sInfinity]+$/.test(s)) return NaN;
+    try { const v = Function('"use strict";return (' + s + ")")(); return typeof v === "number" ? v : NaN; } catch (e) { return NaN; }
+  }
+  const val = (id) => evalNum($(id).value);
+  const PCFG = { displaylogo: false, responsive: true, displayModeBar: false };
+  const PCFG_AX = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+  function dualSlider(host, onChange, onReset) {
+    const N = 1000, GAP = 15; let b0 = 0, b1 = 1;
+    const toS = (v) => Math.round((v - b0) / (b1 - b0) * N), toV = (x) => b0 + (b1 - b0) * x / N;
+    host.innerHTML = '<div class="track"></div><div class="fill"></div><input type="range" aria-label="lower limit" /><input type="range" aria-label="upper limit" />';
+    host.title = "Drag either end to set the axis limits; double-click to reset";
+    const [a, b] = host.querySelectorAll("input"), fill = host.querySelector(".fill"), vert = host.classList.contains("v");
+    [a, b].forEach((el) => { el.min = 0; el.max = N; el.step = 1; });
+    const paint = () => {
+      const p = Number(a.value) / N, q = Number(b.value) / N, T = 7;
+      if (vert) { fill.style.bottom = `calc(${T}px + (100% - ${2 * T}px) * ${p})`; fill.style.height = `calc((100% - ${2 * T}px) * ${q - p})`; }
+      else { fill.style.left = `calc(${T}px + (100% - ${2 * T}px) * ${p})`; fill.style.width = `calc((100% - ${2 * T}px) * ${q - p})`; }
+    };
+    const emit = () => { paint(); onChange([toV(Number(a.value)), toV(Number(b.value))]); };
+    a.addEventListener("input", () => { if (Number(a.value) > Number(b.value) - GAP) a.value = Number(b.value) - GAP; emit(); });
+    b.addEventListener("input", () => { if (Number(b.value) < Number(a.value) + GAP) b.value = Number(a.value) + GAP; emit(); });
+    host.addEventListener("dblclick", onReset);
+    return { set(lo, hi, bounds) { if (bounds) { b0 = bounds[0]; b1 = bounds[1]; } a.value = toS(lo); b.value = toS(hi); paint(); } };
+  }
+  const AXS = {};
+  function axisState(id) {
+    if (AXS[id]) return AXS[id];
+    const el = $(id), cell = document.createElement("div"); cell.className = "ax-cell";
+    const box = document.createElement("label"); box.className = "ax-auto";
+    box.innerHTML = '<input type="checkbox" checked /> Autoscale axes';
+    box.style.marginTop = el.style.marginTop || getComputedStyle(el).marginTop;
+    el.parentNode.insertBefore(box, el); el.parentNode.insertBefore(cell, el);
+    const vy = document.createElement("div"); vy.className = "dual v";
+    const hx = document.createElement("div"); hx.className = "dual";
+    cell.appendChild(vy); cell.appendChild(el); cell.appendChild(hx);
+    const cb = box.querySelector("input");
+    const st = { el, box, cb, auto: true, def: {}, user: {}, sl: {} };
+    const apply = (k, v) => { if (el.data) Plotly.relayout(el, { [`${k}axis.range`]: v }); };
+    ["x", "y"].forEach((k) => {
+      st.sl[k] = dualSlider(k === "x" ? hx : vy, (v) => { setAuto(st, false, true); st.user[k] = v; apply(k, v); sched(); }, () => {
+        setAuto(st, false, true); st.user[k] = null; const d = st.def[k]; if (d) { st.sl[k].set(d[0], d[1], st.bounds(k, d)); apply(k, d); }
+      });
+    });
+    cb.addEventListener("change", () => setAuto(st, cb.checked));
+    st.bounds = (k, d) => (k === "x" ? [d[0], d[1] + (d[1] - d[0])] : [d[0] - (d[1] - d[0]), d[1] + (d[1] - d[0])]);
+    return (AXS[id] = st);
+  }
+  // copy the ranges Plotly is showing onto the sliders
+  function syncSliders(st) {
+    const fl = st.el._fullLayout; if (!fl) return;
+    ["x", "y"].forEach((k) => { const r = fl[`${k}axis`] && fl[`${k}axis`].range; if (r) st.sl[k].set(r[0], r[1], st.bounds(k, r)); });
+  }
+  // Autoscale on: both axes fit the data on every update. Off: the page's default ranges.
+  // keep = leave the current view alone (a slider or zoom just took over).
+  function setAuto(st, on, keep) {
+    const was = st.auto; st.auto = on; st.cb.checked = on;
+    if (keep) { // freeze both axes where they are now, so the next update does not jump
+      const fl = st.el._fullLayout;
+      if (was && fl) ["x", "y"].forEach((k) => { st.user[k] = fl[`${k}axis`].range.slice(); });
+      return;
+    }
+    st.user = {};
+    if (!st.el.data) return;
+    if (on) Plotly.relayout(st.el, { "xaxis.autorange": true, "yaxis.autorange": true }).then(() => syncSliders(st));
+    else { Plotly.relayout(st.el, { "xaxis.range": st.def.x, "yaxis.range": st.def.y }); ["x", "y"].forEach((k) => st.sl[k].set(st.def[k][0], st.def[k][1], st.bounds(k, st.def[k]))); }
+  }
+  // line the sliders up with the plot area Plotly actually drew
+  function alignSliders(el) {
+    const fl = el._fullLayout; if (!fl || !fl.xaxis || !fl.yaxis || !el.previousSibling) return;
+    const xa = fl.xaxis, ya = fl.yaxis, H = el.clientHeight, W = el.clientWidth, vy = el.previousSibling, hx = el.nextSibling;
+    vy.style.margin = `${Math.max(0, ya._offset - 7)}px 0 ${Math.max(0, H - ya._offset - ya._length - 7)}px 0`;
+    hx.style.margin = `0 ${Math.max(0, W - xa._offset - xa._length - 7)}px 0 ${Math.max(0, xa._offset - 7)}px`;
+  }
+  const realignAll = () => Object.values(AXS).forEach((st) => { if (st.el.data) alignSliders(st.el); });
+  window.addEventListener("resize", () => setTimeout(realignAll, 50));
+  // Plotly.react with axis sliders. def = { x: [lo, hi], y: [lo, hi] } are the default ranges (log axes in log10 units).
+  // The most recent control wins: toolbar zoom overrides a slider until that slider is moved; double-click resets.
+  function scaledPlot(id, traces, layout, def) {
+    const st = axisState(id), el = st.el;
+    el.parentNode.classList.remove("empty"); st.box.classList.remove("empty");
+    ["x", "y"].forEach((k) => {
+      const ax = layout[`${k}axis`] = Object.assign({}, layout[`${k}axis`]);
+      const d = def[k].slice(); st.def[k] = d;
+      if (st.auto) { delete ax.range; ax.autorange = true; return; }
+      if (!st.user[k]) st.sl[k].set(d[0], d[1], st.bounds(k, d));
+      ax.range = st.user[k] || d; ax.autorange = false;
+    });
+    Plotly.react(el, traces, layout, PCFG_AX).then(() => {
+      if (st.auto) syncSliders(st);
+      alignSliders(el);
+      if (el.removeAllListeners) el.removeAllListeners("plotly_relayout");
+      el.on("plotly_relayout", (ev) => {
+        if (!ev) return;
+        if (ev["xaxis.autorange"] || ev["yaxis.autorange"]) { // toolbar autoscale / double-click on the plot
+          if (!st.auto) setAuto(st, true); else syncSliders(st);
+        } else {
+          let zoomed = false;
+          ["x", "y"].forEach((k) => { if (ev[`${k}axis.range[0]`] !== undefined || ev[`${k}axis.range`] !== undefined) { st.user[k] = el.layout[`${k}axis`].range.slice(); zoomed = true; } });
+          if (zoomed && st.auto) { setAuto(st, false, true); syncSliders(st); }
+        }
+        setTimeout(() => alignSliders(el), 0);
+      });
+    });
+  }
+  // empty a plot (with a message) and hide its sliders
+  function clearPlot(id, html) { const el = $(id); Plotly.purge(el); el.innerHTML = html || ""; if (el.parentNode.classList.contains("ax-cell")) { el.parentNode.classList.add("empty"); if (AXS[id]) AXS[id].box.classList.add("empty"); } }
+  const padR = (lo, hi, f) => { if (!(hi > lo)) { const c = isFinite(lo) ? lo : 0; return [c - 1, c + 1]; } const p = (hi - lo) * (f || 0.06); return [lo - p, hi + p]; };
+  const mnx = (arr) => { let lo = Infinity, hi = -Infinity; for (const v of arr) if (isFinite(v)) { if (v < lo) lo = v; if (v > hi) hi = v; } return [lo, hi]; };
+  function lay(title, xt, yt, extra) {
+    return Object.assign({
+      paper_bgcolor: "#171A21", plot_bgcolor: "#171A21", font: { color: "#cfd3da", family: "Inter, sans-serif", size: 11 },
+      margin: { l: 60, r: 16, t: 34, b: 46 }, title: { text: title, font: { size: 12, color: "#E7E9EE" }, x: 0.02, xanchor: "left" },
+      xaxis: { title: { text: xt }, gridcolor: "#282D3A", zerolinecolor: "#3a4152" }, yaxis: { title: { text: yt }, gridcolor: "#282D3A", zerolinecolor: "#3a4152" },
+      legend: { orientation: "h", y: -0.28, font: { size: 10 } }, hovermode: "x",
+    }, extra || {});
+  }
+  const row = (k, v, cls) => `<div class="row"><span class="k">${k}</span><span class="v ${cls || ""}">${v}</span></div>`;
+  const wide = (k, v) => `<div class="row wide"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  const msg = (host, title, t) => { $(host).innerHTML = `<h5>${title}</h5><p class="eqn-note" style="margin:0;">${t}</p>`; };
+  const vec = (p) => "[" + p.map((x) => nm(x, 6)).join(" ") + "]";
+  const cplx = (z) => (z.im === 0 ? nm(z.re, 6) : `${nm(z.re, 6)} ${z.im < 0 ? "-" : "+"} ${nm(Math.abs(z.im), 6)}i`);
+  const S = { cal: null, ol: null, cl: null, tf: null };
+
+  // sliders
+  function mkSliders(hostId, prefix, defs, onChange) {
+    const host = $(hostId); host.innerHTML = "";
+    defs.forEach((d) => {
+      const div = document.createElement("div"); div.className = "sl";
+      div.innerHTML = `<label>${d.label}</label><div class="row"><input type="range" id="simr-${prefix}-${d.id}" min="${d.min}" max="${d.max}" step="${d.step}" value="${d.val}"/><input type="number" id="sim-${prefix}-${d.id}" step="${d.step}" value="${d.val}"/></div>`;
+      host.appendChild(div);
+      const r = div.querySelector("input[type=range]"), n = div.querySelector("input[type=number]");
+      r.addEventListener("input", () => { n.value = r.value; onChange(); });
+      n.addEventListener("input", () => { if (n.value !== "" && isFinite(Number(n.value))) r.value = n.value; onChange(); });
+    });
+  }
+  const gv = (p, id) => { const v = parseFloat($(`sim-${p}-${id}`).value); return isFinite(v) ? v : NaN; };
+  const setSl = (p, id, v) => { $(`sim-${p}-${id}`).value = v; $(`simr-${p}-${id}`).value = v; };
+
+  async function capturePlots(divs, lines, prefix, statId) {
+    const st = $(statId); st.style.color = "#5EEAD4"; st.textContent = "Capturing…";
+    try {
+      const imgs = [];
+      for (const d of divs) {
+        const w = Math.max(600, Math.round($(d).clientWidth)), h = Math.max(240, Math.round($(d).clientHeight));
+        const src = await Plotly.toImage($(d), { format: "png", width: w, height: h });
+        imgs.push(await new Promise((rs, rj) => { const i = new Image(); i.onload = () => rs(i); i.onerror = rj; i.src = src; }));
+      }
+      const W = Math.max(...imgs.map((i) => i.width)), H = imgs.reduce((s, i) => s + i.height + 8, 0);
+      const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const c = cv.getContext("2d");
+      c.fillStyle = "#171A21"; c.fillRect(0, 0, W, H); let y = 0;
+      imgs.forEach((i) => { c.drawImage(i, 0, y); y += i.height + 8; });
+      window.__addCapture({ prefix, lines: lines.filter(Boolean), dataUrl: cv.toDataURL("image/png"), width: W, height: H });
+      st.textContent = "Figure captured — see Submission.";
+    } catch (e) { console.error(e); st.style.color = "#FB7185"; st.textContent = "Could not capture figure."; }
+  }
+
+  // ---------------------------------------------------------------
+  // CALIBRATION AND FRICTION (Steps 7-9a)
+  // ---------------------------------------------------------------
+  let kcal = NaN;
+  function calcCal() {
+    const dv = [1, 2, 3].map((i) => val("input-cal-dv" + i)), ok = dv.filter((x) => isFinite(x) && x !== 0).map(Math.abs);
+    const ks = ok.map((x) => 720 / x); kcal = ks.length ? ks.reduce((s, x) => s + x, 0) / ks.length : NaN;
+    const L = [];
+    let h = "<h5>STEP 7: CALIBRATION</h5>";
+    if (!ok.length) h += '<p class="eqn-note" style="margin:0;">Enter at least one &Delta;V<sub>cal</sub> measurement.</p>';
+    else {
+      dv.forEach((x, i) => { if (isFinite(x) && x !== 0) { h += row(`k<sub>cal,${i + 1}</sub> = 720&deg; / ${nm(Math.abs(x), 5)} V`, nm(720 / Math.abs(x), 5) + " &deg;/V"); L.push(`kcal,${i + 1} = 720 / ${nm(Math.abs(x), 5)} = ${nm(720 / Math.abs(x), 5)} deg/V`); } });
+      h += row("k<sub>cal</sub> (average)", nm(kcal, 5) + " &deg;/V"); L.push(`kcal (average) = ${nm(kcal, 6)} deg/V`);
+      if (ks.length > 1) { const sp = (Math.max(...ks) - Math.min(...ks)); h += row("spread (max &minus; min)", nm(sp, 3) + " &deg;/V"); L.push(`spread = ${nm(sp, 3)} deg/V`); }
+    }
+    $("cal-out7").innerHTML = h;
+    // 8
+    const r1 = val("input-cal-r1"), r2 = val("input-cal-r2"); let h8 = "<h5>STEP 8: K<sub>frict</sub>/K</h5>"; let kfk = NaN;
+    if (!isFinite(kcal)) h8 += '<p class="eqn-note" style="margin:0;">Needs k<sub>cal</sub> from Step 7.</p>';
+    else {
+      if (isFinite(r1)) { kfk = r1 / kcal; h8 += row("K<sub>frict</sub>/K (8b)", `${nm(r1)}&deg; = ${nm(kfk, 5)} V`); L.push(`Kfrict/K = ${nm(r1)} deg = ${nm(kfk, 6)} V`); }
+      if (isFinite(r2)) { h8 += row("2nd r value (8c)", `${nm(r2)}&deg; = ${nm(r2 / kcal, 5)} V`); L.push(`2nd r value = ${nm(r2)} deg = ${nm(r2 / kcal, 6)} V`); }
+      if (isFinite(r1) && isFinite(r2)) {
+        const sg = Math.abs(r2 - r1) / kcal; h8 += row("&sigma;<sub>Kfrict</sub>", `${nm(sg, 4)} V (${nm(Math.abs(r2 - r1), 4)}&deg;)`, sg > 0.05 ? "bad" : "ok");
+        h8 += row("check", sg > 0.05 ? "above 0.05 V: repeat the measurement" : "at or below 0.05 V", sg > 0.05 ? "bad" : "ok"); L.push(`sigma_Kfrict = ${nm(sg, 4)} V (${nm(Math.abs(r2 - r1), 4)} deg)`);
+      }
+      if (!isFinite(r1) && !isFinite(r2)) h8 += '<p class="eqn-note" style="margin:0;">Enter the reference values from Step 8b and 8c.</p>';
+    }
+    $("cal-out8").innerHTML = h8;
+    // 9a etc
+    let h9 = "<h5>VOLTS FOR LATER STEPS</h5>";
+    if (!isFinite(kcal)) h9 += '<p class="eqn-note" style="margin:0;">Needs k<sub>cal</sub>.</p>';
+    else {
+      if (isFinite(kfk)) { const rss = 1.8 + kfk; h9 += row("Step 9: r<sub>ss</sub> = 1.8 V + K<sub>frict</sub>/K", `${nm(rss, 5)} V = ${nm(rss * kcal, 5)}&deg;`); L.push(`Step 9 rss = 1.8 + Kfrict/K = ${nm(rss, 5)} V = ${nm(rss * kcal, 5)} deg`); }
+      const kp = val("input-cal-kp"); if (isFinite(kp) && kp !== 0) { h9 += row("Step 11: r<sub>ss</sub> = 1/K<sub>p</sub>", `${nm(1 / kp, 5)} V = ${nm(kcal / kp, 5)}&deg;`); L.push(`Step 11 rss = 1/Kp = ${nm(1 / kp, 5)} V = ${nm(kcal / kp, 5)} deg`); }
+      h9 += row("Steps 14&ndash;15: &plusmn;6 V", `&plusmn;${nm(6 * kcal, 5)}&deg;`); L.push(`+/-6 V = +/-${nm(6 * kcal, 5)} deg`);
+    }
+    $("cal-out9").innerHTML = h9; S.cal = { lines: L, kfk };
+    // converter keeps in sync
+    convSync();
+  }
+  let convLast = "deg";
+  function convSync() {
+    if (!isFinite(kcal)) return;
+    if (convLast === "deg") { const d = val("input-cal-deg"); $("input-cal-volt").value = isFinite(d) ? nm(d / kcal, 6) : ""; }
+    else { const v = val("input-cal-volt"); $("input-cal-deg").value = isFinite(v) ? nm(v * kcal, 6) : ""; }
+  }
+  $("input-cal-deg").addEventListener("input", () => { convLast = "deg"; convSync(); });
+  $("input-cal-volt").addEventListener("input", () => { convLast = "volt"; convSync(); });
+  ["input-cal-dv1", "input-cal-dv2", "input-cal-dv3", "input-cal-r1", "input-cal-r2", "input-cal-kp"].forEach((id) => $(id).addEventListener("input", calcCal));
+  $("cal-to-ol").addEventListener("click", () => {
+    const st = $("cal-stat");
+    if (S.cal && isFinite(S.cal.kfk)) { $("input-ol-kfk").value = nm(S.cal.kfk, 6); st.style.color = "#5EEAD4"; st.textContent = "Copied to Step 9."; calcOL(); sched(); } else { st.style.color = "#FB7185"; st.textContent = "Enter the calibration and Step 8 values first."; }
+  });
+
+  // ---------------------------------------------------------------
+  // OPEN LOOP K AND a (Step 9)
+  // ---------------------------------------------------------------
+  function calcOL() {
+    const uss = val("input-ol-uss"), kfk = val("input-ol-kfk"), t1 = val("input-ol-t1"), dy1 = val("input-ol-dy1"), t2 = val("input-ol-t2"), dy2 = val("input-ol-dy2"), tolv = val("input-ol-tol"), tau = val("input-ol-tau");
+    const host = $("ol-plot");
+    const need = [["u_ss", uss], ["Kfrict/K", kfk], ["t1", t1], ["dy1", dy1], ["t2", t2], ["dy2", dy2]].filter((x) => !isFinite(x[1])).map((x) => x[0]);
+    if (need.length) { msg("ol-out", "RESULT", "Enter " + need.join(", ") + "."); $("ol-iter").innerHTML = ""; clearPlot("ol-plot", '<div class="placeholder">Enter your Step 9 measurements to see the fitted response.</div>'); S.ol = null; return; }
+    const tol = isFinite(tolv) && tolv > 0 ? tolv : 1e-10;
+    if (dy2 * t1 - dy1 * t2 === 0) { msg("ol-out", "RESULT", "The two points lie on a line through the origin of the asymptote (&Delta;y<sub>2</sub>t<sub>1</sub> &minus; &Delta;y<sub>1</sub>t<sub>2</sub> = 0), so a cannot be found. Choose two different points."); S.ol = null; return; }
+    const r = L4.identify(uss, kfk, t1, dy1, t2, dy2, tol, 500), a = r.a, K = r.K, lines = [];
+    let h = "<h5>RESULT</h5>";
+    if (!(a > 0) || !isFinite(K)) h += `<div class="flag warn">a = ${nm(a)} is not a positive number. Check t<sub>1</sub>, &Delta;y<sub>1</sub>, t<sub>2</sub>, &Delta;y<sub>2</sub> (points on the final asymptote, t<sub>2</sub> &gt; t<sub>1</sub>).</div>`;
+    if (uss <= kfk) h += `<div class="flag warn">u<sub>ss</sub> must be larger than K<sub>frict</sub>/K for the rotor to spin.</div>`;
+    h += row("a", nm(a, 7) + " 1/s") + row("K (from point 1)", nm(K, 6)) + row("K (from point 2, check)", nm(r.K2, 6)) + row("1/a", nm(1 / a, 5) + " s") + row("iterations", String(r.its.length));
+    lines.push(`Inputs: uss = ${nm(uss)} V, Kfrict/K = ${nm(kfk)} V, t1 = ${nm(t1)} s, dy1 = ${nm(dy1)} V, t2 = ${nm(t2)} s, dy2 = ${nm(dy2)} V`, `a = ${nm(a, 7)} 1/s`, `K = ${nm(K, 6)}  (point 2 gives ${nm(r.K2, 6)})`);
+    if (isFinite(tau) && tau > 0) { const pd = Math.abs(a - 1 / tau) / (1 / tau) * 100; h += row("1/&tau; (Step 1)", nm(1 / tau, 5) + " 1/s") + row("a vs 1/&tau;", nm(pd, 3) + " % difference"); lines.push(`1/tau = ${nm(1 / tau, 5)} 1/s;  a differs from 1/tau by ${nm(pd, 3)} % (|a - 1/tau| / (1/tau))`); }
+    $("ol-out").innerHTML = h;
+    const its = r.its, show = its.length > 14 ? its.slice(0, 12).concat([null], its.slice(-1)) : its;
+    $("ol-iter").innerHTML = '<table class="it"><tr><th>#</th><th>a (1/s)</th><th>change</th></tr>' + show.map((x) => (x ? `<tr><td>${x.n}</td><td>${x.a.toFixed(7)}</td><td>${isFinite(x.d) ? x.d.toExponential(2) : ""}</td></tr>` : '<tr><td colspan="3">...</td></tr>')).join("") + "</table>";
+    S.ol = { lines, its: its.map((x) => `a=${x.a.toFixed(7)}`), a, K };
+    if (!(a > 0) || !isFinite(K)) { clearPlot("ol-plot", '<div class="placeholder">No valid fit for these values.</div>'); return; }
+    if (!host.data) host.innerHTML = "";
+    const eff = uss - kfk, f = (t) => (K / a) * (t - (1 - Math.exp(-a * t)) / a) * eff, tm = Math.max(1.2 * t2, 1.5 / a), N = 300, ts = [], ys = [], asy = [];
+    for (let i = 0; i <= N; i++) { const t = tm * i / N; ts.push(t); ys.push(f(t)); asy.push((K / a) * (t - 1 / a) * eff); }
+    const ym = Math.max(1.1 * f(tm), 1.2 * dy2);
+    scaledPlot("ol-plot", [
+      { x: ts, y: ys, mode: "lines", name: "fitted y(t) − y0, Eq. (15)", line: { color: "#5EEAD4", width: 2 } },
+      { x: ts, y: asy, mode: "lines", name: "final asymptote", line: { color: "#FFB454", width: 1.5, dash: "dash" } },
+      { x: [t1, t2], y: [dy1, dy2], mode: "markers", name: "your points", marker: { color: "#FB7185", size: 9 } },
+      { x: [1 / a], y: [0], mode: "markers", name: "t = 1/a", marker: { color: "#F472B6", size: 9, symbol: "diamond" } },
+    ], lay("Open-loop step response (Figure 13)", "time (s)", "Δy = y − y0 (V)", { yaxis: { title: { text: "Δy = y − y0 (V)" }, gridcolor: "#282D3A", zerolinecolor: "#3a4152", range: [-0.08 * ym, ym] } }), { x: [0, tm], y: [-0.08 * ym, ym] });
+  }
+  ["uss", "kfk", "t1", "dy1", "t2", "dy2", "tol", "tau"].forEach((k) => $("input-ol-" + k).addEventListener("input", calcOL));
+  $("ol-capture").addEventListener("click", () => { if (!S.ol) { const s = $("ol-stat"); s.style.color = "#FB7185"; s.textContent = "Enter valid measurements first."; return; } capturePlots(["ol-plot"], [`a = ${nm(S.ol.a, 7)} 1/s, K = ${nm(S.ol.K, 6)}`], "ol", "ol-stat"); });
+
+  // ---------------------------------------------------------------
+  // CLOSED LOOP (Steps 10-13)
+  // ---------------------------------------------------------------
+  const CLD = { K: 11.56, a: 1.51, Kp: 40, Td: 0.08, Ti: 1, Tf: 0.015, r0: 0, rss: 0.2 };
+  mkSliders("cl-sliders", "cl", [
+    { id: "K", label: "K (from Step 9)", min: 1, max: 40, step: 0.01, val: CLD.K },
+    { id: "a", label: "a (1/s, from Step 9)", min: 0.2, max: 8, step: 0.01, val: CLD.a },
+    { id: "Kp", label: "K_p", min: 0.1, max: 120, step: 0.1, val: CLD.Kp },
+    { id: "Td", label: "T_d (s)", min: 0, max: 0.3, step: 0.001, val: CLD.Td },
+    { id: "Ti", label: "T_i (s)", min: 0.02, max: 5, step: 0.01, val: CLD.Ti },
+    { id: "Tf", label: "T_f (s)", min: 0.0005, max: 0.3, step: 0.0005, val: CLD.Tf },
+  ], () => calcCL());
+  mkSliders("cl-step", "cls", [
+    { id: "r0", label: "r0 (V)", min: -6, max: 6, step: 0.05, val: CLD.r0 },
+    { id: "rss", label: "rss (V)", min: -6, max: 6, step: 0.05, val: CLD.rss },
+  ], () => calcCL());
+  $("sel-mode").addEventListener("change", () => calcCL());
+  $("input-cl-tmax").addEventListener("input", () => calcCL());
+  ["input-cl-trx", "input-cl-mpx"].forEach((id) => $(id).addEventListener("input", () => calcCL()));
+  $("cl-reset").addEventListener("click", () => { Object.keys(CLD).forEach((k) => setSl(k === "r0" || k === "rss" ? "cls" : "cl", k, CLD[k])); $("sel-mode").value = "PID"; $("input-cl-tmax").value = "0"; calcCL(); sched(); });
+  let clRes = null;
+  function calcCL() {
+    const mode = $("sel-mode").value, K = gv("cl", "K"), a = gv("cl", "a"), Kp = gv("cl", "Kp"), Td = gv("cl", "Td"), Ti = gv("cl", "Ti"), Tf = gv("cl", "Tf"), r0 = gv("cls", "r0"), rss = gv("cls", "rss");
+    if (![K, a, Kp, Td, Ti, Tf, r0, rss].every(isFinite) || Tf <= 0 || (mode === "PID" && Ti <= 0)) { $("cl-flag").innerHTML = '<div class="flag warn">Enter valid numbers (T<sub>f</sub> and T<sub>i</sub> must be positive).</div>'; return; }
+    const { num, den } = L4.closedLoop(mode, K, a, Kp, Td, Ti, Tf), rts = L4.roots(den), maxRe = Math.max(...rts.map((z) => z.re)), stable = maxRe < 0, D = rss - r0;
+    let tmax = val("input-cl-tmax"); if (!(tmax > 0)) { tmax = stable ? Math.min(30, Math.max(0.3, 6 / Math.min(...rts.map((z) => Math.abs(z.re)).filter((x) => x > 1e-9)))) : 1; }
+    const N = 20000, sr = L4.stepResp(num, den, tmax, N), info = L4.stepInfo(sr.t, sr.y, 1);
+    const numU = L4.pad(L4.trim(L4.pmul([1, a, 0], L4.trim(num)).map((x) => x / K)), den.length), su = L4.stepResp(numU, den, tmax, N);
+    let pu = 0; for (let i = 0; i < su.y.length; i++) pu = Math.max(pu, Math.abs(su.y[i])); pu *= Math.abs(D);
+    const ds = Math.max(1, Math.floor(N / 2000)), T = [], Y = [], U = [];
+    for (let i = 0; i <= N; i += ds) { T.push(sr.t[i]); Y.push(r0 + D * sr.y[i]); U.push(D * su.y[i]); }
+    // flags
+    let fl = "";
+    if (!stable) fl += `<div class="flag warn">UNSTABLE: a root has a positive real part (${nm(maxRe, 4)}). The linear response grows without limit.</div>`;
+    if (pu > 10) fl += `<div class="flag warn">Peak |u| = ${nm(pu, 4)} V is above the &plusmn;10 V limit: in the lab the control would saturate. Use a smaller step (the linear model is only valid below the limit).</div>`;
+    $("cl-flag").innerHTML = fl;
+    const lines = [`Controller: ${mode}`, `K = ${nm(K, 5)}, a = ${nm(a, 5)}, Kp = ${nm(Kp, 5)}` + (mode !== "P" ? `, Td = ${nm(Td, 5)} s` : "") + (mode === "PID" ? `, Ti = ${nm(Ti, 5)} s` : "") + `, Tf = ${nm(Tf, 5)} s`, `Step: r0 = ${nm(r0)} V to rss = ${nm(rss)} V`];
+    let o = "<h5>THEORETICAL STEP RESPONSE</h5>";
+    o += row("controller", mode) + row("t<sub>r</sub> (10%&ndash;90%)", isFinite(info.tr) ? nm(info.tr, 4) + " s" : "not reached in plot time") + row("M<sub>p</sub>", stable ? nm(info.Mp, 4) + " %" : "n/a") + row("peak |u|", nm(pu, 4) + " V", pu > 10 ? "bad" : "ok");
+    lines.push(`Theory: tr = ${isFinite(info.tr) ? nm(info.tr, 4) : "n/a"} s, Mp = ${stable ? nm(info.Mp, 4) : "n/a"} %, peak |u| = ${nm(pu, 4)} V`);
+    const trx = val("input-cl-trx"), mpx = val("input-cl-mpx");
+    if (isFinite(trx) && isFinite(info.tr)) { const d = Math.abs(trx - info.tr) / info.tr * 100; o += row("t<sub>r</sub> measured vs theory", nm(d, 3) + " % difference"); lines.push(`tr measured = ${nm(trx)} s: ${nm(d, 3)} % difference from theory`); }
+    if (isFinite(mpx) && stable) { if (info.Mp > 1e-9) { const d = Math.abs(mpx - info.Mp) / info.Mp * 100; o += row("M<sub>p</sub> measured vs theory", nm(d, 3) + " % difference"); lines.push(`Mp measured = ${nm(mpx)} %: ${nm(d, 3)} % difference from theory`); } else { o += row("M<sub>p</sub> measured vs theory", "theory M<sub>p</sub> = 0 (no % difference)"); lines.push(`Mp measured = ${nm(mpx)} %; theory Mp = 0`); } }
+    $("cl-out").innerHTML = o;
+    const eqn = { P: "Eq. (24)", PD: "Eq. (27)", PID: "Eq. (30)" }[mode];
+    $("cl-tf").innerHTML = `<h5>CLOSED-LOOP TRANSFER FUNCTION, ${eqn}</h5>` + wide("numG =", vec(num)) + wide("denG =", vec(den)) + wide("characteristic roots", rts.map(cplx).join("<br>"));
+    lines.push("numG = " + vec(num), "denG = " + vec(den), "roots: " + rts.map(cplx).join(";  "));
+    // plots
+    const y10 = r0 + 0.1 * D, y90 = r0 + 0.9 * D, tend = T[T.length - 1], ip = Y.reduce((b, v, i) => (Math.abs(v - r0) > Math.abs(Y[b] - r0) ? i : b), 0);
+    const tr = [
+      { x: T, y: Y, mode: "lines", name: "y(t) theory", line: { color: "#5B9BFF", width: 2 } },
+      { x: [0, 0, tend], y: [r0, rss, rss], mode: "lines", name: "reference r", line: { color: "#34D399", width: 1.5, dash: "dot" } },
+    ];
+    if (isFinite(info.tr)) tr.push({ x: [info.t10, info.t90], y: [y10, y90], mode: "markers", name: `10% and 90% (tr = ${nm(info.tr, 3)} s)`, marker: { color: "#FFB454", size: 8 } });
+    if (stable && info.Mp > 1e-6) tr.push({ x: [T[ip]], y: [Y[ip]], mode: "markers", name: `peak (Mp = ${nm(info.Mp, 3)} %)`, marker: { color: "#FB7185", size: 8, symbol: "diamond" } });
+    const yr = mnx(Y.concat([r0, rss])), ur = mnx(U.concat([-10, 10]));
+    scaledPlot("cl-plot-y", tr, lay(`${mode} step response`, "time (s)", "y (V)"), { x: [0, tend], y: padR(yr[0], yr[1]) });
+    scaledPlot("cl-plot-u", [{ x: T, y: U, mode: "lines", name: "u(t)", line: { color: "#F472B6", width: 2 } }, { x: [0, tend], y: [10, 10], mode: "lines", name: "±10 V limit", line: { color: "#FB7185", width: 1.5, dash: "dot" } }, { x: [0, tend], y: [-10, -10], mode: "lines", showlegend: false, line: { color: "#FB7185", width: 1.5, dash: "dot" } }],
+      lay("Control signal u(t)", "time (s)", "u (V)", { margin: { l: 60, r: 16, t: 30, b: 44 } }), { x: [0, tend], y: padR(ur[0], ur[1]) });
+    clRes = { lines, mode };
+    S.cl = { lines, mode };
+  }
+  $("cl-capture").addEventListener("click", () => { if (!clRes) return; capturePlots(["cl-plot-y", "cl-plot-u"], clRes.lines.slice(0, 5), "cl", "cl-stat"); });
+  $("ol-to-cl").addEventListener("click", () => {
+    const st = $("ol-stat"); if (!S.ol || !(S.ol.a > 0)) { st.style.color = "#FB7185"; st.textContent = "No valid K and a yet."; return; }
+    setSl("cl", "K", Number(S.ol.K.toPrecision(6))); setSl("cl", "a", Number(S.ol.a.toPrecision(6))); calcCL(); st.style.color = "#5EEAD4"; st.textContent = "Copied to the closed-loop page."; sched();
+  });
+
+  // ---------------------------------------------------------------
+  // FILTER TIME (Step 16)
+  // ---------------------------------------------------------------
+  function maxRe(K, a, Kp, Td, Ti, Tf) { const { den } = L4.closedLoop("PID", K, a, Kp, Td, Ti, Tf); return Math.max(...L4.roots(den).map((z) => z.re)); }
+  function calcTF() {
+    const K = val("input-tf-K"), a = val("input-tf-a"), Kp = val("input-tf-Kp"), Td = val("input-tf-Td"), Ti = val("input-tf-Ti"), T0 = val("input-tf-tf0"), T1 = val("input-tf-tf1");
+    const need = [["K", K], ["a", a], ["K_p", Kp], ["T_d", Td], ["T_i", Ti]].filter((x) => !isFinite(x[1])).map((x) => x[0]);
+    if (need.length || !(Ti > 0)) { msg("tf-out", "ROOTS", need.length ? "Enter " + need.join(", ") + "." : "T<sub>i</sub> must be positive."); clearPlot("tf-plot"); clearPlot("tf-plot2"); S.tf = null; return; }
+    const lines = [`PID: K = ${nm(K, 5)}, a = ${nm(a, 5)}, Kp = ${nm(Kp, 5)}, Td = ${nm(Td, 5)} s, Ti = ${nm(Ti, 5)} s`];
+    let h = "<h5>CHARACTERISTIC ROOTS (DENOMINATOR OF EQ. 30)</h5>"; const sets = [];
+    [["default", T0], ["destabilizing", T1]].forEach(([nmx, Tf]) => {
+      if (!(Tf > 0)) return; const { den } = L4.closedLoop("PID", K, a, Kp, Td, Ti, Tf), rts = L4.roots(den), mr = Math.max(...rts.map((z) => z.re));
+      sets.push({ nmx, Tf, rts, mr });
+      h += wide(`T<sub>f</sub> = ${nm(Tf, 5)} s (${nmx})`, `denG = ${vec(den)}<br>` + rts.map(cplx).join("<br>")) + row("largest real part", nm(mr, 5) + (mr >= 0 ? "  (unstable)" : "  (stable)"), mr >= 0 ? "bad" : "ok");
+      lines.push(`Tf = ${nm(Tf, 5)} s (${nmx}): denG = ${vec(den)}`, "  roots: " + rts.map(cplx).join(";  "), `  largest real part = ${nm(mr, 5)} (${mr >= 0 ? "unstable" : "stable"})`);
+    });
+    // sweep and critical Tf
+    const lo = 1e-4, hi = 3, M = 400, tfs = [], mrs = [];
+    for (let i = 0; i <= M; i++) { const t = lo * Math.pow(hi / lo, i / M); tfs.push(t); mrs.push(maxRe(K, a, Kp, Td, Ti, t)); }
+    let crit = NaN; for (let i = 1; i <= M; i++) if (mrs[i - 1] < 0 && mrs[i] >= 0) { let x = tfs[i - 1], y = tfs[i]; for (let k = 0; k < 60; k++) { const m = Math.sqrt(x * y); if (maxRe(K, a, Kp, Td, Ti, m) < 0) x = m; else y = m; } crit = Math.sqrt(x * y); break; }
+    h += isFinite(crit) ? row("model predicts instability for T<sub>f</sub> above", nm(crit, 4) + " s") : row("model predicts instability above", mrs[M] < 0 ? "no instability up to 3 s" : "T<sub>f</sub> already unstable at 0.0001 s");
+    lines.push(isFinite(crit) ? `Model: roots first reach the imaginary axis at Tf = ${nm(crit, 4)} s` : "Model: no stability boundary found in 0.0001-3 s");
+    $("tf-out").innerHTML = h; S.tf = { lines };
+    const col = ["#5EEAD4", "#FB7185"], tr = sets.map((s, i) => ({ x: s.rts.map((z) => z.re), y: s.rts.map((z) => z.im), mode: "markers", name: `T_f = ${nm(s.Tf, 4)} s (${s.nmx})`, marker: { color: col[i], size: 10, symbol: i ? "x" : "circle" } }));
+    const allre = sets.flatMap((s) => s.rts.map((z) => z.re)), xr = [Math.min(...allre, -1) * 1.1, Math.max(...allre, 0) + 0.15 * (Math.max(...allre.map(Math.abs), 1))];
+    const imax = Math.max(1, ...sets.flatMap((s) => s.rts.map((z) => Math.abs(z.im)))) * 1.15;
+    scaledPlot("tf-plot", tr, lay("Characteristic roots", "real part (1/s)", "imaginary part (1/s)", { xaxis: { title: { text: "real part (1/s)" }, gridcolor: "#282D3A", zerolinecolor: "#FFB454", zerolinewidth: 2, range: xr }, hovermode: "closest" }), { x: xr, y: [-imax, imax] });
+    const sw = [{ x: tfs, y: mrs, mode: "lines", name: "largest real part", line: { color: "#5B9BFF", width: 2 } }];
+    sets.forEach((s, i) => sw.push({ x: [s.Tf], y: [s.mr], mode: "markers", name: `T_f = ${nm(s.Tf, 4)} s`, marker: { color: col[i], size: 9, symbol: i ? "x" : "circle" } }));
+    const y2 = [Math.min(...mrs) * 1.1, Math.min(60, Math.max(...mrs) * 1.1)];
+    scaledPlot("tf-plot2", sw, lay("Largest real part of the roots versus T_f", "T_f (s)", "max Re(root) (1/s)", { xaxis: { title: { text: "T_f (s)" }, type: "log", gridcolor: "#282D3A" }, yaxis: { title: { text: "max Re(root) (1/s)" }, gridcolor: "#282D3A", zerolinecolor: "#FFB454", zerolinewidth: 2, range: y2 }, margin: { l: 60, r: 16, t: 30, b: 44 } }), { x: [Math.log10(lo), Math.log10(hi)], y: y2[1] > y2[0] ? y2 : padR(y2[0], y2[1]) });
+  }
+  ["K", "a", "Kp", "Td", "Ti", "tf0", "tf1"].forEach((k) => $("input-tf-" + k).addEventListener("input", calcTF));
+  $("tf-from-cl").addEventListener("click", () => { const c = (p, id) => String(Number(gv(p, id).toPrecision(6))); $("input-tf-K").value = c("cl", "K"); $("input-tf-a").value = c("cl", "a"); $("input-tf-Kp").value = c("cl", "Kp"); $("input-tf-Td").value = c("cl", "Td"); $("input-tf-Ti").value = c("cl", "Ti"); calcTF(); sched(); });
+  $("tf-capture").addEventListener("click", () => { if (!S.tf) { const s = $("tf-stat"); s.style.color = "#FB7185"; s.textContent = "Enter the controller values first."; return; } capturePlots(["tf-plot", "tf-plot2"], S.tf.lines.slice(0, 6), "tf", "tf-stat"); });
+
+  // ---------------------------------------------------------------
+  // Captures, navigation, PDF, autosave
+  // ---------------------------------------------------------------
+  const TITLES = { ol: "Step 9: open loop", cl: "Steps 10-13: closed loop", tf: "Step 16: filter time" };
+  let captures = []; const CAP_KEY = "lab4wb_captures_v1";
+  function renderCaptures() {
+    const host = $("cap-list");
+    if (!captures.length) { host.innerHTML = '<span class="mono" style="font-size:11.5px;color:var(--muted);">No figures captured yet.</span>'; return; }
+    host.innerHTML = captures.map((c, i) => `<div class="cap-item"><button class="cap-x" data-i="${i}" type="button">✕</button><img src="${c.dataUrl}" alt="" /><div class="cap-text"><b>${TITLES[c.prefix]}</b><br>${c.lines.filter(Boolean).join("<br>")}</div></div>`).join("");
+    host.querySelectorAll(".cap-x").forEach((b) => b.addEventListener("click", () => { captures.splice(Number(b.dataset.i), 1); renderCaptures(); saveCaps(); }));
+  }
+  function saveCaps() { try { localStorage.setItem(CAP_KEY, JSON.stringify(captures)); } catch (e) { /* quota */ } }
+  window.__addCapture = (c) => { captures.push(c); renderCaptures(); saveCaps(); };
+  try { const raw = localStorage.getItem(CAP_KEY); if (raw) captures = JSON.parse(raw) || []; } catch (e) { captures = []; }
+  renderCaptures();
+
+  const SECTION_IDS = { intro: "part-intro", cal: "part-cal", ol: "part-ol", cl: "part-cl", tf: "part-tf", submission: "part-submission" };
+  function activate(part) {
+    document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
+    Object.values(SECTION_IDS).forEach((id) => { $(id).style.display = "none"; });
+    $(SECTION_IDS[part]).style.display = "block";
+    if (part === "cal") calcCal(); else if (part === "ol") calcOL(); else if (part === "cl") calcCL(); else if (part === "tf") calcTF();
+    document.querySelector(".content").scrollTo({ top: 0 });
+    const rs = () => $(SECTION_IDS[part]).querySelectorAll(".plot-host").forEach((d) => { if (d.data) { try { Plotly.Plots.resize(d); } catch (e) { /* hidden */ } } });
+    rs(); setTimeout(() => { rs(); realignAll(); }, 60);
+  }
+  document.querySelectorAll(".nav-btn").forEach((b) => b.addEventListener("click", () => activate(b.dataset.part)));
+
+  let appendixFiles = [];
+  function renderChips() {
+    const host = $("upload-thumbs-appendix"); host.innerHTML = "";
+    appendixFiles.forEach((f, i) => { const d = document.createElement("div"); d.className = "file-chip"; d.innerHTML = `<span>${f.name}</span><button class="chip-remove" data-i="${i}" type="button">✕</button>`; host.appendChild(d); });
+    host.querySelectorAll(".chip-remove").forEach((b) => b.addEventListener("click", () => { appendixFiles.splice(Number(b.dataset.i), 1); renderChips(); }));
+  }
+  const appIn = $("upload-input-appendix");
+  appIn.addEventListener("change", () => {
+    const chosen = Array.from(appIn.files || []), bad = chosen.filter((f) => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+    appendixFiles = appendixFiles.concat(chosen.filter((f) => !bad.includes(f)));
+    $("upload-err-appendix").textContent = bad.length ? `Skipped (not a PDF): ${bad.map((f) => f.name).join(", ")}` : ""; renderChips(); appIn.value = "";
+  });
+  const setStatus = (t, err) => { const e = $("exportStatus"); e.textContent = t; e.style.color = err ? "#FB7185" : "#8B92A5"; };
+  const sv = (id) => $(id).value.trim();
+  async function exportPdf() {
+    const blanks = []; if (!sv("input-netid")) blanks.push("your NetID"); if (!captures.length) blanks.push("no captured figures");
+    if (blanks.length && !confirm(`The following are still blank:\n\n${blanks.map((b) => "• " + b).join("\n")}\n\nDo you want to export the PDF anyway?`)) return;
+    const btn = $("exportPdfBtn"), label = btn.textContent; btn.disabled = true; btn.textContent = "EXPORTING…"; setStatus("");
+    try {
+      calcCal(); calcOL(); calcCL(); calcTF();
+      const { jsPDF } = window.jspdf, doc = new jsPDF({ unit: "pt", format: "letter" });
+      const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), mg = 48, mw = W - mg * 2; let y = mg;
+      const ensure = (h) => { if (y + h > H - mg) { doc.addPage(); y = mg; } };
+      const safe = (t) => String(t).replace(/ω_?n/g, "omega_n").replace(/ω/g, "omega").replace(/ζ/g, "zeta").replace(/θ/g, "theta").replace(/τ/g, "tau").replace(/σ/g, "sigma").replace(/Δ/g, "Delta").replace(/₀/g, "0").replace(/[−–]/g, "-").replace(/≤/g, "<=").replace(/≥/g, ">=")
+        .replace(/√/g, "sqrt").replace(/·/g, "*").replace(/×/g, "x").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/±/g, "+/-").replace(/→/g, "->").replace(/[^\x00-\xFF]/g, "?");
+      const heading = (t) => { ensure(80); doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(safe(t), mg, y); y += 22; };
+      const text = (t, o) => { const s = (o && o.size) || 10.5; doc.setFont((o && o.mono) ? "courier" : "helvetica", o && o.bold ? "bold" : "normal"); doc.setFontSize(s); const lh = s * 1.35; (o && o.mono ? safe(t).split("\n").flatMap((ln) => doc.splitTextToSize(ln || " ", mw)) : doc.splitTextToSize(safe(t), mw)).forEach((l) => { ensure(lh); doc.text(l, mg, y); y += lh; }); y += 4; };
+      const caps = (p) => { captures.filter((c) => c.prefix === p).forEach((c) => { const h = mw * (c.height / c.width), hh = Math.min(h, 340), ww = hh === h ? mw : mw * hh / h; ensure(hh + 40); c.lines.filter(Boolean).slice(0, 3).forEach((l) => text(l, { size: 8 })); ensure(hh + 10); doc.addImage(c.dataUrl, "PNG", mg, y, ww, hh); y += hh + 14; }); };
+      const note = (id) => { if (sv(id)) { text("Notes:", { bold: true }); text(sv(id)); } };
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+      doc.splitTextToSize("MAE 3260 Lab 4 - Digital Angular Position Control: calculations", mw).forEach((l) => { doc.text(l, mg, y); y += 20; }); y += 6;
+      const netId = sv("input-netid") || "(not entered)";
+      text(`Your NetID: ${netId}`, { bold: true, size: 11.5 }); text(`Group member NetIDs: ${sv("input-group-netids") || "(not entered)"}`, { bold: true, size: 11.5 }); y += 6;
+      if (S.cal && S.cal.lines.length) { heading("Steps 7-9a: Calibration and friction"); text(S.cal.lines.join("\n"), { mono: true, size: 9.5 }); note("input-notes-cal"); }
+      if (S.ol) { heading("Step 9: Open-loop parameters"); text(S.ol.lines.join("\n"), { mono: true, size: 9 }); text("Iteration:", { bold: true }); text((S.ol.its.length > 40 ? S.ol.its.slice(0, 30).concat(["..."], S.ol.its.slice(-3)) : S.ol.its).join("\n"), { mono: true, size: 8.5 }); note("input-notes-ol"); caps("ol"); }
+      if (S.cl) { heading("Steps 10-13: Closed-loop response (theory)"); text(S.cl.lines.join("\n"), { mono: true, size: 9 }); note("input-notes-cl"); caps("cl"); }
+      if (S.tf) { heading("Step 16: Filter time constant"); text(S.tf.lines.join("\n"), { mono: true, size: 9 }); note("input-notes-tf"); caps("tf"); }
+      const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+      if (appendixFiles.length) {
+        const { PDFDocument } = window.PDFLib, merged = await PDFDocument.load(doc.output("arraybuffer")), failed = [];
+        for (const f of appendixFiles) { try { const ap = await PDFDocument.load(await f.arrayBuffer()); (await merged.copyPages(ap, ap.getPageIndices())).forEach((pg) => merged.addPage(pg)); } catch (e) { console.error(e); failed.push(f.name); } }
+        const url = URL.createObjectURL(new Blob([await merged.save()], { type: "application/pdf" }));
+        const a = document.createElement("a"); a.href = url; a.download = `Lab4_${safeId}.pdf`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        setStatus(failed.length ? `PDF downloaded, but could not append: ${failed.join(", ")}` : "PDF downloaded (with appendix attached).");
+      } else { doc.save(`Lab4_${safeId}.pdf`); setStatus("PDF downloaded."); }
+    } catch (e) { console.error(e); setStatus(`Could not export PDF: ${e.message}`, true); }
+    finally { btn.disabled = false; btn.textContent = label; }
+  }
+  $("exportPdfBtn").addEventListener("click", exportPdf);
+
+  const KEY = "lab4wb_progress_v1";
+  function save() {
+    try {
+      const f = {}; document.querySelectorAll('input[id^="input-"], textarea[id^="input-"], input[id^="sim-"], select[id^="sel-"]').forEach((e) => { f[e.id] = e.value; });
+      const a = document.querySelector(".nav-btn.active"); localStorage.setItem(KEY, JSON.stringify({ tab: a ? a.dataset.part : "intro", f }));
+    } catch (e) { /* ignore */ }
+  }
+  let st = null; window.__scheduleSave = () => { clearTimeout(st); st = setTimeout(save, 250); };
+  document.addEventListener("input", sched); document.addEventListener("change", sched); document.addEventListener("click", sched);
+  window.addEventListener("pagehide", save); window.addEventListener("beforeunload", save);
+  (function load() {
+    let s; try { const raw = localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
+    if (s) {
+      Object.keys(s.f || {}).forEach((id) => { const e = $(id); if (e) e.value = s.f[id]; });
+      document.querySelectorAll('input[id^="sim-"]').forEach((n) => { const r = $("simr-" + n.id.slice(4)); if (r) r.value = n.value; });
+    }
+    calcCal(); calcOL(); calcCL(); calcTF();
+    activate(s && s.tab && SECTION_IDS[s.tab] ? s.tab : "intro");
+  })();
+  window.LAB4 = { L4, S, calcCL, calcTF, calcOL, calcCal };
+})();
+
+</script>
+
+</body>
+</html>

@@ -339,12 +339,6 @@
           <tr><td>PD (internal fdbk)</td><td class="mono">Kp&middot;e &minus; Kd&middot;d&theta;/dt</td></tr>
         </table>
         <p class="instructions"><b>Speed controller types:</b> <span class="mono" style="font-size:12.5px;">P: F = KpV&middot;e</span>; <span class="mono" style="font-size:12.5px;">PI: F = KiV&middot;&int;e + KpV&middot;e</span>; <span class="mono" style="font-size:12.5px;">PI (internal fdbk): F = KiV&middot;&int;e &minus; KpV&middot;v</span>.</p>
-        <div class="note-box">
-          <b>What is in this app.</b> The <b>Lane and speed control</b> page has the controls from the live script (controller types, gains Ki, Kp, Kd, KiV, KpV and the reference velocity) and prints the same results:
-          the time to finish, the largest distance from the center of the road, and the same warnings. The three figures are the birds-eye view, the wheel angle and the car speed.
-          Use <b>CAPTURE FIGURES</b> to save the current figures (with the settings) for your submission PDF.
-          The measurement noise is random, as in the script; the random numbers come from a fixed seed (as in <code>rng(101)</code>), but MATLAB&rsquo;s generator cannot be reproduced here, so tiny run-to-run details can differ from MATLAB.
-        </div>
       </section>
 
       <!-- ============== SIMULATION ============== -->
