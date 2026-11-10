@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GroupWork 13F &mdash; Self-Driving Car Lane and Speed Control</title>
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.17.0/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink: #0F1115; --panel: #171A21; --panel2: #1D212B; --line: #282D3A;
+    --amber: #FFB454; --cyan: #5EEAD4; --rose: #FB7185; --pink: #F472B6;
+    --fg: #E7E9EE; --muted: #8B92A5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--ink); color: var(--fg); font-family: 'Inter', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  header h1 { font-size: 14px; margin: 0; font-weight: 600; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+
+  main { flex: 1; display: flex; overflow: hidden; }
+  nav { width: 220px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line); order: 2; padding: 16px 14px; overflow-y: auto; }
+  nav p.label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; margin: 14px 0 8px 0; }
+  nav p.label:first-child { margin-top: 0; }
+  .nav-btn { display: block; width: 100%; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 9px 12px; margin-bottom: 6px; background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; color: var(--fg); cursor: pointer; }
+  .nav-btn.active { border-color: var(--amber); color: var(--amber); }
+  .nav-btn small { display: block; font-family: 'Inter', sans-serif; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .content { flex: 1; order: 1; overflow-y: auto; padding: 28px 40px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  h2.section-title { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--amber); margin: 0 0 14px 0; }
+  h3.problem-title { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--cyan); margin: 0 0 10px 0; }
+  h4.part-title { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--fg); margin: 22px 0 8px 0; }
+  p.instructions { font-size: 14.5px; line-height: 1.65; color: var(--fg); margin: 0 0 16px 0; }
+  ul.goals { padding-left: 20px; margin: 0 0 16px 0; }
+  ul.goals li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .eq-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; margin: 14px 0; text-align: center; font-size: 16px; }
+  .given-line { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin: 0 0 18px 0; line-height: 1.8; }
+  .given-line b { color: var(--fg); font-weight: 600; }
+  .note-box { background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 4px; padding: 12px 16px; margin: 0 0 18px 0; font-size: 13px; line-height: 1.6; color: var(--fg); }
+  .note-box code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan); background: var(--ink); padding: 1px 5px; border-radius: 3px; }
+
+  .panel-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
+  .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  .form-grid.one { grid-template-columns: 1fr; }
+  .form-grid.two { grid-template-columns: 1fr 1fr; }
+  .form-grid.five { grid-template-columns: repeat(5, 1fr); }
+  .field { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .field label { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .field input[type="text"], .field input[type="number"] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 8px 10px; }
+  .field input:focus { outline: none; border-color: var(--amber); }
+  .field select { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 8px 10px; }
+  .field select:focus { outline: none; border-color: var(--amber); }
+
+  .reflection-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  .reflection-box textarea { width: 100%; min-height: 90px; resize: vertical; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'Inter', sans-serif; font-size: 14px; padding: 10px 12px; line-height: 1.5; }
+  .reflection-box textarea:focus { outline: none; border-color: var(--amber); }
+
+  .run-btn { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; padding: 10px 22px; border-radius: 6px; border: none; background: var(--amber); color: var(--ink); cursor: pointer; }
+  .run-btn:hover { filter: brightness(1.08); }
+  .run-btn:active { transform: scale(0.98); }
+  .run-btn.secondary { background: none; color: var(--muted); border: 1px solid var(--line); }
+  .run-btn.secondary:hover { color: var(--rose); border-color: var(--rose); }
+  .run-btn.small { font-size: 11.5px; padding: 8px 14px; }
+
+  .match-banner { display: none; margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line); }
+  .match-banner.match { display: block; border-color: var(--cyan); color: var(--cyan); }
+  .match-banner.no-match { display: block; border-color: var(--rose); color: var(--rose); }
+  .field-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; min-height: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .plot-host { height: 300px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin-top: 14px; }
+  .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 13px; text-align: center; max-width: 320px; margin: 0 auto; padding: 0 20px; }
+
+  .steps-list { padding-left: 20px; margin: 0 0 16px 0; }
+  .steps-list li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; color: var(--fg); }
+
+  .upload-block { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 0 0 18px 0; }
+  .upload-block input[type="file"] { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--fg); }
+  .upload-thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .thumb-wrap { position: relative; width: 90px; height: 120px; }
+  .thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); display: block; }
+  .thumb-remove { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+  .upload-status { font-size: 11px; color: var(--cyan); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; }
+  .upload-err { font-size: 11px; color: var(--rose); margin: 8px 0 0 0; font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+  .file-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; margin: 4px 6px 4px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .file-chip .chip-remove { background: none; border: none; color: var(--rose); cursor: pointer; font-size: 13px; line-height: 1; font-family: 'JetBrains Mono', monospace; padding: 0; }
+
+  .vib-top-row { display: flex; gap: 18px; align-items: flex-start; margin-top: 14px; }
+  .vib-svg-host { flex: 1.3; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .vib-output { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .vib-output h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .vib-output .out-row { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; margin-bottom: 7px; color: var(--fg); gap: 8px; }
+  .vib-output .out-row span.k { color: var(--muted); flex-shrink: 0; }
+  .vib-output .out-row span.v { color: var(--cyan); text-align: right; }
+  .vib-presets { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+  .katex { color: var(--fg); }
+</style>
+<style>
+  .app-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 14px; align-items: start; }
+  .app-grid .card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+  .card h5 { margin: 0 0 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em; font-weight: 500; }
+  .num-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .num-row label, .sl label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+  .num-row input, .sl input[type=number] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .num-row input:focus, .sl input[type=number]:focus { outline: none; border-color: var(--amber); }
+  .sl { margin-bottom: 10px; }
+  .sl .row { display: flex; gap: 8px; align-items: center; }
+  .sl input[type=range] { flex: 1; min-width: 0; accent-color: var(--rose); }
+  .sl input[type=number] { width: 74px; }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .tools label { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--fg); display: flex; align-items: center; gap: 6px; }
+  .tools input { accent-color: var(--amber); }
+  .app-bottom { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; align-items: start; }
+  .plot-host.t { height: 400px; margin-top: 0; }
+  .plot-host.p { height: 340px; margin-top: 0; }
+  table.mt { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  table.mt th, table.mt td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: right; }
+  table.mt th:first-child, table.mt td:first-child { text-align: left; color: var(--muted); }
+  table.mt th { color: var(--muted); font-weight: 500; }
+  table.mt td.b { color: var(--cyan); } table.mt td.c { color: var(--rose); }
+  table.sum { border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; margin: 8px 0 16px; }
+  table.sum th, table.sum td { border: 1px solid var(--line); padding: 6px 8px; }
+  table.sum th { color: var(--muted); font-weight: 500; background: var(--panel); }
+  table.sum select { background: var(--ink); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 12px; padding: 4px; }
+  .cap-list { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 18px; }
+  .cap-item { width: 250px; background: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px; position: relative; }
+  .cap-item img { width: 100%; border-radius: 4px; display: block; }
+  .cap-item .cap-text { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+  .cap-item .cap-x { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--rose); color: var(--ink); border: none; cursor: pointer; font-size: 13px; line-height: 1; }
+  @media (max-width: 1000px) { .app-grid, .app-bottom { grid-template-columns: 1fr; } }
+</style>
+<style>
+  .case-card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px 6px; margin-bottom: 12px; border-left-width: 4px; }
+  .case-card.c0 { border-left-color: #5EEAD4; } .case-card.c1 { border-left-color: #FB7185; } .case-card.c2 { border-left-color: #FFB454; }
+  .case-card .hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+  .case-card .hd input { accent-color: var(--amber); }
+  .sl.locked input[type=number] { opacity: 0.65; border-style: dashed; }
+  .sl .lock { font-size: 10px; color: var(--amber); font-family: 'JetBrains Mono', monospace; }
+  .r0-row { display: flex; align-items: center; gap: 10px; }
+  .r0-row input[type=number] { width: 90px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .r0-row .deg { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); }
+  .plot-host.t { height: 400px; }
+  .plot-host.u { height: 320px; margin-top: 0; }
+  .app-below { margin-top: 14px; }
+  table.mt td.k0 { color: #5EEAD4; } table.mt td.k1 { color: #FB7185; } table.mt td.k2 { color: #FFB454; }
+  table.mt th.k0 { color: #5EEAD4; } table.mt th.k1 { color: #FB7185; } table.mt th.k2 { color: #FFB454; }
+  .ref-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; }
+  .plot-host.r { height: 290px; margin-top: 0; }
+  .range-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+  .range-row input { width: 90px; background: var(--ink); border: 1px solid var(--line); border-radius: 5px; color: var(--fg); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 6px 8px; }
+  .range-row input:focus { outline: none; border-color: var(--amber); }
+  @media (max-width: 1000px) { .ref-grid { grid-template-columns: 1fr; } }
+</style>
+<style>
+  /* ---- Simulink / MATLAB look-alike windows ---- */
+  .xwin { background:#f3f3f3; color:#1b1b1b; border:1px solid #7a7a7a; border-radius:3px; box-shadow:0 4px 16px rgba(0,0,0,.45); margin: 0 0 16px 0; font-family: 'Segoe UI','Inter',Arial,sans-serif; font-size:12px; overflow:hidden; }
+  .xwin .xt { display:flex; align-items:center; gap:8px; background:#fff; padding:6px 10px; border-bottom:1px solid #d0d0d0; font-size:12px; }
+  .xwin .xt .ico { width:14px; height:14px; border-radius:2px; background:linear-gradient(135deg,#e8742c,#0f5ba8); flex-shrink:0; }
+  .xwin .xt .ttl { flex:1; }
+  .xwin .xt .wb { display:flex; gap:14px; color:#444; font-size:13px; }
+  .xwin .menu { display:flex; gap:14px; padding:4px 10px; background:#fff; border-bottom:1px solid #e1e1e1; font-size:12px; }
+  .xwin .stat { display:flex; justify-content:space-between; padding:3px 10px; background:#f3f3f3; border-top:1px solid #cfcfcf; font-size:11px; color:#333; }
+  .xwin .stat .box { border:1px solid #bbb; padding:0 6px; margin-left:6px; background:#fafafa; }
+  .ml-editor textarea { width:100%; min-height:250px; resize:vertical; background:#fff; color:#1b1b1b; border:none; border-bottom:1px solid #ccc; font-family:'JetBrains Mono',Consolas,monospace; font-size:12px; line-height:1.5; padding:8px 10px; box-sizing:border-box; white-space:pre; overflow:auto; }
+  .ml-editor textarea:focus { outline:none; }
+  .ml-tools { display:flex; align-items:center; gap:10px; padding:6px 10px; background:#f3f3f3; border-bottom:1px solid #d0d0d0; }
+  .ml-btn { background:#fff; border:1px solid #9a9a9a; border-radius:3px; padding:4px 14px; font-size:12px; cursor:pointer; color:#1b1b1b; display:inline-flex; align-items:center; gap:6px; }
+  .ml-btn:hover { background:#eaf3fb; border-color:#2b78c2; }
+  .ml-btn.run .tri { width:0; height:0; border-left:9px solid #1e9d3a; border-top:6px solid transparent; border-bottom:6px solid transparent; }
+  .ml-btn[disabled] { opacity:.45; cursor:default; }
+  .ml-cmd { background:#fff; border-top:1px solid #ccc; padding:6px 10px; font-family:'JetBrains Mono',Consolas,monospace; font-size:11.5px; color:#222; min-height:44px; white-space:pre-wrap; }
+  .ml-cmd .err { color:#c00; }
+  .ml-hint { padding:4px 10px; font-size:11px; color:#555; background:#f9f9f9; border-bottom:1px solid #e5e5e5; }
+  .rb-tabs { display:flex; background:#fff; border-bottom:1px solid #ccc; font-size:11.5px; }
+  .rb-tabs span { padding:6px 14px; color:#555; }
+  .rb-tabs span.on { color:#1b1b1b; border-bottom:3px solid #2b78c2; font-weight:600; }
+  .rb { display:flex; align-items:center; gap:26px; padding:6px 14px; background:#f8f8f8; border-bottom:1px solid #d6d6d6; }
+  .rb .grp { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .rb .grp .lab { font-size:10.5px; color:#444; }
+  .rb .bigbtn { width:42px; height:36px; display:flex; align-items:center; justify-content:center; border:1px solid transparent; border-radius:3px; cursor:pointer; background:transparent; }
+  .rb .bigbtn:hover { background:#e6f0fa; border-color:#9cc3e8; }
+  .rb .bigbtn[disabled] { opacity:.4; cursor:default; }
+  .rb .bigbtn .play { width:0; height:0; border-left:16px solid #1e9d3a; border-top:10px solid transparent; border-bottom:10px solid transparent; }
+  .rb .bigbtn .stop { width:14px; height:14px; background:#c02a2a; }
+  .rb input { width:78px; border:1px solid #999; padding:3px 6px; font-size:12px; background:#fff; color:#1b1b1b; }
+  .sl-canvas { background:#fff; position:relative; }
+  .sl-canvas svg { width:100%; height:auto; display:block; }
+  .sl-canvas .blk { cursor:pointer; }
+  .sl-canvas .blk:hover rect.hl { stroke:#2b78c2; stroke-width:2.2; }
+  .sl-canvas text { font-family:'Segoe UI',Arial,sans-serif; }
+  .scope { background:#f3f3f3; }
+  .scope .tbar { display:flex; align-items:center; gap:6px; padding:4px 8px; background:#f7f7f7; border-bottom:1px solid #cfcfcf; }
+  .scope .tbar button { width:28px; height:24px; border:1px solid transparent; background:transparent; border-radius:3px; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; }
+  .scope .tbar button:hover { background:#e6f0fa; border-color:#9cc3e8; }
+  .scope .tbar button.on { background:#cfe3f6; border-color:#6aa6dc; }
+  .scope .tbar button[disabled] { opacity:.35; cursor:default; }
+  .scope .sbody { display:flex; background:#000; }
+  .scope .splot { flex:1; min-width:0; height:340px; background:#000; }
+  .scope .side { width:262px; flex-shrink:0; background:#f3f3f3; padding:6px 6px 8px; display:flex; flex-direction:column; gap:6px; }
+  .scope .side .pn { background:#fff; border:1px solid #c9c9c9; }
+  .scope .side .pn h6 { margin:0; padding:4px 8px; font-size:11.5px; background:#e9e9e9; border-bottom:1px solid #c9c9c9; font-weight:600; }
+  .scope .side .pn .pb { padding:6px 8px; font-size:11.5px; }
+  .scope .side select { width:100%; font-size:11.5px; padding:2px; }
+  .scope table.cm { width:100%; border-collapse:collapse; font-size:11.5px; border:1px solid #ccc; }
+  .scope table.cm td, .scope table.cm th { padding:2px 5px; text-align:center; font-weight:400; }
+  .scope table.cm input { width:68px; text-align:center; font-size:11.5px; border:1px solid #bbb; padding:1px 2px; background:#fafafa; color:#1b1b1b; }
+  .scope .cm2 { display:grid; grid-template-columns:1fr 1fr; gap:2px 6px; font-size:11.5px; margin-top:6px; padding-top:6px; border-top:1px solid #ccc; }
+  .scope .cm2 span.v { text-align:right; }
+  .sw-line { display:inline-block; width:60px; height:0; border-top:3px solid #0a0; vertical-align:middle; }
+  .dlg-back { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:50; }
+  .dlg-back.open { display:flex; }
+  .dlg { width:620px; max-width:94vw; max-height:92vh; overflow:auto; background:#f0f0f0; color:#1b1b1b; border:1px solid #666; box-shadow:0 8px 30px rgba(0,0,0,.6); font-family:'Segoe UI',Arial,sans-serif; font-size:12px; }
+  .dlg .dt { display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border-bottom:1px solid #ccc; font-size:12px; }
+  .dlg .dt .x { cursor:pointer; padding:0 6px; font-size:15px; }
+  .dlg .db { padding:10px 12px; }
+  .dlg .db p { margin:0 0 8px; line-height:1.4; }
+  .dlg .db .hd { font-weight:700; }
+  .dlg label.row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .dlg label.row span.l { width:150px; flex-shrink:0; }
+  .dlg input[type=text], .dlg select { background:#fff; border:1px solid #888; padding:3px 6px; font-size:12px; color:#1b1b1b; flex:1; min-width:0; }
+  .dlg input[disabled], .dlg select[disabled] { background:#e4e4e4; color:#888; border-color:#bbb; }
+  .dlg .tabs { display:flex; gap:0; border-bottom:1px solid #999; margin-top:10px; }
+  .dlg .tabs button { background:#e4e4e4; border:1px solid #aaa; border-bottom:none; padding:4px 10px; font-size:12px; cursor:pointer; color:#1b1b1b; margin-right:2px; }
+  .dlg .tabs button.on { background:#fff; font-weight:600; }
+  .dlg .tp { background:#fff; border:1px solid #aaa; border-top:none; padding:10px; min-height:150px; }
+  .dlg .tp .sec { font-weight:600; margin-bottom:6px; }
+  .dlg .tp .dim { color:#888; }
+  .dlg .btns { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+  .dlg .btns button { min-width:76px; padding:4px 10px; font-size:12px; border:1px solid #888; background:#e8e8e8; cursor:pointer; color:#1b1b1b; }
+  .dlg .btns button.def { border:2px solid #2b78c2; }
+  .dlg .btns button[disabled] { color:#999; border-color:#bbb; cursor:default; }
+  .dlg .err { color:#b00; font-size:11.5px; min-height:16px; margin-top:6px; }
+  .dlg .formula { text-align:center; margin: 4px 0; }
+  .sim-note { font-size:12.5px; color:var(--muted); margin:0 0 12px; line-height:1.55; }
+</style>
+<style>
+  /* ---- 12F additions ---- */
+  .console { background:#fff; color:#1b1b1b; border:1px solid #888; border-radius:3px; padding:8px 12px; font-family:'JetBrains Mono',Consolas,monospace; font-size:12px; line-height:1.5; white-space:pre-wrap; min-height:60px; max-height:380px; overflow:auto; margin-top:10px; }
+  .console .err { color:#c00; }
+  .fn-box { white-space:pre; background:#fff; color:#1b1b1b; border:1px solid #888; border-radius:3px; padding:10px 14px; font-family:'JetBrains Mono',Consolas,monospace; font-size:12.5px; line-height:2; overflow-x:auto; }
+  .fn-box .cm { color:#2a7f2a; }
+  .fn-box .kw { color:#0000ff; }
+  .fn-box input { font-family:inherit; font-size:12.5px; background:#fffbe8; color:#1b1b1b; border:1px solid #c9a100; border-radius:3px; padding:2px 6px; min-width:80px; }
+  .fn-box input.w1 { width:170px; } .fn-box input.w2 { width:96px; } .fn-box input.w3 { width:420px; max-width:100%; } .fn-box input.w4 { width:260px; }
+  .fn-box input:focus { outline:none; border-color:#2b78c2; background:#fff; }
+  .bd-wrap { position:relative; width:100%; aspect-ratio: 920 / 250; background:var(--panel); border:1px solid var(--line); border-radius:8px; }
+  .bd-wrap svg { position:absolute; inset:0; width:100%; height:100%; }
+  .bd-wrap input { position:absolute; transform:translate(-50%,-50%); width:11.5%; background:var(--ink); border:1px solid var(--amber); border-radius:4px; color:var(--fg); font-family:'JetBrains Mono',monospace; font-size:12px; padding:5px 6px; text-align:center; }
+  .bd-wrap input:focus { outline:none; border-color:var(--cyan); }
+  .bd-wrap .sw { cursor:pointer; }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  .seg button { background:var(--panel2); color:var(--muted); border:none; padding:7px 12px; font-family:'JetBrains Mono',monospace; font-size:11.5px; cursor:pointer; }
+  .seg button.on { background:var(--amber); color:var(--ink); font-weight:600; }
+  .pre-out { font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.7; }
+  .pre-out .k { color:var(--muted); } .pre-out .v { color:var(--cyan); }
+  .scope .splot.tall { height:430px; }
+  .xwin.scope.small .splot { height:260px; }
+  @media (max-width: 1000px) { .scope .sbody { flex-direction:column; } .scope .side { width:auto; } }
+</style>
+<style>
+  /* ---- 13F additions ---- */
+  .console { background:#fff; color:#1b1b1b; border:1px solid #888; border-radius:3px; padding:8px 12px; font-family:'JetBrains Mono',Consolas,monospace; font-size:12px; line-height:1.6; white-space:pre-wrap; min-height:60px; margin-top:0; }
+  .console b { font-weight:700; }
+  .console .warn { color:#b00020; }
+  .ctl-sel { margin-bottom:12px; }
+  .ctl-sel label { display:block; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted); margin-bottom:4px; }
+  .ctl-sel select { width:100%; background:var(--ink); border:1px solid var(--line); border-radius:5px; color:var(--fg); font-family:'JetBrains Mono',monospace; font-size:13px; padding:7px 8px; }
+  .ctl-sel select:focus { outline:none; border-color:var(--amber); }
+  .sim-grid { display:grid; grid-template-columns:330px minmax(0,1fr); gap:14px; align-items:start; }
+  .sim-right .plot-host { margin-top:0; }
+  .plot-host.bird { height:470px; }
+  .plot-host.ts { height:300px; }
+  .two-plots { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; margin-top:14px; }
+  .runstat { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-top:6px; }
+  @media (max-width:1000px){ .sim-grid, .two-plots { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>GROUPWORK 13F <span>&mdash; Self-Driving Car: Lane and Speed Control (M&amp;AE 3260)</span></h1>
+</header>
+
+<main>
+  <nav>
+    <p class="label">BACKGROUND</p>
+    <button class="nav-btn active" data-part="intro">Intro<small>The car, the road, the controllers</small></button>
+
+    <p class="label">SIMULATION</p>
+    <button class="nav-btn" data-part="sim">Lane and speed control<small>Choose controllers and gains</small></button>
+
+    <p class="label">SUBMIT</p>
+    <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
+  </nav>
+
+  <div class="content">
+    <div class="wrap">
+
+      <!-- ============== INTRO ============== -->
+      <section id="part-intro">
+        <h2 class="section-title">Self-Driving Car: Lane and Speed Control</h2>
+        <p class="instructions">
+          A car drives down a straight 50 m road, takes a 90&deg; left corner with a 10 m radius, then drives another 60 m straight. A steering controller and a speed controller
+          keep the car in a 3.7 m lane. This page is the browser version of the MATLAB live script <span class="mono" style="font-size:12.5px;">MAE3260_SDC_lanespeedcontrol_2025a</span>:
+          pick a controller type and its gains with the controls, and the simulation, the printed results and the three figures update the way they do in the live script.
+        </p>
+        <p class="instructions"><b>The model</b> (discrete time, Euler steps of dt = 0.005 s, as in the script):</p>
+        <div class="eq-block" id="eq-car"></div>
+        <div class="eq-block" id="eq-wheel"></div>
+        <div class="eq-block" id="eq-speed"></div>
+        <div class="eq-block" id="eq-ref"></div>
+        <p class="instructions">
+          The car position is measured with noise (standard deviation 0.001 m on each of x and y). The wheel reference is found by looking H = 0.1 s ahead on the center of the lane: the heading change needed to point at that
+          point gives &omega;, and &delta;<sub>ref</sub> = atan(&omega;L/V). The steering controller turns the wheel-angle error into a torque on the steering column (J = 1), limited to &plusmn;500 N&middot;m, with a 3 N&middot;m friction torque
+          opposing the motion. The wheel can turn at most &plusmn;30&deg;. The speed controller turns the speed error into a thrust force F on the car (m = 1400 kg, drag coefficient b = 100).
+        </p>
+        <p class="instructions"><b>Steering controller types</b> (e = reference &minus; output; with &ldquo;internal feedback&rdquo; the derivative term, and for the PID version also the proportional term, acts on the output &theta; instead of the error):</p>
+        <table class="sum">
+          <tr><th>Type</th><th>Torque T</th></tr>
+          <tr><td>PID</td><td class="mono">Ki&middot;&int;e + Kp&middot;e + Kd&middot;de/dt</td></tr>
+          <tr><td>PID (internal fdbk)</td><td class="mono">Ki&middot;&int;e &minus; Kp&middot;&theta; &minus; Kd&middot;d&theta;/dt</td></tr>
+          <tr><td>PD</td><td class="mono">Kp&middot;e + Kd&middot;de/dt</td></tr>
+          <tr><td>PD (internal fdbk)</td><td class="mono">Kp&middot;e &minus; Kd&middot;d&theta;/dt</td></tr>
+        </table>
+        <p class="instructions"><b>Speed controller types:</b> <span class="mono" style="font-size:12.5px;">P: F = KpV&middot;e</span>; <span class="mono" style="font-size:12.5px;">PI: F = KiV&middot;&int;e + KpV&middot;e</span>; <span class="mono" style="font-size:12.5px;">PI (internal fdbk): F = KiV&middot;&int;e &minus; KpV&middot;v</span>.</p>
+        <div class="note-box">
+          <b>What is in this app.</b> The <b>Lane and speed control</b> page has the controls from the live script (controller types, gains Ki, Kp, Kd, KiV, KpV and the reference velocity) and prints the same results:
+          the time to finish, the largest distance from the center of the road, and the same warnings. The three figures are the birds-eye view, the wheel angle and the car speed.
+          Use <b>CAPTURE FIGURES</b> to save the current figures (with the settings) for your submission PDF.
+          The measurement noise is random, as in the script; the random numbers come from a fixed seed (as in <code>rng(101)</code>), but MATLAB&rsquo;s generator cannot be reproduced here, so tiny run-to-run details can differ from MATLAB.
+        </div>
+      </section>
+
+      <!-- ============== SIMULATION ============== -->
+      <section id="part-sim" style="display:none;">
+        <h3 class="problem-title">Lane and Speed Control</h3>
+        <p class="sim-note">Change any control and everything updates. The gains must stay inside the slider ranges (the script prints a warning otherwise).</p>
+        <div class="panel-box">
+          <div class="sim-grid">
+            <div>
+              <div class="card" style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px;">
+                <h5 style="margin:0 0 10px 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.1em;font-weight:500;">STEERING CONTROL</h5>
+                <div class="ctl-sel"><label for="sel-steer">Steering Control</label>
+                  <select id="sel-steer">
+                    <option value="PID (internal fdbk)">PID (internal fdbk)</option>
+                    <option value="PID">PID</option>
+                    <option value="PD (internal fdbk)" selected>PD (internal fdbk)</option>
+                    <option value="PD">PD</option>
+                  </select></div>
+                <div id="s13-steer-sliders"></div>
+              </div>
+              <div class="card" style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px;">
+                <h5 style="margin:0 0 10px 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.1em;font-weight:500;">SPEED CONTROL</h5>
+                <div class="ctl-sel"><label for="sel-speed">Speed Control</label>
+                  <select id="sel-speed">
+                    <option value="P" selected>P</option>
+                    <option value="PI">PI</option>
+                    <option value="PI (internal fdbk)">PI (internal fdbk)</option>
+                  </select></div>
+                <div id="s13-speed-sliders"></div>
+              </div>
+              <div class="tools">
+                <button class="run-btn small" id="s13-capture" type="button">CAPTURE FIGURES</button>
+                <button class="run-btn small secondary" id="s13-reset" type="button">RESET CONTROLS</button>
+              </div>
+              <div class="mono" id="s13-capstat" style="font-size:11px;color:var(--cyan);min-height:14px;"></div>
+            </div>
+            <div class="sim-right">
+              <div class="console" id="s13-out"></div>
+              <div class="runstat" id="s13-runstat"></div>
+              <div class="plot-host bird" id="s13-bird" style="margin-top:14px;"></div>
+              <div class="two-plots">
+                <div class="plot-host ts" id="s13-wheel"></div>
+                <div class="plot-host ts" id="s13-speed"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h4 class="part-title">Notes</h4>
+        <p class="instructions">Which steering and speed controller types and gains did you choose, and what did you observe in the car&rsquo;s path, the wheel angle and the car speed?</p>
+        <div class="reflection-box"><textarea id="input-notes"></textarea></div>
+      </section>
+
+      <!-- ============== SUBMISSION ============== -->
+      <section id="part-submission" style="display:none;">
+        <h2 class="section-title">Submission</h2>
+        <div class="form-grid two">
+          <div class="field"><label class="mono">Your NetID</label><input type="text" id="input-netid" spellcheck="false" /></div>
+          <div class="field"><label class="mono">Group member NetIDs</label><input type="text" id="input-group-netids" spellcheck="false" /></div>
+        </div>
+        <ul class="steps-list" style="margin-top:22px;">
+          <li>Enter your NetID and group member NetIDs above and export the PDF.</li>
+          <li>The exported PDF contains your notes, the current controller settings with the printed results, and every figure set you captured. Capture the figures for each controller design you want to include.</li>
+          <li>Attach any handwritten work as a PDF below.</li>
+        </ul>
+        <p class="instructions"><b>Captured figures</b> (from CAPTURE FIGURES on the simulation page):</p>
+        <div class="cap-list" id="cap-list"></div>
+        <p class="instructions">Append an existing PDF to the end of your export (optional):</p>
+        <div class="upload-block">
+          <input type="file" id="upload-input-appendix" accept="application/pdf" multiple />
+          <div id="upload-thumbs-appendix" style="display:flex; flex-wrap:wrap; margin-top:10px;"></div>
+          <p class="upload-err" id="upload-err-appendix"></p>
+        </div>
+        <button class="run-btn" id="exportPdfBtn" style="margin-top: 10px;">EXPORT PDF</button>
+        <p class="field-err" id="exportStatus" style="color:var(--muted);"></p>
+      </section>
+
+    </div>
+  </div>
+</main>
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const kr = (id, tex) => katex.render(tex, $(id), { throwOnError: false, displayMode: true });
+  const sched = () => { if (window.__scheduleSave) window.__scheduleSave(); };
+
+  kr("eq-car", "\\begin{gathered}\\dot x=V\\cos\\psi\\qquad(1)\\\\[6pt] \\dot y=V\\sin\\psi\\qquad(2)\\\\[6pt] \\dot\\psi=\\frac{V}{L}\\tan\\theta\\qquad(3)\\\\[6pt] \\text{with } L=4.5\\ \\text{m}\\end{gathered}");
+  kr("eq-wheel", "\\begin{gathered}J\\ddot\\theta=T_{total}\\qquad(4)\\\\[6pt] T_{total}=\\mathrm{sat}_{\\pm500}(T)-T_{dist}\\,\\mathrm{sgn}(\\dot\\theta)\\qquad(5)\\\\[6pt] |\\theta|\\le 30^\\circ\\qquad(6)\\\\[6pt] \\text{with } J=1,\\ T_{dist}=3\\end{gathered}");
+  kr("eq-speed", "\\begin{gathered}m\\,\\dot v=-b\\,v+F\\qquad(7)\\\\[6pt] \\text{with } m=1400\\ \\text{kg},\\ b=100\\end{gathered}");
+  kr("eq-ref", "\\begin{gathered}\\theta_{ref}=\\arctan\\!\\left(\\frac{\\omega L}{V}\\right)\\qquad(8)\\\\[6pt] \\omega=\\frac{\\psi_{ahead}-\\psi}{H}\\qquad(9)\\\\[6pt] \\psi_{ahead}=\\mathrm{atan2}(y_2-y_1,\\;x_2-x_1)\\qquad(10)\\\\[6pt] \\text{with } H=0.1\\ \\text{s}\\end{gathered}");
+
+  // ---------------------------------------------------------------
+  // Parameters (setup_parameters in the script)
+  // ---------------------------------------------------------------
+  const CAR = { m: 1400, L: 4.5, J: 1, Tdist: 3, Tmax: 500 };
+  const ROAD = { L1: 50, R: 10, L2: 60, LaneW: 3.7 };
+  const SIM = { dt: 0.005, H: 0.1, sig: 0.001 };
+  const BDRAG = 100, SEED = 101;
+
+  function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function makeRandn(seed) { const u = mulberry32(seed); let spare = null; return function () { if (spare !== null) { const s = spare; spare = null; return s; } let a = 0; while (a === 0) a = u(); const b = u(), r = Math.sqrt(-2 * Math.log(a)); spare = r * Math.sin(2 * Math.PI * b); return r * Math.cos(2 * Math.PI * b); }; }
+
+  // number of elements of MATLAB's a:dt:b
+  function colonLen(a, dt, b) { const q = (b - a) / dt; return Math.floor(q + 1e-10 * Math.max(1, Math.abs(q))) + 1; }
+
+  // ---------------------------------------------------------------
+  // setuproad
+  // ---------------------------------------------------------------
+  function setupRoad(V) {
+    const dt = SIM.dt, L1 = ROAD.L1, L2 = ROAD.L2, R = ROAD.R, LW = ROAD.LaneW;
+    const Lt1 = L1 / V, Lt2 = (L1 + Math.PI * R / 2) / V, Lend = (L1 + Math.PI * R / 2 + L2) / V;
+    const nt1 = colonLen(0, dt, Lt1), s1end = (nt1 - 1) * dt;
+    const nt2 = colonLen(s1end, dt, Lt2) - 1, s2end = s1end + nt2 * dt;
+    const nt3 = colonLen(s2end, dt, Lend) - 1, s3end = s2end + nt3 * dt;
+    const nt = nt1 + nt2 + nt3;
+    const t = new Float64Array(nt);
+    for (let i = 0; i < nt1; i++) t[i] = i * dt;
+    for (let i = 1; i <= nt2; i++) t[nt1 + i - 1] = s1end + i * dt;
+    for (let i = 1; i <= nt3; i++) t[nt1 + nt2 + i - 1] = s2end + i * dt;
+    const npts = Math.round(SIM.H / dt);
+    const W = (Math.PI / 2) / (nt2 * dt), tot = nt + npts;
+    const cx = new Float64Array(tot), cy = new Float64Array(tot), lx = new Float64Array(tot), ly = new Float64Array(tot), rx = new Float64Array(tot), ry = new Float64Array(tot);
+    let th = 0; lx[0] = 0; ly[0] = LW / 2; rx[0] = 0; ry[0] = -LW / 2;
+    const VLc = V * (R - LW / 2) / R, VRc = V * (R + LW / 2) / R;
+    for (let k = 1; k < tot; k++) { // 0-based k <-> MATLAB k+1; Omega/VL/VR index k-1 (0-based) = MATLAB k
+      const j = k - 1; let om = 0, vl = V, vr = V;
+      if (j >= nt1 && j < nt1 + nt2) { om = W; vl = VLc; vr = VRc; }
+      const c = Math.cos(th), s = Math.sin(th);
+      cx[k] = cx[k - 1] + dt * V * c; cy[k] = cy[k - 1] + dt * V * s;
+      lx[k] = lx[k - 1] + dt * vl * c; ly[k] = ly[k - 1] + dt * vl * s;
+      rx[k] = rx[k - 1] + dt * vr * c; ry[k] = ry[k - 1] + dt * vr * s;
+      th += dt * om;
+    }
+    return { t, nt, nt1, nt2, nt3, npts, cx, cy, lx, ly, rx, ry };
+  }
+
+  // ---------------------------------------------------------------
+  // plot_idealcase: delta_ideal
+  // ---------------------------------------------------------------
+  function idealDelta(rd, V) {
+    const { nt, npts, cx, cy } = rd, dt = SIM.dt, L = CAR.L;
+    const d = new Float64Array(nt - 1); let x = 0, y = 0, p = 0;
+    for (let k = 1; k <= nt - 2; k++) {
+      const nx = x + dt * V * Math.cos(p), ny = y + dt * V * Math.sin(p), np = p + dt * V / L * Math.tan(d[k - 1]);
+      x = nx; y = ny; p = np;
+      const th1 = Math.atan2(cy[k + npts] - y, cx[k + npts] - x);
+      d[k] = Math.atan(((th1 - p) / (npts * dt)) * L / V);
+    }
+    return d;
+  }
+
+  // ---------------------------------------------------------------
+  // The simulation loop (same order of operations as the script)
+  // ---------------------------------------------------------------
+  function simulate(p, opts) {
+    const V = p.V, dt = SIM.dt, L = CAR.L, J = CAR.J, m = CAR.m, sig = SIM.sig;
+    const rd = setupRoad(V), { nt, npts, cx, cy } = rd, n = nt - 1, tot = cx.length;
+    const dIdeal = idealDelta(rd, V);
+    const randn = (opts && opts.randn) || makeRandn(SEED), noise = !(opts && opts.noNoise), fullSearch = !!(opts && opts.fullSearch);
+    const X = new Float64Array(n), Y = new Float64Array(n), Psi = new Float64Array(n);
+    const W1 = new Float64Array(n), W2 = new Float64Array(n), W3 = new Float64Array(n);
+    const R1 = new Float64Array(n), R2 = new Float64Array(n), R3 = new Float64Array(n);
+    const S1 = new Float64Array(n), S2 = new Float64Array(n), T = new Float64Array(n), Tt = new Float64Array(n), F = new Float64Array(n), errRoad = new Float64Array(n);
+    S1[0] = V; const lim = 30 * Math.PI / 180, win = Math.ceil(4 / (V * dt)) + 5;
+    let best = 0;
+    for (let k = 1; k < n; k++) {
+      const km = k - 1;
+      // car
+      X[k] = X[km] + dt * S1[km] * Math.cos(Psi[km]); Y[k] = Y[km] + dt * S1[km] * Math.sin(Psi[km]); Psi[k] = Psi[km] + dt * S1[km] / L * Math.tan(W1[km]);
+      // wheel
+      const u = Tt[km]; let th = W1[km] + dt * W2[km];
+      if (th * 180 / Math.PI > 30) { W1[k] = lim; W2[k] = W2[km]; W3[k] = W3[km]; }
+      else if (th * 180 / Math.PI < -30) { W1[k] = -lim; W2[k] = W2[km]; W3[k] = W3[km]; }
+      else { W1[k] = th; W2[k] = W2[km] + (1 / J) * dt * u; W3[k] = W3[km] + dt * W1[km]; }
+      // speed
+      S1[k] = S1[km] + dt * (-BDRAG / m * S1[km]) + dt / m * F[km]; S2[k] = S2[km] + dt * S1[k];
+      // measurement and reference estimate
+      const x1 = X[k] + (noise ? randn() * sig : 0), y1 = Y[k] + (noise ? randn() * sig : 0);
+      const th1 = Math.atan2(cy[k + npts] - y1, cx[k + npts] - x1);
+      const delta = Math.atan(((th1 - Psi[k]) / (npts * dt)) * L / V);
+      R1[k] = delta; R2[k] = (delta - R1[km]) / dt; R3[k] = R3[km] + dt * R1[km];
+      // steering control
+      const e = R1[k] - W1[k], ed = R2[k] - W2[k], ei = R3[k] - W3[k], o = -W1[k], od = -W2[k];
+      let Tk;
+      switch (p.steer) {
+        case "PID": Tk = p.Ki * ei + p.Kp * e + p.Kd * ed; break;
+        case "PID (internal fdbk)": Tk = p.Ki * ei + p.Kp * o + p.Kd * od; break;
+        case "PI": Tk = p.Ki * ei + p.Kp * e; break;
+        case "PI (internal fdbk)": Tk = p.Ki * ei + p.Kp * o; break;
+        case "PD": Tk = p.Kp * e + p.Kd * ed; break;
+        default: Tk = p.Kp * e + p.Kd * od; // PD (internal fdbk)
+      }
+      if (Math.abs(Tk) > CAR.Tmax) Tk = Math.sign(Tk) * CAR.Tmax;
+      T[k] = Tk; const thd = W2[k];
+      Tt[k] = thd > 0 ? Tk - CAR.Tdist : thd < 0 ? Tk + CAR.Tdist : Tk;
+      // speed control
+      const eV = V - S1[k], eVi = V * dt * k - S2[k], oV = -S1[k];
+      F[k] = p.speed === "P" ? p.KpV * eV : p.speed === "PI" ? p.KiV * eVi + p.KpV * eV : p.KiV * eVi + p.KpV * oV;
+      // distance to the center of the road
+      let md = Infinity, bi = best;
+      const a = fullSearch ? 0 : Math.max(0, best - win), b = fullSearch ? tot - 1 : Math.min(tot - 1, best + win);
+      for (let j = a; j <= b; j++) { const dx = X[k] - cx[j], dy = Y[k] - cy[j], d2 = dx * dx + dy * dy; if (d2 < md) { md = d2; bi = j; } }
+      if (!fullSearch && !(Math.sqrt(md) <= 3)) { md = Infinity; for (let j = 0; j < tot; j++) { const dx = X[k] - cx[j], dy = Y[k] - cy[j], d2 = dx * dx + dy * dy; if (d2 < md) { md = d2; bi = j; } } }
+      best = bi; errRoad[k] = Math.sqrt(md);
+    }
+    // results text
+    let minY = Infinity, iF = 0;
+    for (let i = 0; i < n; i++) { const v = Math.abs(Y[i] - 60); if (v < minY) { minY = v; iF = i; } }
+    let maxErr = 0; for (let i = 0; i < n; i++) if (errRoad[i] > maxErr) maxErr = errRoad[i];
+    return { rd, n, t: rd.t, X, Y, Psi, W1, W2, W3, R1, R2, R3, S1, S2, T, Tt, F, errRoad, dIdeal, minY, timeFinish: rd.t[iF], maxErr, V };
+  }
+
+  // MATLAB num2str(x,p) = sprintf('%.{p}g')
+  function fmtG(x, p) {
+    if (!isFinite(x)) return isNaN(x) ? "NaN" : (x < 0 ? "-Inf" : "Inf");
+    if (x === 0) return "0";
+    const e = Math.floor(Math.log10(Math.abs(Number(x.toPrecision(p)))));
+    if (e < -4 || e >= p) { const [mm, ex] = x.toExponential(p - 1).split("e"); const m2 = mm.indexOf(".") >= 0 ? mm.replace(/0+$/, "").replace(/\.$/, "") : mm; const s = Number(ex); return m2 + "e" + (s < 0 ? "-" : "+") + String(Math.abs(s)).padStart(2, "0"); }
+    let s = x.toFixed(Math.max(0, p - 1 - e)); if (s.indexOf(".") >= 0) s = s.replace(/0+$/, "").replace(/\.$/, ""); return s;
+  }
+  const inRange = (x, a, b) => x >= a && x <= b;
+  function resultLines(p, r) {
+    const out = [];
+    if (r.minY < 2) out.push({ t: "time to finish = " + fmtG(r.timeFinish, 3) + " seconds" });
+    else out.push({ t: "You did not finish the course! Try again." });
+    out.push({ t: "max displacement from center of road = " + fmtG(r.maxErr, 2) + " meters" });
+    if (r.maxErr > 1.0) out.push({ t: "Your car is off the road! try again", w: 1 });
+    if (!inRange(p.Ki, 0, 500000) || !inRange(p.Kp, 0, 20000) || !inRange(p.Kd, 0, 2000)) { out.push({ t: "Your steering control gains are out of range!", w: 1 }); out.push({ t: "please use the sliders!", w: 1 }); }
+    if (!inRange(p.KiV, 0, 100000) || !inRange(p.KpV, 0, 20000)) { out.push({ t: "Your velocity control gains are out of range!", w: 1 }); out.push({ t: "please use the sliders!", w: 1 }); }
+    if (!inRange(p.V, 0, 100)) out.push({ t: "Your reference velocity is out of range!", w: 1 });
+    return out;
+  }
+
+  // ---------------------------------------------------------------
+  // Controls
+  // ---------------------------------------------------------------
+  const DEF = { steer: "PD (internal fdbk)", Ki: 500000, Kp: 20000, Kd: 2000, speed: "P", KiV: 100000, KpV: 20000, V: 100 };
+  const PCFG = { displaylogo: false, responsive: true, displayModeBar: false };
+  const PCFG_AX = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+  function mkSl(hostId, defs) {
+    const host = $(hostId); host.innerHTML = "";
+    defs.forEach((d) => {
+      const div = document.createElement("div"); div.className = "sl";
+      div.innerHTML = `<label>${d.label}</label><div class="row"><input type="range" id="simr-s13-${d.id}" min="${d.min}" max="${d.max}" step="${d.step}" value="${d.val}"/><input type="number" id="sim-s13-${d.id}" step="${d.step}" value="${d.val}" style="width:92px"/></div>`;
+      host.appendChild(div);
+      const r = div.querySelector("input[type=range]"), nn = div.querySelector("input[type=number]");
+      r.addEventListener("input", () => { nn.value = r.value; queueRun(); });
+      nn.addEventListener("input", () => { if (nn.value !== "" && isFinite(Number(nn.value))) r.value = nn.value; queueRun(); });
+    });
+  }
+  mkSl("s13-steer-sliders", [
+    { id: "Ki", label: "Ki", min: 0, max: 500000, step: 100, val: DEF.Ki },
+    { id: "Kp", label: "Kp", min: 0, max: 20000, step: 100, val: DEF.Kp },
+    { id: "Kd", label: "Kd", min: 0, max: 2000, step: 10, val: DEF.Kd },
+  ]);
+  mkSl("s13-speed-sliders", [
+    { id: "KiV", label: "KiV", min: 0, max: 100000, step: 100, val: DEF.KiV },
+    { id: "KpV", label: "KpV", min: 0, max: 20000, step: 100, val: DEF.KpV },
+    { id: "V", label: "Reference Velocity (m/s)", min: 1, max: 100, step: 0.1, val: DEF.V },
+  ]);
+  const num = (id) => { const v = parseFloat($("sim-s13-" + id).value); return isFinite(v) ? v : 0; };
+  function params() { return { steer: $("sel-steer").value, Ki: num("Ki"), Kp: num("Kp"), Kd: num("Kd"), speed: $("sel-speed").value, KiV: num("KiV"), KpV: num("KpV"), V: num("V") }; }
+  $("sel-steer").addEventListener("change", () => queueRun()); $("sel-speed").addEventListener("change", () => queueRun());
+  $("s13-reset").addEventListener("click", () => {
+    $("sel-steer").value = DEF.steer; $("sel-speed").value = DEF.speed;
+    ["Ki", "Kp", "Kd", "KiV", "KpV", "V"].forEach((id) => { $("sim-s13-" + id).value = DEF[id]; $("simr-s13-" + id).value = DEF[id]; });
+    queueRun(); sched();
+  });
+
+  // ---------------------------------------------------------------
+  // Plots
+  // ---------------------------------------------------------------
+  function lay(title, xt, yt, extra) {
+    return Object.assign({
+      paper_bgcolor: "#171A21", plot_bgcolor: "#171A21", font: { color: "#cfd3da", family: "Inter, sans-serif", size: 11 },
+      margin: { l: 56, r: 16, t: 34, b: 46 }, title: { text: title, font: { size: 12, color: "#E7E9EE" }, x: 0.02, xanchor: "left" },
+      xaxis: { title: { text: xt }, gridcolor: "#282D3A", zerolinecolor: "#3a4152" }, yaxis: { title: { text: yt }, gridcolor: "#282D3A", zerolinecolor: "#3a4152" },
+      legend: { orientation: "h", y: -0.28, font: { size: 10 } }, hovermode: false,
+    }, extra || {});
+  }
+  const toDeg = (a) => { const o = new Float64Array(a.length); for (let i = 0; i < a.length; i++) o[i] = a[i] * 180 / Math.PI; return o; };
+  function stride(x, y, maxN) { const n = x.length; if (n <= maxN) return { x: Array.from(x), y: Array.from(y) }; const s = (n - 1) / (maxN - 1), ox = [], oy = []; for (let i = 0; i < maxN; i++) { const j = Math.round(i * s); ox.push(x[j]); oy.push(y[j]); } return { x: ox, y: oy }; }
+  function minmax(x, y, maxN) { // keeps spikes: per bucket emit min and max in time order
+    const n = x.length; if (n <= maxN) return { x: Array.from(x), y: Array.from(y) };
+    const nb = Math.floor(maxN / 2), ox = [], oy = [];
+    for (let b = 0; b < nb; b++) {
+      const a = Math.floor(b * n / nb), e = Math.floor((b + 1) * n / nb); let lo = a, hi = a;
+      for (let i = a; i < e; i++) { if (y[i] < y[lo]) lo = i; if (y[i] > y[hi]) hi = i; }
+      const f = Math.min(lo, hi), g = Math.max(lo, hi); ox.push(x[f]); oy.push(y[f]); if (g !== f) { ox.push(x[g]); oy.push(y[g]); }
+    }
+    return { x: ox, y: oy };
+  }
+  const LW = 2;
+  let last = null;
+  function figs(r, p) {
+    const n = r.n, rd = r.rd, tt = r.t.subarray(0, n), tEnd = r.t[r.t.length - 1];
+    const sL = stride(rd.lx, rd.ly, 3000), sR = stride(rd.rx, rd.ry, 3000), sC = stride(rd.cx, rd.cy, 3000), sX = stride(r.X, r.Y, 3000);
+    const bird = [
+      { x: sL.x, y: sL.y, mode: "lines", name: "Side of Road", line: { color: "#cfd3da", width: LW } },
+      { x: sR.x, y: sR.y, mode: "lines", name: "Side of Road", line: { color: "#cfd3da", width: LW }, showlegend: false },
+      { x: sC.x, y: sC.y, mode: "lines", name: "Center of Lane", line: { color: "#F472B6", width: LW, dash: "dot" } },
+      { x: sX.x, y: sX.y, mode: "lines", name: "Center of Car", line: { color: "#5B9BFF", width: LW } },
+    ];
+    const birdLay = lay("Birds-eye view", "East (m)", "North (m)", { xaxis: { title: { text: "East (m)" }, range: [0, 65], gridcolor: "#282D3A", zeroline: false, constrain: "domain" }, yaxis: { title: { text: "North (m)" }, range: [-5, 60], gridcolor: "#282D3A", zeroline: false, scaleanchor: "x", scaleratio: 1, constrain: "domain" }, legend: { orientation: "h", y: -0.17, font: { size: 10 } }, margin: { l: 56, r: 16, t: 34, b: 60 } });
+    const wa = minmax(tt, toDeg(r.W1), 4000), wr = minmax(tt, toDeg(r.R1), 4000), wi = minmax(tt, toDeg(r.dIdeal), 4000);
+    const lim = [{ x: [0, tEnd], y: [30, 30], mode: "lines", name: "max/min", line: { color: "#FB7185", width: LW, dash: "dot" } }, { x: [0, tEnd], y: [-30, -30], mode: "lines", showlegend: false, line: { color: "#FB7185", width: LW, dash: "dot" } }];
+    const wheel = [
+      { x: wa.x, y: wa.y, mode: "lines", name: "wheel angle", line: { color: "#5B9BFF", width: LW } },
+      { x: wr.x, y: wr.y, mode: "lines", name: "wheel reference", line: { color: "#34D399", width: LW, dash: "dot" } },
+      { x: wi.x, y: wi.y, mode: "lines", name: "ideal (no noise)", line: { color: "#F472B6", width: LW, dash: "dash" } },
+    ].concat(lim);
+    const wheelLay = lay("Wheel angle", "time (sec)", "Wheel Angle (deg)", { xaxis: { title: { text: "time (sec)" }, range: [0, tEnd], gridcolor: "#282D3A" }, yaxis: { title: { text: "Wheel Angle (deg)" }, range: [-40, 40], gridcolor: "#282D3A", zerolinecolor: "#3a4152" }, legend: { orientation: "h", y: -0.4, font: { size: 10 } }, margin: { l: 56, r: 16, t: 34, b: 70 } });
+    const sp = minmax(tt, r.S1, 4000);
+    const speed = [
+      { x: sp.x, y: sp.y, mode: "lines", name: "car speed", line: { color: "#5B9BFF", width: LW } },
+      { x: [0, tEnd], y: [p.V, p.V], mode: "lines", name: "speed reference", line: { color: "#34D399", width: LW, dash: "dot" } },
+    ];
+    const speedLay = lay("Car speed", "time (sec)", "Car Speed (m/sec)", { xaxis: { title: { text: "time (sec)" }, range: [0, tEnd], gridcolor: "#282D3A" }, yaxis: { title: { text: "Car Speed (m/sec)" }, range: [p.V - 5, p.V + 5], gridcolor: "#282D3A", zerolinecolor: "#3a4152" }, legend: { orientation: "h", y: -0.4, font: { size: 10 } }, margin: { l: 56, r: 16, t: 34, b: 70 } });
+    return { bird, birdLay, wheel, wheelLay, speed, speedLay };
+  }
+  function drawAll() {
+    const p = params(), out = $("s13-out"), stat = $("s13-runstat");
+    if (!(p.V > 0)) { out.innerHTML = '<span class="warn"><b>Reference velocity must be greater than 0.</b></span>'; last = null; return; }
+    const t0 = performance.now(), r = simulate(p), ms = performance.now() - t0;
+    const lines = resultLines(p, r);
+    out.innerHTML = lines.map((l) => `<div class="${l.w ? "warn" : ""}"><b>${l.t}</b></div>`).join("");
+    stat.textContent = `${r.n} steps, dt = 0.005 s, simulated in ${Math.round(ms)} ms`;
+    last = { p, r, lines: lines.map((l) => l.t) };
+    if ($("part-sim").style.display === "none") return;
+    const f = figs(r, p);
+    Plotly.react("s13-bird", f.bird, f.birdLay, PCFG_AX); Plotly.react("s13-wheel", f.wheel, f.wheelLay, PCFG_AX); Plotly.react("s13-speed", f.speed, f.speedLay, PCFG_AX);
+  }
+  let raf = 0; function queueRun() { if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { raf = 0; drawAll(); }); sched(); }
+
+  // ---------------------------------------------------------------
+  // Capture
+  // ---------------------------------------------------------------
+  const settingsLine = (p) => `Steering: ${p.steer}, Ki=${p.Ki}, Kp=${p.Kp}, Kd=${p.Kd}`;
+  const speedLine = (p) => `Speed: ${p.speed}, KiV=${p.KiV}, KpV=${p.KpV}, Reference Velocity=${p.V} m/s`;
+  function loadImg(src) { return new Promise((rs, rj) => { const i = new Image(); i.onload = () => rs(i); i.onerror = rj; i.src = src; }); }
+  $("s13-capture").addEventListener("click", async () => {
+    const st = $("s13-capstat"); st.style.color = "#5EEAD4";
+    if (!last) { st.style.color = "#FB7185"; st.textContent = "Nothing to capture."; return; }
+    st.textContent = "Capturing…";
+    try {
+      const f = figs(last.r, last.p), host = document.createElement("div"); host.style.cssText = "position:fixed;left:-9999px;top:0;";
+      document.body.appendChild(host);
+      const mk = async (data, layout, w, h) => { const d = document.createElement("div"); host.appendChild(d); await Plotly.newPlot(d, data, layout, PCFG); const s = await Plotly.toImage(d, { format: "png", width: w, height: h }); return loadImg(s); };
+      // capture the axis ranges currently shown (after any toolbar zoom)
+      const rng = (lay, id) => { const L = $(id).layout; if (!L) return; ["xaxis", "yaxis"].forEach((k) => { if (L[k] && L[k].range) lay[k] = Object.assign({}, lay[k], { range: L[k].range.slice() }); }); };
+      rng(f.birdLay, "s13-bird"); rng(f.wheelLay, "s13-wheel"); rng(f.speedLay, "s13-speed");
+      const a = await mk(f.bird, f.birdLay, 460, 460), b = await mk(f.wheel, f.wheelLay, 560, 226), c = await mk(f.speed, f.speedLay, 560, 226);
+      document.body.removeChild(host);
+      const W = a.width + 8 + b.width, H = Math.max(a.height, b.height + 8 + c.height), cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+      const g = cv.getContext("2d"); g.fillStyle = "#171A21"; g.fillRect(0, 0, W, H); g.drawImage(a, 0, 0); g.drawImage(b, a.width + 8, 0); g.drawImage(c, a.width + 8, b.height + 8);
+      window.__addCapture({ prefix: "sim", lines: [settingsLine(last.p), speedLine(last.p)].concat(last.lines), dataUrl: cv.toDataURL("image/png"), width: W, height: H });
+      st.textContent = "Figures captured — see Submission.";
+    } catch (e) { console.error(e); st.style.color = "#FB7185"; st.textContent = "Could not capture figures."; }
+  });
+
+  // ---------------------------------------------------------------
+  // Captures list
+  // ---------------------------------------------------------------
+  let captures = []; const CAP_KEY = "gw13f_captures_v1";
+  function renderCaptures() {
+    const host = $("cap-list");
+    if (!captures.length) { host.innerHTML = '<span class="mono" style="font-size:11.5px;color:var(--muted);">No figures captured yet.</span>'; return; }
+    host.innerHTML = captures.map((c, i) => `<div class="cap-item" style="width:300px"><button class="cap-x" data-i="${i}" type="button">✕</button><img src="${c.dataUrl}" alt="" /><div class="cap-text"><b>Capture ${i + 1}</b><br>${c.lines.filter(Boolean).join("<br>")}</div></div>`).join("");
+    host.querySelectorAll(".cap-x").forEach((b) => b.addEventListener("click", () => { captures.splice(Number(b.dataset.i), 1); renderCaptures(); saveCaps(); }));
+  }
+  function saveCaps() { try { localStorage.setItem(CAP_KEY, JSON.stringify(captures)); } catch (e) { /* quota */ } }
+  window.__addCapture = (c) => { captures.push(c); renderCaptures(); saveCaps(); };
+  try { const raw = localStorage.getItem(CAP_KEY); if (raw) captures = JSON.parse(raw) || []; } catch (e) { captures = []; }
+  renderCaptures();
+
+  // ---------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------
+  const SECTION_IDS = { intro: "part-intro", sim: "part-sim", submission: "part-submission" };
+  function activate(part) {
+    document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.part === part));
+    Object.values(SECTION_IDS).forEach((id) => { $(id).style.display = "none"; });
+    $(SECTION_IDS[part]).style.display = "block";
+    if (part === "sim") drawAll();
+    document.querySelector(".content").scrollTo({ top: 0 });
+  }
+  document.querySelectorAll(".nav-btn").forEach((b) => b.addEventListener("click", () => activate(b.dataset.part)));
+
+  // ---------------------------------------------------------------
+  // PDF export
+  // ---------------------------------------------------------------
+  let appendixFiles = [];
+  function renderChips() {
+    const host = $("upload-thumbs-appendix"); host.innerHTML = "";
+    appendixFiles.forEach((f, i) => { const d = document.createElement("div"); d.className = "file-chip"; d.innerHTML = `<span>${f.name}</span><button class="chip-remove" data-i="${i}" type="button">✕</button>`; host.appendChild(d); });
+    host.querySelectorAll(".chip-remove").forEach((b) => b.addEventListener("click", () => { appendixFiles.splice(Number(b.dataset.i), 1); renderChips(); }));
+  }
+  const appIn = $("upload-input-appendix");
+  appIn.addEventListener("change", () => {
+    const chosen = Array.from(appIn.files || []), bad = chosen.filter((f) => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+    appendixFiles = appendixFiles.concat(chosen.filter((f) => !bad.includes(f)));
+    $("upload-err-appendix").textContent = bad.length ? `Skipped (not a PDF): ${bad.map((f) => f.name).join(", ")}` : ""; renderChips(); appIn.value = "";
+  });
+  const setStatus = (t, err) => { const e = $("exportStatus"); e.textContent = t; e.style.color = err ? "#FB7185" : "#8B92A5"; };
+  const val = (id) => $(id).value.trim();
+  function blankItems() {
+    const out = [];
+    document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.value.trim() === "") out.push(e.id.replace(/^input-/, "").replace(/-/g, " ")); });
+    if (!captures.length) out.push("no captured figures");
+    return out;
+  }
+  async function exportPdf() {
+    const blanks = blankItems();
+    if (blanks.length && !confirm(`The following are still blank:\n\n${blanks.map((b) => "• " + b).join("\n")}\n\nDo you want to export the PDF anyway?`)) return;
+    const btn = $("exportPdfBtn"), label = btn.textContent; btn.disabled = true; btn.textContent = "EXPORTING…"; setStatus("");
+    try {
+      const { jsPDF } = window.jspdf, doc = new jsPDF({ unit: "pt", format: "letter" });
+      const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), mg = 48, mw = W - mg * 2; let y = mg;
+      const ensure = (h) => { if (y + h > H - mg) { doc.addPage(); y = mg; } };
+      const safe = (t) => String(t).replace(/ω_?n/g, "omega_n").replace(/ω/g, "omega").replace(/ζ/g, "zeta").replace(/θ/g, "theta").replace(/ψ/g, "psi").replace(/δ/g, "delta").replace(/Δ/g, "Delta").replace(/₀/g, "0").replace(/[−–]/g, "-").replace(/≤/g, "<=").replace(/≥/g, ">=")
+        .replace(/√/g, "sqrt").replace(/·/g, "*").replace(/×/g, "x").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/±/g, "+/-").replace(/→/g, "->").replace(/[^\x00-\xFF]/g, "?");
+      const heading = (t) => { ensure(80); doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(safe(t), mg, y); y += 22; };
+      const text = (t, o) => { const s = (o && o.size) || 10.5; doc.setFont((o && o.mono) ? "courier" : "helvetica", o && o.bold ? "bold" : "normal"); doc.setFontSize(s); const lh = s * 1.35; (o && o.mono ? safe(t).split("\n").flatMap((ln) => doc.splitTextToSize(ln || " ", mw)) : doc.splitTextToSize(safe(t), mw)).forEach((l) => { ensure(lh); doc.text(l, mg, y); y += lh; }); y += 4; };
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+      doc.splitTextToSize("GroupWork 13F - Self-Driving Car: Lane and Speed Control", mw).forEach((l) => { doc.text(l, mg, y); y += 20; }); y += 6;
+      const netId = val("input-netid") || "(not entered)";
+      text(`Your NetID: ${netId}`, { bold: true, size: 11.5 }); text(`Group member NetIDs: ${val("input-group-netids") || "(not entered)"}`, { bold: true, size: 11.5 }); y += 6;
+      heading("Notes");
+      text(val("input-notes") || "(No response entered.)");
+      if (last) {
+        heading("Current settings and output");
+        text(`${settingsLine(last.p)}\n${speedLine(last.p)}\n\n${last.lines.join("\n")}`, { mono: true, size: 9.5 });
+      }
+      if (captures.length) {
+        heading("Captured figures");
+        captures.forEach((c, i) => {
+          const h = mw * (c.height / c.width), hh = Math.min(h, 340), ww = hh === h ? mw : mw * hh / h;
+          ensure(hh + 70); text(`Capture ${i + 1}`, { bold: true });
+          c.lines.filter(Boolean).forEach((l) => text(l, { size: 8 }));
+          ensure(hh + 10); doc.addImage(c.dataUrl, "PNG", mg, y, ww, hh); y += hh + 14;
+        });
+      }
+      const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
+      if (appendixFiles.length) {
+        const { PDFDocument } = window.PDFLib, merged = await PDFDocument.load(doc.output("arraybuffer")), failed = [];
+        for (const f of appendixFiles) { try { const ap = await PDFDocument.load(await f.arrayBuffer()); (await merged.copyPages(ap, ap.getPageIndices())).forEach((pg) => merged.addPage(pg)); } catch (e) { console.error(e); failed.push(f.name); } }
+        const url = URL.createObjectURL(new Blob([await merged.save()], { type: "application/pdf" }));
+        const a = document.createElement("a"); a.href = url; a.download = `GroupWork13F_${safeId}.pdf`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        setStatus(failed.length ? `PDF downloaded, but could not append: ${failed.join(", ")}` : "PDF downloaded (with appendix attached).");
+      } else { doc.save(`GroupWork13F_${safeId}.pdf`); setStatus("PDF downloaded."); }
+    } catch (e) { console.error(e); setStatus(`Could not export PDF: ${e.message}`, true); }
+    finally { btn.disabled = false; btn.textContent = label; }
+  }
+  $("exportPdfBtn").addEventListener("click", exportPdf);
+
+  // ---------------------------------------------------------------
+  // Autosave
+  // ---------------------------------------------------------------
+  const KEY = "gw13f_progress_v1";
+  function save() {
+    try {
+      const f = {}; document.querySelectorAll('input[id^="input-"], textarea[id^="input-"], input[id^="sim-"], select[id^="sel-"]').forEach((e) => { f[e.id] = e.value; });
+      const a = document.querySelector(".nav-btn.active");
+      localStorage.setItem(KEY, JSON.stringify({ tab: a ? a.dataset.part : "intro", f }));
+    } catch (e) { /* ignore */ }
+  }
+  let st = null; window.__scheduleSave = () => { clearTimeout(st); st = setTimeout(save, 250); };
+  document.addEventListener("input", sched); document.addEventListener("change", sched); document.addEventListener("click", sched);
+  window.addEventListener("pagehide", save); window.addEventListener("beforeunload", save);
+  (function load() {
+    let s; try { const raw = localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
+    if (s) {
+      Object.keys(s.f || {}).forEach((id) => { const e = $(id); if (e) e.value = s.f[id]; });
+      document.querySelectorAll('input[id^="sim-"]').forEach((nn) => { const r = $("simr-" + nn.id.slice(4)); if (r) r.value = nn.value; });
+    }
+    drawAll();
+    activate(s && s.tab && SECTION_IDS[s.tab] ? s.tab : "intro");
+  })();
+  window.GW13F = { simulate, setupRoad, params, fmtG, get last() { return last; } };
+})();
+</script>
+
+</body>
+</html>

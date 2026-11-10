@@ -1215,11 +1215,11 @@
       <button class="nav-btn" data-part="p3">Design K<sub>P</sub><small>K<sub>D</sub> = 9</small></button>
 
       <p class="label">PROBLEM 3</p>
-      <button class="nav-btn" data-part="p4">Design K<sub>P</sub> and K<sub>D</sub><small>e<sub>ss</sub>,
-          u<sub>max</sub>, MO</small></button>
+      <button class="nav-btn" data-part="p1">Steady state error<small>e<sub>ss</sub> vs. gains</small></button>
 
       <p class="label">PROBLEM 4</p>
-      <button class="nav-btn" data-part="p1">Steady state error<small>e<sub>ss</sub> vs. gains</small></button>
+      <button class="nav-btn" data-part="p4">Design K<sub>P</sub> and K<sub>D</sub><small>e<sub>ss</sub>,
+          u<sub>max</sub>, MO</small></button>
 
       <p class="label">SUBMIT</p>
       <button class="nav-btn" data-part="submission">Submission<small>Export your PDF</small></button>
@@ -1365,9 +1365,26 @@
           <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p3-discuss"></textarea></div>
         </section>
 
-        <!-- ============== PROBLEM 3 (id p4) ============== -->
+        <!-- ============== PROBLEM 3 (id p1) ============== -->
+        <section id="part-p1" style="display:none;">
+          <h3 class="problem-title">Problem 3: Steady state error</h3>
+          <p class="instructions">Using 2<sup>nd</sup> order formulas derive, as a function of the control gains, the general form of the steady state error. Are there any values for <span class="ik">K_{\mathrm{P}}</span> and <span class="ik">K_{\mathrm{D}}</span> for which the system will yield zero steady state error?</p>
+          <h4 class="part-title">Derivation</h4>
+          <p class="instructions">Upload your derivation of the general form of the steady state error as a function of the control gains.</p>
+          <div class="upload-block">
+            <input type="file" id="upload-input-p1-derivation" accept="image/*" multiple />
+            <div class="upload-thumbs" id="upload-thumbs-p1-derivation"></div>
+            <p class="upload-status" id="upload-status-p1-derivation"></p>
+            <p class="upload-err" id="upload-err-p1-derivation"></p>
+          </div>
+          <h4 class="part-title">Discussion</h4>
+          <p class="instructions">Are there any values for <span class="ik">K_{\mathrm{P}}</span> and <span class="ik">K_{\mathrm{D}}</span> for which the system will yield zero steady state error?</p>
+          <div class="reflection-box"><textarea id="input-p1-discuss"></textarea></div>
+        </section>
+
+        <!-- ============== PROBLEM 4 (id p4) ============== -->
         <section id="part-p4" style="display:none;">
-          <h3 class="problem-title">Problem 3: Designing a PD controller</h3>
+          <h3 class="problem-title">Problem 4: Designing a PD controller</h3>
           <p class="instructions">Verify that you each found the correct closed-loop reference to error <span class="ik">E(s)/R(s)</span> transfer function from the quiz. Find the range of values for both <span class="ik">K_{\mathrm{P}}</span>, <span
               class="ik">K_{\mathrm{D}}</span> that meets the following criteria (<span class="ik">R_0 = 20\ \text{deg}
               = 0.349\ \text{rad}</span>):</p>
@@ -1410,23 +1427,6 @@
           <div class="reflection-box" style="margin-top:12px;"><textarea id="input-p4-discuss"></textarea></div>
         </section>
 
-        <!-- ============== PROBLEM 4 (id p1) ============== -->
-        <section id="part-p1" style="display:none;">
-          <h3 class="problem-title">Problem 4: Steady state error</h3>
-          <p class="instructions">Using 2<sup>nd</sup> order formulas derive, as a function of the control gains, the general form of the steady state error. Are there any values for <span class="ik">K_{\mathrm{P}}</span> and <span class="ik">K_{\mathrm{D}}</span> for which the system will yield zero steady state error?</p>
-          <h4 class="part-title">Derivation</h4>
-          <p class="instructions">Upload your derivation of the general form of the steady state error as a function of the control gains.</p>
-          <div class="upload-block">
-            <input type="file" id="upload-input-p1-derivation" accept="image/*" multiple />
-            <div class="upload-thumbs" id="upload-thumbs-p1-derivation"></div>
-            <p class="upload-status" id="upload-status-p1-derivation"></p>
-            <p class="upload-err" id="upload-err-p1-derivation"></p>
-          </div>
-          <h4 class="part-title">Discussion</h4>
-          <p class="instructions">Are there any values for <span class="ik">K_{\mathrm{P}}</span> and <span class="ik">K_{\mathrm{D}}</span> for which the system will yield zero steady state error?</p>
-          <div class="reflection-box"><textarea id="input-p1-discuss"></textarea></div>
-        </section>
-
         <!-- ============== SUBMISSION ============== -->
         <section id="part-submission" style="display:none;">
           <h2 class="section-title">Submission</h2>
@@ -1444,8 +1444,8 @@
               <ol class="submit-list">
                 <li>The derivation of the K<sub>D</sub> range, a plot of the system response with an acceptable K<sub>D</sub> value, and discussion for the case with the changed derivative gain.</li>
                 <li>The derivation of the K<sub>P</sub> range and a plot of the system response with an acceptable K<sub>P</sub> value.</li>
-                <li>The derivation of the K<sub>P</sub> and K<sub>D</sub> range and a plot of the system response with acceptable K<sub>P</sub> and K<sub>D</sub> values.</li>
                 <li>Derivation and written discussion of steady state error.</li>
+                <li>The derivation of the K<sub>P</sub> and K<sub>D</sub> range and a plot of the system response with acceptable K<sub>P</sub> and K<sub>D</sub> values.</li>
               </ol>
             </li>
             <li>Upload photos of your derivations in each problem; attach any other handwritten work or sketches as a
@@ -1563,7 +1563,7 @@
         margin: { l: 58, r: 14, t: 34, b: 44 }, showlegend: true,
         xaxis: { gridcolor: "#282D3A", zerolinecolor: "#3a4052" }, yaxis: { gridcolor: "#282D3A", zerolinecolor: "#3a4052" },
       }, extra || {});
-      const TITLES = { p2: "Problem 1", p3: "Problem 2", p4: "Problem 3", p1: "Problem 4" };
+      const TITLES = { p2: "Problem 1", p3: "Problem 2", p1: "Problem 3", p4: "Problem 4" };
       const pstr = (p) => (Math.abs(p[1]) < 1e-9 ? nm(p[0], 4) : `${nm(p[0], 4)} ± ${nm(Math.abs(p[1]), 4)}j`);
       const polesStr = (r) => (r.poles[0][1] !== 0 ? pstr(r.poles[0]) : (Math.abs(r.poles[0][0] - r.poles[1][0]) < 1e-9 ? nm(r.poles[0][0], 4) + " (double)" : `${nm(r.poles[0][0], 4)}, ${nm(r.poles[1][0], 4)}`));
       const panels = {};
@@ -1783,7 +1783,7 @@
           lim = (lim || 10) * 1.2;
           const ptr = [0, 1, 2].map((c) => {
             const hh = hist.filter((h) => h.c === c);
-            return { x: hh.map((h) => h.x), y: hh.map((h) => h.y), mode: "markers", name: `case ${c + 1}`, marker: { symbol: "x", size: 13, color: CC[c], line: { width: 2, color: CC[c] } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>case " + (c + 1) + "</extra>" };
+            return { x: hh.map((h) => h.x), y: hh.map((h) => h.y), mode: "markers", name: `case ${c + 1}`, marker: { symbol: "x-thin", size: 12, color: CC[c], line: { width: 3, color: CC[c] } }, hovertemplate: "Re=%{x:.3f}  Im=%{y:.3f}<extra>case " + (c + 1) + "</extra>" };
           }).filter((tt) => tt.x.length);
           Plotly.react(poleEl, ptr, baseLayout({
             title: { text: "Closed loop poles", font: { size: 12 }, x: 0.02 }, showlegend: !cp, margin: cp ? { l: 58, r: 14, t: 34, b: 44 } : { l: 52, r: 14, t: 34, b: 84 }, legend: { orientation: "h", y: -0.28, font: { size: 9 } },
@@ -1920,7 +1920,7 @@
       // Uploaded calculation images
       // ---------------------------------------------------------------
       const MAX_IMAGE_DIM = 1200, IMAGE_QUALITY = 0.7, IMG_KEY = "gw11w_work_images_v1";
-      const WORK_IDS = ["p2-derivation", "p3-derivation", "p4-derivation", "p1-derivation"];
+      const WORK_IDS = ["p2-derivation", "p3-derivation", "p1-derivation", "p4-derivation"];
       const workImages = {}; WORK_IDS.forEach((id) => { workImages[id] = []; });
       function resizeAndCompressImage(file) {
         return new Promise((resolve, reject) => {
@@ -1988,7 +1988,7 @@
       const setStatus = (t, err) => { const e = document.getElementById("exportStatus"); e.textContent = t; e.style.color = err ? "#FB7185" : "#8B92A5"; };
       const val = (id) => document.getElementById(id).value.trim();
       const reflect = (id) => val(id) || "(No response entered.)";
-      // internal ids keep their old numbers (p2 is now Problem 1, ..., p1 is now Problem 4)
+      // internal ids keep their old numbers (p2 is now Problem 1, p1 is now Problem 3, p4 is now Problem 4)
       const label = (id) => id.replace(/^(p\d)-/, (m, p) => (TITLES[p] || p) + " ").replace(/-/g, " ");
       function blankItems() {
         const out = [];
@@ -2033,11 +2033,11 @@
           text("Negative derivative gain:", { bold: true }); text(reflect("input-p2-negkd"));
           heading("Problem 2: Designing the P gain (KD = 9)");
           text("Derivation:", { bold: true }); work("p3-derivation"); range("KP", "input-p3-kp-lo", "input-p3-kp-hi"); text("Discussion:", { bold: true }); text(reflect("input-p3-discuss")); cases("p3"); caps("p3");
-          heading("Problem 3: Designing a PD controller (R0 = 0.349 rad)");
+          heading("Problem 3: Steady state error");
+          text("Derivation:", { bold: true }); work("p1-derivation"); text("Discussion:", { bold: true }); text(reflect("input-p1-discuss"));
+          heading("Problem 4: Designing a PD controller (R0 = 0.349 rad)");
           text("Derivation:", { bold: true }); work("p4-derivation"); range("KP", "input-p4-kp-lo", "input-p4-kp-hi"); range("KD", "input-p4-kd-lo", "input-p4-kd-hi");
           text("Discussion:", { bold: true }); text(reflect("input-p4-discuss")); cases("p4"); caps("p4");
-          heading("Problem 4: Steady state error");
-          text("Derivation:", { bold: true }); work("p1-derivation"); text("Discussion:", { bold: true }); text(reflect("input-p1-discuss"));
 
           const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
           if (appendixFiles.length) {

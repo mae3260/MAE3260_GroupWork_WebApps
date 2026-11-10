@@ -1776,124 +1776,122 @@
       }
     }
 
-    .p3-fields .field {
-      margin-bottom: 14px;
-    }
-
-    .p3-out {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 16px;
-      margin-top: 12px;
-    }
-
-    .p3-out .src {
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0 0 12px;
-    }
-
-    .p3-out .cols {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 20px;
-      align-items: start;
-    }
-
-    @media (max-width: 760px) {
-      .p3-out .cols {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .p3-out .res {
+    /* ---- Problem 3: MATLAB editor + command window ---- */
+    .mle-tabs {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      background: #e9e9e9;
+      border-bottom: 1px solid #cfcfcf;
+      font-size: 11.5px;
     }
 
-    .p3-out .res div {
-      background: var(--ink);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px 14px;
+    .mle-tabs span {
+      padding: 5px 14px;
+      background: #fff;
+      border-right: 1px solid #cfcfcf;
+      border-top: 2px solid #0f5ba8;
     }
 
-    .p3-out .res .lab {
-      display: block;
-      font-size: 11px;
-      color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
+    .mle-body {
+      position: relative;
+      display: flex;
+      background: #fff;
+      height: 460px;
+      min-height: 160px;
+      resize: vertical;
+      overflow: hidden;
+      border-bottom: 1px solid #ccc;
     }
 
-    .p3-out .res .num {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 22px;
-      color: var(--cyan);
+    .mle-gutter {
+      flex: 0 0 auto;
+      min-width: 38px;
+      padding: 8px 8px 8px 4px;
+      background: #f7f7f7;
+      border-right: 1px solid #e0e0e0;
+      color: #8a8a8a;
+      text-align: right;
+      overflow: hidden;
+      user-select: none;
     }
 
-    .p3-out .res .unit {
-      font-size: 12px;
-      color: var(--muted);
-      margin-left: 4px;
+    .mle-wrap {
+      position: relative;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
-    .p3-out .conv {
-      font-size: 13px;
-      color: var(--fg);
+    .mle-gutter,
+    .mle-hl,
+    .mle-wrap textarea {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 19px;
+      tab-size: 4;
+      box-sizing: border-box;
       margin: 0;
     }
 
-    .p3-out details summary {
-      cursor: pointer;
-      font-size: 12.5px;
-      color: var(--muted);
+    .mle-hl,
+    .mle-wrap textarea {
+      position: absolute;
+      inset: 0;
+      padding: 8px 10px;
+      white-space: pre;
+      border: none;
+      overflow: auto;
     }
 
-    .p3-out table {
-      border-collapse: collapse;
-      margin-top: 0;
-      font-family: 'JetBrains Mono', monospace;
+    .mle-hl {
+      color: #1b1b1b;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .mle-wrap textarea {
+      width: 100%;
+      height: 100%;
+      resize: none;
+      background: transparent;
+      color: transparent;
+      caret-color: #000;
+      outline: none;
+    }
+
+    .mle-wrap textarea::selection {
+      background: rgba(43, 120, 194, .28);
+      color: transparent;
+    }
+
+    .mle-hl .c { color: #228b22; }
+    .mle-hl .k { color: #0e00ff; }
+    .mle-hl .s { color: #a020f0; }
+    .mle-hl .q { background: #ffe08a; color: #b00; }
+
+    .mle-cmdhead {
+      padding: 4px 10px;
+      background: #e9e9e9;
+      border-bottom: 1px solid #cfcfcf;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .mle-cmd {
+      background: #fff;
+      padding: 8px 10px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
       font-size: 12px;
-    }
-
-    .p3-out th,
-    .p3-out td {
-      text-align: right;
-      padding: 3px 16px 3px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .p3-out th {
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .p3-out .tbl {
+      line-height: 1.45;
+      color: #1b1b1b;
+      min-height: 60px;
       max-height: 420px;
       overflow: auto;
-      padding-right: 4px;
-    }
-
-    .p3-out .err {
-      color: #FB7185;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12.5px;
       white-space: pre-wrap;
-      margin: 0;
+      word-break: break-word;
     }
 
-    .p3-fields .field input[type="text"] {
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .p3-fields p.instructions {
-      margin: 0 0 6px;
-    }
-
+    .mle-cmd .err { color: #e00; }
+    .mle-cmd .prompt { color: #1b1b1b; font-weight: 600; }
+    .mle-cmd .dim { color: #888; }
     .fn-box {
       white-space: pre;
       background: #fff;
@@ -2067,7 +2065,7 @@
       <p class="label">PROBLEM 3</p>
       <button class="nav-btn" data-part="p3">Characterize the system<small>Estimate a and K from data</small></button>
 
-      <p class="label">PROBLEM 4 (OPTIONAL)</p>
+      <p class="label">PROBLEM 4</p>
       <button class="nav-btn" data-part="p4">Filter time T<sub>f</sub><small>Simulink model, in the
           browser</small></button>
 
@@ -2295,57 +2293,16 @@
             </li>
             <li>Having found <span class="ik">a</span>, use Eqn. 2 to find <span class="ik">K</span>.</li>
           </ol>
-          <p class="sim-note">Type each answer below as an expression in the variables <span class="mono">Kpr0, TdoverK,
-              t1, t2, dy1, dy2, a</span>, using the syntax in the table.</p>
-          <div class="layout-with-sidebar">
-            <div class="syntax-ref">
-              <h4>Syntax</h4>
-              <div class="syn-row"><span>multiply</span><code>a*b</code></div>
-              <div class="syn-row"><span>divide</span><code>a/b</code></div>
-              <div class="syn-row"><span>add</span><code>a+b</code></div>
-              <div class="syn-row"><span>subtract</span><code>a-b</code></div>
-              <div class="syn-row"><span>power</span><code>a^b</code></div>
-              <div class="syn-row"><span>e<sup>x</sup></span><code>exp(x)</code></div>
-              <div class="syn-row"><span>absolute value</span><code>abs(x)</code></div>
-              <div class="syn-row"><span>square root</span><code>sqrt(x)</code></div>
-              <div class="syn-row"><span>natural log</span><code>log(x)</code></div>
-              <div class="syn-row"><span>10<sup>&minus;6</sup></span><code>1e-6</code></div>
-              <div class="syn-row"><span>group</span><code>(a+b)*c</code></div>
-            </div>
-            <div class="layout-main p3-fields">
-              <div class="field">
-                <p class="instructions">Initial guess <span class="ik">a_0</span> (Eqn. 3 with the
-                  exponential terms dropped):</p><input type="text" id="input-p3-a0" spellcheck="false" />
-              </div>
-              <div class="field">
-                <p class="instructions">Right hand side of Eqn. 3 as a function of <span class="ik">a</span>. Each
-                  iteration replaces <span class="ik">a</span> with this value:</p><input type="text" id="input-p3-f"
-                  spellcheck="false" />
-              </div>
-              <div class="field">
-                <p class="instructions">Convergence check: keep iterating while this quantity is greater
-                  than the tolerance (you can write <span class="mono">f(a)</span> for the expression above):</p><input
-                  type="text" id="input-p3-cond" spellcheck="false" />
-              </div>
-              <div class="field">
-                <p class="instructions">Tolerance:</p><input type="text" id="input-p3-tol" spellcheck="false" />
-              </div>
-              <div class="field">
-                <p class="instructions"><span class="ik">K</span> from Eqn. 2, using the converged <span
-                    class="ik">a</span>:</p><input type="text" id="input-p3-K" spellcheck="false" />
-              </div>
-            </div>
-          </div>
           <h4 class="part-title">Test values</h4>
+          <p class="instructions">These values are passed to your function as its inputs when you press Run.</p>
           <div class="seg" id="p3-mode" style="margin-bottom:12px;"><button type="button" data-m="handout"
               class="on">Handout
               test values</button><button type="button" data-m="custom">Enter my own values</button></div>
           <input type="hidden" id="sim-p3-mode" value="handout" />
           <div id="p3-handout-vals">
-            <p class="instructions">Use the following values while testing:</p>
             <div class="pre-out"
               style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px 14px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:14px;">
-              <div><span class="k">Kpr0</span> <span class="v">3.0</span></div>
+              <div><span class="k">K_pr_0</span> <span class="v">3.0</span></div>
               <div><span class="k">TdoverK</span> <span class="v">0.8</span></div>
               <div><span class="k">t1</span> <span class="v">0.99</span></div>
               <div><span class="k">t2</span> <span class="v">1.70</span></div>
@@ -2356,7 +2313,7 @@
           <div id="p3-custom-vals" style="display:none;">
             <p class="instructions">Enter your own measured values:</p>
             <div class="form-grid five" style="grid-template-columns: repeat(6, minmax(0,1fr));">
-              <div class="field"><label class="mono">Kpr0</label><input type="text" id="input-p3-kpr0" value="3.0"
+              <div class="field"><label class="mono">K_pr_0</label><input type="text" id="input-p3-kpr0" value="3.0"
                   spellcheck="false" /></div>
               <div class="field"><label class="mono">TdoverK</label><input type="text" id="input-p3-tdk" value="0.8"
                   spellcheck="false" /></div>
@@ -2370,16 +2327,40 @@
                   spellcheck="false" /></div>
             </div>
           </div>
-          <div class="tools">
-            <button class="run-btn" id="p3-run" type="button">&#9654; RUN</button>
-            <button class="run-btn secondary small" id="p3-clear" type="button">Clear output</button>
+          <h4 class="part-title">MATLAB function</h4>
+          <p class="instructions">Complete the function below by replacing each <span class="mono">???</span> with
+            your own MATLAB code, then press <b>Run</b> (or Ctrl/&#8984;+Enter) to call it with the test values. The
+            output appears in the Command Window.</p>
+          <div class="xwin" id="p3-win">
+            <div class="xt"><span class="ico"></span><span class="ttl">Editor &mdash; <span
+                  id="p3-fname">gpwk_12F_OpenLoopCharacterize</span>.m</span><span
+                class="wb"><span>&#8211;</span><span>&#9633;</span><span>&times;</span></span></div>
+            <div class="ml-tools">
+              <button class="ml-btn run" id="p3-run" type="button" title="Run (Ctrl/&#8984;+Enter)"><span
+                  class="tri"></span>Run</button>
+              <button class="ml-btn" id="p3-clear" type="button" title="Clear the Command Window">Clear
+                Command Window</button>
+              <span style="flex:1"></span>
+              <button class="ml-btn" id="p3-reset" type="button" title="Replace your code with the original skeleton">Reset
+                to skeleton</button>
+            </div>
+            <div class="mle-tabs"><span id="p3-tabname">gpwk_12F_OpenLoopCharacterize.m</span></div>
+            <div class="mle-body" id="p3-body">
+              <div class="mle-gutter" id="p3-gutter"></div>
+              <div class="mle-wrap">
+                <pre class="mle-hl" id="p3-hl" aria-hidden="true"></pre>
+                <textarea id="input-p3-code" spellcheck="false" autocomplete="off" autocapitalize="off"
+                  aria-label="MATLAB function code"></textarea>
+              </div>
+            </div>
+            <div class="mle-cmdhead">Command Window</div>
+            <div class="mle-cmd" id="p3-console"><span class="prompt">&gt;&gt; </span></div>
           </div>
-          <div id="p3-console" class="p3-out" style="display:none;"></div>
         </section>
 
         <!-- ============== PROBLEM 4 ============== -->
         <section id="part-p4" style="display:none;">
-          <h3 class="problem-title">Problem 4 (optional): Observe the effect of filter time using Simulink</h3>
+          <h3 class="problem-title">Problem 4: Observe the effect of filter time using Simulink</h3>
           <p class="instructions">
             Use the Simulink model below to explore the effects of the filter time constant, <span
               class="ik">T_f</span>. As you&rsquo;ll see in the lab, the filter averages the measured angle signal for a
@@ -2694,99 +2675,705 @@
       $("bd-sw").addEventListener("click", () => { p2Mode = p2Mode === "open" ? "closed" : "open"; drawSwitch(); sched(); });
 
       // ---------------------------------------------------------------
-      // PROBLEM 3: MATLAB-expression runner
+      // PROBLEM 3: MATLAB editor + a small MATLAB interpreter
       // ---------------------------------------------------------------
-      const ML_FUNCS = { exp: Math.exp, abs: Math.abs, sqrt: Math.sqrt, log: Math.log };
-      function mlEval(src, vars, userFuncs) {
-        const s = String(src).trim();
-        if (!s) throw new Error("Empty expression: fill in each blank.");
-        if (s.indexOf("?") >= 0) throw new Error("Invalid expression: remove the ? character.");
-        const re = /\s*(\d+\.?\d*(?:[eE][+-]?\d+)?|\.\d+(?:[eE][+-]?\d+)?|[A-Za-z_]\w*|\.\*|\.\/|\.\^|[-+*/^(),])/y;
-        const tk = []; let pos = 0;
-        while (pos < s.length) { re.lastIndex = pos; const m = re.exec(s); if (!m) { if (!s.slice(pos).trim()) break; throw new Error(`Invalid expression. Unexpected text near '${s.slice(pos).trim().slice(0, 12)}'.`); } tk.push(m[1]); pos = re.lastIndex; }
-        let i = 0;
-        const peek = () => tk[i], next = () => tk[i++];
-        const isNum = (t) => /^[\d.]/.test(t), isId = (t) => /^[A-Za-z_]/.test(t);
-        function primary() {
-          const t = next();
-          if (t === undefined) throw new Error("Invalid expression. Check for missing values or operators.");
-          if (t === "(") { const v = expr(); if (next() !== ")") throw new Error("Invalid expression. Check for missing or extra parentheses."); return v; }
-          if (isNum(t)) return parseFloat(t);
-          if (isId(t)) {
-            if (peek() === "(") {
-              next(); const args = [];
-              if (peek() !== ")") { args.push(expr()); while (peek() === ",") { next(); args.push(expr()); } }
-              if (next() !== ")") throw new Error("Invalid expression. Check for missing or extra parentheses.");
-              const fn = (userFuncs && userFuncs[t]) || ML_FUNCS[t];
-              if (!fn) { if (Object.prototype.hasOwnProperty.call(vars, t)) throw new Error(`Array indices must be positive integers or logical values (the variable '${t}' is not a function). Use * for multiplication.`); throw new Error(`Unrecognized function or variable '${t}'.`); }
-              if (args.length !== 1) throw new Error(`Incorrect number of arguments to '${t}'.`);
-              return fn(args[0]);
+      const P3_TEMPLATE = `function [a,K]=gpwk_12F_OpenLoopCharacterize(K_pr_0, TdoverK, t1, t2, dy1, dy2)
+% Modify this skeleton code to take measurements from lab 4 and calculate
+% model parameters K and a.
+%
+% The inputs are:
+% K_pr_0 or uss      : the magnitude of the step input.
+% TdoverK  : the minimum reference voltage that leads to continuous
+%            rotation of the open loop rotor.
+% (for the remaining inputs, refer to the figure in the
+% lab 4 manual and group work 12F)
+% t1, t2   : times of two measurement points
+% dy1, dy2 : corresponding output magnitudes less the
+%            initial output magnitude.
+%
+% This function will use an iterative method to find the model parameter a,
+% then calculate K to match
+
+% Start by initializing a guess for the parameter a:
+
+a = ???   %replace this line with formula for initial guess for "a" based on function inputs
+
+% Because you'll use an iterative method to find "a", you need to decide
+% when you've reached a converged result. Code typically does this by
+% defining some tolerance and stopping once the result has stopped changing
+% by more than that tolerance. Once your code is working, you might want to
+% experiement with different values of tolerance to see how it affects your
+% result or run time.
+tol = ???%replace this line with formula or value for tolerance in your calculation of "a"
+
+% Here's the meat of the function. Use an iterative method to find a new
+% guess for "a" based on a previous guess for "a". The groupwork 12F document
+% encourages you to use its equation (4) to do this.
+%
+% One good way to code this is with a "while loop," which is provided here.
+% You might use an embedded function or an anonymous function or whatever
+% other MATLAB skills you know to do the calculation in the loop.
+while ??? > tol
+    a = ???%replace this with a calculation of an updated guess for a based on a previous guess
+    disp(['a=',num2str(a, '%.7f')]) % this shows "a" rounded to 7 decimal places in the command window so you can keep track of convergence
+end
+
+% Having calculated a, now calculate K:
+K = ???%replace this line with formula for "K" based on calculated "a" and function inputs
+`;
+      const ML = (() => {
+        const KW = new Set(["function", "while", "if", "elseif", "else", "end", "for", "break", "continue", "return", "switch", "case", "otherwise", "try", "catch", "global", "persistent", "parfor", "spmd"]);
+        const CMDS = new Set(["format", "clc", "clear", "clearvars", "close", "more", "warning"]);
+        class MLErr extends Error { constructor(m) { super(m); this.frames = []; } }
+        class MLSyn extends Error { constructor(m, line, col) { super(m); this.line = line; this.col = col; } }
+        const BRK = { s: "break" }, CNT = { s: "continue" }, RET = { s: "return" };
+        const valEnd = (tk) => tk && (tk.t === "num" || tk.t === "str" || (tk.t === "id" && !KW.has(tk.v)) || (tk.t === "op" && [")", "]", "}", "'", ".'"].includes(tk.v)));
+
+        // ---- lexer: source -> statements [{toks, line, semi}] ----
+        function lex(src) {
+          const lines = String(src).replace(/\r\n?/g, "\n").split("\n"), stmts = [];
+          let cur = null, br = [], blockC = 0;
+          const end = (semi) => { if (cur && cur.toks.length) { cur.semi = semi; stmts.push(cur); } cur = null; };
+          const numRe = /(?:\d+(?:\.(?![*\/^\\'])\d*)?|\.\d+)(?:[eE][+-]?\d+)?/y, idRe = /[A-Za-z_]\w*/y;
+          const OPS = ["==", "~=", "!=", "<=", ">=", "&&", "||", ".*", "./", ".^", ".\\", ".'", "+", "-", "*", "/", "\\", "^", "<", ">", "&", "|", "~", "!", "(", ")", "[", "]", "{", "}", "=", "@", ":", ",", ";", "'", "."];
+          for (let li = 0; li < lines.length; li++) {
+            const L = lines[li], ln = li + 1;
+            if (/^\s*%\{\s*$/.test(L)) { blockC++; continue; }
+            if (blockC) { if (/^\s*%\}\s*$/.test(L)) blockC--; continue; }
+            let p = 0, cont = false, ws = true;
+            while (p < L.length) {
+              const ch = L[p];
+              if (ch === " " || ch === "\t") { p++; ws = true; continue; }
+              if (ch === "%") break;
+              if (L.startsWith("...", p)) { cont = true; break; }
+              if (!cur) cur = { toks: [], line: ln };
+              const toks = cur.toks, prev = toks[toks.length - 1], inBr = br.length && br[br.length - 1] === "[";
+              const push = (t, v, len) => {
+                if (inBr && ws && valEnd(prev)) {
+                  const starts = t === "num" || t === "str" || t === "id" || (t === "op" && ["(", "[", "@", "{"].includes(v)) || (t === "op" && (v === "~" || v === "!") && L[p + 1] !== "=") || (t === "op" && (v === "+" || v === "-") && L[p + 1] !== " " && L[p + 1] !== "\t");
+                  if (starts) toks.push({ t: "op", v: ",", line: ln, col: p + 1 });
+                }
+                toks.push({ t, v, line: ln, col: p + 1 }); p += len; ws = false;
+              };
+              if ((ch === ";" || ch === ",") && !br.length) { p++; ws = false; end(ch === ";"); continue; }
+              if (ch === ";" && br.length) { push("op", ",", 1); continue; }
+              const strStart = ch === '"' || (ch === "'" && (!valEnd(prev) || (inBr && ws)));
+              if (strStart) {
+                let q = p + 1, s = "";
+                for (; ;) {
+                  if (q >= L.length) throw new MLSyn("Character vector is not terminated properly.", ln, p + 1);
+                  if (L[q] === ch) { if (L[q + 1] === ch) { s += ch; q += 2; continue; } break; }
+                  s += L[q++];
+                }
+                push("str", s, q + 1 - p); continue;
+              }
+              numRe.lastIndex = p; let m = numRe.exec(L);
+              if (m && /[\d.]/.test(ch) && m[0] !== ".") { push("num", parseFloat(m[0]), m[0].length); continue; }
+              idRe.lastIndex = p; m = idRe.exec(L);
+              if (m) { push("id", m[0], m[0].length); continue; }
+              const op = OPS.find((o) => L.startsWith(o, p));
+              if (!op) throw new MLSyn("Invalid text character. Check for unsupported symbol, invisible character, or pasting of non-ASCII characters.", ln, p + 1);
+              if (op === "(" || op === "[" || op === "{") br.push(op);
+              if (op === ")" || op === "]" || op === "}") br.pop();
+              push("op", op, op.length);
             }
-            if (t === "pi") return Math.PI; if (t === "Inf") return Infinity; if (t === "eps") return 2.220446049250313e-16;
-            if (Object.prototype.hasOwnProperty.call(vars, t)) return vars[t];
-            throw new Error(`Unrecognized function or variable '${t}'.`);
+            if (!cont && !br.length) end(false);
           }
-          throw new Error(`Invalid expression. Unexpected '${t}'.`);
+          if (br.length && cur) throw new MLSyn("Invalid expression. When calling a function or indexing a variable, use parentheses. Otherwise, check for mismatched delimiters.", cur.line, 1);
+          end(false);
+          return stmts;
         }
-        function powop() { // MATLAB: ^ binds tighter than unary minus; left-associative
-          let v = primary();
-          while (peek() === "^" || peek() === ".^") { next(); let sg = 1; while (peek() === "-" || peek() === "+") { if (next() === "-") sg = -sg; } const e = primary(); v = Math.pow(v, sg * e); }
-          return v;
+
+        // ---- expression parser ----
+        function parseExpr(toks, from, to) {
+          let i = from;
+          const peek = () => (i < to ? toks[i] : null), isOp = (v) => { const t = peek(); return t && t.t === "op" && t.v === v; };
+          const fail = (t) => { const tk = t || toks[Math.min(i, to - 1)] || toks[from]; throw new MLSyn(t ? `Invalid expression. Check for missing multiplication operator, missing or unbalanced delimiters, or other syntax error.` : "Invalid expression. Check for missing or extra characters.", tk ? tk.line : 0, tk ? tk.col : 0); };
+          const expect = (v) => { if (!isOp(v)) { const t = peek(); throw new MLSyn(v === ")" ? "Invalid expression. When calling a function or indexing a variable, use parentheses. Otherwise, check for mismatched delimiters." : `Invalid expression. Expected '${v}'.`, t ? t.line : toks[to - 1].line, t ? t.col : toks[to - 1].col + 1); } i++; };
+          const bin = (next, ops) => () => { let l = next(); for (; ;) { const t = peek(); if (t && t.t === "op" && ops.includes(t.v)) { i++; l = { k: "bin", op: t.v, l, r: next(), tok: t }; } else return l; } };
+          let orOr;
+          function args(close) {
+            const a = []; if (isOp(close)) { i++; return a; }
+            for (; ;) { if (isOp(":") && (toks[i + 1] && toks[i + 1].t === "op" && [",", ")"].includes(toks[i + 1].v))) { i++; a.push({ k: "colon" }); } else a.push(orOr()); if (isOp(",")) { i++; continue; } expect(close); return a; }
+          }
+          function primary() {
+            const t = peek(); if (!t) fail();
+            i++;
+            if (t.t === "num") return { k: "num", v: t.v };
+            if (t.t === "str") return { k: "str", v: t.v };
+            if (t.t === "id") {
+              if (KW.has(t.v) && t.v !== "end") throw new MLSyn(`Illegal use of reserved keyword "${t.v}".`, t.line, t.col);
+              let n = { k: "id", name: t.v, tok: t };
+              while (isOp("(")) { i++; n = { k: "call", target: n, name: n.k === "id" ? n.name : null, args: args(")"), tok: t }; }
+              return n;
+            }
+            if (t.v === "(") { const e = orOr(); expect(")"); let n = { k: "paren", e }; while (isOp("(")) { i++; n = { k: "call", target: n, name: null, args: args(")"), tok: t }; } return n; }
+            if (t.v === "[") { const el = args("]"); return { k: "mat", el, tok: t }; }
+            if (t.v === "@") {
+              if (isOp("(")) {
+                i++; const ps = [];
+                if (!isOp(")")) for (; ;) { const p = peek(); if (!p || p.t !== "id") fail(p); ps.push(p.v); i++; if (isOp(",")) { i++; continue; } break; }
+                expect(")"); const b0 = i, body = orOr();
+                return { k: "anon", params: ps, body, text: `@(${ps.join(",")})` + srcText(toks, b0, i) };
+              }
+              const p = peek(); if (!p || p.t !== "id") fail(p); i++; return { k: "handle", name: p.v };
+            }
+            if (t.v === "{") throw new MLSyn("Cell arrays are not supported in this editor.", t.line, t.col);
+            i--; fail(t);
+          }
+          function postfix() { let e = primary(); while (isOp("'") || isOp(".'")) { i++; e = { k: "tr", e }; } return e; }
+          function power() {
+            let l = postfix();
+            while (isOp("^") || isOp(".^")) {
+              const t = peek(); i++; let sg = 1; while (isOp("-") || isOp("+") || isOp("~") || isOp("!")) { const u = peek().v; i++; if (u === "-") sg = -sg; else if (u !== "+") { sg = { not: true }; } }
+              let r = postfix(); if (sg === -1) r = { k: "un", op: "-", e: r }; else if (sg && sg.not) r = { k: "un", op: "~", e: r };
+              l = { k: "bin", op: t.v, l, r, tok: t };
+            }
+            return l;
+          }
+          function unary() { const t = peek(); if (t && t.t === "op" && ["-", "+", "~", "!"].includes(t.v)) { i++; return { k: "un", op: t.v === "!" ? "~" : t.v, e: unary() }; } return power(); }
+          const mul = bin(unary, ["*", "/", ".*", "./", "\\", ".\\"]), add = bin(mul, ["+", "-"]);
+          function range() { const a = add(); if (!isOp(":")) return a; i++; const b = add(); if (!isOp(":")) return { k: "range", a, b }; i++; return { k: "range", a, s: b, b: add() }; }
+          const cmp = bin(range, ["<", "<=", ">", ">=", "==", "~=", "!="]), and1 = bin(cmp, ["&"]), or1 = bin(and1, ["|"]), andAnd = bin(or1, ["&&"]);
+          orOr = bin(andAnd, ["||"]);
+          const e = orOr();
+          return { e, at: i };
+          function srcText(tk, a, b) { let s = ""; for (let j = a; j < b; j++) { const x = tk[j]; s += x.t === "str" ? `'${x.v.replace(/'/g, "''")}'` : String(x.v); } return s; }
         }
-        function unary() { if (peek() === "-") { next(); return -unary(); } if (peek() === "+") { next(); return unary(); } return powop(); }
-        function term() { let v = unary(); while (["*", "/", ".*", "./"].includes(peek())) { const op = next(); const r = unary(); v = (op === "*" || op === ".*") ? v * r : v / r; } return v; }
-        function expr() { let v = term(); while (peek() === "+" || peek() === "-") { const op = next(); const r = term(); v = op === "+" ? v + r : v - r; } return v; }
-        const v = expr();
-        if (i < tk.length) throw new Error("Invalid expression. Check for missing operators, parentheses or commas.");
-        return v;
-      }
-      const mlFmt = (v) => (Math.abs(v) < 1000 && Math.abs(v) >= 1e-3 || v === 0 ? v.toFixed(4) : v.toExponential(4)).padStart(10);
+        function fullExpr(toks, from, to) {
+          if (from >= to) { const t = toks[Math.max(0, from - 1)]; throw new MLSyn("Invalid expression. Check for missing or extra characters.", t.line, t.col + String(t.v).length); }
+          const r = parseExpr(toks, from, to);
+          if (r.at < to) { const t = toks[r.at]; throw new MLSyn(t.t === "op" && t.v === "=" ? "Incorrect use of '=' operator. To assign a value to a variable, use '='. To compare values for equality, use '=='." : "Invalid expression. Check for missing multiplication operator, missing or unbalanced delimiters, or other syntax error. To construct matrices, use brackets instead of parentheses.", t.line, t.col); }
+          return r.e;
+        }
+
+        // ---- statement parser ----
+        function parseStmt(s) {
+          const T = s.toks, t0 = T[0], kw = t0.t === "id" && KW.has(t0.v) ? t0.v : null, base = { line: s.line, semi: s.semi };
+          if (kw === "function") {
+            let i = 1, outs = [], name, params = [];
+            const eqAt = T.findIndex((t) => t.t === "op" && t.v === "=");
+            if (eqAt > 0) {
+              for (let j = 1; j < eqAt; j++) if (T[j].t === "id") outs.push(T[j].v);
+              i = eqAt + 1;
+            }
+            if (!T[i] || T[i].t !== "id") throw new MLSyn("Invalid function definition.", s.line, (T[i] || t0).col);
+            name = T[i].v; i++;
+            if (T[i] && T[i].v === "(") { i++; while (T[i] && T[i].v !== ")") { if (T[i].t === "id" || T[i].v === "~") params.push(T[i].v); i++; } }
+            return Object.assign(base, { kind: "function", name, outs, params });
+          }
+          if (kw === "while" || kw === "if" || kw === "elseif") return Object.assign(base, { kind: kw, cond: fullExpr(T, 1, T.length) });
+          if (kw === "for" || kw === "parfor") {
+            let a = 1, b = T.length; if (T[1] && T[1].v === "(" && T[b - 1].v === ")") { a = 2; b--; }
+            if (!T[a] || T[a].t !== "id" || !T[a + 1] || T[a + 1].v !== "=") throw new MLSyn("Invalid for-loop syntax. Use: for k = 1:n", s.line, t0.col);
+            return Object.assign(base, { kind: "for", v: T[a].v, e: fullExpr(T, a + 2, b) });
+          }
+          if (kw === "else" || kw === "end" || kw === "break" || kw === "continue" || kw === "return") {
+            if (T.length > 1 && kw !== "else") throw new MLSyn("Invalid expression. Check for missing or extra characters.", T[1].line, T[1].col);
+            const st = Object.assign(base, { kind: kw });
+            if (kw === "else" && T.length > 1) st.inline = { toks: T.slice(1), line: s.line, semi: s.semi };
+            return st;
+          }
+          if (kw) throw new MLSyn(`'${kw}' is not supported in this editor.`, t0.line, t0.col);
+          if (t0.t === "id" && CMDS.has(t0.v) && (T.length === 1 || T.slice(1).every((t) => t.t === "id" || t.t === "num"))) return Object.assign(base, { kind: "cmd", cmd: t0.v, words: T.slice(1).map((t) => String(t.v)) });
+          // assignment?
+          let d = 0, eq = -1;
+          for (let j = 0; j < T.length; j++) { const v = T[j].t === "op" ? T[j].v : null; if (v === "(" || v === "[" || v === "{") d++; else if (v === ")" || v === "]" || v === "}") d--; else if (v === "=" && d === 0) { eq = j; break; } }
+          if (eq >= 0) {
+            const rhs = fullExpr(T, eq + 1, T.length);
+            if (eq === 1 && T[0].t === "id") return Object.assign(base, { kind: "assign", name: T[0].v, rhs, tok: T[0] });
+            if (T[0].v === "[" && T[eq - 1].v === "]") {
+              const names = []; for (let j = 1; j < eq - 1; j++) { if (T[j].t === "id") names.push(T[j].v); else if (T[j].v === "~") names.push(null); else if (T[j].v !== ",") throw new MLSyn("Invalid left-hand side of assignment.", T[j].line, T[j].col); }
+              return Object.assign(base, { kind: "massign", names, rhs });
+            }
+            if (T[0].t === "id" && T[1].v === "(" && T[eq - 1].v === ")") return Object.assign(base, { kind: "iassign", name: T[0].v, idx: fullExpr(T, 2, eq - 1), rhs, tok: T[0] });
+            throw new MLSyn("Invalid left-hand side of assignment. Check for missing or extra characters.", T[0].line, T[0].col);
+          }
+          return Object.assign(base, { kind: "expr", e: fullExpr(T, 0, T.length) });
+        }
+        function parseProgram(src) {
+          const S = [];
+          lex(src).forEach((s) => { const st = parseStmt(s); S.push(st); if (st.inline) { const rest = parseStmt(st.inline); st.inline = null; S.push(rest); } });
+          let i = 0;
+          const missingEnd = (st) => new MLSyn(`At least one END is missing: the statement may begin here.`, st.line, 1);
+          function block(stops) {
+            const body = [];
+            while (i < S.length) {
+              const s = S[i]; if (stops.includes(s.kind)) return body;
+              if (s.kind === "end") throw new MLSyn('Illegal use of reserved keyword "end".', s.line, 1);
+              if (s.kind === "elseif" || s.kind === "else") throw new MLSyn(`Illegal use of reserved keyword "${s.kind}".`, s.line, 1);
+              if (s.kind === "function") return body;
+              i++;
+              if (s.kind === "while" || s.kind === "for") { s.body = block(["end"]); if (!S[i] || S[i].kind !== "end") throw missingEnd(s); i++; }
+              else if (s.kind === "if") {
+                s.branches = [{ cond: s.cond, body: block(["elseif", "else", "end"]) }];
+                while (S[i] && S[i].kind === "elseif") { const c = S[i++].cond; s.branches.push({ cond: c, body: block(["elseif", "else", "end"]) }); }
+                if (S[i] && S[i].kind === "else") { i++; s.branches.push({ cond: null, body: block(["end"]) }); }
+                if (!S[i] || S[i].kind !== "end") throw missingEnd(s); i++;
+              }
+              body.push(s);
+            }
+            return body;
+          }
+          const funcs = {}; let main = null, script = null;
+          if (S.length && S[0].kind !== "function") script = block([]);
+          while (i < S.length) {
+            const f = S[i];
+            if (f.kind !== "function") throw new MLSyn("Illegal use of reserved keyword \"end\".", f.line, 1);
+            i++; f.body = block(["end"]); if (S[i] && S[i].kind === "end") i++;
+            if (funcs[f.name]) throw new MLSyn(`Function '${f.name}' is defined more than once.`, f.line, 1);
+            funcs[f.name] = f; if (!main && !script) main = f;
+          }
+          return { funcs, main, script: script || [] };
+        }
+
+        // ---- values & formatting ----
+        const isFH = (v) => v && typeof v === "object" && v.fh;
+        const isArr = Array.isArray;
+        const expo = (v, d) => v.toExponential(d).replace(/e([+-])(\d)$/, "e$10$2");
+        function gfmt(v, p) {
+          if (Number.isNaN(v)) return "NaN"; if (!isFinite(v)) return v > 0 ? "Inf" : "-Inf"; if (v === 0) return "0";
+          p = Math.max(1, p); const ex = Math.floor(Math.log10(Math.abs(Number(v.toPrecision(p)))));
+          if (ex < -4 || ex >= p) return expo(v, p - 1).replace(/\.?0+e/, "e");
+          return v.toFixed(Math.max(0, p - 1 - ex)).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+        }
+        function shortStr(v, long) {
+          if (Number.isNaN(v)) return "NaN"; if (!isFinite(v)) return v > 0 ? "Inf" : "-Inf";
+          if (Number.isInteger(v) && Math.abs(v) < 1e10) return String(v);
+          const av = Math.abs(v);
+          if (av >= 1e5 || av < 1e-3) return expo(v, long ? 15 : 4);
+          if (!long) return v.toFixed(4);
+          const ip = av >= 1 ? Math.floor(Math.log10(av)) + 1 : 1; return v.toFixed(Math.min(15, Math.max(4, 16 - ip)));
+        }
+        function bodyLines(v, long) {
+          if (typeof v === "string") return [`    '${v}'`];
+          if (isFH(v)) return ["  function_handle with value:", "", `    ${v.text}`];
+          if (typeof v === "number") { const s = shortStr(v, long); return [(Number.isInteger(v) && Math.abs(v) < 1e10 ? s.padStart(6) : /e/.test(s) || long ? (v < 0 ? "  " : "   ") + s : s.padStart(10))]; }
+          if (isArr(v)) {
+            if (!v.length) return ["     []"];
+            const allInt = v.every((x) => Number.isInteger(x) && Math.abs(x) < 1e10);
+            return [v.map((x) => allInt ? String(x).padStart(6) : shortStr(x, long).padStart(long ? 22 : 10)).join("")];
+          }
+          return [String(v)];
+        }
+        function dispStr(v, long) {
+          if (typeof v === "string") return v;
+          if (isArr(v) && !v.length) return null;
+          if (typeof v === "boolean") v = v ? 1 : 0;
+          return bodyLines(v, long).join("\n");
+        }
+        function num2str(v, f) {
+          if (typeof v === "string") return v;
+          if (f !== undefined) { if (typeof f === "string") return sprintf(f, [v]); const n = toNum(f, "num2str"); return isArr(v) ? v.map((x) => gfmt(x, n)).join("  ") : gfmt(v, n); }
+          const one = (x) => (Number.isInteger(x) ? String(x) : (Number.isNaN(x) || !isFinite(x)) ? gfmt(x, 5) : gfmt(x, Math.max(Math.floor(Math.log10(Math.abs(x))) + 5, 5)));
+          return isArr(v) ? v.map(one).join("  ") : one(v);
+        }
+        function sprintf(fmt, args) {
+          if (typeof fmt !== "string") throw new MLErr("Format must be a character vector.");
+          fmt = fmt.replace(/\\(n|t|\\|r|a)/g, (m, c) => ({ n: "\n", t: "\t", "\\": "\\", r: "\r", a: "" })[c]);
+          const flat = []; args.forEach((a) => { if (isArr(a)) flat.push(...a); else if (isFH(a)) throw new MLErr("Function handles cannot be formatted with sprintf."); else flat.push(a); });
+          const re = /%([-+ 0#]*)(\d+)?(?:\.(\d+))?([dioufeEgGxXcs%])/g;
+          let out = "", k = 0;
+          const fmt1 = (fl, w, pr, c, a) => {
+            let s;
+            if (c === "s") s = typeof a === "string" ? a : gfmt(a, 15);
+            else if (c === "c") s = typeof a === "string" ? a : String.fromCharCode(a);
+            else {
+              if (typeof a === "string") a = a.length === 1 ? a.charCodeAt(0) : parseFloat(a);
+              if ("diu".includes(c) && !Number.isInteger(a)) c = "e";
+              const p = pr === undefined ? 6 : +pr, neg = a < 0 || Object.is(a, -0); let m = Math.abs(a);
+              if (Number.isNaN(a)) s = "NaN"; else if (!isFinite(a)) s = "Inf";
+              else if ("diu".includes(c)) s = String(m); else if (c === "f") s = m.toFixed(p); else if (c === "e" || c === "E") s = expo(m, p);
+              else if (c === "g" || c === "G") s = gfmt(m, p === 0 ? 1 : p); else if (c === "x" || c === "X") s = Math.round(m).toString(16); else if (c === "o") s = Math.round(m).toString(8);
+              if (c === "E" || c === "G" || c === "X") s = s.toUpperCase();
+              const sign = neg && !Number.isNaN(a) ? "-" : fl.includes("+") ? "+" : fl.includes(" ") ? " " : "";
+              if (w && fl.includes("0") && !fl.includes("-") && isFinite(a)) s = s.padStart(+w - sign.length, "0");
+              s = sign + s;
+            }
+            if (w) s = fl.includes("-") ? s.padEnd(+w) : s.padStart(+w);
+            return s;
+          };
+          const specs = (fmt.match(re) || []).filter((x) => x !== "%%").length;
+          do {
+            let last = 0, m, stop = false; re.lastIndex = 0;
+            while ((m = re.exec(fmt))) {
+              out += fmt.slice(last, m.index); last = re.lastIndex;
+              if (m[4] === "%") { out += "%"; continue; }
+              if (k >= flat.length && flat.length) { stop = true; break; }
+              if (!flat.length) { stop = true; break; }
+              out += fmt1(m[1], m[2], m[3], m[4], flat[k++]);
+            }
+            if (!stop) out += fmt.slice(last); else break;
+          } while (specs && k < flat.length);
+          return out;
+        }
+        function toNum(v, ctx) {
+          if (typeof v === "number") return v; if (typeof v === "boolean") return v ? 1 : 0;
+          if (typeof v === "string" && v.length === 1) return v.charCodeAt(0);
+          if (isArr(v) && v.length === 1) return v[0];
+          if (isFH(v)) throw new MLErr(`Undefined function '${ctx || "operation"}' for input arguments of type 'function_handle'.`);
+          throw new MLErr(isArr(v) && !v.length ? "Unable to perform assignment because the indices on the left side are not compatible with the size of the right side." : `Expected a scalar value${ctx ? " in " + ctx : ""}.`);
+        }
+        const asArr = (v) => (isArr(v) ? v : typeof v === "string" ? [...v].map((c) => c.charCodeAt(0)) : typeof v === "boolean" ? [v ? 1 : 0] : [v]);
+        const pack = (a) => (a.length === 1 ? a[0] : a);
+        function ew(x, y, f, opName) {
+          if (isFH(x) || isFH(y)) throw new MLErr(`Operator '${opName}' is not supported for operands of type 'function_handle'.`);
+          if (typeof x === "number" && typeof y === "number") return f(x, y);
+          const A = asArr(x), B = asArr(y);
+          if (A.length === 1) return pack(B.map((b) => f(A[0], b)));
+          if (B.length === 1) return pack(A.map((a) => f(a, B[0])));
+          if (A.length !== B.length) throw new MLErr("Arrays have incompatible sizes for this operation.");
+          return pack(A.map((a, i) => f(a, B[i])));
+        }
+        function truth(v, ctx) {
+          if (isFH(v)) throw new MLErr("Conversion to logical from function_handle is not possible.");
+          const A = asArr(v);
+          if (A.some(Number.isNaN)) throw new MLErr("NaN's cannot be converted to logicals.");
+          return A.length > 0 && A.every((x) => x !== 0);
+        }
+        const map1 = (f) => (args) => { if (args.length !== 1) throw new MLErr(args.length > 1 ? "Too many input arguments." : "Not enough input arguments."); const v = args[0]; if (isFH(v)) throw new MLErr("Incorrect input argument type: function_handle."); return isArr(v) ? v.map(f) : typeof v === "string" ? pack(asArr(v).map(f)) : f(toNum(v)); };
+        const reduce = (f, init) => (args) => { const A = asArr(args[0]); return A.length ? A.reduce(f) : init; };
+        const maxmin = (cmp) => (args, nout) => {
+          if (args.length >= 2) return [ew(args[0], args[1], (a, b) => (Number.isNaN(a) ? b : Number.isNaN(b) ? a : cmp(a, b) ? a : b), "max")];
+          const A = asArr(args[0]); if (!A.length) return [[], []]; let bi = 0; A.forEach((x, i) => { if (Number.isNaN(A[bi]) || cmp(x, A[bi]) && x !== A[bi]) bi = i; }); return [A[bi], bi + 1];
+        };
+        const MULTI = { max: maxmin((a, b) => a > b), min: maxmin((a, b) => a < b) };
+        const CONSTS = { pi: Math.PI, Inf: Infinity, inf: Infinity, NaN: NaN, nan: NaN, eps: 2.220446049250313e-16, true: 1, false: 0, realmax: Number.MAX_VALUE, realmin: 2.2250738585072014e-308 };
+
+        // ---- interpreter ----
+        function run(prog, opts) {
+          const t0 = Date.now(); let steps = 0, out = "", long = false, truncated = false, depth = 0;
+          const MAX_OUT = 100000;
+          const write = (s) => { if (truncated) return; out += s; if (out.length > MAX_OUT) { out = out.slice(0, MAX_OUT) + "\n... (output truncated)\n"; truncated = true; } };
+          const tick = () => { if ((++steps & 1023) === 0 && Date.now() - t0 > 3000) throw new MLErr("Operation terminated: the code ran for more than 3 seconds without finishing.\nCheck that your while loop condition eventually becomes false (for example, that the value you compare to tol actually shrinks each pass and that the variables it uses are updated inside the loop)."); };
+          const show = (name, v) => { if (isArr(v) && !v.length) { write(`${name} =\n\n     []\n\n`); return; } write(`${name} =\n\n${bodyLines(v, long).join("\n")}\n\n`); };
+          const BUILTIN = {
+            abs: map1(Math.abs), exp: map1(Math.exp), log: map1(Math.log), log10: map1(Math.log10), log2: map1(Math.log2), sqrt: map1(Math.sqrt),
+            sin: map1(Math.sin), cos: map1(Math.cos), tan: map1(Math.tan), asin: map1(Math.asin), acos: map1(Math.acos), atan: map1(Math.atan),
+            sinh: map1(Math.sinh), cosh: map1(Math.cosh), tanh: map1(Math.tanh), floor: map1(Math.floor), ceil: map1(Math.ceil), fix: map1(Math.trunc),
+            round: (a) => (a.length === 2 ? ew(a[0], a[1], (x, n) => Math.round(x * 10 ** n) / 10 ** n, "round") : map1((x) => Math.sign(x) * Math.round(Math.abs(x)))(a)),
+            sign: map1(Math.sign), isnan: map1((x) => +Number.isNaN(x)), isinf: map1((x) => +(x === Infinity || x === -Infinity)), isfinite: map1((x) => +isFinite(x)),
+            mod: (a) => ew(a[0], a[1], (x, y) => (y === 0 ? x : x - Math.floor(x / y) * y), "mod"), rem: (a) => ew(a[0], a[1], (x, y) => (y === 0 ? x : x - Math.trunc(x / y) * y), "rem"),
+            atan2: (a) => ew(a[0], a[1], Math.atan2, "atan2"), power: (a) => ew(a[0], a[1], Math.pow, "power"), hypot: (a) => ew(a[0], a[1], Math.hypot, "hypot"),
+            sum: reduce((x, y) => x + y, 0), prod: reduce((x, y) => x * y, 1), mean: (a) => { const A = asArr(a[0]); return A.length ? A.reduce((x, y) => x + y, 0) / A.length : NaN; },
+            numel: (a) => (isFH(a[0]) ? 1 : asArr(a[0]).length), length: (a) => (isFH(a[0]) ? 1 : asArr(a[0]).length), isempty: (a) => +(!isFH(a[0]) && asArr(a[0]).length === 0),
+            zeros: (a) => (a.length ? pack(new Array(a.length === 1 ? toNum(a[0]) ** 2 : a.reduce((p, x) => p * toNum(x), 1)).fill(0)) : 0),
+            ones: (a) => (a.length ? pack(new Array(a.length === 1 ? toNum(a[0]) ** 2 : a.reduce((p, x) => p * toNum(x), 1)).fill(1)) : 1),
+            num2str: (a) => num2str(a[0], a[1]), sprintf: (a) => sprintf(a[0], a.slice(1)), str2num: (a) => parseFloat(a[0]), str2double: (a) => parseFloat(a[0]),
+            disp: (a) => { if (a.length !== 1) throw new MLErr(a.length ? "Too many input arguments." : "Not enough input arguments."); const s = dispStr(a[0], long); if (s !== null) write(s + "\n"); return undefined; },
+            fprintf: (a) => { if (typeof a[0] === "number" && a.length > 1 && typeof a[1] === "string") a = a.slice(1); write(sprintf(a[0], a.slice(1))); return undefined; },
+            error: (a) => { throw new MLErr(a.length > 1 ? sprintf(a[0], a.slice(1)) : String(a[0])); },
+            warning: (a) => { write(`Warning: ${a.length > 1 ? sprintf(a[0], a.slice(1)) : a[0]}\n`); return undefined; },
+            tic: () => undefined, toc: () => { write(`Elapsed time is ${((Date.now() - t0) / 1000).toFixed(6)} seconds.\n`); return undefined; },
+            isa: () => 0, double: (a) => a[0], char: (a) => (typeof a[0] === "string" ? a[0] : asArr(a[0]).map((c) => String.fromCharCode(c)).join("")),
+            strcat: (a) => a.map((x) => (typeof x === "string" ? x : String(x))).join(""), func2str: (a) => (isFH(a[0]) ? a[0].text : ""),
+          };
+          function callUser(f, args, nout) {
+            if (args.length > f.params.length) throw new MLErr("Too many input arguments.");
+            if (nout > Math.max(1, f.outs.length)) throw new MLErr("Too many output arguments.");
+            if (++depth > 200) { depth = 0; throw new MLErr("Maximum recursion limit reached."); }
+            const ws = { __fn: f.name, __hist: f === prog.main ? opts.hist : null };
+            f.params.forEach((p, i) => { if (i < args.length && p !== "~") ws[p] = args[i]; });
+            ws.nargin = args.length; ws.nargout = nout;
+            try { execBlock(f.body, ws); } catch (e) { if (e !== RET) { depth--; throw e; } }
+            depth--;
+            const res = [];
+            for (let i = 0; i < Math.min(nout, f.outs.length); i++) {
+              const o = f.outs[i];
+              if (!Object.prototype.hasOwnProperty.call(ws, o)) throw new MLErr(`Output argument "${o}" (and possibly others) not assigned a value in the execution with "${f.name}" function.`);
+              res.push(ws[o]);
+            }
+            return res;
+          }
+          function callValue(fv, args, nout) {
+            if (isFH(fv)) {
+              if (fv.name) return callNamed(fv.name, args, nout, null);
+              if (args.length > fv.params.length) throw new MLErr("Too many input arguments.");
+              const ws = Object.assign({}, fv.env); fv.params.forEach((p, i) => { if (i < args.length) ws[p] = args[i]; else delete ws[p]; });
+              const v = evalE(fv.body, ws, 1); return [v];
+            }
+            if (typeof fv === "string") return callNamed(fv, args, nout, null);
+            throw new MLErr("Argument must be a function handle.");
+          }
+          function callNamed(name, args, nout, tok) {
+            if (prog.funcs[name]) return callUser(prog.funcs[name], args, nout);
+            if (MULTI[name]) return MULTI[name](args, nout);
+            if (name === "feval") return callValue(args[0], args.slice(1), nout);
+            if (BUILTIN[name]) return [BUILTIN[name](args, nout)];
+            if (Object.prototype.hasOwnProperty.call(CONSTS, name)) { if (args.length) throw new MLErr("Too many input arguments."); return [CONSTS[name]]; }
+            throw new MLErr(`Unrecognized function or variable '${name}'.`);
+          }
+          const has = (ws, n) => Object.prototype.hasOwnProperty.call(ws, n) && n.slice(0, 2) !== "__";
+          function index(v, idxs, name) {
+            if (idxs.length !== 1 && !(idxs.length === 2 && (idxs[0] === ":" || idxs[0] === 1))) throw new MLErr("Only one-dimensional indexing is supported in this editor.");
+            const ix = idxs[idxs.length - 1];
+            const A = typeof v === "string" ? [...v] : asArr(v);
+            if (ix === ":") return typeof v === "string" ? v : A;
+            const I = asArr(ix);
+            const res = I.map((k) => {
+              if (!Number.isInteger(k) || k < 1) throw new MLErr(`Index in position 1 is invalid. Array indices must be positive integers or logical values.`);
+              if (k > A.length) throw new MLErr(`Index exceeds the number of array elements. Index must not exceed ${A.length}.`);
+              return A[k - 1];
+            });
+            return typeof v === "string" ? res.join("") : pack(res);
+          }
+          function evalArgs(args, ws, endLen) { return args.map((a) => (a.k === "colon" ? ":" : evalE(a, ws, 1, endLen))); }
+          function evalE(n, ws, nout, endLen) {
+            switch (n.k) {
+              case "num": return n.v;
+              case "str": return n.v;
+              case "paren": return evalE(n.e, ws, 1, endLen);
+              case "id": {
+                if (n.name === "end" && endLen !== undefined) return endLen;
+                if (has(ws, n.name)) return ws[n.name];
+                const r = callNamed(n.name, [], nout === 0 ? 0 : 1, n.tok);
+                if (r[0] === undefined && nout !== 0) throw new MLErr(`Error using ${n.name}\nToo many output arguments.`);
+                return r[0];
+              }
+              case "call": {
+                if (n.name && has(ws, n.name)) {
+                  const v = ws[n.name];
+                  if (isFH(v)) { const r = callValue(v, evalArgs(n.args, ws), nout || 1); return r[0]; }
+                  if (!n.args.length) return v;
+                  return index(v, evalArgs(n.args, ws, typeof v === "string" ? v.length : asArr(v).length), n.name);
+                }
+                if (n.name) {
+                  const r = callNamed(n.name, evalArgs(n.args, ws), nout === 0 ? 0 : 1, n.tok);
+                  if (r[0] === undefined && nout !== 0) throw new MLErr(`Error using ${n.name}\nToo many output arguments.`);
+                  return r[0];
+                }
+                const tv = evalE(n.target, ws, 1);
+                if (isFH(tv)) return callValue(tv, evalArgs(n.args, ws), 1)[0];
+                return index(tv, evalArgs(n.args, ws, asArr(tv).length));
+              }
+              case "mat": {
+                const vals = n.el.map((e) => evalE(e, ws, 1));
+                if (vals.some(isFH)) { if (vals.length === 1) return vals[0]; throw new MLErr("Nonscalar arrays of function handles are not allowed; use cell arrays instead."); }
+                if (vals.some((v) => typeof v === "string")) return vals.map((v) => (typeof v === "string" ? v : asArr(v).map((c) => String.fromCharCode(Math.round(c))).join(""))).join("");
+                return pack(vals.flatMap(asArr));
+              }
+              case "anon": { const env = {}; Object.keys(ws).forEach((k) => { if (k.slice(0, 2) !== "__") env[k] = ws[k]; }); return { fh: true, params: n.params, body: n.body, env, text: n.text }; }
+              case "handle": return { fh: true, name: n.name, text: "@" + n.name };
+              case "tr": return evalE(n.e, ws, 1);
+              case "un": {
+                const v = evalE(n.e, ws, 1);
+                if (n.op === "-") return ew(v, 0, (a) => -a, "uminus"); if (n.op === "+") return ew(v, 0, (a) => a, "uplus");
+                return ew(v, 0, (a) => +(a === 0), "not");
+              }
+              case "range": {
+                const a = toNum(evalE(n.a, ws, 1), "colon"), s = n.s ? toNum(evalE(n.s, ws, 1), "colon") : 1, b = toNum(evalE(n.b, ws, 1), "colon");
+                const r = []; if (s === 0 || (s > 0 && a > b) || (s < 0 && a < b)) return r;
+                const cnt = Math.floor((b - a) / s + 1e-10); if (cnt > 1e6) throw new MLErr("Requested array exceeds the maximum size allowed in this editor.");
+                for (let k = 0; k <= cnt; k++) r.push(a + k * s); return r;
+              }
+              case "bin": {
+                const op = n.op;
+                if (op === "&&" || op === "||") {
+                  const chk = (v) => { if (isFH(v) || asArr(v).length !== 1) throw new MLErr(`Operands to the || and && operators must be convertible to logical scalar values. Use the ANY or ALL functions to reduce operands to logical scalar values.`); return truth(v); };
+                  const l = chk(evalE(n.l, ws, 1)); if (op === "&&" ? !l : l) return +l; return +chk(evalE(n.r, ws, 1));
+                }
+                const l = evalE(n.l, ws, 1), r = evalE(n.r, ws, 1);
+                const scal = (x) => typeof x === "number" || (!isFH(x) && asArr(x).length === 1);
+                switch (op) {
+                  case "+": return ew(l, r, (a, b) => a + b, "+"); case "-": return ew(l, r, (a, b) => a - b, "-");
+                  case ".*": return ew(l, r, (a, b) => a * b, ".*"); case "./": return ew(l, r, (a, b) => a / b, "./"); case ".\\": return ew(l, r, (a, b) => b / a, ".\\");
+                  case ".^": return ew(l, r, Math.pow, ".^");
+                  case "*": if (!scal(l) && !scal(r)) throw new MLErr("Incorrect dimensions for matrix multiplication. Check that the number of columns in the first matrix matches the number of rows in the second matrix. To operate on each element of the matrix individually, use TIMES (.*) for elementwise multiplication."); return ew(l, r, (a, b) => a * b, "*");
+                  case "/": if (!scal(r)) throw new MLErr("Matrix dimensions must agree. To divide each element individually, use RDIVIDE (./)."); return ew(l, r, (a, b) => a / b, "/");
+                  case "\\": return ew(l, r, (a, b) => b / a, "\\");
+                  case "^": if (!scal(l) || !scal(r)) throw new MLErr("Incorrect dimensions for raising a matrix to a power. Check that the matrix is square and the power is a scalar. To operate on each element of the matrix individually, use POWER (.^) for elementwise power."); return ew(l, r, Math.pow, "^");
+                  case "<": return ew(l, r, (a, b) => +(a < b), "<"); case "<=": return ew(l, r, (a, b) => +(a <= b), "<=");
+                  case ">": return ew(l, r, (a, b) => +(a > b), ">"); case ">=": return ew(l, r, (a, b) => +(a >= b), ">=");
+                  case "==": return ew(l, r, (a, b) => +(a === b), "=="); case "~=": case "!=": return ew(l, r, (a, b) => +(a !== b), "~=");
+                  case "&": return ew(l, r, (a, b) => +(a !== 0 && b !== 0), "&"); case "|": return ew(l, r, (a, b) => +(a !== 0 || b !== 0), "|");
+                }
+              }
+            }
+            throw new MLErr("Unsupported expression.");
+          }
+          function setVar(ws, name, v) {
+            if (v === undefined) throw new MLErr("Too many output arguments.");
+            ws[name] = v;
+            if (ws.__hist && name === opts.track && typeof v === "number") ws.__hist.push(v);
+          }
+          function execBlock(body, ws) { for (const s of body) execStmt(s, ws); }
+          function execStmt(s, ws) {
+            tick();
+            try {
+              switch (s.kind) {
+                case "assign": { const v = evalE(s.rhs, ws, 1); setVar(ws, s.name, v); if (!s.semi) show(s.name, v); return; }
+                case "iassign": {
+                  const ix = toNum(evalE(s.idx, ws, 1, has(ws, s.name) ? asArr(ws[s.name]).length : 0)), v = toNum(evalE(s.rhs, ws, 1));
+                  if (!Number.isInteger(ix) || ix < 1) throw new MLErr("Index in position 1 is invalid. Array indices must be positive integers or logical values.");
+                  if (ix > 1e6) throw new MLErr("Requested array exceeds the maximum size allowed in this editor.");
+                  const A = has(ws, s.name) ? asArr(ws[s.name]).slice() : []; while (A.length < ix) A.push(0); A[ix - 1] = v; ws[s.name] = pack(A);
+                  if (!s.semi) show(s.name, ws[s.name]); return;
+                }
+                case "massign": {
+                  const n = s.rhs;
+                  if (n.k !== "call" && n.k !== "id") throw new MLErr("Too many output arguments.");
+                  const args = n.k === "call" ? evalArgs(n.args, ws) : [];
+                  const r = n.name && has(ws, n.name) ? callValue(ws[n.name], args, s.names.length) : callNamed(n.name, args, s.names.length);
+                  if (r.length < s.names.length) throw new MLErr("Too many output arguments.");
+                  s.names.forEach((nm, i) => { if (nm) { setVar(ws, nm, r[i]); if (!s.semi) show(nm, r[i]); } });
+                  return;
+                }
+                case "expr": {
+                  const e = s.e;
+                  if (e.k === "id" && has(ws, e.name)) { if (!s.semi) show(e.name, ws[e.name]); return; }
+                  const v = evalE(e, ws, 0);
+                  if (v !== undefined) { ws.ans = v; if (!s.semi) show("ans", v); }
+                  return;
+                }
+                case "cmd": {
+                  if (s.cmd === "format") long = (s.words[0] || "short").toLowerCase() === "long";
+                  else if (s.cmd === "clc") out = "";
+                  else if (s.cmd === "clear" || s.cmd === "clearvars") { const all = !s.words.length || s.words.includes("all"); Object.keys(ws).forEach((k) => { if (k.slice(0, 2) !== "__" && (all || s.words.includes(k))) delete ws[k]; }); }
+                  return;
+                }
+                case "if": { for (const b of s.branches) { if (!b.cond || truth(evalE(b.cond, ws, 1))) { execBlock(b.body, ws); return; } } return; }
+                case "while": {
+                  while (truth(evalE(s.cond, ws, 1))) {
+                    tick();
+                    try { execBlock(s.body, ws); } catch (e) { if (e === BRK) break; if (e === CNT) continue; throw e; }
+                  }
+                  return;
+                }
+                case "for": {
+                  const v = evalE(s.e, ws, 1), A = typeof v === "string" ? [...v] : isFH(v) ? [v] : asArr(v);
+                  for (const x of A) { tick(); setVar(ws, s.v, x); try { execBlock(s.body, ws); } catch (e) { if (e === BRK) break; if (e === CNT) continue; throw e; } }
+                  return;
+                }
+                case "break": throw BRK;
+                case "continue": throw CNT;
+                case "return": throw RET;
+              }
+            } catch (e) {
+              if (e instanceof MLErr) { if (!e.frames.some((f) => f.ws === ws)) e.frames.push({ fn: ws.__fn, line: s.line, ws }); }
+              else if (e instanceof RangeError) { const er = new MLErr("Maximum recursion limit reached."); er.frames.push({ fn: ws.__fn, line: s.line, ws }); throw er; }
+              throw e;
+            }
+          }
+          let result = null, err = null;
+          try {
+            if (prog.main) result = callUser(prog.main, opts.args, prog.main.outs.length);
+            else { const ws = Object.assign({ __fn: opts.scriptName, __hist: opts.hist }, opts.scriptVars); execBlock(prog.script, ws); result = ws; }
+          } catch (e) {
+            if (e instanceof MLErr) err = e;
+            else if (e === BRK || e === CNT) err = new MLErr("A BREAK or CONTINUE statement was used outside of a loop.");
+            else if (e === RET) result = null;
+            else throw e;
+          }
+          return { out, err, result, long, bodyLines: (v) => bodyLines(v, long) };
+        }
+        return { lex, parseProgram, run, MLErr, MLSyn, KW };
+      })();
+
       let p3State = { fnText: "", outText: "", ok: false, run: null };
-      function p3FnText() {
-        const g = (id, d) => ($(id).value.trim() || d);
-        return `Initial guess a0 = ${g("input-p3-a0", "(blank)")}\nUpdate f(a) = ${g("input-p3-f", "(blank)")}\n` +
-          `Iterate while ${g("input-p3-cond", "(blank)")} > tol, tol = ${g("input-p3-tol", "(blank)")}\nK = ${g("input-p3-K", "(blank)")}`;
-      }
+      const p3Code = () => $("input-p3-code").value;
+      function p3FnText() { return p3Code().replace(/\s+$/, "") || "(no code entered)"; }
       function p3Run(silent) {
-        const con = $("p3-console"), gi = (id) => $(id).value.trim();
+        const con = $("p3-console"), esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         const HANDOUT = { "input-p3-kpr0": "3.0", "input-p3-tdk": "0.8", "input-p3-t1": "0.99", "input-p3-t2": "1.70", "input-p3-dy1": "6.6", "input-p3-dy2": "14.6" };
-        const gin = (id) => ($("sim-p3-mode").value === "custom" ? gi(id) : HANDOUT[id]);
-        const givens = { Kpr0: "input-p3-kpr0", TdoverK: "input-p3-tdk", t1: "input-p3-t1", t2: "input-p3-t2", dy1: "input-p3-dy1", dy2: "input-p3-dy2" };
-        const custom = $("sim-p3-mode").value === "custom", esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
-        const inputs = `Kpr0 = ${gin("input-p3-kpr0")}, TdoverK = ${gin("input-p3-tdk")}, t1 = ${gin("input-p3-t1")}, t2 = ${gin("input-p3-t2")}, dy1 = ${gin("input-p3-dy1")}, dy2 = ${gin("input-p3-dy2")}`;
-        const src = `${custom ? "Your values" : "Handout test values"}: ${inputs}`;
-        let out = src + "\n\n", html = `<p class="src">${esc(src)}</p>`, ok = false, run = null;
-        const f7 = (v) => (isFinite(v) ? v.toFixed(7) : (isNaN(v) ? "NaN" : (v > 0 ? "Inf" : "-Inf")));
+        const custom = $("sim-p3-mode").value === "custom";
+        const gin = (id) => (custom ? $(id).value.trim() : HANDOUT[id]);
+        const order = [["K_pr_0", "input-p3-kpr0"], ["TdoverK", "input-p3-tdk"], ["t1", "input-p3-t1"], ["t2", "input-p3-t2"], ["dy1", "input-p3-dy1"], ["dy2", "input-p3-dy2"]];
+        let text = "", html = "", ok = false, runInfo = null;
+        const add = (t, cls) => { text += t; html += cls ? `<span class="${cls}">${esc(t)}</span>` : esc(t); };
+        const code = p3Code(), lines = code.replace(/\r\n?/g, "\n").split("\n");
+        let fname = "gpwk_12F_OpenLoopCharacterize";
         try {
-          const vars = {};
-          Object.keys(givens).forEach((k) => { vars[k] = mlEval(gin(givens[k]), {}); if (!isFinite(vars[k])) throw new Error(`Invalid value for ${k}.`); });
-          vars.K_pr_0 = vars.Kpr0;
-          let a = mlEval(gi("input-p3-a0"), vars);
-          const tol = mlEval(gi("input-p3-tol"), vars);
-          const f = (x) => mlEval(gi("input-p3-f"), Object.assign({}, vars, { a: x }));
-          const cond = () => mlEval(gi("input-p3-cond"), Object.assign({}, vars, { a, tol }), { f });
-          let it = 0; const iters = [a];
-          if (!isFinite(a)) throw new Error("The initial guess a0 is not a finite number.");
-          while (cond() > tol) {
-            a = f(a); iters.push(a);
-            if (!isFinite(a)) throw new Error("The estimate for a is not finite (the iteration diverged).");
-            if (++it >= 10000) throw new Error("Stopped after 10000 iterations without converging (check your update rule and tolerance).");
+          const raw = order.map(([, id]) => gin(id));
+          const vals = order.map(([k], i) => { const s = raw[i], v = Number(s); if (s === "" || !isFinite(v)) throw new Error(`Invalid test value for ${k}: enter a number.`); return v; });
+          let prog;
+          try { prog = ML.parseProgram(code); }
+          catch (e) {
+            if (!(e instanceof ML.MLSyn)) throw e;
+            const m = /^\s*function\b[^=\n]*=\s*([A-Za-z_]\w*)|^\s*function\s+([A-Za-z_]\w*)/m.exec(code); if (m) fname = m[1] || m[2];
+            add(`>> [a,K] = ${fname}(${raw.join(", ")})\n`, "prompt");
+            add(`Error: File: ${fname}.m Line: ${e.line} Column: ${e.col}\n${e.message}\n`, "err");
+            if (/\?/.test(lines[e.line - 1] || "")) add(`(Replace each ??? placeholder with your own MATLAB code.)\n`, "dim");
+            throw null;
           }
-          const K = mlEval(gi("input-p3-K"), Object.assign({}, vars, { a }));
-          if (!isFinite(K)) throw new Error("K is not a finite number (check your expression for K).");
-          const n = iters.length - 1, conv = `Converged after ${n} iteration${n === 1 ? "" : "s"} (tolerance ${gi("input-p3-tol")}).`;
-          out += iters.map((v, i) => `a${i} = ${f7(v)}`).join("\n") + `\n\n${conv}\na = ${nm(a, 6)} 1/s\nK = ${nm(K, 6)}`;
-          html += `<div class="cols"><div class="res"><div><span class="lab">a</span><span class="num">${nm(a, 6)}</span><span class="unit">1/s</span></div>` +
-            `<div><span class="lab">K</span><span class="num">${nm(K, 6)}</span></div><p class="conv">${esc(conv)}</p></div>` +
-            `<div class="tbl"><table><tr><th>iteration</th><th>a</th></tr>` +
-            iters.map((v, i) => `<tr><td>${i === 0 ? "a<sub>0</sub> (initial guess)" : i}</td><td>${f7(v)}</td></tr>`).join("") + `</table></div></div>`;
-          ok = true; run = { a, K, vars, iters };
+          const hist = [], main = prog.main;
+          if (main) fname = main.name;
+          const outs = main ? main.outs : ["a", "K"];
+          const call = main ? `${outs.length ? (outs.length > 1 ? `[${outs.join(",")}] = ` : `${outs[0]} = `) : ""}${fname}(${raw.join(", ")})` : `${fname}  % script (inputs pre-defined in the workspace)`;
+          add(`>> ${call}\n`, "prompt");
+          const svars = {}; order.forEach(([k], i) => { svars[k] = vals[i]; }); svars.Kpr0 = vals[0]; svars.uss = vals[0];
+          const r = ML.run(prog, { args: vals, hist, track: main ? (main.outs[0] || "a") : "a", scriptVars: svars, scriptName: fname });
+          if (r.out) add(/\n$/.test(r.out) ? r.out : r.out + "\n");
+          if (r.err) {
+            add(`${r.err.message}\n`, "err");
+            r.err.frames.forEach((f) => { add(`\nError in ${f.fn} (line ${f.line})\n`, "err"); add(`${(lines[f.line - 1] || "").trim()}\n`, "err"); });
+            throw null;
+          }
+          let aV, KV;
+          if (main) {
+            const res = r.result || [];
+            outs.forEach((o, i) => { if (res[i] !== undefined) add(`${o} =\n\n${r.bodyLines(res[i]).join("\n")}\n\n`); });
+            aV = res[0]; KV = res[1];
+          } else if (r.result) { aV = r.result.a; KV = r.result.K; }
+          if (!main) ["a", "K"].forEach((o, i) => { const v = i ? KV : aV; if (v !== undefined) add(`${o} =\n\n${r.bodyLines(v).join("\n")}\n\n`); });
+          ok = typeof aV === "number" && typeof KV === "number" && isFinite(aV) && isFinite(KV);
+          if (ok) runInfo = { a: aV, K: KV, vars: Object.fromEntries(order.map(([k], i) => [k, vals[i]])), iters: hist };
         } catch (e) {
-          out += `Error: ${e.message}`; html += `<p class="err">Error: ${esc(e.message)}</p>`;
+          if (e) add(`${e.message}\n`, "err");
         }
-        p3State = { fnText: p3FnText(), outText: out, ok, run };
-        if (!silent || ok) { con.style.display = ""; con.innerHTML = html; }
+        html += `<span class="prompt">&gt;&gt; </span>`;
+        p3State = { fnText: p3FnText(), outText: text.replace(/\n+$/, ""), ok, run: runInfo };
+        if (!silent || ok) { con.innerHTML = html; con.scrollTop = con.scrollHeight; }
       }
+      // ---- editor: line numbers + syntax highlighting overlay ----
+      function p3Highlight() {
+        const ta = $("input-p3-code"), src = ta.value, esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const lines = src.split("\n"); let blockC = false, longest = 0;
+        const KWRE = /\b(function|while|if|elseif|else|end|for|break|continue|return|switch|case|otherwise|try|catch|global|persistent|parfor)\b/g;
+        const code = (seg) => esc(seg).replace(KWRE, '<span class="k">$1</span>').replace(/\?+/g, '<span class="q">$&</span>');
+        const html = lines.map((L, li) => {
+          if (L.length > lines[longest].length) longest = li;
+          if (/^\s*%\{\s*$/.test(L)) { blockC = true; return `<span class="c">${esc(L)}</span>`; }
+          if (blockC) { if (/^\s*%\}\s*$/.test(L)) blockC = false; return `<span class="c">${esc(L)}</span>`; }
+          let o = "", seg = "", p = 0, last = "";
+          while (p < L.length) {
+            const ch = L[p];
+            if (ch === "%" || L.startsWith("...", p)) { o += code(seg) + `<span class="c">${esc(L.slice(p))}</span>`; seg = ""; p = L.length; break; }
+            if (ch === '"' || (ch === "'" && !(last && /[\w)\]}.']/.test(last)))) {
+              let q = p + 1; while (q < L.length) { if (L[q] === ch) { if (L[q + 1] === ch) { q += 2; continue; } break; } q++; }
+              o += code(seg) + `<span class="s">${esc(L.slice(p, q + 1))}</span>`; seg = ""; p = q + 1; last = "'"; continue;
+            }
+            if (ch !== " " && ch !== "\t") last = ch;
+            seg += ch; p++;
+          }
+          return o + code(seg);
+        });
+        html[longest] += "          ";
+        $("p3-hl").innerHTML = html.join("\n") + "\n\n\n";
+        $("p3-gutter").innerHTML = lines.map((_, i) => i + 1).join("<br>") + "<br><br><br><br>";
+        p3Sync();
+      }
+      function p3Sync() { const ta = $("input-p3-code"); $("p3-hl").scrollTop = ta.scrollTop; $("p3-hl").scrollLeft = ta.scrollLeft; $("p3-gutter").scrollTop = ta.scrollTop; }
+      function p3Insert(ta, text) {
+        ta.focus();
+        if (!document.execCommand || !document.execCommand("insertText", false, text)) { ta.setRangeText(text, ta.selectionStart, ta.selectionEnd, "end"); ta.dispatchEvent(new Event("input", { bubbles: true })); }
+      }
+      (function setupP3Editor() {
+        const ta = $("input-p3-code");
+        ta.setAttribute("wrap", "off");
+        ta.addEventListener("input", () => { p3Highlight(); p3State.fnText = p3FnText(); });
+        ta.addEventListener("scroll", p3Sync);
+        ta.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); p3Run(false); return; }
+          if (e.key === "Tab" && !e.shiftKey) { e.preventDefault(); p3Insert(ta, "    "); return; }
+          if (e.key === "Enter" && !e.shiftKey && !e.altKey) {
+            const v = ta.value, ls = v.lastIndexOf("\n", ta.selectionStart - 1) + 1, line = v.slice(ls, ta.selectionStart);
+            let ind = (line.match(/^[ \t]*/) || [""])[0];
+            if (/^\s*(while|if|elseif|else|for|function|switch|try)\b/.test(line) && !/\bend\s*;?\s*(%.*)?$/.test(line)) ind += "    ";
+            e.preventDefault(); p3Insert(ta, "\n" + ind);
+          }
+        });
+        new ResizeObserver(p3Sync).observe($("p3-body"));
+      })();
       // Figure 3 of the handout: open loop response for the test values (a, K from the iteration), y0 = -8
       function drawFig3() {
         const a = 1.8231, K = 10.2862, Kpr0 = 3.0, TdK = 0.8, y0 = -8, t1 = 0.99, t2 = 1.70, g = (K / a) * (Kpr0 - TdK);
@@ -2825,9 +3412,12 @@
       }
       $("p3-mode").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { setP3Mode(b.dataset.m); sched(); }));
       $("p3-run").addEventListener("click", () => p3Run(false));
-      $("p3-clear").addEventListener("click", () => { $("p3-console").textContent = ""; $("p3-console").style.display = "none"; p3State = { fnText: p3FnText(), outText: "", ok: false, run: null }; });
-      ["input-p3-a0", "input-p3-tol", "input-p3-f", "input-p3-cond", "input-p3-K"].forEach((id) => $(id).addEventListener("input", () => { p3State.fnText = p3FnText(); }));
-      window.GW12F = { mlEval, p3Run: () => { p3Run(false); return p3State; }, p3State: () => p3State };
+      $("p3-clear").addEventListener("click", () => { $("p3-console").innerHTML = `<span class="prompt">&gt;&gt; </span>`; p3State = { fnText: p3FnText(), outText: "", ok: false, run: null }; });
+      $("p3-reset").addEventListener("click", () => {
+        if (p3Code() !== P3_TEMPLATE && !confirm("Replace your code with the original skeleton? Your current code will be lost.")) return;
+        $("input-p3-code").value = P3_TEMPLATE; p3Highlight(); p3State.fnText = p3FnText(); sched();
+      });
+      window.GW12F = { ML, p3Run: () => { p3Run(false); return p3State; }, p3State: () => p3State };
 
       // ---------------------------------------------------------------
       // PROBLEM 4: the Simulink model
@@ -3290,7 +3880,8 @@
       const reflect = (id) => val(id) || "(No response entered.)";
       function blankItems() {
         const out = [];
-        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.id.indexOf("input-p4-") === 0) return; if (e.value.trim() === "") out.push(e.id.replace(/^input-/, "").replace(/-/g, " ")); });
+        document.querySelectorAll('input[id^="input-"], textarea[id^="input-"]').forEach((e) => { if (e.value.trim() === "") out.push(e.id.replace(/^input-/, "").replace(/-/g, " ")); });
+        if (/\?\?\?/.test(p3Code())) out.push("p3 MATLAB function (still contains ??? placeholders)");
         WORK_IDS.forEach((id) => { if (!workImages[id].length) out.push(`${WORK_LABELS[id]} (no image uploaded)`); });
         if (!captures.length) out.push("no captured figures");
         return out;
@@ -3333,12 +3924,10 @@
           text("Key elements of the solution:", { bold: true }); text(reflect("input-p2-c")); caps("p2");
           heading("Problem 3: Characterize the open loop system");
           text("Derivation of Eqn (3):", { bold: true }); work("p3-derivation");
-          text("Method (expressions entered):", { bold: true }); text(p3State.fnText, { mono: true, size: 8.5 });
-          text("Output:", { bold: true }); text(p3State.outText ? p3State.outText : "(Not run yet.)", { mono: true, size: 8.5 }); caps("p3");
-          if (val("input-p4-a") || val("input-p4-b") || val("input-p4-c") || captures.some((c) => c.prefix === "p4")) {
-            heading("Problem 4 (optional): Effect of filter time");
-            text("a) Tf = 0.015:", { bold: true }); text(reflect("input-p4-a")); text("b) Tf = 0.15:", { bold: true }); text(reflect("input-p4-b")); text("c) Tf = 0.0015:", { bold: true }); text(reflect("input-p4-c")); caps("p4");
-          }
+          text("MATLAB function code:", { bold: true }); text(p3State.fnText, { mono: true, size: 8 });
+          text("Command Window output:", { bold: true }); text(p3State.outText ? p3State.outText : "(Not run yet.)", { mono: true, size: 8.5 }); caps("p3");
+          heading("Problem 4: Effect of filter time");
+          text("a) Tf = 0.015:", { bold: true }); text(reflect("input-p4-a")); text("b) Tf = 0.15:", { bold: true }); text(reflect("input-p4-b")); text("c) Tf = 0.0015:", { bold: true }); text(reflect("input-p4-c")); caps("p4");
           const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
           if (appendixFiles.length) {
             const { PDFDocument } = window.PDFLib, merged = await PDFDocument.load(doc.output("arraybuffer")), failed = [];
@@ -3376,8 +3965,9 @@
           if (s.stop) $("sl4-stop").value = s.stop;
         }
         buildDiagram(); drawSwitch(); setP3Mode($("sim-p3-mode").value === "custom" ? "custom" : "handout"); p3State.fnText = p3FnText();
-        const ready = ["input-p3-a0", "input-p3-tol", "input-p3-f", "input-p3-cond", "input-p3-K"].every((id) => $(id).value.trim());
-        if (ready) p3Run(true);
+        if (!$("input-p3-code").value.trim()) $("input-p3-code").value = P3_TEMPLATE;
+        p3Highlight(); p3State.fnText = p3FnText();
+        if (!/\?\?\?/.test(p3Code())) p3Run(true);
         activate(s && s.tab && SECTION_IDS[s.tab] ? s.tab : "intro");
       })();
     })();
