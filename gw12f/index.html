@@ -2371,6 +2371,8 @@
             ignored.
           </p>
           <ol class="steps-list" type="a">
+            <li>Sketch the Bode plot of <span class="ik">F(s)</span>. How does the filter help with the feedback
+              loop?</li>
             <li>Double click on the <b>Filter</b> block to open a dialogue box to edit the filter time; the default
               value is 0.015. Make sure that value is set and run the model. Notice the magnitude of the noise in the
               reference and input voltage signals (double-click the <b>Scope</b> to see them).</li>
@@ -2413,18 +2415,28 @@
             </div>
           </div>
 
-          <h4 class="part-title">a) Default filter time (T<sub>f</sub> = 0.015)</h4>
+          <h4 class="part-title">a) Bode plot of the filter F(s)</h4>
+          <p class="instructions">Sketch the Bode plot of <span class="ik">F(s)</span>. Upload your sketch:</p>
+          <div class="upload-block">
+            <input type="file" id="upload-input-p4-bode" accept="image/*" multiple />
+            <div class="upload-thumbs" id="upload-thumbs-p4-bode"></div>
+            <p class="upload-status" id="upload-status-p4-bode"></p>
+            <p class="upload-err" id="upload-err-p4-bode"></p>
+          </div>
+          <p class="instructions">How does the filter help with the feedback loop?</p>
+          <div class="reflection-box"><textarea id="input-p4-a"></textarea></div>
+          <h4 class="part-title">b) Default filter time (T<sub>f</sub> = 0.015)</h4>
           <p class="instructions">Notice the magnitude of the noise in the reference and input voltage signals. What do
             you observe?</p>
-          <div class="reflection-box"><textarea id="input-p4-a"></textarea></div>
-          <h4 class="part-title">b) T<sub>f</sub> = 0.15</h4>
-          <p class="instructions">Comment on the behavior you observe in both the command signal V and the output y. Why
-            is that the behavior?</p>
           <div class="reflection-box"><textarea id="input-p4-b"></textarea></div>
-          <h4 class="part-title">c) T<sub>f</sub> = 0.0015</h4>
+          <h4 class="part-title">c) T<sub>f</sub> = 0.15</h4>
           <p class="instructions">Comment on the behavior you observe in both the command signal V and the output y. Why
             is that the behavior?</p>
           <div class="reflection-box"><textarea id="input-p4-c"></textarea></div>
+          <h4 class="part-title">d) T<sub>f</sub> = 0.0015</h4>
+          <p class="instructions">Comment on the behavior you observe in both the command signal V and the output y. Why
+            is that the behavior?</p>
+          <div class="reflection-box"><textarea id="input-p4-d"></textarea></div>
         </section>
 
         <!-- ============== SUBMISSION ============== -->
@@ -2447,7 +2459,7 @@
               </ol>
               The exported PDF contains each of these from the pages of this app.
             </li>
-            <li>Upload photos of your calculations and sketches in Problems 2 and 3, and capture
+            <li>Upload photos of your calculations and sketches in Problems 2, 3, and 4, and capture
               the scope in Problem 4 so they are included. Attach any other handwritten work as a PDF below.</li>
             <li><b>Additional problems (optional!):</b> Here are some additional, related problems if you would like
               more
@@ -3811,8 +3823,8 @@ K = ???%replace this line with formula for "K" based on calculated "a" and funct
       // Uploaded calculation images
       // ---------------------------------------------------------------
       const MAX_IMAGE_DIM = 1200, IMAGE_QUALITY = 0.7, IMG_KEY = "gw12f_work_images_v1";
-      const WORK_IDS = ["p2-tf", "p2-laplace", "p3-derivation"];
-      const WORK_LABELS = { "p2-tf": "Problem 2b open-loop transfer function", "p2-laplace": "Problem 2c Laplace transform pair", "p3-derivation": "Problem 3 derivation of Eqn (3)" };
+      const WORK_IDS = ["p2-tf", "p2-laplace", "p3-derivation", "p4-bode"];
+      const WORK_LABELS = { "p2-tf": "Problem 2b open-loop transfer function", "p2-laplace": "Problem 2c Laplace transform pair", "p3-derivation": "Problem 3 derivation of Eqn (3)", "p4-bode": "Problem 4a Bode plot of F(s)" };
       const workImages = {}; WORK_IDS.forEach((id) => { workImages[id] = []; });
       function resizeAndCompressImage(file) {
         return new Promise((resolve, reject) => {
@@ -3927,7 +3939,9 @@ K = ???%replace this line with formula for "K" based on calculated "a" and funct
           text("MATLAB function code:", { bold: true }); text(p3State.fnText, { mono: true, size: 8 });
           text("Command Window output:", { bold: true }); text(p3State.outText ? p3State.outText : "(Not run yet.)", { mono: true, size: 8.5 }); caps("p3");
           heading("Problem 4: Effect of filter time");
-          text("a) Tf = 0.015:", { bold: true }); text(reflect("input-p4-a")); text("b) Tf = 0.15:", { bold: true }); text(reflect("input-p4-b")); text("c) Tf = 0.0015:", { bold: true }); text(reflect("input-p4-c")); caps("p4");
+          text("a) Bode plot of F(s):", { bold: true }); work("p4-bode");
+          text("How the filter helps the feedback loop:", { bold: true }); text(reflect("input-p4-a"));
+          text("b) Tf = 0.015:", { bold: true }); text(reflect("input-p4-b")); text("c) Tf = 0.15:", { bold: true }); text(reflect("input-p4-c")); text("d) Tf = 0.0015:", { bold: true }); text(reflect("input-p4-d")); caps("p4");
           const safeId = netId.replace(/[^a-zA-Z0-9_-]+/g, "_");
           if (appendixFiles.length) {
             const { PDFDocument } = window.PDFLib, merged = await PDFDocument.load(doc.output("arraybuffer")), failed = [];
