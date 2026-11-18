@@ -2046,7 +2046,8 @@
         <!-- ============== SIMULATION ============== -->
         <section id="part-sim">
           <h3 class="problem-title">Lane and Speed Control</h3>
-          <p class="sim-note">Choose the controllers and gains, then press RUN SIMULATION. While a competition is running, every
+          <p class="sim-note">Choose the controllers and gains, then press RUN SIMULATION. While a competition is
+            running, every
             run that plays all the way to the end, finishes the course and stays on the road is sent to the leaderboard
             automatically. Pressing STOP ANIMATION or changing a control mid-run means that run is not sent.</p>
           <div class="lb-box">
@@ -2193,14 +2194,18 @@
       function goalTrace(rd) {
         let j = 0; while (j < rd.cy.length - 1 && rd.cy[j] < GOAL_Y) j++;
         const gx = rd.cx[j], hw = ROAD.LaneW / 2 + 1;
-        return { x: [gx - hw, gx + hw], y: [GOAL_Y, GOAL_Y], mode: "lines+markers+text", name: "Goal (North = 60 m)",
+        return {
+          x: [gx - hw, gx + hw], y: [GOAL_Y, GOAL_Y], mode: "lines+markers+text", name: "Goal (North = 60 m)",
           line: { color: "#34D399", width: 4 }, marker: { symbol: "line-ns", size: 16, color: "#34D399", line: { color: "#34D399", width: 3 } },
-          text: ["", "GOAL"], textposition: "middle right", textfont: { color: "#34D399", size: 12, family: "JetBrains Mono, monospace" } };
+          text: ["", "GOAL"], textposition: "middle right", textfont: { color: "#34D399", size: 12, family: "JetBrains Mono, monospace" }
+        };
       }
       // banner on the birds-eye view while the car is being animated
-      const SPEED_NOTE = { xref: "paper", yref: "paper", x: 1, y: 1, xanchor: "right", yanchor: "top", showarrow: false,
+      const SPEED_NOTE = {
+        xref: "paper", yref: "paper", x: 1, y: 1, xanchor: "right", yanchor: "top", showarrow: false,
         text: "playback 1× speed", font: { color: "#8B92A5", size: 9.5, family: "JetBrains Mono, monospace" },
-        bgcolor: "rgba(15,17,21,0.85)", bordercolor: "#282D3A", borderwidth: 1, borderpad: 2 };
+        bgcolor: "rgba(15,17,21,0.85)", bordercolor: "#282D3A", borderwidth: 1, borderpad: 2
+      };
       const animLay = (L) => Object.assign({}, L, { annotations: [SPEED_NOTE] });
       let last = null;
       function figs(r, p) {

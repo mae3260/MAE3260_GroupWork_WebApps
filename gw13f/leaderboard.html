@@ -451,7 +451,496 @@
       inset: 0;
       pointer-events: none;
       overflow: hidden;
-      z-index: 50;
+      z-index: 90;
+    }
+
+    /* ---------- run details panel ---------- */
+    tr.clickable {
+      cursor: pointer;
+    }
+
+    tr.clickable:hover td {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .modal-back {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(8, 10, 14, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal {
+      width: min(560px, 100%);
+      max-height: 100%;
+      overflow-y: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-team {
+      font-size: clamp(22px, 2vw, 34px);
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .modal-sub {
+      font: 500 13px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .modal-res {
+      display: flex;
+      gap: 26px;
+      margin: 16px 0 6px;
+      font: 700 clamp(18px, 1.5vw, 26px) 'JetBrains Mono', monospace;
+    }
+
+    .modal-res small {
+      display: block;
+      font: 600 11px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 2px;
+    }
+
+    .modal h5 {
+      margin: 18px 0 6px;
+      font: 600 11px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 18px;
+      font: 500 15px 'JetBrains Mono', monospace;
+    }
+
+    .kv span:nth-child(odd) {
+      color: var(--muted);
+    }
+
+    .kv .unused {
+      opacity: 0.4;
+    }
+
+    /* ---------- podium ---------- */
+    .podium-btn {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      z-index: 20;
+      padding: 10px 22px;
+      border-radius: 24px;
+      border: 2px solid var(--gold);
+      background: rgba(23, 26, 33, 0.95);
+      color: var(--gold);
+      font: 700 14px 'JetBrains Mono', monospace;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      box-shadow: 0 0 24px rgba(255, 209, 102, 0.25);
+    }
+
+    .podium {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 28px 24px 0;
+      background: radial-gradient(80% 60% at 50% 30%, rgba(255, 209, 102, 0.16), transparent 70%), rgba(10, 12, 16, 0.96);
+      animation: fadeIn 0.4s ease;
+    }
+
+    .podium-title {
+      position: absolute;
+      top: 6vh;
+      left: 0;
+      right: 0;
+      text-align: center;
+    }
+
+    .podium-title .k {
+      font: 700 clamp(14px, 1.4vw, 24px) 'JetBrains Mono', monospace;
+      letter-spacing: 0.24em;
+      color: var(--gold);
+    }
+
+    .podium-title .n {
+      font: 800 clamp(34px, 4.4vw, 80px) 'Inter', sans-serif;
+      margin-top: 6px;
+    }
+
+    .podium-stage {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: clamp(10px, 2vw, 36px);
+      width: min(1200px, 100%);
+    }
+
+    .step {
+      flex: 1;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .step .who {
+      text-align: center;
+      margin-bottom: 14px;
+      opacity: 0;
+      animation: dropIn 0.6s cubic-bezier(.2, 1.4, .4, 1) forwards;
+    }
+
+    .step .who .medal {
+      font-size: clamp(36px, 4vw, 70px);
+      line-height: 1;
+    }
+
+    .step .who .t {
+      font: 800 clamp(20px, 2.4vw, 44px) 'Inter', sans-serif;
+      word-break: break-word;
+      margin-top: 6px;
+    }
+
+    .step .who .s {
+      font: 600 clamp(14px, 1.3vw, 24px) 'JetBrains Mono', monospace;
+      color: var(--fg);
+      opacity: 0.85;
+      margin-top: 4px;
+    }
+
+    .step .block {
+      width: 100%;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 16px;
+      font: 800 clamp(48px, 6vw, 110px) 'Inter', sans-serif;
+      color: rgba(15, 17, 21, 0.75);
+      transform-origin: bottom;
+      transform: scaleY(0);
+      animation: rise 0.9s cubic-bezier(.2, .9, .3, 1) forwards;
+    }
+
+    .step.p1 .block {
+      height: 42vh;
+      background: linear-gradient(180deg, #FFE08A, #E9A93A);
+      box-shadow: 0 0 50px rgba(255, 209, 102, 0.45);
+    }
+
+    .step.p2 .block {
+      height: 30vh;
+      background: linear-gradient(180deg, #E6EBF0, #9AA4B0);
+    }
+
+    .step.p3 .block {
+      height: 21vh;
+      background: linear-gradient(180deg, #F0B080, #B5683A);
+    }
+
+    .step.p1 .who .t {
+      color: var(--gold);
+      font-size: clamp(26px, 3.2vw, 60px);
+    }
+
+    .podium .close-x {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+    }
+
+    /* ---------- bobblehead prize presenter ---------- */
+    .bobble {
+      --w: clamp(78px, 6.2vw, 124px);
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: var(--w);
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.55));
+      will-change: transform;
+    }
+
+    .bb-inner {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.25s ease;
+    }
+
+    .bb-head {
+      width: 118%;
+      margin-bottom: calc(var(--w) * -0.2);
+      position: relative;
+      z-index: 2;
+      transform-origin: 50% 92%;
+      animation: wobble 1.1s ease-in-out infinite alternate;
+    }
+
+    .bb-head img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .bb-body {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    .bb-body .leg,
+    .bb-body .arm {
+      transform-box: view-box;
+      transition: transform 0.35s cubic-bezier(.3, 1.4, .5, 1);
+    }
+
+    .bb-body .leg-l {
+      transform-origin: 56px 150px;
+    }
+
+    .bb-body .leg-r {
+      transform-origin: 84px 150px;
+    }
+
+    .bb-body .arm-l {
+      transform-origin: 30px 54px;
+    }
+
+    .bb-body .arm-r {
+      transform-origin: 110px 54px;
+    }
+
+    .bobble.walking .leg-l {
+      animation: legSwing 0.42s ease-in-out infinite alternate;
+    }
+
+    .bobble.walking .leg-r {
+      animation: legSwing 0.42s ease-in-out infinite alternate-reverse;
+    }
+
+    .bobble.walking .arm-l {
+      animation: armSwing 0.42s ease-in-out infinite alternate-reverse;
+    }
+
+    .bobble.walking .arm-r {
+      animation: armSwing 0.42s ease-in-out infinite alternate;
+    }
+
+    .bobble.walking .bb-inner {
+      animation: bob 0.21s ease-in-out infinite alternate;
+    }
+
+    .bobble.walking .bb-head {
+      animation-duration: 0.42s;
+    }
+
+    .bobble.giving .arm-l {
+      transform: rotate(150deg);
+    }
+
+    .bobble.giving .arm-r {
+      transform: rotate(-150deg);
+    }
+
+    .bobble.cheer .bb-inner {
+      animation: hop 0.5s ease-in-out 3;
+    }
+
+    .bobble.cheer .arm-l {
+      transform: rotate(160deg);
+    }
+
+    .bobble.cheer .arm-r {
+      transform: rotate(-160deg);
+    }
+
+    .bobble.empty .held {
+      opacity: 0;
+    }
+
+    .held {
+      transition: opacity 0.2s, transform 0.35s cubic-bezier(.3, 1.4, .5, 1);
+      transform-box: fill-box;
+      transform-origin: center;
+      transform: rotate(-8deg);
+    }
+
+    .held-trophy {
+      transform: none;
+    }
+
+    /* keep the prizes upright while the arms are raised */
+    .bobble.giving .held-trophy,
+    .bobble.cheer .held-trophy {
+      transform: rotate(-150deg);
+    }
+
+    .bobble.giving .held-card,
+    .bobble.cheer .held-card {
+      transform: rotate(150deg);
+    }
+
+    @keyframes wobble {
+      from {
+        transform: rotate(-7deg);
+      }
+
+      to {
+        transform: rotate(7deg);
+      }
+    }
+
+    @keyframes legSwing {
+      from {
+        transform: rotate(-16deg);
+      }
+
+      to {
+        transform: rotate(16deg);
+      }
+    }
+
+    @keyframes armSwing {
+      from {
+        transform: rotate(-14deg);
+      }
+
+      to {
+        transform: rotate(14deg);
+      }
+    }
+
+    @keyframes bob {
+      to {
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes hop {
+      50% {
+        transform: translateY(-26px);
+      }
+    }
+
+    /* prizes that fly to the team, then sit under the team name */
+    .fly {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 85;
+      pointer-events: none;
+      transform-origin: 0 0;
+    }
+
+    .gift {
+      display: block;
+      position: relative;
+      border-radius: 8%/13%;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    }
+
+    .gift img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gift b {
+      position: absolute;
+      right: 6%;
+      bottom: 7%;
+      font: 800 9px 'JetBrains Mono', monospace;
+      letter-spacing: 0.08em;
+      color: #fff;
+      opacity: 0.9;
+    }
+
+    .prizes {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      min-height: 52px;
+    }
+
+    .prizes .trophy-big {
+      width: clamp(34px, 3vw, 54px);
+      height: auto;
+      animation: dropIn 0.4s cubic-bezier(.2, 1.4, .4, 1);
+    }
+
+    .prizes .gift {
+      width: clamp(70px, 6vw, 108px);
+      aspect-ratio: 1.6;
+      transform: rotate(-6deg);
+      animation: dropIn 0.4s cubic-bezier(.2, 1.4, .4, 1);
+    }
+
+    @keyframes rise {
+      to {
+        transform: scaleY(1);
+      }
+    }
+
+    @keyframes dropIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.8);
+      }
+
+      100% {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .step .block,
+      .step .who {
+        animation-duration: 0.01s !important;
+        animation-delay: 0s !important;
+      }
     }
 
     .confetti-layer img {
@@ -796,6 +1285,7 @@
     </aside>
   </main>
 
+  <button class="podium-btn" id="podium-btn" type="button" hidden>🏆 SHOW PODIUM</button>
   <button class="sound" id="sound" type="button">🔇 CLICK TO ENABLE SOUND</button>
   <button class="gear" id="gear" type="button" title="Competition controls">&#9881;</button>
   <div class="confetti-layer" id="confetti"></div>
@@ -806,6 +1296,11 @@
     <p>Confetti and a sound play whenever a run beats the current best. Sound only works after the SOUND button
       (bottom right) has been clicked once.</p>
     <button class="btn" id="test-celebrate" type="button">TEST CELEBRATION</button>
+
+    <h4>PODIUM</h4>
+    <p>Shows the top three teams of the competition on the board. Once a competition is stopped, a SHOW PODIUM button
+      also appears at the bottom of the page.</p>
+    <button class="btn" id="podium-drawer" type="button">🏆 SHOW PODIUM</button>
 
     <h4>BOARD</h4>
     <label for="view-sel">Which competition should the board show?</label>
@@ -857,7 +1352,7 @@
     let pinned = null;         // compId chosen in the drawer, or null = follow the current competition
     let viewId = null, unsubRuns = null;
     let runs = new Map();      // docId -> {id, team, key, p, at, res}
-    let user = null, settled = false, prevRanks = null, seen = new Set();
+    let user = null, settled = false, prevRanks = null, seen = new Set(), lastList = [];
     const resCache = new Map(), pathCache = new Map();
 
     const isAdmin = () => !!(user && ADMIN_EMAILS.includes(user.email));
@@ -949,7 +1444,7 @@
         const r = t.best, rank = i + 1, prev = prevRanks ? prevRanks.get(t.key) : undefined;
         let cls = `r${rank}`;
         if (settled && prevRanks && (prev === undefined || rank < prev)) cls += prev === undefined ? " flash-new" : " flash-up";
-        return `<tr class="${cls}">
+        return `<tr class="${cls} clickable" data-id="${esc(r.id)}">
           <td class="rank">${rank}</td>
           <td class="team">${esc(r.team)}</td>
           <td class="time num">${r.res.time.toFixed(3)}<small> s</small></td>
@@ -960,7 +1455,7 @@
       const all = [...runs.values()].filter((r) => r.res && r.res.ok).sort((a, b) => b.at - a.at).slice(0, 300);
       $("feed").innerHTML = all.map((r) => {
         const isNew = settled && !seen.has(r.id);
-        return `<tr class="${isNew ? "flash-new" : ""}">
+        return `<tr class="${isNew ? "flash-new " : ""}clickable" data-id="${esc(r.id)}">
           <td class="when">${new Date(r.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" })}</td>
           <td class="team">${esc(r.team)}</td>
           <td class="time num">${r.res.time.toFixed(3)}<small> s</small></td>
@@ -977,6 +1472,8 @@
       $("counts").textContent = list.length ? `${list.length} team${list.length === 1 ? "" : "s"}` : "";
       renderLeader(list.length ? list[0].best : null);
       renderPaths(list.slice(0, 1));
+      lastList = list;
+      renderPodiumBtn();
     }
 
     // current leader banner + celebration when a run beats the current best
@@ -1007,6 +1504,7 @@
       else if (live && ctl.active) { pill.classList.add("live"); pill.textContent = "● LIVE"; }
       else if (live) { pill.classList.add("closed"); pill.textContent = "CLOSED"; }
       else { pill.textContent = "PAST COMPETITION"; }
+      renderPodiumBtn();
     }
 
     // birds-eye view of the leader's path
@@ -1049,7 +1547,12 @@
     // ------------------------------------------------------------------
     $("gear").addEventListener("click", () => $("drawer").classList.add("open"));
     $("close").addEventListener("click", () => $("drawer").classList.remove("open"));
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("drawer").classList.remove("open"); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      if (document.getElementById("run-modal")) closeModal();
+      else if (document.querySelector(".podium")) closePodium();
+      else $("drawer").classList.remove("open");
+    });
 
     function showErr(t) { const m = $("msg"); m.textContent = t; m.className = "msg err"; }
     function showMsg(t) { const m = $("msg"); m.textContent = t; m.className = "msg"; }
@@ -1222,6 +1725,196 @@
       $("drawer").classList.remove("open");
       celebrate(prevBest || { team: "Test Team", res: { time: 1.234 } });
     });
+
+    // ------------------------------------------------------------------
+    // Run details: click any run (top 3 or all runs) to see its controller settings
+    // ------------------------------------------------------------------
+    const fmtNum = (v) => Number(v).toLocaleString("en-US", { maximumFractionDigits: 3 });
+    function closeModal() { const m = document.getElementById("run-modal"); if (m) m.remove(); }
+    function openRun(r) {
+      if (!r || !r.res || !r.res.ok) return;
+      closeModal();
+      const p = r.p, usesKi = p.steer.startsWith("PID"), usesKiV = p.speed !== "P";
+      const row = (k, v, used = true) => `<span class="${used ? "" : "unused"}">${k}</span><span class="${used ? "" : "unused"}">${v}</span>`;
+      const rank = lastList.findIndex((t) => t.best.id === r.id);
+      const when = new Date(r.at).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" });
+      const back = document.createElement("div");
+      back.className = "modal-back"; back.id = "run-modal";
+      back.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-label="Run details">
+        <div class="modal-top">
+          <div><div class="modal-team">${esc(r.team)}</div>
+            <div class="modal-sub">Submitted ${esc(when)}${rank >= 0 ? ` · team's best run, rank #${rank + 1}` : ""}</div></div>
+          <button class="btn x" type="button" data-close>&#10005;</button>
+        </div>
+        <div class="modal-res"><div><small>TIME</small>${r.res.time.toFixed(3)} s</div><div><small>MAX DISP.</small>${r.res.maxErr.toFixed(3)} m</div></div>
+        <h5>STEERING CONTROL</h5>
+        <div class="kv">${row("Type", esc(p.steer))}${row("Ki", fmtNum(p.Ki), usesKi)}${row("Kp", fmtNum(p.Kp))}${row("Kd", fmtNum(p.Kd))}</div>
+        <h5>SPEED CONTROL</h5>
+        <div class="kv">${row("Type", esc(p.speed))}${row("KiV", fmtNum(p.KiV), usesKiV)}${row("KpV", fmtNum(p.KpV))}${row("Reference velocity", fmtNum(p.V) + " m/s")}</div>
+        ${!usesKi || !usesKiV ? `<p class="modal-sub" style="margin-top:14px">Faded gains aren't used by that controller type.</p>` : ""}
+      </div>`;
+      back.addEventListener("click", (e) => { if (e.target === back || e.target.closest("[data-close]")) closeModal(); });
+      document.body.appendChild(back);
+    }
+    const onRowClick = (e) => { const tr = e.target.closest("tr[data-id]"); if (tr) openRun(runs.get(tr.dataset.id)); };
+    $("rows").addEventListener("click", onRowClick);
+    $("feed").addEventListener("click", onRowClick);
+
+    // ------------------------------------------------------------------
+    // Podium: top 3 of the competition on the board, shown only when a button is pressed
+    // ------------------------------------------------------------------
+    let podiumTimers = [];
+    function renderPodiumBtn() {
+      const live = !!(ctl && viewId && ctl.compId === viewId && ctl.active);
+      $("podium-btn").hidden = live || !viewId || !lastList.length || !!document.querySelector(".podium");
+    }
+    function closePodium() {
+      podiumTimers.forEach(clearTimeout); podiumTimers = []; ceremonyToken++;
+      document.querySelectorAll(".fly").forEach((f) => f.remove());
+      const el = document.querySelector(".podium"); if (el) el.remove();
+      renderPodiumBtn();
+    }
+    function showPodium() {
+      const top = lastList.slice(0, 3);
+      if (!top.length) { showErr("No runs yet, so there's no podium to show."); return; }
+      closePodium(); closeModal(); $("drawer").classList.remove("open");
+      const medals = ["🥇", "🥈", "🥉"];
+      const reveal = [1.9, 1.0, 0.2]; // block rise delay (s) for 1st, 2nd, 3rd: 3rd rises first
+      const steps = [1, 0, 2].filter((i) => top[i]).map((i) => {
+        const r = top[i].best, d = reveal[i];
+        return `<div class="step p${i + 1}">
+          <div class="who" style="animation-delay:${d + 0.7}s"><div class="medal">${medals[i]}</div><div class="t">${esc(r.team)}</div><div class="s">${r.res.time.toFixed(3)} s</div></div>
+          <div class="block" style="animation-delay:${d}s">${i + 1}</div>
+        </div>`;
+      }).join("");
+      const el = document.createElement("div");
+      el.className = "podium";
+      el.innerHTML = `<button class="btn x close-x" type="button">&#10005; CLOSE</button>
+        <div class="podium-title"><div class="k">🏆 FINAL RESULTS 🏆</div><div class="n">${esc($("comp-label").textContent)}</div></div>
+        <div class="podium-stage">${steps}</div>`;
+      el.querySelector(".close-x").addEventListener("click", closePodium);
+      document.body.appendChild(el);
+      renderPodiumBtn();
+      podiumTimers.push(setTimeout(() => { confetti(190); fanfare(); }, (reveal[0] + 0.7) * 1000));
+      awardCeremony(el, top.length);
+    }
+
+    // ------------------------------------------------------------------
+    // Bobblehead walks up to 3rd, 2nd, then 1st and hands each a trophy and a gimme! gift card
+    // ------------------------------------------------------------------
+    let ceremonyToken = 0;
+    const TROPHY_PATH = `<path d="M-11 -14h22v6q0 12-11 14q-11-2-11-14z" fill="#FFD166" stroke="#B8860B" stroke-width="1.2"/>
+      <path d="M-11-11q-7 0-6 6q1 5 7 5M11-11q7 0 6 6q-1 5-7 5" fill="none" stroke="#E9A93A" stroke-width="2.2"/>
+      <rect x="-2.5" y="6" width="5" height="6" fill="#E9A93A"/><rect x="-8" y="12" width="16" height="4" rx="1" fill="#B8860B"/>
+      <path d="M-6-11v7" stroke="#FFF4D1" stroke-width="2" stroke-linecap="round" opacity="0.8"/>`;
+    const trophySvg = (cls) => `<svg class="${cls}" viewBox="-19 -16 38 34" xmlns="http://www.w3.org/2000/svg">${TROPHY_PATH}</svg>`;
+    const giftHtml = () => `<span class="gift"><img src="img/gimme-card.png" alt="gimme! gift card"><b>GIFT CARD</b></span>`;
+    ["img/bobble-face.png", "img/gimme-card.png"].forEach((s) => { const i = new Image(); i.src = s; });
+
+    function bobbleEl() {
+      const el = document.createElement("div");
+      el.className = "bobble";
+      el.innerHTML = `<div class="bb-inner">
+        <div class="bb-head"><img src="img/bobble-face.png" alt=""></div>
+        <svg class="bb-body" viewBox="0 0 140 222" xmlns="http://www.w3.org/2000/svg">
+          <defs><clipPath id="cardclip"><rect x="-17" y="-11" width="34" height="22" rx="3"/></clipPath></defs>
+          <path d="M63 36l14-4-14-4 14-4-14-4" stroke="#C9CED8" stroke-width="3" fill="none" stroke-linejoin="round"/>
+          <g class="leg leg-l"><rect x="46" y="148" width="20" height="62" rx="6" fill="#2B2F3A"/><ellipse cx="53" cy="212" rx="15" ry="7" fill="#111"/></g>
+          <g class="leg leg-r"><rect x="74" y="148" width="20" height="62" rx="6" fill="#2B2F3A"/><ellipse cx="87" cy="212" rx="15" ry="7" fill="#111"/></g>
+          <g class="arm arm-l">
+            <path d="M30 54Q19 92 23 128" stroke="#22407A" stroke-width="18" stroke-linecap="round" fill="none"/>
+            <g transform="translate(23 117) scale(1.45)"><g class="held held-trophy">${TROPHY_PATH}</g></g>
+            <circle cx="23" cy="132" r="8.5" fill="#E9B79A"/>
+          </g>
+          <g class="arm arm-r">
+            <path d="M110 54Q121 92 117 128" stroke="#22407A" stroke-width="18" stroke-linecap="round" fill="none"/>
+            <g transform="translate(121 122) scale(1.35)"><g class="held held-card">
+              <rect x="-17" y="-11" width="34" height="22" rx="3" fill="#D20F2E"/>
+              <image href="img/gimme-card.png" x="-21" y="-11" width="42" height="22" preserveAspectRatio="xMidYMid slice" clip-path="url(#cardclip)"/>
+            </g></g>
+            <circle cx="117" cy="132" r="8.5" fill="#E9B79A"/>
+          </g>
+          <path d="M27 46Q70 30 113 46L106 156Q70 164 34 156Z" fill="#22407A"/>
+          <path d="M56 37L70 92L84 37Z" fill="#BFD6F2"/>
+          <path d="M56 37L47 72L64 76ZM84 37L93 72L76 76Z" fill="#1A3466"/>
+          <circle cx="70" cy="112" r="2.6" fill="#0F1F40"/><circle cx="70" cy="132" r="2.6" fill="#0F1F40"/>
+        </svg>
+      </div>`;
+      return el;
+    }
+
+    const wait = (ms) => new Promise((res) => setTimeout(res, ms));
+    async function awardCeremony(podium, nTeams) {
+      const token = ++ceremonyToken, alive = () => token === ceremonyToken && podium.isConnected;
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const order = [2, 1, 0].filter((i) => i < nTeams); // 3rd, 2nd, then 1st
+      const stepOf = (i) => podium.querySelector(`.step.p${i + 1}`);
+      if (reduce) { order.forEach((i) => addPrizes(stepOf(i))); return; }
+      await wait(3600); if (!alive()) return;
+
+      const bob = bobbleEl(); podium.appendChild(bob);
+      const pw = podium.clientWidth, bw = bob.offsetWidth;
+      let x = pw + 40;
+      bob.style.transform = `translateX(${x}px)`;
+      const centerOf = (i) => { const r = stepOf(i).querySelector(".block").getBoundingClientRect(), pr = podium.getBoundingClientRect(); return r.left - pr.left + r.width / 2 - bw / 2; };
+
+      async function walkTo(x1) {
+        const dist = Math.abs(x1 - x), dur = Math.max(700, dist / 0.42); // ~420 px/s
+        bob.classList.add("walking"); bob.querySelector(".bb-inner").style.transform = `rotate(${x1 < x ? -4 : 4}deg)`;
+        const a = bob.animate([{ transform: `translateX(${x}px)` }, { transform: `translateX(${x1}px)` }], { duration: dur, easing: "ease-in-out", fill: "forwards" });
+        await a.finished.catch(() => {}); x = x1;
+        bob.style.transform = `translateX(${x}px)`; a.cancel();
+        bob.classList.remove("walking"); bob.querySelector(".bb-inner").style.transform = "";
+      }
+
+      for (const i of order) {
+        bob.classList.remove("empty");
+        await walkTo(centerOf(i)); if (!alive()) return;
+        await wait(250); bob.classList.add("giving"); await wait(450); if (!alive()) return;
+        await flyPrizes(bob, stepOf(i)); if (!alive()) return;
+        chime();
+        await wait(350); bob.classList.remove("giving"); await wait(300); if (!alive()) return;
+      }
+      bob.classList.add("cheer"); await wait(1700); if (!alive()) return;
+      bob.classList.remove("cheer");
+      await walkTo(-bw - 60); if (alive()) bob.remove();
+    }
+
+    // trophy + card leave the bobblehead's hands and land under the team's name
+    async function flyPrizes(bob, step) {
+      const who = step.querySelector(".who"), slot = who.querySelector(".prizes") || who.appendChild(Object.assign(document.createElement("div"), { className: "prizes" }));
+      const from = [bob.querySelector(".held-trophy").getBoundingClientRect(), bob.querySelector(".held-card").getBoundingClientRect()];
+      const dest = slot.getBoundingClientRect(), tw = Math.min(54, Math.max(34, innerWidth * 0.03)), cw = Math.min(108, Math.max(70, innerWidth * 0.06));
+      const targets = [{ x: dest.left + dest.width / 2 - tw - 5, y: dest.top, w: tw }, { x: dest.left + dest.width / 2 + 5, y: dest.top + 4, w: cw }];
+      bob.classList.add("empty");
+      const flights = [trophySvg(""), giftHtml()].map((html, k) => {
+        const f = document.createElement("div"); f.className = "fly"; f.innerHTML = html;
+        const inner = f.firstElementChild; inner.style.width = from[k].width + "px"; inner.style.height = from[k].height + "px"; inner.style.display = "block";
+        document.body.appendChild(f);
+        const s = targets[k].w / from[k].width, midY = Math.min(from[k].top, targets[k].y) - 80;
+        const a = f.animate([
+          { transform: `translate(${from[k].left}px, ${from[k].top}px) scale(1)` },
+          { transform: `translate(${(from[k].left + targets[k].x) / 2}px, ${midY}px) scale(${(1 + s) / 2}) rotate(${k ? 200 : -200}deg)`, offset: 0.5 },
+          { transform: `translate(${targets[k].x}px, ${targets[k].y}px) scale(${s}) rotate(${k ? 360 : -360}deg)` },
+        ], { duration: 900, easing: "cubic-bezier(.3,.6,.4,1)", fill: "forwards" });
+        return a.finished.catch(() => {}).then(() => f.remove());
+      });
+      await Promise.all(flights);
+      addPrizes(step);
+    }
+    function addPrizes(step) {
+      if (!step) return;
+      const who = step.querySelector(".who");
+      const slot = who.querySelector(".prizes") || who.appendChild(Object.assign(document.createElement("div"), { className: "prizes" }));
+      slot.innerHTML = trophySvg("trophy-big") + giftHtml();
+    }
+    function chime() {
+      if (!soundOn || !actx) return;
+      const t = actx.currentTime + 0.02;
+      [1318.5, 1568, 2093].forEach((f, i) => tone(t + i * 0.08, f, 0.35, "sine", 0.12));
+    }
+    $("podium-btn").addEventListener("click", showPodium);
+    $("podium-drawer").addEventListener("click", showPodium);
   </script>
 </body>
 
