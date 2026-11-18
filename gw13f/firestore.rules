@@ -1,0 +1,60 @@
+rules_version = '2';
+
+// GW13F leaderboard. Paste this into Firebase console > Firestore > Rules > Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // the course Google account(s) that may start/stop/create competitions
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ["mae3260mc@gmail.com"];
+    }
+
+    function control() {
+      return get(/databases/$(database)/documents/control/state).data;
+    }
+
+    // submissions are accepted only into the competition that is currently open
+    function isOpen(compId) {
+      return exists(/databases/$(database)/documents/control/state)
+        && control().active == true
+        && control().compId == compId;
+    }
+
+    function num(x, lo, hi) {
+      return x is number && x >= lo && x <= hi;
+    }
+
+    function validRun(d) {
+      return d.keys().hasOnly(["team", "steer", "Ki", "Kp", "Kd", "speed", "KiV", "KpV", "V", "time", "maxErr", "createdAt"])
+        && d.keys().hasAll(["team", "steer", "Ki", "Kp", "Kd", "speed", "KiV", "KpV", "V", "time", "maxErr", "createdAt"])
+        && d.team is string && d.team.size() >= 1 && d.team.size() <= 30
+        && d.steer in ["PID (internal fdbk)", "PID", "PD (internal fdbk)", "PD"]
+        && d.speed in ["P", "PI", "PI (internal fdbk)"]
+        && num(d.Ki, 0, 500000) && num(d.Kp, 0, 20000) && num(d.Kd, 0, 2000)
+        && num(d.KiV, 0, 100000) && num(d.KpV, 0, 20000)
+        && d.V is number && d.V > 0 && d.V <= 100
+        && num(d.time, 0, 10000) && num(d.maxErr, 0, 1000)
+        && d.createdAt == request.time;
+    }
+
+    // which competition students are submitting to, and whether it is open
+    match /control/state {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /competitions/{compId} {
+      allow read: if true;
+      allow write: if isAdmin();
+
+      match /runs/{runId} {
+        allow read: if true;
+        allow create: if isOpen(compId) && validRun(request.resource.data);
+        allow update: if false;
+        allow delete: if isAdmin();   // remove a team from the board
+      }
+    }
+  }
+}

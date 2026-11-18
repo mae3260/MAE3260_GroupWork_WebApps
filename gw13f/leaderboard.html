@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GW13F Leaderboard</title>
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0F1115;
+      --panel: #171A21;
+      --panel2: #1D212B;
+      --line: #282D3A;
+      --amber: #FFB454;
+      --cyan: #5EEAD4;
+      --rose: #FB7185;
+      --green: #34D399;
+      --fg: #E7E9EE;
+      --muted: #8B92A5;
+      --gold: #FFD166;
+      --silver: #C9D1D9;
+      --bronze: #E0915A;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      background: var(--ink);
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 28px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--amber);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      margin: 0;
+      font: 600 clamp(15px, 1.25vw, 22px) 'JetBrains Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    header h1 span {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .goto {
+      margin-left: auto;
+      font: 500 clamp(13px, 1.05vw, 18px) 'JetBrains Mono', monospace;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .goto b {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 32vw);
+      gap: 22px;
+      padding: 22px 28px;
+    }
+
+    .board {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .comp-line {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .comp-line h2 {
+      margin: 0;
+      font-size: clamp(26px, 2.6vw, 48px);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .pill {
+      font: 700 clamp(13px, 1.05vw, 18px) 'JetBrains Mono', monospace;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 2px solid var(--muted);
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .pill.live {
+      color: var(--green);
+      border-color: var(--green);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    .pill.closed {
+      color: var(--amber);
+      border-color: var(--amber);
+    }
+
+    @keyframes pulse {
+      50% {
+        box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.15);
+      }
+    }
+
+    .counts {
+      font: 500 clamp(13px, 1vw, 17px) 'JetBrains Mono', monospace;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .table-wrap {
+      min-height: 0;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+
+    .table-wrap.top3 {
+      flex-shrink: 0;
+    }
+
+    .table-wrap.feed {
+      flex: 1;
+    }
+
+    .feed-head {
+      font: 600 clamp(11px, 0.85vw, 15px) 'JetBrains Mono', monospace;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin: 20px 0 8px 2px;
+    }
+
+    .feed-head span {
+      font-weight: 400;
+      letter-spacing: 0;
+      margin-left: 8px;
+      opacity: 0.8;
+    }
+
+    .feed td {
+      padding: 8px 16px;
+    }
+
+    .feed .team {
+      font-size: clamp(15px, 1.25vw, 22px);
+      font-weight: 600;
+    }
+
+    .feed .time {
+      font-size: clamp(15px, 1.3vw, 23px);
+    }
+
+    .feed .disp {
+      font-size: clamp(13px, 1.05vw, 18px);
+    }
+
+    .when {
+      font: 400 clamp(12px, 0.9vw, 16px) 'JetBrains Mono', monospace;
+      color: var(--muted);
+      white-space: nowrap;
+      width: 1%;
+    }
+
+    .empty.small {
+      padding: 20px;
+      font-size: clamp(13px, 1vw, 17px);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: var(--panel2);
+      text-align: left;
+      font: 600 clamp(11px, 0.85vw, 15px) 'JetBrains Mono', monospace;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      z-index: 1;
+    }
+
+    th.num,
+    td.num {
+      text-align: right;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .rank {
+      font: 800 clamp(20px, 1.9vw, 34px) 'JetBrains Mono', monospace;
+      color: var(--muted);
+      width: 1%;
+      white-space: nowrap;
+    }
+
+    tr.r1 .rank {
+      color: var(--gold);
+    }
+
+    tr.r2 .rank {
+      color: var(--silver);
+    }
+
+    tr.r3 .rank {
+      color: var(--bronze);
+    }
+
+    tr.r1 td:first-child {
+      box-shadow: inset 5px 0 0 var(--gold);
+    }
+
+    tr.r2 td:first-child {
+      box-shadow: inset 5px 0 0 var(--silver);
+    }
+
+    tr.r3 td:first-child {
+      box-shadow: inset 5px 0 0 var(--bronze);
+    }
+
+    .team {
+      font-size: clamp(20px, 1.9vw, 34px);
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .time {
+      font: 700 clamp(22px, 2.1vw, 38px) 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .time small,
+    .disp small {
+      font-size: 0.5em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .disp {
+      font: 500 clamp(15px, 1.3vw, 23px) 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .ctl {
+      font: 400 clamp(11px, 0.85vw, 15px) 'JetBrains Mono', monospace;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .ctl b {
+      color: var(--fg);
+      font-weight: 600;
+    }
+
+    .runs {
+      font: 500 clamp(13px, 1vw, 17px) 'JetBrains Mono', monospace;
+      color: var(--muted);
+    }
+
+    tr.flash-new td {
+      animation: flashNew 2.4s ease-out;
+    }
+
+    tr.flash-up td {
+      animation: flashUp 2.4s ease-out;
+    }
+
+    @keyframes flashNew {
+      0% {
+        background: rgba(94, 234, 212, 0.35);
+      }
+
+      100% {
+        background: transparent;
+      }
+    }
+
+    @keyframes flashUp {
+      0% {
+        background: rgba(255, 209, 102, 0.35);
+      }
+
+      100% {
+        background: transparent;
+      }
+    }
+
+    .empty {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: clamp(16px, 1.4vw, 24px);
+    }
+
+    aside {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px 0;
+      font: 600 clamp(11px, 0.85vw, 15px) 'JetBrains Mono', monospace;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* ---------- current leader ---------- */
+    .leader-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 16px 12px 8px;
+      border-color: rgba(255, 209, 102, 0.45);
+      background: radial-gradient(120% 60% at 50% 0%, rgba(255, 209, 102, 0.14), transparent 70%), var(--panel);
+    }
+
+    .leader-head {
+      text-align: center;
+      padding: 2px 6px 10px;
+    }
+
+    .leader-kicker {
+      font: 700 clamp(12px, 0.95vw, 17px) 'JetBrains Mono', monospace;
+      letter-spacing: 0.22em;
+      color: var(--gold);
+    }
+
+    .leader-name {
+      margin-top: 4px;
+      font: 800 clamp(30px, 3.4vw, 64px) 'Inter', sans-serif;
+      line-height: 1.1;
+      word-break: break-word;
+      background: linear-gradient(100deg, #FFB454 0%, #FFE8A3 25%, #FFD166 50%, #FFF4D1 70%, #FFB454 100%);
+      background-size: 250% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 18px rgba(255, 209, 102, 0.35));
+      animation: shimmer 4s linear infinite;
+    }
+
+    .leader-name.empty-name {
+      background: none;
+      color: var(--muted);
+      filter: none;
+      animation: none;
+      font-size: clamp(20px, 1.8vw, 32px);
+    }
+
+    .leader-name.crowned {
+      animation: shimmer 4s linear infinite, crown 1.2s cubic-bezier(.2, 1.6, .4, 1);
+    }
+
+    .leader-time {
+      margin-top: 6px;
+      font: 600 clamp(15px, 1.3vw, 24px) 'JetBrains Mono', monospace;
+      color: var(--fg);
+      min-height: 1.2em;
+    }
+
+    @keyframes shimmer {
+      to {
+        background-position: -250% 0;
+      }
+    }
+
+    @keyframes crown {
+      0% {
+        transform: scale(0.4);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* ---------- new-record celebration ---------- */
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .confetti-layer img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      will-change: transform;
+    }
+
+    .record-toast {
+      position: fixed;
+      left: 50%;
+      top: 38%;
+      transform: translate(-50%, -50%);
+      z-index: 60;
+      pointer-events: none;
+      text-align: center;
+      padding: 26px 48px;
+      border-radius: 20px;
+      background: rgba(15, 17, 21, 0.9);
+      border: 3px solid var(--gold);
+      box-shadow: 0 0 60px rgba(255, 209, 102, 0.45);
+      animation: toast 6s ease forwards;
+    }
+
+    .record-toast .k {
+      font: 800 clamp(22px, 2.4vw, 44px) 'JetBrains Mono', monospace;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+    }
+
+    .record-toast .n {
+      font: 800 clamp(36px, 4.6vw, 88px) 'Inter', sans-serif;
+      color: var(--fg);
+      margin-top: 6px;
+      word-break: break-word;
+    }
+
+    .record-toast .t {
+      font: 600 clamp(18px, 1.8vw, 32px) 'JetBrains Mono', monospace;
+      color: var(--cyan);
+      margin-top: 6px;
+    }
+
+    @keyframes toast {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+
+      10% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.06);
+      }
+
+      16% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      82% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.96);
+      }
+    }
+
+    .sound {
+      position: fixed;
+      right: 62px;
+      bottom: 14px;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      font: 600 12px 'JetBrains Mono', monospace;
+      cursor: pointer;
+      opacity: 0.7;
+      z-index: 20;
+    }
+
+    .sound.on {
+      opacity: 0.45;
+    }
+
+    .sound:hover {
+      opacity: 1;
+    }
+
+    #bird {
+      flex: 1;
+      min-height: 240px;
+    }
+
+    .rules ol {
+      margin: 0;
+      padding-left: 22px;
+      font-size: clamp(13px, 1vw, 18px);
+      line-height: 1.55;
+    }
+
+    .rules p {
+      margin: 8px 0 0 0;
+      font-size: clamp(12px, 0.9vw, 16px);
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .latest {
+      font: 500 clamp(13px, 1vw, 17px) 'JetBrains Mono', monospace;
+      color: var(--fg);
+      min-height: 1.4em;
+    }
+
+    /* ---------- control drawer ---------- */
+    .gear {
+      position: fixed;
+      right: 14px;
+      bottom: 14px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      opacity: 0.55;
+      z-index: 20;
+    }
+
+    .gear:hover {
+      opacity: 1;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: min(400px, 100%);
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      padding: 20px;
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform 0.2s ease;
+      z-index: 30;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .drawer.open {
+      transform: none;
+    }
+
+    .drawer h2 {
+      margin: 0 0 16px 0;
+      font: 600 14px 'JetBrains Mono', monospace;
+      letter-spacing: 0.08em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .drawer h4 {
+      margin: 22px 0 8px 0;
+      font: 600 11px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .drawer p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 6px 0;
+    }
+
+    .drawer label {
+      display: block;
+      font-size: 13px;
+      margin: 10px 0 6px 0;
+    }
+
+    .drawer input,
+    .drawer select {
+      width: 100%;
+      background: var(--ink);
+      color: var(--fg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: 14px 'Inter', sans-serif;
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel2);
+      color: var(--fg);
+      font: 600 13px 'JetBrains Mono', monospace;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn.go {
+      background: var(--green);
+      color: #0F1115;
+      border-color: var(--green);
+    }
+
+    .btn.stop {
+      background: var(--rose);
+      color: #0F1115;
+      border-color: var(--rose);
+    }
+
+    .btn.x {
+      width: auto;
+      margin: 0;
+      padding: 4px 10px;
+    }
+
+    .msg {
+      font: 12px 'JetBrains Mono', monospace;
+      min-height: 16px;
+      margin-top: 8px;
+      color: var(--muted);
+    }
+
+    .msg.err {
+      color: var(--rose);
+    }
+
+    @media (max-width: 900px) {
+      body {
+        height: auto;
+        overflow: auto;
+      }
+
+      header {
+        flex-wrap: wrap;
+        padding: 12px 16px;
+      }
+
+      .goto {
+        margin-left: 0;
+        text-align: left;
+      }
+
+      main {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      #bird {
+        min-height: 320px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="dot"></div>
+    <h1>GW13F LEADERBOARD <span>&mdash; Self-Driving Car: Lane and Speed Control</span></h1>
+    <div class="goto">Run your car at <b id="student-url"></b></div>
+  </header>
+
+  <main>
+    <section class="board">
+      <div class="comp-line">
+        <h2 id="comp-label">Connecting…</h2>
+        <span class="pill" id="pill">&mdash;</span>
+        <span class="counts" id="counts"></span>
+      </div>
+      <div class="table-wrap top3">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>TEAM</th>
+              <th class="num">TIME</th>
+              <th class="num">MAX DISP.</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="empty" id="empty" hidden></div>
+      </div>
+      <div class="feed-head">ALL RUNS <span>newest first</span></div>
+      <div class="table-wrap feed">
+        <table>
+          <thead>
+            <tr>
+              <th>SUBMITTED</th>
+              <th>TEAM</th>
+              <th class="num">TIME</th>
+              <th class="num">MAX DISP.</th>
+            </tr>
+          </thead>
+          <tbody id="feed"></tbody>
+        </table>
+        <div class="empty small" id="feed-empty" hidden>No runs yet.</div>
+      </div>
+    </section>
+
+    <aside>
+      <div class="card leader-card">
+        <div class="leader-head">
+          <div class="leader-kicker">🏆 CURRENT LEADER 🏆</div>
+          <div class="leader-name empty-name" id="leader-name">No leader yet</div>
+          <div class="leader-time" id="leader-time"></div>
+        </div>
+        <div id="bird"></div>
+      </div>
+      <div class="card rules">
+        <h3>HOW IT'S RANKED</h3>
+        <ol>
+          <li>Fastest time to finish</li>
+          <li>Smaller max displacement from the lane center</li>
+          <li>Earlier submission</li>
+        </ol>
+      </div>
+    </aside>
+  </main>
+
+  <button class="sound" id="sound" type="button">🔇 CLICK TO ENABLE SOUND</button>
+  <button class="gear" id="gear" type="button" title="Competition controls">&#9881;</button>
+  <div class="confetti-layer" id="confetti"></div>
+  <div class="drawer" id="drawer">
+    <h2>COMPETITION CONTROLS <button class="btn x" id="close" type="button">&#10005;</button></h2>
+
+    <h4>CELEBRATION</h4>
+    <p>Confetti and a sound play whenever a run beats the current best. Sound only works after the SOUND button
+      (bottom right) has been clicked once.</p>
+    <button class="btn" id="test-celebrate" type="button">TEST CELEBRATION</button>
+
+    <h4>BOARD</h4>
+    <label for="view-sel">Which competition should the board show?</label>
+    <select id="view-sel"></select>
+
+    <h4>ACCOUNT</h4>
+    <div id="acct"></div>
+
+    <div id="admin" hidden>
+      <h4>CURRENT COMPETITION</h4>
+      <p id="cur-desc"></p>
+      <button class="btn go" id="start" type="button">&#9654; START COMPETITION</button>
+      <button class="btn stop" id="stop" type="button">&#9632; STOP COMPETITION</button>
+
+      <h4>NEW COMPETITION</h4>
+      <label for="new-label">Name of the new competition (for example, Section 1)</label>
+      <input type="text" id="new-label" maxlength="40" spellcheck="false" autocomplete="off" />
+      <p>Creating a new competition closes the current one and starts an empty board. Press START when you're
+        ready. Past competitions keep their results and can be shown again from the list above.</p>
+      <button class="btn" id="create" type="button">CREATE NEW COMPETITION</button>
+
+      <h4>DELETE A PAST COMPETITION</h4>
+      <label for="del-sel">Which past competition should be deleted?</label>
+      <select id="del-sel"></select>
+      <p>This permanently deletes the competition and all of its runs, and can't be undone. The current competition
+        can't be deleted.</p>
+      <button class="btn stop" id="delete" type="button">DELETE COMPETITION</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <script src="sim.js"></script>
+  <script type="module">
+    import { app, db, fs, ADMIN_EMAILS } from "./firebase.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+
+    const { doc, collection, onSnapshot, setDoc, getDocs, writeBatch, serverTimestamp } = fs;
+    const S = window.GW13FSim;
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+    $("student-url").textContent = location.host + location.pathname.replace(/leaderboard\.html$/, "");
+
+    // ------------------------------------------------------------------
+    // State
+    // ------------------------------------------------------------------
+    let ctl = null;            // control/state
+    let comps = [];            // [{id, label, createdAt}]
+    let pinned = null;         // compId chosen in the drawer, or null = follow the current competition
+    let viewId = null, unsubRuns = null;
+    let runs = new Map();      // docId -> {id, team, key, p, at, res}
+    let user = null, settled = false, prevRanks = null, seen = new Set();
+    const resCache = new Map(), pathCache = new Map();
+
+    const isAdmin = () => !!(user && ADMIN_EMAILS.includes(user.email));
+    const pkey = (p) => [p.steer, p.Ki, p.Kp, p.Kd, p.speed, p.KiV, p.KpV, p.V].join("|");
+    const paramsOf = (d) => ({ steer: d.steer, Ki: +d.Ki, Kp: +d.Kp, Kd: +d.Kd, speed: d.speed, KiV: +d.KiV, KpV: +d.KpV, V: +d.V });
+
+    // re-simulate a submitted run (the submitted time is ignored)
+    function evalRun(p) {
+      const k = pkey(p);
+      if (resCache.has(k)) return resCache.get(k);
+      let res;
+      try {
+        const r = S.simulate(p), v = S.checkRun(p, r);
+        res = v.ok ? { ok: true, time: r.timeFinish, maxErr: r.maxErr } : { ok: false, reason: v.reason };
+      } catch (e) { res = { ok: false, reason: String(e) }; }
+      resCache.set(k, res);
+      return res;
+    }
+    // fastest time, then smaller max displacement, then earlier submission
+    const cmp = (a, b) => (a.res.time - b.res.time) || (a.res.maxErr - b.res.maxErr) || (a.at - b.at);
+
+    // ------------------------------------------------------------------
+    // Firestore listeners
+    // ------------------------------------------------------------------
+    onSnapshot(doc(db, "control", "state"), (snap) => {
+      ctl = snap.exists() ? snap.data() : null;
+      pickView(); renderHeader(); renderAdmin();
+    }, (e) => showErr("Could not read the competition state: " + e.message));
+
+    onSnapshot(collection(db, "competitions"), (snap) => {
+      comps = snap.docs.map((d) => ({ id: d.id, label: d.get("label") || d.id, createdAt: d.get("createdAt") ? d.get("createdAt").toMillis() : Date.now() }))
+        .sort((a, b) => b.createdAt - a.createdAt);
+      renderViewSel(); renderHeader();
+    }, (e) => showErr("Could not read the competition list: " + e.message));
+
+    function pickView() {
+      const want = pinned || (ctl && ctl.compId) || null;
+      if (want === viewId) return;
+      viewId = want;
+      if (unsubRuns) { unsubRuns(); unsubRuns = null; }
+      runs = new Map(); settled = false; prevRanks = null; seen = new Set(); prevBest = null;
+      render();
+      if (!viewId) return;
+      unsubRuns = onSnapshot(collection(db, "competitions", viewId, "runs"), (snap) => {
+        snap.docChanges().forEach((ch) => {
+          if (ch.type === "removed") { runs.delete(ch.doc.id); return; }
+          const d = ch.doc.data(), team = S.cleanTeam(d.team);
+          runs.set(ch.doc.id, { id: ch.doc.id, team, key: S.teamKey(team), p: paramsOf(d), at: d.createdAt ? d.createdAt.toMillis() : Date.now(), res: null });
+        });
+        pump();
+      }, (e) => showErr("Could not read the runs: " + e.message));
+    }
+
+    // re-simulate pending runs in short slices so the page stays responsive
+    let pumping = false;
+    function pump() {
+      if (pumping) return; pumping = true;
+      const t0 = performance.now();
+      for (const r of runs.values()) {
+        if (r.res) continue;
+        r.res = evalRun(r.p);
+        if (r.res && !r.res.ok) console.warn("Run rejected on re-simulation:", r.team, r.res.reason);
+        if (performance.now() - t0 > 40) { pumping = false; setTimeout(pump, 0); return; }
+      }
+      pumping = false; render(); settled = true;
+    }
+
+    // ------------------------------------------------------------------
+    // Rendering
+    // ------------------------------------------------------------------
+    function standings() {
+      const teams = new Map(); let nValid = 0;
+      for (const r of runs.values()) {
+        if (!r.res || !r.res.ok) continue;
+        nValid++;
+        const t = teams.get(r.key);
+        if (!t) teams.set(r.key, { key: r.key, best: r, count: 1 });
+        else { t.count++; if (cmp(r, t.best) < 0) t.best = r; }
+      }
+      const list = [...teams.values()].sort((a, b) => cmp(a.best, b.best));
+      return { list, nValid };
+    }
+
+    function render() {
+      const { list } = standings();
+      const ranks = new Map(list.map((t, i) => [t.key, i + 1]));
+      // top 3 teams (each team's best run)
+      $("rows").innerHTML = list.slice(0, 3).map((t, i) => {
+        const r = t.best, rank = i + 1, prev = prevRanks ? prevRanks.get(t.key) : undefined;
+        let cls = `r${rank}`;
+        if (settled && prevRanks && (prev === undefined || rank < prev)) cls += prev === undefined ? " flash-new" : " flash-up";
+        return `<tr class="${cls}">
+          <td class="rank">${rank}</td>
+          <td class="team">${esc(r.team)}</td>
+          <td class="time num">${r.res.time.toFixed(3)}<small> s</small></td>
+          <td class="disp num">${r.res.maxErr.toFixed(3)}<small> m</small></td>
+        </tr>`;
+      }).join("");
+      // every valid run, newest first
+      const all = [...runs.values()].filter((r) => r.res && r.res.ok).sort((a, b) => b.at - a.at).slice(0, 300);
+      $("feed").innerHTML = all.map((r) => {
+        const isNew = settled && !seen.has(r.id);
+        return `<tr class="${isNew ? "flash-new" : ""}">
+          <td class="when">${new Date(r.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" })}</td>
+          <td class="team">${esc(r.team)}</td>
+          <td class="time num">${r.res.time.toFixed(3)}<small> s</small></td>
+          <td class="disp num">${r.res.maxErr.toFixed(3)}<small> m</small></td>
+        </tr>`;
+      }).join("");
+      all.forEach((r) => seen.add(r.id));
+      $("feed-empty").hidden = all.length > 0;
+      prevRanks = ranks; // rows only flash once the first full load has finished (settled)
+      const empty = $("empty");
+      empty.hidden = list.length > 0;
+      empty.textContent = !viewId ? "No competition yet. Open the controls (⚙ bottom right) to create one."
+        : (ctl && ctl.compId === viewId && ctl.active) ? "Waiting for the first finished run…" : "No runs on this board.";
+      $("counts").textContent = list.length ? `${list.length} team${list.length === 1 ? "" : "s"}` : "";
+      renderLeader(list.length ? list[0].best : null);
+      renderPaths(list.slice(0, 1));
+    }
+
+    // current leader banner + celebration when a run beats the current best
+    let prevBest = null;
+    function renderLeader(best) {
+      const nameEl = $("leader-name"), timeEl = $("leader-time");
+      const beaten = settled && best && prevBest && best.id !== prevBest.id && cmp(best, prevBest) < 0;
+      if (!best) { nameEl.textContent = "No leader yet"; nameEl.className = "leader-name empty-name"; timeEl.textContent = ""; }
+      else {
+        nameEl.textContent = best.team;
+        timeEl.textContent = `${best.res.time.toFixed(3)} s · ${best.res.maxErr.toFixed(3)} m`;
+        if (!prevBest || best.id !== prevBest.id) {
+          nameEl.className = "leader-name"; void nameEl.offsetWidth; // restart the pop-in animation
+          nameEl.className = settled ? "leader-name crowned" : "leader-name";
+        }
+      }
+      if (beaten) celebrate(best);
+      prevBest = best;
+    }
+
+    function renderHeader() {
+      const live = ctl && viewId && ctl.compId === viewId;
+      const c = comps.find((x) => x.id === viewId);
+      $("comp-label").textContent = viewId ? (c ? c.label : (live ? ctl.label : "")) || "Competition" : "No competition yet";
+      const pill = $("pill");
+      pill.className = "pill";
+      if (!viewId) { pill.textContent = "—"; }
+      else if (live && ctl.active) { pill.classList.add("live"); pill.textContent = "● LIVE"; }
+      else if (live) { pill.classList.add("closed"); pill.textContent = "CLOSED"; }
+      else { pill.textContent = "PAST COMPETITION"; }
+    }
+
+    // birds-eye view of the leader's path
+    const MEDAL = ["#FFD166", "#C9D1D9", "#E0915A"];
+    let road = null, lastPathSig = null;
+    function stride(x, y, maxN) { const n = x.length; if (n <= maxN) return { x: Array.from(x), y: Array.from(y) }; const s = (n - 1) / (maxN - 1), ox = [], oy = []; for (let i = 0; i < maxN; i++) { const j = Math.round(i * s); ox.push(x[j]); oy.push(y[j]); } return { x: ox, y: oy }; }
+    function pathOf(p) {
+      const k = pkey(p);
+      if (!pathCache.has(k)) { const r = S.simulate(p); pathCache.set(k, stride(r.X.subarray(0, r.n), r.Y.subarray(0, r.n), 1500)); }
+      return pathCache.get(k);
+    }
+    function renderPaths(top) {
+      const sig = top.map((t) => t.key + "@" + pkey(t.best.p) + "@" + t.best.team).join(";");
+      if (sig === lastPathSig) return; lastPathSig = sig;
+      if (!road) {
+        const rd = S.setupRoad(10);
+        road = { l: stride(rd.lx, rd.ly, 1500), r: stride(rd.rx, rd.ry, 1500), c: stride(rd.cx, rd.cy, 1500) };
+      }
+      const data = [
+        { x: road.l.x, y: road.l.y, mode: "lines", line: { color: "#cfd3da", width: 2 }, name: "Side of road", showlegend: false, hoverinfo: "skip" },
+        { x: road.r.x, y: road.r.y, mode: "lines", line: { color: "#cfd3da", width: 2 }, showlegend: false, hoverinfo: "skip" },
+        { x: road.c.x, y: road.c.y, mode: "lines", line: { color: "#F472B6", width: 1.5, dash: "dot" }, name: "Center of lane", hoverinfo: "skip" },
+      ];
+      top.slice().reverse().forEach((t) => {
+        const i = top.indexOf(t), q = pathOf(t.best.p);
+        data.push({ x: q.x, y: q.y, mode: "lines", line: { color: MEDAL[i], width: 3 }, name: `${i + 1}. ${t.best.team}`, hoverinfo: "skip" });
+      });
+      const layout = {
+        paper_bgcolor: "#171A21", plot_bgcolor: "#171A21", font: { color: "#cfd3da", family: "Inter, sans-serif", size: 12 },
+        margin: { l: 44, r: 10, t: 8, b: 36 }, hovermode: false,
+        xaxis: { range: [-5, 65], gridcolor: "#282D3A", zeroline: false, constrain: "domain", title: { text: "East (m)" } },
+        yaxis: { range: [-10, 70], gridcolor: "#282D3A", zeroline: false, scaleanchor: "x", scaleratio: 1, constrain: "domain", title: { text: "North (m)" } },
+        legend: { orientation: "h", y: -0.14, font: { size: 13 } },
+      };
+      Plotly.react("bird", data, layout, { displayModeBar: false, responsive: true, staticPlot: true });
+    }
+
+    // ------------------------------------------------------------------
+    // Drawer, auth and admin actions
+    // ------------------------------------------------------------------
+    $("gear").addEventListener("click", () => $("drawer").classList.add("open"));
+    $("close").addEventListener("click", () => $("drawer").classList.remove("open"));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("drawer").classList.remove("open"); });
+
+    function showErr(t) { const m = $("msg"); m.textContent = t; m.className = "msg err"; }
+    function showMsg(t) { const m = $("msg"); m.textContent = t; m.className = "msg"; }
+
+    function renderViewSel() {
+      const sel = $("view-sel");
+      sel.innerHTML = `<option value="">Current competition (follows START / NEW)</option>` +
+        comps.map((c) => `<option value="${esc(c.id)}">${esc(c.label)} · ${new Date(c.createdAt).toLocaleDateString()}</option>`).join("");
+      sel.value = pinned || "";
+      renderDeleteSel();
+    }
+    // past competitions only: never the one students are submitting to
+    function renderDeleteSel() {
+      const sel = $("del-sel"), keep = sel.value, cur = ctl && ctl.compId;
+      const past = comps.filter((c) => c.id !== cur);
+      sel.innerHTML = past.length
+        ? past.map((c) => `<option value="${esc(c.id)}">${esc(c.label)} · ${new Date(c.createdAt).toLocaleDateString()}</option>`).join("")
+        : `<option value="">No past competitions</option>`;
+      if (past.some((c) => c.id === keep)) sel.value = keep;
+      $("delete").disabled = !past.length;
+    }
+    $("delete").addEventListener("click", async () => {
+      const id = $("del-sel").value, c = comps.find((x) => x.id === id);
+      if (!id || !c || !isAdmin()) return;
+      if (ctl && ctl.compId === id) { showErr("The current competition can't be deleted."); return; }
+      if (!confirm(`Permanently delete "${c.label}" and all of its runs?\n\nThis can't be undone.`)) return;
+      const btn = $("delete"); btn.disabled = true; showMsg(`Deleting "${c.label}"…`);
+      try {
+        // Firestore doesn't delete subcollections automatically: remove the runs first, then the competition
+        const snap = await getDocs(collection(db, "competitions", id, "runs")), refs = snap.docs.map((d) => d.ref);
+        for (let i = 0; i < refs.length; i += 450) { const b = writeBatch(db); refs.slice(i, i + 450).forEach((r) => b.delete(r)); await b.commit(); }
+        const b = writeBatch(db); b.delete(doc(db, "competitions", id)); await b.commit();
+        if (pinned === id) { pinned = null; pickView(); renderHeader(); }
+        showMsg(`Deleted "${c.label}" (${refs.length} run${refs.length === 1 ? "" : "s"}).`);
+      } catch (e) { showErr("Could not delete: " + e.message); }
+      finally { renderDeleteSel(); }
+    });
+    $("view-sel").addEventListener("change", (e) => { pinned = e.target.value || null; pickView(); renderHeader(); });
+
+    const auth = getAuth(app);
+    onAuthStateChanged(auth, (u) => { user = u; renderAdmin(); render(); });
+
+    function renderAdmin() {
+      const acct = $("acct");
+      if (!user) {
+        acct.innerHTML = `<p>Sign in with the course Google account to start and stop competitions.</p><button class="btn" id="signin" type="button">SIGN IN WITH GOOGLE</button>`;
+        $("signin").onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch((e) => showErr("Sign-in failed: " + e.message));
+      } else {
+        acct.innerHTML = `<p>Signed in as <b style="color:var(--fg)">${esc(user.email)}</b>${isAdmin() ? "" : ". This account can't control the competition."}</p><button class="btn" id="signout" type="button">SIGN OUT</button>`;
+        $("signout").onclick = () => signOut(auth);
+      }
+      $("admin").hidden = !isAdmin();
+      if (!isAdmin()) return;
+      const has = !!(ctl && ctl.compId);
+      $("cur-desc").innerHTML = has ? `<b style="color:var(--fg)">${esc(ctl.label || "Competition")}</b>: ${ctl.active ? '<span style="color:var(--green)">LIVE, accepting runs</span>' : '<span style="color:var(--amber)">closed</span>'}` : "No competition yet. Create one below.";
+      $("start").disabled = !has || ctl.active;
+      $("stop").disabled = !has || !ctl.active;
+      renderDeleteSel();
+    }
+
+    async function setActive(active) {
+      try {
+        await setDoc(doc(db, "control", "state"), { active, updatedAt: serverTimestamp() }, { merge: true });
+        showMsg(active ? "Competition started." : "Competition stopped.");
+      } catch (e) { showErr("Could not update: " + e.message); }
+    }
+    $("start").addEventListener("click", () => setActive(true));
+    $("stop").addEventListener("click", () => setActive(false));
+
+    $("create").addEventListener("click", async () => {
+      const label = $("new-label").value.replace(/\s+/g, " ").trim();
+      if (!label) { showErr("Enter a name for the new competition first."); $("new-label").focus(); return; }
+      if (!confirm(`Create "${label}"? The current competition closes, and the board switches to the new, empty one.`)) return;
+      try {
+        const ref = doc(collection(db, "competitions")), b = writeBatch(db);
+        b.set(ref, { label, createdAt: serverTimestamp() });
+        b.set(doc(db, "control", "state"), { active: false, compId: ref.id, label, updatedAt: serverTimestamp() });
+        await b.commit();
+        pinned = null; renderViewSel(); $("new-label").value = "";
+        showMsg(`Created "${label}". Press START COMPETITION when you're ready.`);
+      } catch (e) { showErr("Could not create: " + e.message); }
+    });
+
+
+    // ------------------------------------------------------------------
+    // Celebration: confetti of tiny Bode plots and block diagrams + fanfare
+    // ------------------------------------------------------------------
+    const PAPER = ["#FFD166", "#5EEAD4", "#F472B6", "#34D399", "#FFB454", "#7AA7FF", "#FB7185", "#C9B6FF"];
+    const INK = "#0F1115";
+    const svgUrl = (s) => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
+    // Bode plot: magnitude (flat, then rolling off) over phase (dropping to -180)
+    const bodeSvg = (bg) => svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+      <rect x="1" y="1" width="46" height="46" rx="6" fill="${bg}"/>
+      <g fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 6v18h34M8 27v16h34" stroke-width="1.2" opacity="0.65"/>
+        <path d="M8 10h12c5 0 8 3 11 7s6 6 11 7" stroke-width="2.4"/>
+        <path d="M8 30h9c4 0 6 2 9 6s6 5 16 5" stroke-width="2.4"/>
+      </g></svg>`);
+    // block diagram: summing junction -> C -> G -> out, with unity feedback
+    const blockSvg = (bg) => svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 40">
+      <rect x="1" y="1" width="62" height="38" rx="6" fill="${bg}"/>
+      <g fill="none" stroke="${INK}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 15h5"/><circle cx="11" cy="15" r="3.4"/><path d="M14.4 15h4"/>
+        <rect x="18.5" y="9" width="12" height="12" rx="1.5"/><path d="M30.5 15h4"/>
+        <rect x="34.5" y="9" width="12" height="12" rx="1.5"/><path d="M46.5 15h14M55 15v16H11v-12.6"/>
+        <path d="M58 12.5l2.6 2.5-2.6 2.5M8.5 21.6l2.5-2.6 2.5 2.6" stroke-width="1.5"/>
+      </g>
+      <g font-family="Arial, sans-serif" font-weight="700" font-size="8" fill="${INK}" text-anchor="middle">
+        <text x="24.5" y="18">C</text><text x="40.5" y="18">G</text>
+      </g></svg>`);
+    const PIECES = PAPER.flatMap((c) => [{ src: bodeSvg(c), w: 1, h: 1 }, { src: blockSvg(c), w: 1.6, h: 1 }]);
+    PIECES.forEach((p) => { const im = new Image(); im.src = p.src; }); // decode ahead of time
+
+    function confetti(count) {
+      const layer = $("confetti"), W = innerWidth, H = innerHeight;
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const n = reduce ? Math.round(count / 4) : count;
+      for (let i = 0; i < n; i++) {
+        const p = PIECES[(Math.random() * PIECES.length) | 0], base = 24 + Math.random() * 22;
+        const img = document.createElement("img");
+        img.src = p.src; img.alt = ""; img.width = Math.round(base * p.w); img.height = Math.round(base * p.h);
+        layer.appendChild(img);
+        const x0 = -0.05 * W + Math.random() * 1.1 * W, drift = (Math.random() - 0.5) * 380, r0 = Math.random() * 360, spin = (Math.random() - 0.5) * 720;
+        const flip = 360 * (1 + Math.random() * 2), dur = 7000 + Math.random() * 4500, delay = Math.random() * 4500;
+        const anim = img.animate([
+          { transform: `translate(${x0}px, -60px) rotate(${r0}deg) rotateX(0deg)` },
+          { transform: `translate(${x0 + drift * 0.6}px, ${H * 0.5}px) rotate(${r0 + spin * 0.5}deg) rotateX(${flip / 2}deg)`, offset: 0.5 },
+          { transform: `translate(${x0 + drift}px, ${H + 60}px) rotate(${r0 + spin}deg) rotateX(${flip}deg)` },
+        ], { duration: dur, delay, easing: "cubic-bezier(.25,.4,.55,1)", fill: "backwards" });
+        anim.onfinish = () => img.remove();
+      }
+    }
+
+    // sound: synthesized with Web Audio (browsers only allow it after a click on the page)
+    let actx = null, soundOn = false;
+    const soundBtn = $("sound");
+    function setSoundBtn() { soundBtn.textContent = soundOn ? "🔊 SOUND ON" : "🔇 CLICK TO ENABLE SOUND"; soundBtn.classList.toggle("on", soundOn); }
+    soundBtn.addEventListener("click", () => {
+      if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; } }
+      if (!actx) { soundBtn.textContent = "SOUND NOT SUPPORTED"; return; }
+      soundOn = !soundOn; if (soundOn) { actx.resume(); fanfare(0.5); }
+      setSoundBtn();
+    });
+    function tone(t, freq, len, type, vol) {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      o.connect(g).connect(actx.destination); o.start(t); o.stop(t + len + 0.05);
+    }
+    function fanfare(scale = 1) {
+      if (!soundOn || !actx) return;
+      const t = actx.currentTime + 0.05, v = 0.18 * scale;
+      // da-da-da DAAA (G4 C5 E5 G5 ... C6 chord)
+      [[0, 392], [0.12, 523.25], [0.24, 659.25], [0.36, 783.99]].forEach(([dt, f]) => { tone(t + dt, f, 0.16, "square", v * 0.55); tone(t + dt, f, 0.18, "triangle", v); });
+      [1046.5, 783.99, 659.25, 523.25].forEach((f) => { tone(t + 0.52, f, 1.1, "triangle", v * 0.8); tone(t + 0.52, f * 1.005, 1.1, "sawtooth", v * 0.12); });
+      // little sparkle on top
+      for (let i = 0; i < 6; i++) tone(t + 0.6 + i * 0.07, 1568 + i * 180, 0.12, "sine", v * 0.35);
+    }
+
+    function celebrate(best) {
+      confetti(190);
+      fanfare();
+      const toast = document.createElement("div");
+      toast.className = "record-toast";
+      toast.innerHTML = `<div class="k">🎉 NEW RECORD 🎉</div><div class="n">${esc(best.team)}</div><div class="t">${best.res.time.toFixed(3)} s</div>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 6100);
+    }
+    $("test-celebrate").addEventListener("click", () => {
+      $("drawer").classList.remove("open");
+      celebrate(prevBest || { team: "Test Team", res: { time: 1.234 } });
+    });
+  </script>
+</body>
+
+</html>
