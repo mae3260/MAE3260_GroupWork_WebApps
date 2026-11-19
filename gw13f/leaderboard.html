@@ -785,8 +785,61 @@
       transform: rotate(-160deg);
     }
 
-    .bobble.empty .held {
+    .bobble.empty-trophy .held-trophy,
+    .bobble.empty-card .held-card {
       opacity: 0;
+    }
+
+    .drawer .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 12px 0 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .switch-row input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+    }
+
+    .switch {
+      flex-shrink: 0;
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: var(--line);
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--fg);
+      transition: transform 0.2s;
+    }
+
+    .switch-row input:checked+.switch {
+      background: var(--green);
+    }
+
+    .switch-row input:checked+.switch::after {
+      transform: translateX(20px);
+    }
+
+    .switch-row input:focus-visible+.switch {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
     }
 
     .held {
@@ -1300,6 +1353,12 @@
     <h4>PODIUM</h4>
     <p>Shows the top three teams of the competition on the board. Once a competition is stopped, a SHOW PODIUM button
       also appears at the bottom of the page.</p>
+    <label class="switch-row" for="bobble-on">
+      <span>Bobblehead presents the prizes</span>
+      <input type="checkbox" id="bobble-on" checked />
+      <span class="switch" aria-hidden="true"></span>
+    </label>
+    <p>When this is off, the podium shows the top three teams without the bobblehead, trophies or gift card.</p>
     <button class="btn" id="podium-drawer" type="button">🏆 SHOW PODIUM</button>
 
     <h4>BOARD</h4>
@@ -1796,8 +1855,11 @@
       document.body.appendChild(el);
       renderPodiumBtn();
       podiumTimers.push(setTimeout(() => { confetti(190); fanfare(); }, (reveal[0] + 0.7) * 1000));
-      awardCeremony(el, top.length);
+      if ($("bobble-on").checked) awardCeremony(el, top.length);
     }
+    // remember the bobblehead switch on this computer
+    try { const v = localStorage.getItem("gw13f_bobble_on"); if (v !== null) $("bobble-on").checked = v === "1"; } catch (e) { /* storage blocked */ }
+    $("bobble-on").addEventListener("change", (e) => { try { localStorage.setItem("gw13f_bobble_on", e.target.checked ? "1" : "0"); } catch (err) { /* storage blocked */ } });
 
     // ------------------------------------------------------------------
     // Bobblehead walks up to 3rd, 2nd, then 1st and hands each a trophy and a gimme! gift card
@@ -1849,7 +1911,7 @@
       const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
       const order = [2, 1, 0].filter((i) => i < nTeams); // 3rd, 2nd, then 1st
       const stepOf = (i) => podium.querySelector(`.step.p${i + 1}`);
-      if (reduce) { order.forEach((i) => addPrizes(stepOf(i))); return; }
+      if (reduce) { order.forEach((i) => addPrizes(stepOf(i), i === 0)); return; }
       await wait(3600); if (!alive()) return;
 
       const bob = bobbleEl(); podium.appendChild(bob);
@@ -1868,10 +1930,10 @@
       }
 
       for (const i of order) {
-        bob.classList.remove("empty");
+        bob.classList.remove("empty-trophy"); // picks up another trophy; the gift card stays in hand until 1st place
         await walkTo(centerOf(i)); if (!alive()) return;
         await wait(250); bob.classList.add("giving"); await wait(450); if (!alive()) return;
-        await flyPrizes(bob, stepOf(i)); if (!alive()) return;
+        await flyPrizes(bob, stepOf(i), i === 0); if (!alive()) return;
         chime();
         await wait(350); bob.classList.remove("giving"); await wait(300); if (!alive()) return;
       }
@@ -1881,32 +1943,36 @@
     }
 
     // trophy + card leave the bobblehead's hands and land under the team's name
-    async function flyPrizes(bob, step) {
+    // everyone gets a trophy; only 1st place also gets the gimme! gift card
+    async function flyPrizes(bob, step, withCard) {
       const who = step.querySelector(".who"), slot = who.querySelector(".prizes") || who.appendChild(Object.assign(document.createElement("div"), { className: "prizes" }));
-      const from = [bob.querySelector(".held-trophy").getBoundingClientRect(), bob.querySelector(".held-card").getBoundingClientRect()];
       const dest = slot.getBoundingClientRect(), tw = Math.min(54, Math.max(34, innerWidth * 0.03)), cw = Math.min(108, Math.max(70, innerWidth * 0.06));
-      const targets = [{ x: dest.left + dest.width / 2 - tw - 5, y: dest.top, w: tw }, { x: dest.left + dest.width / 2 + 5, y: dest.top + 4, w: cw }];
-      bob.classList.add("empty");
-      const flights = [trophySvg(""), giftHtml()].map((html, k) => {
+      const items = [{ html: trophySvg(""), from: bob.querySelector(".held-trophy").getBoundingClientRect(), spin: -1,
+        to: withCard ? { x: dest.left + dest.width / 2 - tw - 5, y: dest.top, w: tw } : { x: dest.left + dest.width / 2 - tw / 2, y: dest.top, w: tw } }];
+      if (withCard) items.push({ html: giftHtml(), from: bob.querySelector(".held-card").getBoundingClientRect(), spin: 1, to: { x: dest.left + dest.width / 2 + 5, y: dest.top + 4, w: cw } });
+      bob.classList.add("empty-trophy"); if (withCard) bob.classList.add("empty-card");
+      const flights = items.map((it) => {
+        const from = [it.from], targets = [it.to], html = it.html, k = it.spin > 0 ? 1 : 0;
+        const fr = from[0], to = targets[0];
         const f = document.createElement("div"); f.className = "fly"; f.innerHTML = html;
-        const inner = f.firstElementChild; inner.style.width = from[k].width + "px"; inner.style.height = from[k].height + "px"; inner.style.display = "block";
+        const inner = f.firstElementChild; inner.style.width = fr.width + "px"; inner.style.height = fr.height + "px"; inner.style.display = "block";
         document.body.appendChild(f);
-        const s = targets[k].w / from[k].width, midY = Math.min(from[k].top, targets[k].y) - 80;
+        const s = to.w / fr.width, midY = Math.min(fr.top, to.y) - 80;
         const a = f.animate([
-          { transform: `translate(${from[k].left}px, ${from[k].top}px) scale(1)` },
-          { transform: `translate(${(from[k].left + targets[k].x) / 2}px, ${midY}px) scale(${(1 + s) / 2}) rotate(${k ? 200 : -200}deg)`, offset: 0.5 },
-          { transform: `translate(${targets[k].x}px, ${targets[k].y}px) scale(${s}) rotate(${k ? 360 : -360}deg)` },
+          { transform: `translate(${fr.left}px, ${fr.top}px) scale(1)` },
+          { transform: `translate(${(fr.left + to.x) / 2}px, ${midY}px) scale(${(1 + s) / 2}) rotate(${k ? 200 : -200}deg)`, offset: 0.5 },
+          { transform: `translate(${to.x}px, ${to.y}px) scale(${s}) rotate(${k ? 360 : -360}deg)` },
         ], { duration: 900, easing: "cubic-bezier(.3,.6,.4,1)", fill: "forwards" });
         return a.finished.catch(() => {}).then(() => f.remove());
       });
       await Promise.all(flights);
-      addPrizes(step);
+      addPrizes(step, withCard);
     }
-    function addPrizes(step) {
+    function addPrizes(step, withCard) {
       if (!step) return;
       const who = step.querySelector(".who");
       const slot = who.querySelector(".prizes") || who.appendChild(Object.assign(document.createElement("div"), { className: "prizes" }));
-      slot.innerHTML = trophySvg("trophy-big") + giftHtml();
+      slot.innerHTML = trophySvg("trophy-big") + (withCard ? giftHtml() : "");
     }
     function chime() {
       if (!soundOn || !actx) return;
