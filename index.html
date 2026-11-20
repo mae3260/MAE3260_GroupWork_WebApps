@@ -160,6 +160,9 @@
     <p class="section-label">GROUPWORKS</p>
     <div class="grid" id="grid-gw"></div>
 
+    <p class="section-label">COMPETITION</p>
+    <div class="grid" id="grid-comp"></div>
+
     <p class="section-label">LABS</p>
     <div class="grid" id="grid-labs"></div>
 
@@ -187,7 +190,10 @@
       { id: "gw11w", label: "GroupWork 11 W", name: "PD Controller Design" },
       { id: "gw11f", label: "GroupWork 11 F", name: "PID Control" },
       { id: "gw12f", label: "GroupWork 12 F", name: "Lab 4 Prep: Rotor Angle Control" },
+    ];
+    const COMPETITION = [
       { id: "gw13f", label: "GroupWork 13 F", name: "Self-Driving Car: Lane and Speed Control" },
+      { id: "gw13f", href: "gw13f/leaderboard.html", label: "GroupWork 13 F Dashboard", name: "Live competition leaderboard" },
     ];
     const LABS = [
       { id: "lab4", label: "Lab 4", name: "Digital Angular Position Control" },
@@ -201,7 +207,7 @@
     function renderCards(list, hostId) {
       const host = document.getElementById(hostId);
       host.innerHTML = list.map(item => `
-      <a class="card" href="${item.id}/index.html" target="_blank" rel="noopener">
+      <a class="card" href="${item.href || item.id + "/index.html"}" target="_blank" rel="noopener">
         <p class="card-id">${item.label}</p>
         <p class="card-name">${item.name}</p>
       </a>
@@ -209,6 +215,7 @@
     }
 
     renderCards(GROUPWORKS, "grid-gw");
+    renderCards(COMPETITION, "grid-comp");
     renderCards(LABS, "grid-labs");
     renderCards(TOOLS, "grid-tools");
   </script>
