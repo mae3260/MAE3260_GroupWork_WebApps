@@ -1802,7 +1802,229 @@
     }
 
     .plot-host.bird {
-      height: 470px;
+      height: 520px;
+    }
+
+    /* birds-eye view tabs */
+    .view-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      padding: 8px 10px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .view-tabs+.plot-host.bird {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    .vt-label {
+      font: 500 10.5px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      margin-right: 4px;
+    }
+
+    .vt {
+      font: 600 10.5px 'JetBrains Mono', monospace;
+      letter-spacing: 0.06em;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: var(--panel2);
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .vt:hover {
+      color: var(--fg);
+    }
+
+    .vt-note {
+      flex-basis: 100%;
+      font: 400 10.5px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .vt-note:empty {
+      display: none;
+    }
+
+    .vt.active {
+      border-color: var(--amber);
+      color: var(--amber);
+      background: rgba(255, 180, 84, 0.08);
+    }
+
+    /* "Your runs" sidebar */
+    .runs-side {
+      width: 270px;
+      flex-shrink: 0;
+      order: 2;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      padding: 16px 14px;
+      overflow-y: auto;
+    }
+
+    .runs-side p.label {
+      font: 500 10px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin: 16px 0 8px 0;
+    }
+
+    .rs-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .rs-head p.label {
+      margin: 0;
+    }
+
+    .rs-sub {
+      letter-spacing: 0;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
+
+    .rs-clear {
+      font: 600 10px 'JetBrains Mono', monospace;
+      letter-spacing: 0.06em;
+      padding: 4px 8px;
+      border-radius: 5px;
+      border: 1px solid var(--line);
+      background: var(--panel2);
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .rs-clear:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .rs-card {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+    }
+
+    .rs-card.best {
+      border-color: var(--amber);
+      background: linear-gradient(180deg, rgba(255, 180, 84, 0.1), rgba(255, 180, 84, 0.02)), var(--panel2);
+    }
+
+    .rs-card.is-best {
+      border-color: rgba(255, 180, 84, 0.55);
+    }
+
+    .rs-card.invalid .rs-res b {
+      color: var(--muted);
+    }
+
+    .rs-card.new {
+      animation: rsNew 1.6s ease-out;
+    }
+
+    @keyframes rsNew {
+      0% {
+        box-shadow: 0 0 0 2px var(--cyan);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 transparent;
+      }
+    }
+
+    .rs-top {
+      display: flex;
+      justify-content: space-between;
+      font: 600 11px 'JetBrains Mono', monospace;
+      color: var(--fg);
+    }
+
+    .rs-top span:last-child {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .rs-res {
+      display: flex;
+      gap: 16px;
+      margin: 6px 0 4px;
+    }
+
+    .rs-res small {
+      display: block;
+      font: 500 9px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .rs-res b {
+      font: 700 14px 'JetBrains Mono', monospace;
+      color: var(--fg);
+    }
+
+    .rs-card.best .rs-res b {
+      color: var(--amber);
+      font-size: 16px;
+    }
+
+    .rs-bad {
+      display: inline-block;
+      font: 700 9.5px 'JetBrains Mono', monospace;
+      letter-spacing: 0.06em;
+      color: var(--rose);
+      border: 1px solid rgba(251, 113, 133, 0.5);
+      border-radius: 4px;
+      padding: 1px 5px;
+      margin: 2px 0 4px;
+    }
+
+    .rs-par {
+      font: 400 10.5px 'JetBrains Mono', monospace;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .rs-empty {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      padding: 4px 2px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        flex-direction: column;
+        overflow-y: auto;
+      }
+
+      .content {
+        overflow: visible;
+        padding: 20px 16px;
+      }
+
+      .runs-side {
+        width: auto;
+        order: 2;
+        border-left: none;
+        border-top: 1px solid var(--line);
+        overflow: visible;
+      }
     }
 
     .plot-host.ts {
@@ -2103,7 +2325,15 @@
               <div class="sim-right">
                 <div class="console" id="s13-out"></div>
                 <div class="runstat" id="s13-runstat"></div>
-                <div class="plot-host bird" id="s13-bird" style="margin-top:14px;"></div>
+                <div class="view-tabs" role="tablist" aria-label="Birds-eye view">
+                  <span class="vt-label">VIEW</span>
+                  <button class="vt" type="button" role="tab" data-view="whole">WHOLE COURSE</button>
+                  <button class="vt" type="button" role="tab" data-view="east">EAST STRETCH</button>
+                  <button class="vt" type="button" role="tab" data-view="turn">TURN</button>
+                  <button class="vt" type="button" role="tab" data-view="north">NORTH STRETCH</button>
+                  <span class="vt-note" id="vt-note"></span>
+                </div>
+                <div class="plot-host bird" id="s13-bird"></div>
                 <div class="two-plots">
                   <div class="plot-host ts" id="s13-wheel"></div>
                   <div class="plot-host ts" id="s13-speed"></div>
@@ -2117,6 +2347,16 @@
 
       </div>
     </div>
+    <aside class="runs-side" aria-label="Your runs">
+      <div class="rs-head">
+        <p class="label">YOUR RUNS <span id="rs-count"></span></p>
+        <button class="rs-clear" id="rs-clear" type="button">CLEAR</button>
+      </div>
+      <p class="label">🏆 BEST RUN</p>
+      <div id="rs-best"></div>
+      <p class="label">ALL RUNS <span class="rs-sub">newest first</span></p>
+      <div id="rs-list"></div>
+    </aside>
   </main>
   <script src="sim.js"></script>
   <script type="module" src="competition.js"></script>
@@ -2127,7 +2367,7 @@
       const sched = () => { if (window.__scheduleSave) window.__scheduleSave(); };
 
 
-      const { CAR, ROAD, simulate, setupRoad, fmtG, resultLines } = window.GW13FSim; // simulation code lives in sim.js
+      const { CAR, ROAD, simulate, setupRoad, fmtG, resultLines, checkRun } = window.GW13FSim; // simulation code lives in sim.js
 
       // ---------------------------------------------------------------
       // Controls
@@ -2206,19 +2446,23 @@
         text: "playback 1× speed", font: { color: "#8B92A5", size: 9.5, family: "JetBrains Mono, monospace" },
         bgcolor: "rgba(15,17,21,0.85)", bordercolor: "#282D3A", borderwidth: 1, borderpad: 2
       };
-      const animLay = (L) => Object.assign({}, L, { annotations: [SPEED_NOTE] });
+      const animLay = (L) => Object.assign(viewLay(L), { annotations: [SPEED_NOTE] });
       let last = null;
       function figs(r, p) {
         const n = r.n, rd = r.rd, tt = r.t.subarray(0, n), tEnd = r.t[r.t.length - 1];
         const sL = stride(rd.lx, rd.ly, 3000), sR = stride(rd.rx, rd.ry, 3000), sC = stride(rd.cx, rd.cy, 3000), sX = stride(r.X, r.Y, 3000);
-        const bird = [
+        const lane1 = limitLines(sC, 1.0);
+        // road, +-1.0 m limit and lane center; history routes go on top of these, then this run
+        const birdBase = [
           { x: sL.x, y: sL.y, mode: "lines", name: "Side of Road", line: { color: "#cfd3da", width: LW } },
           { x: sR.x, y: sR.y, mode: "lines", name: "Side of Road", line: { color: "#cfd3da", width: LW }, showlegend: false },
+          { x: lane1.px, y: lane1.py, mode: "lines", name: "±1.0 m limit", line: { color: "#34D399", width: 1.3, dash: "dash" } },
+          { x: lane1.mx, y: lane1.my, mode: "lines", name: "±1.0 m limit", line: { color: "#34D399", width: 1.3, dash: "dash" }, showlegend: false },
           { x: sC.x, y: sC.y, mode: "lines", name: "Center of Lane", line: { color: "#F472B6", width: LW, dash: "dot" } },
-          { x: sX.x, y: sX.y, mode: "lines", name: "Center of Car", line: { color: "#5B9BFF", width: LW } },
-          goalTrace(rd),
         ];
-        const birdLay = lay("Birds-eye view", "East (m)", "North (m)", { xaxis: { title: { text: "East (m)" }, range: [0, 80], gridcolor: "#282D3A", zeroline: false, constrain: "domain" }, yaxis: { title: { text: "North (m)" }, range: [-10, 70], gridcolor: "#282D3A", zeroline: false, scaleanchor: "x", scaleratio: 1, constrain: "domain" }, legend: { orientation: "h", y: -0.17, font: { size: 10 } }, margin: { l: 56, r: 16, t: 34, b: 60 } });
+        const carPath = { x: sX.x, y: sX.y, mode: "lines", name: "This run", line: { color: "#5B9BFF", width: LW + 0.5 } };
+        const goal = goalTrace(rd);
+        const birdLay = lay("Birds-eye view", "East (m)", "North (m)", { xaxis: { title: { text: "East (m)" }, range: [0, 80], gridcolor: "#282D3A", zeroline: false, constrain: "domain" }, yaxis: { title: { text: "North (m)" }, range: [-10, 70], gridcolor: "#282D3A", zeroline: false, scaleanchor: "x", scaleratio: 1, constrain: "domain" }, legend: { orientation: "h", y: -0.15, font: { size: 10 } }, margin: { l: 56, r: 16, t: 34, b: 74 } });
         const wa = minmax(tt, toDeg(r.W1), 4000), wr = minmax(tt, toDeg(r.R1), 4000), wi = minmax(tt, toDeg(r.dIdeal), 4000);
         const tL = Math.max(tEnd, 20); // reference lines span the whole 0-20 s axis
         const lim = [{ x: [0, tL], y: [30, 30], mode: "lines", name: "max/min", line: { color: "#FB7185", width: LW, dash: "dot" } }, { x: [0, tL], y: [-30, -30], mode: "lines", showlegend: false, line: { color: "#FB7185", width: LW, dash: "dot" } }];
@@ -2234,8 +2478,118 @@
           { x: [0, tL], y: [p.V, p.V], mode: "lines", name: "speed reference", line: { color: "#34D399", width: LW, dash: "dot" } },
         ];
         const speedLay = lay("Car speed", "time (sec)", "Car Speed (m/sec)", { xaxis: { title: { text: "time (sec)" }, range: [0, 20], gridcolor: "#282D3A" }, yaxis: { title: { text: "Car Speed (m/sec)" }, range: [0, 110], gridcolor: "#282D3A", zerolinecolor: "#3a4152" }, showlegend: true, legend: { orientation: "v", x: 0, y: -0.24, xanchor: "left", yanchor: "top", font: { size: 10 } }, margin: { l: 56, r: 16, t: 34, b: 136, autoexpand: false } });
-        return { bird, birdLay, wheel, wheelLay, speed, speedLay };
+        return { birdBase, carPath, goal, birdLay, wheel, wheelLay, speed, speedLay };
       }
+      // lines offset +-d metres either side of the lane center
+      function limitLines(c, d) {
+        const n = c.x.length, px = [], py = [], mx = [], my = [];
+        for (let i = 0; i < n; i++) {
+          const a = Math.max(0, i - 1), b = Math.min(n - 1, i + 1), dx = c.x[b] - c.x[a], dy = c.y[b] - c.y[a], L = Math.hypot(dx, dy) || 1;
+          const nx = -dy / L, ny = dx / L;
+          px.push(c.x[i] + d * nx); py.push(c.y[i] + d * ny); mx.push(c.x[i] - d * nx); my.push(c.y[i] - d * ny);
+        }
+        return { px, py, mx, my };
+      }
+
+      // ---------------------------------------------------------------
+      // Birds-eye view tabs (whole course and close-ups)
+      // ---------------------------------------------------------------
+      const VIEWS = {
+        whole: { x: [0, 80], y: [-10, 70], eq: true },
+        east: { x: [-2, 52], y: [-4, 4], eq: false },
+        turn: { x: [44, 66], y: [-6, 18], eq: true },
+        north: { x: [55, 65], y: [8, 70], eq: false },
+      };
+      let view = "whole";
+      try { const v = localStorage.getItem("gw13f_view_v1"); if (VIEWS[v]) view = v; } catch (e) { /* storage blocked */ }
+      // the birds-eye layout with the selected view's axis limits
+      function viewLay(L) {
+        const V = VIEWS[view];
+        return Object.assign({}, L, {
+          xaxis: Object.assign({}, L.xaxis, { range: V.x.slice() }),
+          yaxis: Object.assign({}, L.yaxis, { range: V.y.slice(), scaleanchor: V.eq ? "x" : undefined }),
+        });
+      }
+      function setViewTabs() {
+        document.querySelectorAll(".vt").forEach((b) => { const on = b.dataset.view === view; b.classList.toggle("active", on); b.setAttribute("aria-selected", on ? "true" : "false"); });
+        const note = $("vt-note");
+        note.textContent = view === "east" ? "North–South scale stretched to show small wobbles; the ring marks the car"
+          : view === "north" ? "East–West scale stretched to show small wobbles; the ring marks the car" : "";
+      }
+      document.querySelectorAll(".vt").forEach((b) => b.addEventListener("click", () => {
+        view = b.dataset.view; setViewTabs();
+        try { localStorage.setItem("gw13f_view_v1", view); } catch (e) { /* storage blocked */ }
+        const V = VIEWS[view], host = $("s13-bird");
+        if (host && host.layout) {
+          Plotly.relayout(host, { "xaxis.range": V.x.slice(), "yaxis.range": V.y.slice(), "yaxis.scaleanchor": V.eq ? "x" : null });
+          const idx = (host.data || []).map((t, i) => (t.meta === "carshape" ? i : -1)).filter((i) => i >= 0);
+          if (idx.length) Plotly.restyle(host, { visible: V.eq }, idx);
+        }
+      }));
+      setViewTabs();
+
+      // ---------------------------------------------------------------
+      // Run history (saved in this browser): sidebar list + routes on the birds-eye view
+      // ---------------------------------------------------------------
+      const HIST_KEY = "gw13f_runs_v1", HIST_MAX = 300;
+      let hist = [];
+      try { hist = JSON.parse(localStorage.getItem(HIST_KEY) || "[]"); } catch (e) { hist = []; }
+      if (!Array.isArray(hist)) hist = [];
+      const saveHist = () => { try { localStorage.setItem(HIST_KEY, JSON.stringify(hist)); } catch (e) { /* storage full or blocked */ } };
+      const runCmp = (a, b) => (a.time - b.time) || (a.maxErr - b.maxErr) || (a.at - b.at);
+      const bestRun = () => hist.filter((h) => h.ok).reduce((b, h) => (!b || runCmp(h, b) < 0 ? h : b), null);
+      const pkey = (p) => [p.steer, p.Ki, p.Kp, p.Kd, p.speed, p.KiV, p.KpV, p.V].join("|");
+      const routeCache = new Map();
+      function routeOf(p) {
+        const k = pkey(p);
+        if (!routeCache.has(k)) { try { const r = simulate(p); routeCache.set(k, stride(r.X, r.Y, 900)); } catch (e) { routeCache.set(k, { x: [], y: [] }); } }
+        return routeCache.get(k);
+      }
+      // only your best run's route is drawn (plus this run); other earlier runs are listed in the sidebar only
+      function historyTraces() {
+        const b = bestRun(), bq = b ? routeOf(b.p) : null;
+        return [
+          { x: bq ? bq.x : [null], y: bq ? bq.y : [null], mode: "lines", name: "Your best run", line: { color: "#FFB454", width: 3 }, showlegend: !!bq },
+        ];
+      }
+      function recordRun(p, r) {
+        const v = checkRun(p, r), n = (hist.length ? hist[hist.length - 1].n : 0) + 1;
+        hist.push({ n, at: Date.now(), p: Object.assign({}, p), time: r.timeFinish, maxErr: r.maxErr, fin: r.minY < 2, ok: v.ok, reason: v.ok ? "" : v.reason });
+        if (hist.length > HIST_MAX) hist = hist.slice(-HIST_MAX);
+        saveHist(); renderHist(n);
+      }
+      const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const fmtN = (v) => Number(v).toLocaleString("en-US", { maximumFractionDigits: 3 });
+      function runCard(h, cls) {
+        const p = h.p;
+        const st = p.steer.startsWith("PID") ? `Ki ${fmtN(p.Ki)} · Kp ${fmtN(p.Kp)} · Kd ${fmtN(p.Kd)}` : `Kp ${fmtN(p.Kp)} · Kd ${fmtN(p.Kd)}`;
+        const sp = p.speed === "P" ? `KpV ${fmtN(p.KpV)}` : `KiV ${fmtN(p.KiV)} · KpV ${fmtN(p.KpV)}`;
+        const tTxt = h.fin && isFinite(h.time) ? `${h.time.toFixed(3)} s` : "—";
+        const eTxt = isFinite(h.maxErr) ? `${h.maxErr.toFixed(3)} m` : "—";
+        const bad = h.ok ? "" : `<div class="rs-bad">${/off the road/.test(h.reason) ? "OFF THE ROAD" : /did not finish/.test(h.reason) ? "DID NOT FINISH" : "NOT VALID"}</div>`;
+        const when = new Date(h.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        return `<div class="rs-card ${cls}">
+          <div class="rs-top"><span>Run ${h.n}</span><span>${esc(when)}</span></div>
+          <div class="rs-res"><div><small>TIME</small><b>${tTxt}</b></div><div><small>MAX DISP.</small><b>${eTxt}</b></div></div>
+          ${bad}
+          <div class="rs-par">${esc(p.steer)} · ${st}<br>${esc(p.speed)} · ${sp} · V ${fmtN(p.V)}</div>
+        </div>`;
+      }
+      function renderHist(newN) {
+        const b = bestRun();
+        $("rs-best").innerHTML = b ? runCard(b, "best" + (b.n === newN ? " new" : "")) : '<div class="rs-empty">No valid run yet: finish the course and stay within 1.0 m of the lane center.</div>';
+        $("rs-count").textContent = hist.length ? `(${hist.length})` : "";
+        $("rs-list").innerHTML = hist.length
+          ? hist.slice().reverse().map((h) => runCard(h, (h.ok ? "" : "invalid") + (b && h.n === b.n ? " is-best" : "") + (h.n === newN ? " new" : ""))).join("")
+          : '<div class="rs-empty">Runs that play all the way to the end are saved here.</div>';
+        $("rs-clear").disabled = !hist.length;
+      }
+      $("rs-clear").addEventListener("click", () => {
+        if (!hist.length || !confirm("Clear all of your saved runs on this computer?")) return;
+        hist = []; saveHist(); routeCache.clear(); renderHist();
+        if (!anim) showSim();
+      });
+      renderHist();
       // ---------------------------------------------------------------
       // Animated run: the car drives the course, leaving its trajectory; results print at the end
       // ---------------------------------------------------------------
@@ -2250,8 +2604,9 @@
       const carTraces = (x, y, psi) => {
         const k = carShape(x, y, psi);
         return [
-          { x: k.bx, y: k.by, mode: "lines", fill: "toself", fillcolor: "rgba(91,155,255,0.95)", name: "Car", line: { color: "#FFFFFF", width: 1.5 } },
-          { x: k.nx, y: k.ny, mode: "lines", name: "front of car", showlegend: false, line: { color: "#FFB454", width: 4 } },
+          // the to-scale car is hidden in the stretched close-ups (it would be distorted); the ring marks it there
+          { x: k.bx, y: k.by, mode: "lines", fill: "toself", fillcolor: "rgba(91,155,255,0.95)", name: "Car", line: { color: "#FFFFFF", width: 1.5 }, meta: "carshape", visible: VIEWS[view].eq },
+          { x: k.nx, y: k.ny, mode: "lines", name: "front of car", showlegend: false, line: { color: "#FFB454", width: 4 }, meta: "carshape", visible: VIEWS[view].eq },
           // ring around the car so it is easy to spot at the 0-120 m scale (the car itself is drawn to scale)
           { x: [x], y: [y], mode: "markers", name: "car position", showlegend: false, marker: { symbol: "circle-open", size: 26, color: "#FFB454", line: { width: 2.5, color: "#FFB454" } } },
         ];
@@ -2265,11 +2620,12 @@
         const tEnd = r.t[n - 1], idx = strideIdx(n, 2500);
         const wd = f.wheel.slice(0, 3).map((tr) => ({ x: tr.x, y: tr.y })), sd = { x: f.speed[0].x, y: f.speed[0].y };
         // frame 0: road + empty trail + car at the start; empty time traces
-        const bird = f.bird.slice(0, 3).concat([Object.assign({}, f.bird[3], { x: [r.X[0]], y: [r.Y[0]] })], carTraces(r.X[0], r.Y[0], r.Psi[0]), [f.bird[4]]);
+        const under = f.birdBase.concat(historyTraces()), trail = under.length; // trace index of this run's trail
+        const bird = under.concat([Object.assign({}, f.carPath, { x: [r.X[0]], y: [r.Y[0]] })], carTraces(r.X[0], r.Y[0], r.Psi[0]), [f.goal]);
         // empty traces keep a placeholder point so they still get a legend entry before the run
         const wheel = f.wheel.map((tr, i) => (i < 3 ? Object.assign({}, tr, { x: [null], y: [null] }) : tr));
         const speed = [Object.assign({}, f.speed[0], { x: [null], y: [null] }), f.speed[1]];
-        return { p, r, f, n, tEnd, idx, wd, sd, ms, bird, wheel, speed, D: tEnd * 1000 }; // played at 1x (real time)
+        return { p, r, f, n, tEnd, idx, wd, sd, ms, bird, trail, wheel, speed, D: tEnd * 1000 }; // played at 1x (real time)
       }
       function setRunBtn(running) { const b = $("s13-run"); b.disabled = running; b.textContent = running ? "DRIVING…" : "▶ RUN SIMULATION"; $("s13-stop").disabled = !running; setFit(fitOn, !running && !!last); }
       // "scale axes" for the wheel angle and car speed plots: fit the axes to the results of the finished run
@@ -2332,7 +2688,7 @@
         for (let i = 0; i < m; i++) { tx.push(r.X[a.idx[i]]); ty.push(r.Y[a.idx[i]]); }
         tx.push(r.X[k]); ty.push(r.Y[k]);
         const c = carShape(r.X[k], r.Y[k], r.Psi[k]);
-        Plotly.restyle("s13-bird", { x: [tx, c.bx, c.nx, [r.X[k]]], y: [ty, c.by, c.ny, [r.Y[k]]] }, [3, 4, 5, 6]);
+        Plotly.restyle("s13-bird", { x: [tx, c.bx, c.nx, [r.X[k]]], y: [ty, c.by, c.ny, [r.Y[k]]] }, [a.trail, a.trail + 1, a.trail + 2, a.trail + 3]);
         const cut = (d) => { const j = countLE(d.x, tNow); return { x: d.x.slice(0, j), y: d.y.slice(0, j) }; };
         const w = a.wd.map(cut), sp = cut(a.sd);
         Plotly.restyle("s13-wheel", { x: w.map((q) => q.x), y: w.map((q) => q.y) }, [0, 1, 2]);
@@ -2340,6 +2696,7 @@
         $("s13-runstat").textContent = `t = ${tNow.toFixed(2)} s of ${a.tEnd.toFixed(2)} s`;
         a.k = k;
         if (fr < 1) { raf = requestAnimationFrame(step); return; }
+        recordRun(a.p, a.r); // save to "Your runs" before redrawing, so the routes include it
         finish(a);
         // the run played all the way through: hand it to the leaderboard (competition.js)
         if (window.__gw13fRunComplete) window.__gw13fRunComplete(a.p, a.r);
@@ -2347,7 +2704,7 @@
       function finish(a) {
         raf = 0; anim = null; setRunBtn(false);
         const r = a.r, p = a.p, n = a.n, lines = resultLines(p, r);
-        const bird = a.f.bird.concat(carTraces(r.X[n - 1], r.Y[n - 1], r.Psi[n - 1]));
+        const bird = a.f.birdBase.concat(historyTraces(), [a.f.carPath, a.f.goal], carTraces(r.X[n - 1], r.Y[n - 1], r.Psi[n - 1]));
         Plotly.react("s13-bird", bird, animLay(a.f.birdLay), PCFG_AX); const fl = fitLays(a);
         Plotly.react("s13-wheel", a.f.wheel, fitOn ? fl.wheel : a.f.wheelLay, PCFG_AX); Plotly.react("s13-speed", a.f.speed, fitOn ? fl.speed : a.f.speedLay, PCFG_AX);
         $("s13-out").innerHTML = lines.map((l) => `<div class="${l.w ? "warn" : ""}"><b>${l.t}</b></div>`).join("");
